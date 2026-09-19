@@ -1159,6 +1159,46 @@ def drain_outbox() -> list[dict]:
     return queued
 
 
+# -- progress: what she says WHILE she works --------------------------------
+# Same thread boundary as the outbox above and the same shape: run_turns runs in
+# a worker thread with no event loop, so a line goes into a queue and the loop
+# posts it. A SEPARATE queue from _OUTBOX because these go to the room she was
+# ADDRESSED in, not to the say allowlist - and because the outbox drains only
+# after her answer is already out, which is exactly the silence this exists to
+# fix: eight tool rounds over thirty-seven seconds, one reply at the end.
+# Keyed by channel, because she can be mid-dig in two rooms at once.
+PROGRESS_MAX_QUEUED = 20
+_PROGRESS: list[dict] = []
+
+
+def queue_progress(channel_id, text: str) -> None:
+    """Queue one line of what she is doing, for the event loop to post.
+
+    Never posts and never awaits: this is called from inside the tool loop, in a
+    thread. Bounded, because a line left behind by a turn that died is a line
+    the next turn in that room would post as though it had just said it.
+    """
+    if channel_id is None or not text:
+        return
+    if len(_PROGRESS) >= PROGRESS_MAX_QUEUED:
+        _PROGRESS.pop(0)
+    _PROGRESS.append({"channel": channel_id, "text": text})
+
+
+def drain_progress(channel_id) -> list[str]:
+    """Take the lines queued for this room, and only this room's.
+
+    Anything for another channel stays put, because she can be working in two
+    rooms at once. The bot calls this with the channel it is about to post into.
+    """
+    mine = [item for item in _PROGRESS if item.get("channel") == channel_id]
+    if not mine:
+        return []
+    _PROGRESS[:] = [item for item in _PROGRESS
+                    if item.get("channel") != channel_id]
+    return [str(item.get("text") or "") for item in mine if item.get("text")]
+
+
 def who_is(query: str) -> str:
     """Look a person up by name or id.
 

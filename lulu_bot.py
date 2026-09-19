@@ -56,6 +56,19 @@ DEFAULT_MAX_TOKENS = 800
 # omit the field entirely and leave the ceiling to the provider.
 OWNER_MAX_TOKENS = 8000
 
+# Working out loud.
+#
+# Her tool loop runs in a worker thread, so it cannot post, and the coroutine
+# that could post used to be BLOCKED on it - which means nothing she said
+# mid-dig reached Discord until the answer was already written. Measured on her
+# own log: eight tool rounds over thirty-seven seconds, one reply at the end,
+# which reads as a hang. The loop queues lines (tools.queue_progress) and the
+# event loop posts them as they appear. Bounded on purpose: narration that
+# arrives as a flood is worse than the silence it replaced.
+PROGRESS_POLL_SECONDS = 1.0
+PROGRESS_MAX = 4                 # lines one turn may post
+PROGRESS_MAX_CHARS = 300         # per line
+
 
 # A nickname is untrusted input.
 #
@@ -223,6 +236,27 @@ def log_tool_calls(calls) -> None:
         shown.append(f"{name}({arguments})")
     if shown:
         LOG.info("tool calls: %s", " | ".join(shown))
+
+
+def _progress_text(content: str) -> str:
+    """One short line of her own words, or nothing at all.
+
+    She writes these alongside a tool call, so they cost nothing extra - the
+    content came back with the call she was already making. Two things are
+    refused. Empty, because there is nothing to say. And tool-call markup:
+    offered no tools this model writes call syntax into its text instead, and
+    that has landed in `content` as the literal string "<?DSML?tool_calls>".
+    Discord is not where that gets debugged.
+    """
+    text = " ".join(str(content or "").split())
+    if not text:
+        return ""
+    lowered = text.lower()
+    if "dsml" in lowered or "<?" in text or "tool_calls" in lowered:
+        return ""
+    if len(text) > PROGRESS_MAX_CHARS:
+        text = text[:PROGRESS_MAX_CHARS].rstrip() + "..."
+    return text
 
 
 def token_budget(config: dict, is_owner: bool) -> int:
@@ -907,7 +941,7 @@ class Lulu(discord.Client):
         answer = self.skill_command(text)
         if answer is None:
             async with message.channel.typing():
-                answer = await asyncio.to_thread(self.think, message, text, parent)
+                answer = await self.think_out_loud(message, text, parent)
         if answer == CREDITS_MSG:
             self.credits_dead = True
             LOG.info("brain says: out of credits")
@@ -952,6 +986,39 @@ class Lulu(discord.Client):
                 LOG.info("say: posted %d chars into #%s", len(text), name)
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
+
+    async def think_out_loud(self, message: discord.Message, text: str,
+                             parent: discord.Message | None = None) -> str:
+        """Run think() off the loop, posting what she says as she says it.
+
+        think() is synchronous and runs in a worker thread, so it cannot await
+        and cannot post. It queues instead, and this drains the queue WHILE the
+        thread is still working. Before this existed the only drain ran after
+        the answer was already sent, so anything she said mid-dig arrived as a
+        footnote - which is exactly why a long dig read as her being silent.
+        """
+        channel = message.channel
+        # Never post the previous turn's leftovers as though they were live.
+        tools.drain_progress(channel.id)
+        task = asyncio.create_task(
+            asyncio.to_thread(self.think, message, text, parent))
+        try:
+            while not task.done():
+                await asyncio.wait({task}, timeout=PROGRESS_POLL_SECONDS)
+                await self.post_progress(channel)
+        finally:
+            await self.post_progress(channel)
+        return await task
+
+    async def post_progress(self, channel) -> None:
+        """Post the lines she queued for this room, and only this room's."""
+        for line in tools.drain_progress(channel.id):
+            try:
+                sent = await channel.send(line)
+                self.own_message_ids.add(sent.id)
+                LOG.info("progress: %s", line)
+            except Exception as exc:
+                LOG.warning("could not post progress: %s", exc)
 
     def has_hands(self, author_id: int) -> bool:
         """Tools are offered only to ids in config.json -> owner_ids.
@@ -1072,7 +1139,8 @@ class Lulu(discord.Client):
         # him the answer rather than the money.
         answer = self.run_turns(turns, schema, allowed,
                                 meter=None if is_owner else message.author.id,
-                                max_tokens=self.token_budget(is_owner))
+                                max_tokens=self.token_budget(is_owner),
+                                progress_channel=message.channel.id)
 
         history.append({"role": "user", "content": f"{who}: {safe_text}"})
         history.append({"role": "assistant", "content": answer})
@@ -1095,7 +1163,8 @@ class Lulu(discord.Client):
         return token_budget(self.config, is_owner)
 
     def run_turns(self, turns: list[dict], schema, allowed,
-                  meter=None, max_tokens=None) -> str:
+                  meter=None, max_tokens=None,
+                  progress_channel=None) -> str:
         """Drive the tool loop until the model stops asking for tools.
 
         `max_tokens` is the per-call ceiling, handed straight to the provider. It
@@ -1108,9 +1177,15 @@ class Lulu(discord.Client):
         that landed in `content` as literal "<?DSML?tool_calls>" - which would
         have been posted to Discord as garbage. Keep the tools available, and say
         plainly that the looking is over.
+
+        `progress_channel` is where the lines she writes WHILE working get
+        queued. Nothing is posted from here - this runs in a worker thread - so
+        the event loop drains it as it goes. None means nobody is watching.
         """
         answer = ""
         empty_retries = 0
+        posted = 0
+        last_line = ""
         for round_index in range(MAX_TOOL_ROUNDS):
             if round_index == MAX_TOOL_ROUNDS - 1:
                 turns.append({"role": "user", "content":
@@ -1124,6 +1199,16 @@ class Lulu(discord.Client):
             # reasoning worth seeing too, and that is most of them.
             log_thinking(reply.get("reasoning_content"))
             log_tool_calls(calls)
+            # What she says WHILE she works, queued for the event loop to post as
+            # it happens. This content arrived with the tool call she was making,
+            # so it costs nothing extra - and until now it was discarded, which
+            # is why a long dig read as a hang.
+            if calls and progress_channel is not None and posted < PROGRESS_MAX:
+                line = _progress_text(answer)
+                if line and line != last_line:
+                    tools.queue_progress(progress_channel, line)
+                    posted += 1
+                    last_line = line
             if meter is not None:
                 spend.charge(meter, reply.get("_usage"),
                              self.config["brain"].get("model"),

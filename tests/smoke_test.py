@@ -1056,6 +1056,109 @@ def _patch_file_probe() -> str:
             "match; check_only shows the diff and stages nothing")
 
 
+# -- 8m. she works out loud ------------------------------------------------
+# The complaint this answers: a long dig read as a hang. Her tool loop runs in a
+# worker thread, so it cannot post, and the coroutine that COULD post was blocked
+# on it - eight tool rounds over thirty-seven seconds in her own log, one reply
+# at the end. The loop now queues a line with each tool call and the event loop
+# posts it, so this asserts the queue, the filter, and the loop actually filling
+# it. Nothing is posted: post_progress lives on the event-loop side and is not
+# called from here.
+def _progress() -> str:
+    import brain
+    import lulu_bot
+    import tools
+
+    # The queue is per room. She can be working in two rooms at once, and a line
+    # for one must never surface in the other.
+    for room in (111, 222, 333):
+        tools.drain_progress(room)
+    tools.queue_progress(111, "looking at that file")
+    tools.queue_progress(222, "other room, not yours")
+    expect(tools.drain_progress(111) == ["looking at that file"],
+           "a queued line did not come back for its own room")
+    expect(tools.drain_progress(111) == [], "a drained line came back twice")
+    expect(tools.drain_progress(222) == ["other room, not yours"],
+           "a line never surfaced for its own room")
+    expect(tools.drain_progress(333) == [],
+           "a room with nothing queued produced lines")
+    tools.queue_progress(None, "nowhere")
+    expect(tools.drain_progress(None) == [],
+           "a line with no channel was queued")
+
+    # The filter. Nothing at all is better than markup on Discord.
+    f = lulu_bot._progress_text
+    expect(f("") == "" and f("   \n  ") == "",
+           "an empty line would have been posted")
+    expect(f("<?DSML?tool_calls>") == "",
+           "tool-call markup would have been posted to Discord")
+    expect(f("ok let me read that") == "ok let me read that",
+           "an ordinary line was altered")
+    expect(len(f("x" * 900)) <= lulu_bot.PROGRESS_MAX_CHARS + 3,
+           "a long line was not capped")
+
+    # And the loop fills it, while leaving the answer alone.
+    rounds = [
+        {"content": "ok give me a sec, looking at the file",
+         "tool_calls": [{"id": "c1", "function": {
+             "name": "read_file", "arguments": '{"path": "config.json"}'}}]},
+        {"content": "found it - the wiring is missing", "tool_calls": []},
+    ]
+
+    def spy(config, messages, tools_=None, max_tokens=None):
+        return rounds.pop(0) if rounds else {"content": "done", "tool_calls": []}
+
+    real_complete = brain.complete
+    real_run = tools.run
+    brain.complete = spy
+    tools.run = lambda name, arguments, allowed=None: "pretend file body"
+    try:
+        bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+        answer = bot.run_turns([{"role": "user", "content": "hi"}],
+                               tools.SCHEMA, {"read_file"},
+                               progress_channel=999)
+    finally:
+        brain.complete = real_complete
+        tools.run = real_run
+
+    lines = tools.drain_progress(999)
+    expect(lines == ["ok give me a sec, looking at the file"],
+           f"the line she wrote while working was not queued: {lines!r}")
+    expect(answer == "found it - the wiring is missing",
+           f"the answer was changed by the progress path: {answer!r}")
+
+    # Bounded: one turn cannot flood a room.
+    rounds.extend(
+        {"content": f"step {n}",
+         "tool_calls": [{"id": f"c{n}", "function": {
+             "name": "read_file", "arguments": '{"path": "x"}'}}]}
+        for n in range(1, 10))
+    brain.complete = spy
+    try:
+        bot.run_turns([{"role": "user", "content": "hi"}], tools.SCHEMA,
+                      {"read_file"}, progress_channel=999)
+    finally:
+        brain.complete = real_complete
+    flooded = tools.drain_progress(999)
+    expect(len(flooded) <= lulu_bot.PROGRESS_MAX,
+           f"one turn posted {len(flooded)} lines, the cap is "
+           f"{lulu_bot.PROGRESS_MAX}")
+
+    # Master's half of it: told to narrate while she works, in the file that is
+    # always loaded, so it rides every single turn.
+    import paths
+    voice = (paths.ROOT / ".agents" / "skills" / "lulu-voice" / "SKILL.md"
+             ).read_text(encoding="utf-8")
+    expect("## While you are working" in voice,
+           "the work-out-loud rule is gone from lulu-voice/SKILL.md, so she has "
+           "no reason to say anything while she digs")
+
+    return ("a line is queued per room and drained per room, markup and empty "
+            f"lines are refused, one turn cannot post more than "
+            f"{lulu_bot.PROGRESS_MAX}, and the rule is in her always-loaded "
+            "skill")
+
+
 # -- 8d. she is told WHY she was restarted, not a boilerplate line ----------
 # The supervisor is the only thing that knows why a start is happening, so it
 # records one for every start and she reads it as she boots. Two halves: the
@@ -2245,6 +2348,7 @@ CHECKS = [
     ("skill-author", _skill_author),
     ("stage-gate", _stage_gate),
     ("patch-file", _patch_file_probe),
+    ("progress", _progress),
     ("restart-reason", _restart_reason),
     ("ffmpeg", _ffmpeg),
     ("task", _task),
