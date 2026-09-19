@@ -1478,6 +1478,49 @@ def say(channel: str, text: str) -> str:
     return f"queued for #{target} - it goes out as this turn finishes"
 
 
+def attach(channel: str, path: str, text: str = "") -> str:
+    """Queue one file from inside my own folder, posted with a caption.
+
+    Same path as say(): validate here, queue here, and let the event loop do
+    the actual posting. Guards:
+      - the path must resolve inside my folder (paths.resolve refuses the rest)
+      - it must exist and be a file
+      - Discord's ceiling: FILE_MAX_BYTES, named at queue time rather than
+        failing in the send with an HTTPException nobody can act on
+    Rate limit is shared with say() on purpose - a queued attachment is a
+    send, whatever it carries.
+    """
+    target = (channel or "").strip().lstrip("#").lower()
+    if not target:
+        return "attach where?"
+    try:
+        resolved = paths.resolve(path or "", must_exist=True)
+    except paths.SandboxError as exc:
+        return f"refused: {exc}"
+    except Exception as exc:
+        return f"cannot look at {path}: {exc}"
+    if not resolved.is_file():
+        return f"{path} is not a file"
+    size = resolved.stat().st_size
+    if size > FILE_MAX_BYTES:
+        return (f"too big for discord ({size:,} bytes, ceiling "
+                f"{FILE_MAX_BYTES:,})")
+    body = " ".join((text or "").split())
+    if len(body) > SAY_MAX_CHARS:
+        return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
+
+    now = time.time()
+    _SAY_TIMES[:] = [t for t in _SAY_TIMES if now - t < SAY_WINDOW]
+    if len(_SAY_TIMES) >= SAY_MAX:
+        wait = int((SAY_WINDOW - (now - _SAY_TIMES[0])) / 60) + 1
+        return (f"i have already spoken up {SAY_MAX} times in "
+                f"{SAY_WINDOW // 60} minutes - about {wait} more minutes")
+    _SAY_TIMES.append(now)
+    _OUTBOX.append({"channel": target, "text": body, "file": path})
+    return (f"queued {path} ({size:,} bytes) for #{target}"
+            + (" with a caption" if body else ""))
+
+
 def drain_outbox() -> list[dict]:
     """Hand the queued sends to the event loop and empty the queue.
 
