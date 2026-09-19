@@ -3102,6 +3102,85 @@ def _restart_dm() -> str:
             "survives a missing owner or a dead DM")
 
 
+def _look_at() -> str:
+    """Her eyes work away from a message - and only for master.
+
+    Master, 2026-09-20: "make her image reading ability not tied to messages ...
+    so she can use it for web browsing". The load-bearing part of this check is
+    the ADDRESS guard: an image fetch is a fetch, so it must reuse webtool's
+    wall rather than trusting whatever url a page or a model hands it.
+
+    Nothing here touches the network. Every url used is either a refused scheme
+    or a host that cannot resolve, so the fetch is over before a socket opens.
+    """
+    import asyncio
+
+    import tools
+    import vision
+    import webtool
+
+    # 1. strangers cannot reach it - it spends vision tokens and picks an address
+    expect("look_at" not in tools.LOOKUP_TOOL_NAMES,
+           "look_at is offered to people who are not master")
+    out = tools.run("look_at", {"url": "https://example.invalid/x.png"},
+                    allowed=tools.LOOKUP_TOOL_NAMES)
+    expect(out.startswith("refused:"), f"a stranger could fetch an image: {out}")
+
+    # 2. registered in both halves, or the schema and what runs have drifted
+    names = {t["function"]["name"] for t in tools.SCHEMA}
+    expect("look_at" in names and "look_at" in tools.DISPATCH,
+           "look_at is not consistently registered")
+
+    # 3. the guard is webtool's own, and it actually bites
+    expect(vision.webtool is webtool,
+           "vision grew its own fetch instead of reusing the address guard")
+
+    real = dict(tools._BRAIN)
+    try:
+        # A brain, so describe() gets as far as the fetch. It is never called:
+        # every url below is refused before the model is reached.
+        tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
+        expect("only http" in tools.look_at("file:///C:/windows/win.ini"),
+               "a file:// url was not refused")
+        blocked = tools.look_at("http://127.0.0.1:9/secret.png")
+        expect("refused" in blocked,
+               f"a loopback address was not refused: {blocked}")
+        expect("no url" in tools.look_at(""), "an empty url was accepted")
+
+        # No brain configured must say so BEFORE fetching - otherwise a bot with
+        # no key would go and pull a stranger's url for nothing.
+        tools.set_brain({})
+        quiet = tools.look_at("https://example.invalid/a.png")
+        expect("no brain configured" in quiet,
+               f"with no brain it did not stop before the fetch: {quiet}")
+    finally:
+        tools.set_brain(real)
+
+    # 4. the total cap the docstring claimed for a while without one, made real
+    class _FakeAtt:
+        content_type = "image/png"
+
+        def __init__(self, name, body):
+            self.filename = name
+            self._body = body
+
+        async def read(self):
+            return self._body
+
+    big = b"\x89PNG\r\n\x1a\n" + b"x" * 1_000_000
+    one = asyncio.run(vision.collect([_FakeAtt("a.png", big)]))
+    expect(len(one) == 1, f"one image became {len(one)} parts")
+    two = asyncio.run(vision.collect([_FakeAtt("a.png", big),
+                                      _FakeAtt("b.png", big)]))
+    expect(len(two) == 1,
+           f"the total cap is not real: two big images gave {len(two)} parts")
+    expect(vision.MAX_TOTAL_BYTES >= vision.MAX_IMAGE_BYTES,
+           "the total cap is below a single image's cap")
+    return ("owner-only, reuses webtool's address guard (file:// and loopback "
+            "refused), stops before fetching with no brain, and the per-message "
+            "total cap is real")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -3151,6 +3230,7 @@ CHECKS = [
     ("supersede", _supersede),
     ("chat-context", _chat_context),
     ("restart-dm", _restart_dm),
+    ("look-at", _look_at),
 ]
 
 

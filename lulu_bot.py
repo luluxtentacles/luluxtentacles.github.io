@@ -530,6 +530,10 @@ class Lulu(discord.Client):
         self.config = config
         # The purse takes its cap and its prices from config, once, here.
         spend.configure(config)
+        # And the resolved brain, for the tools that call the model themselves -
+        # look_at sends a picture to the vision model, and the API key may live
+        # in brain_key.txt, which load_config has already folded in by now.
+        tools.set_brain(config.get("brain"))
         # The channel mirror: every message in every room she can see, in order,
         # with its reply pointer. Subsumes the old addressed-only history - one
         # record, so the two cannot drift apart. See mirror_block.
