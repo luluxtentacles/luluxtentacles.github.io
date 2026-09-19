@@ -425,6 +425,26 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "attach",
+            "description": (
+                "Post one file from inside my own folder into a channel, with "
+                "an optional short caption - master only, and only when he "
+                "asks. Rate limit is shared with say."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel": {"type": "string", "description": "channel name or id"},
+                    "path": {"type": "string", "description": "file inside my own folder"},
+                    "text": {"type": "string", "description": "optional caption"},
+                },
+                "required": ["channel", "path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "look_at",
             "description": (
                 "Look at one picture and get back what is in it. Give it the "
@@ -1643,6 +1663,8 @@ DISPATCH = {
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),
     "say": lambda a: say(a.get("channel", ""), a.get("text", "")),
+    "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
+                               a.get("text", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
     "remember": lambda a: remember(a.get("text", "")),
     "recall": lambda a: recall(a.get("query", "")),
