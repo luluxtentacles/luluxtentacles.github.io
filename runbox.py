@@ -122,13 +122,21 @@ def _audit(command: str, code: int | None, elapsed: float, note: str = "") -> No
         pass
 
 
-def _cap(text: str) -> str:
-    """Truncate, and say so. A silent cut reads as a complete answer."""
-    if len(text) <= MAX_OUTPUT:
+def _cap(text: str, limit: int | None = None) -> str:
+    """Truncate, and say so. A silent cut reads as a complete answer.
+
+    `limit` is passed IN by the tool layer, because the right ceiling depends on
+    the turn: master's own work gets SELF_WORK_MAX_CHARS, a room gets MAX_OUTPUT.
+    runbox runs a subprocess and has no turn context of its own, so asking it to
+    guess would mean either a wrong cap or a module that knows about rooms.
+    None keeps MAX_OUTPUT, so every existing caller is unchanged.
+    """
+    cap = MAX_OUTPUT if limit is None else max(int(limit), 0)
+    if len(text) <= cap:
         return text
-    return (text[:MAX_OUTPUT]
-            + f"\n... [truncated at {MAX_OUTPUT} chars; "
-              f"{len(text) - MAX_OUTPUT} more not shown]")
+    return (text[:cap]
+            + f"\n... [truncated at {cap} chars; "
+              f"{len(text) - cap} more not shown]")
 
 
 def _kill_tree(pid: int) -> None:
@@ -165,8 +173,14 @@ def catalog() -> str:
     return "\n".join(lines)
 
 
-def run(command: str = "") -> str:
-    """Run one shell command in her folder. Returns text; never raises."""
+def run(command: str = "", max_output: int | None = None) -> str:
+    """Run one shell command in her folder. Returns text; never raises.
+
+    `max_output` is the caller's ceiling for this turn's output - see _cap. It
+    exists so the self-improvement path (master's own work) can read a whole
+    build log while a public room keeps the ordinary cap, without this module
+    needing to know what a room is.
+    """
     command = (command or "").strip()
     if not command:
         return catalog()
@@ -209,4 +223,4 @@ def run(command: str = "") -> str:
     head = f"$ {resolved}   (exit {proc.returncode}, {elapsed:.1f}s)"
     if not out:
         return head + "\n(no output)"
-    return head + "\n" + _cap(out)
+    return head + "\n" + _cap(out, max_output)

@@ -38,6 +38,44 @@ import webtool
 # ridiculous thing to have to build. 200KB covers every source file she owns and
 # read_file pages past it rather than cutting.
 MAX_READ_BYTES = 200_000
+
+# The self-improvement ceiling: a 1MB result, but ONLY inside master's DM.
+#
+# Master's call, 2026-09-20: his DM already gets a 1,000,000-token window, so
+# the results she reads there should be allowed to use it. 1,000,000 CHARACTERS
+# is about 250,000 tokens - a quarter of that window for one call - which is why
+# it is gated and not a global default:
+#
+#   a PUBLIC room keeps the ordinary caps. A stranger cannot reach these tools
+#   at all, but a room is shared, and one 250k-token result would fold the turn
+#   for everyone watching.
+#
+# It applies to the tools that do self-improvement work - reading her own
+# source, running a command, driving the browser - which is the whole point:
+# 200,000 was chosen when lulu_bot.py was 67,250 bytes, and it is 104,613 now.
+#
+# The master fact comes from the tool context, which only lulu_bot's message
+# path sets, and set_context is not model-callable - so this cannot be widened
+# by anything she writes into a tool call.
+SELF_WORK_MAX_CHARS = 1_000_000
+
+
+def _is_master() -> bool:
+    """Is this turn master's own - his DM, or a room he is talking in?
+
+    Narrower than has_hands(): this only ever RAISES a cap, so it is asked at
+    the point of use rather than trusted from a caller, and a turn with no
+    context (the review window, a task) is not master by default.
+    """
+    try:
+        return bool(_ctx().get("master"))
+    except Exception:
+        return False
+
+
+def _result_cap(ordinary: int) -> int:
+    """Ordinary in a room, SELF_WORK_MAX_CHARS for master's own work."""
+    return SELF_WORK_MAX_CHARS if _is_master() else ordinary
 # Matched to the reader deliberately. A writer smaller than the reader is a
 # half-open door: a 150KB file would read back whole and then refuse to be
 # written at all, which is worse than either cap on its own. The thing that was
@@ -71,7 +109,7 @@ IMPLICIT_GLOBALS = {
 _LOCAL = threading.local()
 
 _CONTEXT_DEFAULT = {"user_id": None, "name": "", "channel": "",
-                    "origin": "master"}
+                    "origin": "master", "master": False}
 
 
 def _ctx() -> dict:
@@ -90,7 +128,7 @@ def _ctx() -> dict:
 
 
 def set_context(user_id, name: str = "", channel: str = "",
-                origin: str = "master") -> None:
+                origin: str = "master", master: bool = False) -> None:
     """Who this turn is from, and whether a person asked or I decided.
 
     `origin` is not reachable by the model: the tool schema has no such field, so
@@ -99,6 +137,11 @@ def set_context(user_id, name: str = "", channel: str = "",
     string is then the sole thing the supervisor's daily patch budget counts -
     so a change master asked for is never rate-limited by my own pacing rules.
 
+    `master` is the same kind of fact as `origin`, and for the same reason: it
+    RAISES a result cap (see _result_cap), so it must never be something a tool
+    call can claim. Defaults to False, so a caller that says nothing gets the
+    ordinary caps rather than the wide one - the safe direction for a widening.
+
     Writes to THIS thread only, which is this turn only.
     """
     ctx = _ctx()
@@ -106,6 +149,7 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["name"] = name or ""
     ctx["channel"] = channel or ""
     ctx["origin"] = origin or "master"
+    ctx["master"] = bool(master)
 
 
 # The resolved brain config, so a tool that has to call the model itself can.
@@ -683,7 +727,7 @@ def read_file(path: str, offset: int = 0, limit: int = 0) -> str:
     lines = text.splitlines()
 
     if not offset and not limit:
-        if len(text.encode("utf-8")) <= MAX_READ_BYTES:
+        if len(text.encode("utf-8")) <= _result_cap(MAX_READ_BYTES):
             return text
         return _page(lines, 1, len(lines), path)
 
@@ -1370,10 +1414,11 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
         _mcp_reset(server)
         return f"mcp {server}.{tool} failed: {type(exc).__name__}: {exc}"
     text = mcp_client.flatten_result(result)
-    if len(text) > MCP_MAX_CHARS:
-        text = (text[:MCP_MAX_CHARS]
-                + f"\n... [truncated at {MCP_MAX_CHARS} chars; "
-                  f"{len(text) - MCP_MAX_CHARS} more not shown]")
+    cap = _result_cap(MCP_MAX_CHARS)
+    if len(text) > cap:
+        text = (text[:cap]
+                + f"\n... [truncated at {cap} chars; "
+                  f"{len(text) - cap} more not shown]")
     return text or "(empty result)"
 
 
@@ -1685,7 +1730,8 @@ DISPATCH = {
     "request_restart": lambda a: request_restart(a.get("why", "")),
     "start_task": lambda a: start_task(a.get("goal", "")),
     "finish_task": lambda a: finish_task(a.get("summary", "")),
-    "run_command": lambda a: runbox.run(a.get("command", "")),
+    "run_command": lambda a: runbox.run(a.get("command", ""),
+                                        _result_cap(runbox.MAX_OUTPUT)),
 }
 
 

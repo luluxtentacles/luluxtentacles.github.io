@@ -1799,10 +1799,18 @@ class Lulu(discord.Client):
 
         # So learn_person knows who 'I' am without the model passing an id, and
         # so a restart asked for here knows which channel to report back in.
+        #
+        # `master` rides along for one narrow purpose: tools._result_cap RAISES
+        # a result ceiling for his own work (reading her source, a build log, a
+        # browser snapshot up to SELF_WORK_MAX_CHARS). It is the same kind of
+        # fact as `origin` - set by the caller, never reachable from a tool
+        # call, and defaulting to False so anything that forgets gets the
+        # ordinary caps rather than the wide one.
         tools.set_context(
             message.author.id,
             who,
             getattr(message.channel, "name", "") or "",
+            master=is_owner,
         )
 
         # The notebook half: pick up what they say about themselves as we talk,
