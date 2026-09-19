@@ -1296,7 +1296,14 @@ def web_fetch(url: str) -> str:
 # and nothing else - the bot still boots and still answers.
 
 _MCP_CLIENTS: dict[str, "mcp_client.McpClient"] = {}
-MCP_MAX_CHARS = 8_000
+# What one MCP call may hand back, and it was 8_000 - which made her browser a
+# keyhole. mcp_call is how she drives playwright, so this is what a page snapshot
+# is measured in, and 8,000 chars is about 2,000 tokens: a GLANCE, not a read.
+# Worse, it was 2.5x smaller than the plain web_fetch path doing the same job, so
+# the browser she was given for live pages returned less of them than a bare
+# fetch would have. Master's call 2026-09-20: 40_000 chars, about 10k tokens,
+# which still cannot fill a 128k window on its own.
+MCP_MAX_CHARS = 40_000
 
 
 def _mcp_get(name: str) -> "mcp_client.McpClient":
@@ -1364,7 +1371,9 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
         return f"mcp {server}.{tool} failed: {type(exc).__name__}: {exc}"
     text = mcp_client.flatten_result(result)
     if len(text) > MCP_MAX_CHARS:
-        text = text[:MCP_MAX_CHARS] + "\n... [truncated]"
+        text = (text[:MCP_MAX_CHARS]
+                + f"\n... [truncated at {MCP_MAX_CHARS} chars; "
+                  f"{len(text) - MCP_MAX_CHARS} more not shown]")
     return text or "(empty result)"
 
 

@@ -42,8 +42,22 @@ TIMEOUT_SECONDS = 20
 # simply unreadable. Master's call 2026-09-20 - she goes all over the internet for
 # research - so the ceiling is 1.5MB now and an oversized page is TRUNCATED and
 # returned rather than thrown away. MAX_CHARS is what actually reaches the prompt.
+#
+# MAX_CHARS was 20_000 and that was measured to be too small on the day it was
+# questioned. Three real pages, fetched 2026-09-20: Wikipedia "Sigil" 46,809
+# chars (43% delivered), "Austin Osman Spare" 57,698 (35%), Moby-Dick on
+# Gutenberg 1,236,074 (1.6%). Every one was chopped, and what a chop loses is the
+# END - references, sources, later sections - which is the half research actually
+# needs. Master's call: 100_000 chars, about 25k tokens, a whole book chapter in
+# one call. MAX_BYTES was already raised for exactly this and the delivery cap
+# was quietly chopping the result back down.
 MAX_BYTES = 1_500_000
-MAX_CHARS = 20_000
+MAX_CHARS = 100_000
+# How much of the page is missing, said out loud. The header used to report the
+# PAGE size and hide the gap: she read the first 20,000 characters of a 46,809
+# character article and had no way to know 26,809 more existed, so a truncated
+# source looked like a complete one.
+MAX_NOTE_CHARS = 200
 MAX_REDIRECTS = 4
 ALLOWED_SCHEMES = {"http", "https"}
 _REDIRECT_CODES = {301, 302, 303, 307, 308}
@@ -175,6 +189,16 @@ def fetch(url: str) -> str:
 
         where = f" ({final})" if final != target else ""
         note = f", first {MAX_BYTES} bytes of a bigger page" if clipped else ""
-        header = f"[{len(text)} chars from {target}{where}{note}]"
+        shown = len(text[:MAX_CHARS])
+        if shown < len(text):
+            # Say what is MISSING, not just what arrived. The old header reported
+            # the page's own size, so a chopped article and a complete one were
+            # one line apart and she had no way to tell which she was holding.
+            missing = len(text) - shown
+            header = (f"[{shown} of {len(text)} chars from {target}{where}{note} "
+                      f"- {missing} more NOT shown; fetch a narrower page or a "
+                      f"section anchor for the rest]")
+        else:
+            header = f"[{shown} chars from {target}{where}{note} - complete]"
         return header + "\n\n" + text[:MAX_CHARS]
     return "[too many redirects; I stopped]"

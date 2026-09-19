@@ -511,7 +511,8 @@ def _prompt_chars(turns: list[dict]) -> int:
 #
 # Master, 2026-09-20: "write her a compact history function when we are at 80%
 # token limit for any chat". So: measure, and fold the middle before that.
-CONTEXT_TOKENS = 128_000        # assumed window when config.json does not say
+CONTEXT_TOKENS_DM = 1_000_000     # master's DM: the only place he can be sure
+CONTEXT_TOKENS_PUBLIC = 131_072   # everywhere else, rooms included
 CONTEXT_FLOOR_TOKENS = 4_000    # below this a "limit" is a bug, not a limit
 CONTEXT_CEILING_TOKENS = 2_000_000
 CONTEXT_COMPACT_AT = 0.80       # fold once the prompt is this full
@@ -522,22 +523,38 @@ IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
 CHARS_PER_TOKEN = 4             # the ratio config.example.json already documents
 
 
-def context_limit(config) -> int:
-    """How many tokens the model can hold: config.json -> brain.context_tokens.
+def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
+    """How many tokens the model can hold, by WHERE the turn is happening.
 
     Not invented per call, and not guessed from the price list - models.dev
     carries prices, not windows, so the cache cannot answer this. A missing,
     unreadable or absurd value falls back to the documented default rather than
     to a number that would fold every prompt on the first round.
+
+    THE SCOPE IS THE CHANNEL, NOT THE PERSON, and master called that out
+    (2026-09-20). has_hands() answers "may this author touch code", which is a
+    question about a person; the window answers "how much room does this
+    conversation need", which is a question about a PLACE. A public room is
+    shared even when master is the one typing, so a guild turn gets the public
+    window; a DM can only ever be him - her own code refuses every other DM -
+    so that is the one place the wide window belongs.
+
+    Both flags, deliberately, so neither can be passed by accident:
+      direct  - this is a DM (discord.DMChannel), so nobody else is present
+      is_owner - the author is master, kept so a non-master can never reach the
+                 wide window through a DM-shaped hole in some future caller
     """
     brain_cfg = (config or {}).get("brain") or {}
-    raw = brain_cfg.get("context_tokens", CONTEXT_TOKENS)
+    if direct and is_owner:
+        key, fallback = "context_tokens_dm", CONTEXT_TOKENS_DM
+    else:
+        key, fallback = "context_tokens_public", CONTEXT_TOKENS_PUBLIC
     try:
-        value = int(raw)
+        value = int(brain_cfg.get(key, fallback))
     except (TypeError, ValueError):
-        return CONTEXT_TOKENS
+        return fallback
     if value < CONTEXT_FLOOR_TOKENS:
-        return CONTEXT_TOKENS
+        return fallback
     return min(value, CONTEXT_CEILING_TOKENS)
 
 
@@ -1813,9 +1830,19 @@ class Lulu(discord.Client):
         # smaller one. Both are config-driven, and the reason they differ is in
         # token_budget() - his turns are never priced, so a tight cap would cost
         # him the answer rather than the money.
+        #
+        # `direct` is decided HERE, where the channel object is in hand, and
+        # passed down with is_owner so the window is scoped to the PLACE rather
+        # than the person: a guild room is shared even when master is the one
+        # typing, and a DM can only ever be him. See context_limit().
         answer = self.run_turns(turns, schema, allowed,
                                 meter=None if is_owner else message.author.id,
                                 max_tokens=self.token_budget(is_owner),
+                                context_tokens=context_limit(
+                                    self.config.get("brain"),
+                                    is_owner=is_owner,
+                                    direct=isinstance(message.channel,
+                                                      discord.DMChannel)),
                                 progress_channel=message.channel.id,
                                 supersede_check=lambda: self._superseded(
                                     message.channel.id, seq))
@@ -1850,6 +1877,7 @@ class Lulu(discord.Client):
 
     def run_turns(self, turns: list[dict], schema, allowed,
                   meter=None, max_tokens=None,
+                  context_tokens=None,
                   progress_channel=None,
                   supersede_check=None) -> str:
         """Drive the tool loop until the model stops asking for tools.
@@ -1857,6 +1885,13 @@ class Lulu(discord.Client):
         `max_tokens` is the per-call ceiling, handed straight to the provider. It
         defaults to None, which means "use whatever config says" - NOT "no
         limit". An explicit 0 is what omits the field entirely.
+
+        `context_tokens` is how big a prompt this window may hold, and it is
+        passed IN rather than read from config here, because the answer depends
+        on the PLACE: master's DM gets the wide one, a shared room the smaller
+        one. None means the public window - the safe direction, since a caller
+        that forgets gets the narrow default rather than a customer's DM opened
+        to a stranger.
 
         On the final round it is TOLD to stop looking rather than having the
         tools taken away. Withholding them was tried and was worse: offered no
@@ -1892,7 +1927,8 @@ class Lulu(discord.Client):
             # still has to run.
             try:
                 turns, folded = compact_history(
-                    turns, context_limit(self.config.get("brain")),
+                    turns,
+                    context_tokens or context_limit(self.config.get("brain")),
                     measured=prompt_this_round)
                 if folded:
                     LOG.info(folded)
