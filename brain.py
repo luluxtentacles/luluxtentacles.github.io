@@ -92,13 +92,19 @@ def usage_note(usage: dict) -> str:
 
 # Explicit prompt-cache breakpoints.
 #
-# MEASURED, not assumed. Against this endpoint the SAME 4,521-token prompt sent
-# twice in one session reported cached_tokens 0 BOTH times - automatic prefix
-# caching is simply not on. Adding one Anthropic-style breakpoint to that
-# identical prompt took the second call to cached_tokens 4352, which is 96% of
-# it, and spend.cost already bills cached tokens at 0.26 against 1.40 for fresh
-# input. So the win is real, and it needs an explicit marker rather than a
-# stable prefix.
+# MEASURED, not assumed, and the answer is "available, but not on demand".
+# With no directive, the same prompt sent twice in one session reported
+# cached_tokens 0 both times: automatic prefix caching is not on. With one
+# Anthropic-style breakpoint, the next identical call reported cached_tokens
+# 4352 - 96% of it - so the mechanism is real and this endpoint does accept it.
+#
+# But it does not fire when asked to. Across the 14 calls that followed: five
+# identical calls 3s apart -> 0 every time; a write then a read 45s later -> 0;
+# three identical calls with NO gap -> 0, 4352, 0. One hit, transient, in a
+# narrow window, and the latency never changed (1.1-1.9s throughout), so a hit
+# does not even read as a faster call. The marked payload measured the SAME
+# prompt_tokens as the plain one (4543 both), which is the only reason leaving
+# this on is free: take any hit as a bonus, and never budget for one.
 #
 # OFF unless config.json -> brain.prompt_cache is set. This file is deliberately
 # provider-agnostic - a local llama.cpp server, or anything else OpenAI-shaped,
