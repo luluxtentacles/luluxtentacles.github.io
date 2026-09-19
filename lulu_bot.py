@@ -1235,6 +1235,42 @@ class Lulu(discord.Client):
                     return channel
         return None
 
+    def _names_master_dm(self, name: str) -> bool:
+        """Is this how she names master's DM, rather than a channel?
+
+        She invented this vocabulary on the spot - "dm", "dm_tentacles" -
+        because the tool schema says "channel name or id" and a DM has no name
+        for her to hand back. A guild channel actually called "dm" still wins,
+        because resolve_channel is asked first; this is the fallback for a name
+        that resolves to nothing at all.
+
+        No wider reach lives in it: every reachable caller of say() and attach()
+        is the owner, so the only DM this can ever reach is HIS.
+        """
+        wanted = str(name or "").strip().lstrip("#").lower()
+        return (wanted in {"dm", "dms", "direct", "master"}
+                or wanted.startswith("dm_"))
+
+    async def _master_dm(self):
+        """Master's DM as something with .send(), or None if unreachable.
+
+        Never raises, same as _dm_owner: this runs inside the outbox flush, and
+        an exception here would take the rest of the queue down with it.
+        """
+        owners = list(self.config.get("owner_ids") or [])
+        try:
+            owner = int(owners[0]) if owners else None
+        except (TypeError, ValueError):
+            owner = None
+        if owner is None:
+            LOG.warning("say: no owner id in config.json, so there is no DM to reach")
+            return None
+        try:
+            return await self.fetch_user(owner)
+        except Exception as exc:
+            LOG.warning("say: could not reach master's DM: %s", exc)
+            return None
+
     async def flush_outbox(self) -> None:
         """Post anything a tool queued for another channel.
 
@@ -1247,14 +1283,34 @@ class Lulu(discord.Client):
         for item in tools.drain_outbox():
             name = item.get("channel", "")
             text = item.get("text", "")
+            rel = item.get("file") or ""
             target = self.resolve_channel(name)
+            if target is None and self._names_master_dm(name):
+                target = await self._master_dm()
             if target is None:
                 LOG.warning("say: no channel called #%s that I can see", name)
                 continue
+            if not rel and not text:
+                LOG.warning("say: nothing to post into #%s", name)
+                continue
             try:
-                sent = await target.send(text[:MAX_MESSAGE])
+                if rel:
+                    # The attachment half, which was MISSING until now: attach()
+                    # queued {"channel", "text", "file"} and this loop read only
+                    # "text", so the file was dropped in silence and the caption
+                    # posted on its own - which is exactly why the send LOOKED
+                    # like it worked. Same wall as everything else, so a queued
+                    # path cannot wander out of her folder on its way to Discord.
+                    resolved = paths.resolve(rel, must_exist=True)
+                    sent = await target.send(
+                        content=text[:MAX_MESSAGE] if text else None,
+                        file=discord.File(str(resolved), filename=resolved.name))
+                    LOG.info("attach: posted %s (%d bytes) into #%s",
+                             rel, resolved.stat().st_size, name)
+                else:
+                    sent = await target.send(text[:MAX_MESSAGE])
+                    LOG.info("say: posted %d chars into #%s", len(text), name)
                 self.own_message_ids.add(sent.id)
-                LOG.info("say: posted %d chars into #%s", len(text), name)
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
 
