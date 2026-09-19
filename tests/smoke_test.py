@@ -1992,38 +1992,60 @@ def _sealed_apply() -> str:
             f"file still lands")
 
 
-# -- 8y. the bounded runner stays bounded -------------------------------------
-# runbox is the only path from her to the machine, so the properties that make
-# it bounded are asserted rather than trusted: no verb takes an argument, no verb
-# is a shell or a package installer, and master keeps it to himself.
+# -- 8y. the general runner keeps the boundaries it CAN keep ----------------
+# Master asked for a general runner - "run anything in her own folder, like an
+# actual windows user with no admin" - so the verb allowlist is gone, and this
+# check would be lying if it still asserted one. What is asserted is what is
+# actually still true: cwd is pinned, the timeout exists, every command is
+# audited, the runner is master-only, and the module is not a bare-write target.
+#
+# THE ACCOUNT is the containment now, not a verb list. That is what "no admin"
+# was load-bearing for, and it cannot be asserted from in here - it is a property
+# of the lulu-bot account and the task's RunLevel, not of this code.
 def _runbox() -> str:
+    import paths
     import runbox
     import tools
 
-    expect(runbox.VERBS, "runbox advertises no verbs at all")
+    expect(runbox.TIMEOUT >= 60,
+           f"a {runbox.TIMEOUT}s timeout cannot finish an install")
 
-    # Every verb is a literal argv of strings - a list, never a shell string.
-    for name, argv in runbox.VERBS.items():
-        expect(isinstance(argv, (list, tuple)),
-               f"{name} is not an argv sequence: {argv!r}")
-        expect(argv and all(isinstance(part, str) for part in argv),
-               f"{name} is empty or has a non-string part: {argv!r}")
+    # cwd is pinned and cannot be set from the call. `cd` with no arguments
+    # prints the current directory, so this is an observation rather than a
+    # restatement of the source.
+    real_audit = runbox.AUDIT
+    sandbox_audit = SANDBOX / "runbox-audit.log"
+    if sandbox_audit.exists():
+        sandbox_audit.unlink()
+    try:
+        sandbox_audit.parent.mkdir(parents=True, exist_ok=True)
+        runbox.AUDIT = sandbox_audit      # never write a real audit line
 
-    # No package runner and no shell. `npx <anything>` fetches and executes
-    # arbitrary code, so a verb for it is a shell with extra steps - the one
-    # thing this module exists not to be.
-    banned = {"npx", "npm", "pip", "yarn", "pnpm", "curl", "wget", "sh",
-              "bash", "cmd", "powershell", "pwsh"}
-    for name, argv in runbox.VERBS.items():
-        stem = os.path.basename(argv[0]).lower()
-        if stem.endswith(".exe"):
-            stem = stem[:-4]
-        expect(stem not in banned, f"{name} runs {argv[0]!r}, which is not bounded")
+        out = runbox.run("cd")
+        expect(str(paths.ROOT).lower() in out.lower(),
+               f"cwd is not pinned to her folder: {out!r}")
+        expect("(exit 0" in out,
+               f"a trivial command did not run cleanly: {out!r}")
 
-    # An unknown verb is refused, not executed, and the refusal is actionable.
-    out = runbox.run("rm -rf /")
-    expect("no verb called" in out, f"an unknown verb was not refused: {out!r}")
-    expect("git_status" in out, "the refusal does not list what she may run")
+        # The audit trail is the whole mitigation for losing per-command review,
+        # so its absence is a failure rather than a nicety.
+        expect(sandbox_audit.is_file(), "no audit line was written")
+        logged = sandbox_audit.read_text(encoding="utf-8")
+        expect("exit=0" in logged,
+               f"the audit line has no exit code: {logged!r}")
+        expect("cd" in logged, f"the audit does not name the command: {logged!r}")
+
+        # An empty call explains itself instead of running something - and it is
+        # not audited, because nothing ran.
+        help_text = runbox.run("")
+        expect("non-admin" in help_text,
+               f"the empty call does not say what she is: {help_text!r}")
+        expect(len(sandbox_audit.read_text(encoding="utf-8").splitlines()) == 1,
+               "an empty call was audited as if it had run something")
+    finally:
+        runbox.AUDIT = real_audit
+        if sandbox_audit.exists():
+            sandbox_audit.unlink()
 
     # Master only, structurally - the same gate start_task uses.
     expect("run_command" not in tools.LOOKUP_TOOL_NAMES,
@@ -2033,26 +2055,24 @@ def _runbox() -> str:
            "run_command leaked into the stranger schema")
     expect("run_command" in tools.DISPATCH,
            "run_command is advertised but not dispatchable")
-    expect(tools.run("run_command", {"verb": "git_status"},
+    expect(tools.run("run_command", {"command": "cd"},
                      allowed=set(tools.LOOKUP_TOOL_NAMES)).startswith("refused:"),
            "run_command ran for a non-owner")
 
-    # And the allowlist ITSELF has to be pipeline-only, or "there is no npx
-    # verb" is a suggestion rather than a rule: a bare write_file that rewrites
-    # this module can add any verb it likes. It shipped as an ordinary file
-    # once - the same omission as self_review.py - which is why this is
-    # asserted rather than assumed.
-    import paths
+    # The runner is her own code, so it stays pipeline-only: she may propose a
+    # change to what she can run, and that arrives as a reviewable diff rather
+    # than as a bare write. It shipped as an ORDINARY file once, which is why
+    # this is asserted rather than assumed.
     try:
         paths.assert_writable(paths.resolve("runbox.py"))
     except paths.SandboxError:
         pass
     else:
         raise AssertionError(
-            "runbox.py is writable by a bare tool call - the command allowlist "
-            "is unprotected, so 'no npx verb' is only a suggestion")
+            "runbox.py is writable by a bare tool call - the module that decides "
+            "what she can run is unprotected")
 
-    return f"{len(runbox.VERBS)} verbs, no arguments, no shell, master only"
+    return "cwd pinned, timeout set, every command audited, master only"
 
 
 CHECKS = [

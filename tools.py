@@ -436,24 +436,27 @@ SCHEMA = [
         "function": {
             "name": "run_command",
             "description": (
-                "Run one fixed, read-only maintenance verb in my own folder: "
-                "git status, git log, git diff, or my own smoke test. Master "
-                "only. There are NO free-form commands and NO arguments - pass "
-                "just the verb name, and an unknown verb returns the list. If "
-                "you need something that is not there, add a verb in "
-                "runbox.py and propose the patch; do not try to compose a "
-                "command out of pieces."
+                "Run a command in my own folder, as a standard (non-admin) "
+                "user. Master only. cwd is always my folder and cannot be "
+                "changed. Installs, builds and package managers all work, so "
+                "this is what to use when something is missing and I need it "
+                "myself instead of asking. There are shortcuts for the common "
+                "ones - git_status, git_log, git_diff, smoke - and anything "
+                "else is run as an ordinary command. Every command is appended "
+                "to logs/runbox.log, so what I ran is on the record."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "verb": {
+                    "command": {
                         "type": "string",
-                        "description": ("one of: git_status, git_log, "
-                                        "git_diff, smoke"),
+                        "description": ("the command line, e.g. "
+                                        "'npm install' or 'npx playwright "
+                                        "install chrome'. Shortcut names work "
+                                        "too."),
                     },
                 },
-                "required": ["verb"],
+                "required": ["command"],
             },
         },
     },
@@ -1102,7 +1105,7 @@ DISPATCH = {
     "request_restart": lambda a: request_restart(a.get("why", "")),
     "start_task": lambda a: start_task(a.get("goal", "")),
     "finish_task": lambda a: finish_task(a.get("summary", "")),
-    "run_command": lambda a: runbox.run(a.get("verb", "")),
+    "run_command": lambda a: runbox.run(a.get("command", "")),
 }
 
 

@@ -1,73 +1,93 @@
-"""A bounded command runner. Not a shell, and not a step toward one.
+"""Run commands in her own folder.
 
-Master asked for this, and the honest framing matters more than the code:
+Master asked for this in plain terms: "I want her to be able to run anything in
+her own folder, like an actual windows user with no admin." So the verb allowlist
+is GONE, and saying so is the honest move - keeping a fixed list on top of a
+general runner would have been a boundary in appearance only, which is worse than
+no boundary because it reads like one.
 
-  * Her complaint was concrete - "the browser tool wants chrome installed and
-    it's not there" - and she had to ask a human to type the fix.
-  * She ALREADY has de facto arbitrary code execution. tools.py is proposable,
-    so a patch to it runs in her process. This runner does not raise her risk
-    class. What it buys is AUDITABILITY: a patch lands as a git diff somebody can
-    read before it runs, and a command is one line in a log. Bounding it is for
-    legibility, not for safety theatre.
+What actually bounds her now, in the order it matters:
 
-Design rules, in the order they matter:
+  1. THE ACCOUNT. She runs as `lulu-bot`, a standard local user, and is not in
+     Administrators. Nothing here can elevate: an unelevated process cannot
+     answer a UAC prompt, and the task that starts her runs at RunLevel Limited.
+     That is the real containment, and it is why "no admin" is the load-bearing
+     half of what was asked for.
+  2. cwd is pinned to her folder and cannot be set from the call.
+  3. A hard timeout kills the whole process TREE, not just the shell.
+  4. Output is capped and the cap is STATED, so a truncated answer cannot be
+     mistaken for a complete one.
+  5. Every command is appended to an audit log under logs/, which is SEALED
+     against her tools - so the record of what she ran is not something she can
+     quietly tidy up afterwards.
 
-  1. NO model-supplied arguments exist. Every verb is a literal argv tuple and
-     there is no parameter to inject into. A verb that takes an argument is a
-     shell wearing a hat, so there are none: to get new behaviour, add a verb
-     here, in a file that is proposable and therefore gets reviewed.
-  2. No shell. The command is a list, never a string. There is nothing to quote
-     for and nothing to escape, and shell=False is the default rather than a
-     flag somebody could drop.
-  3. cwd is pinned to the folder and cannot be set.
-  4. Hard timeout, and the child TREE is killed. A verb that outlives its
-     timeout while its children keep running would make the timeout a lie.
-  5. Output is capped, and the cap is STATED in the result, so a big output
-     reads as truncated instead of as the whole truth.
+Known limits, written down instead of implied:
 
-What this deliberately does NOT include: npx, npm, pip, any package runner or
-installer. `npx <anything>` downloads and executes arbitrary packages, so a
-verb for it is a shell with extra steps - which is the one thing this file
-exists not to be. Installing chrome is a one-time job for master, not a standing
-verb. See the note on VERBS below.
+  - PATHS ARE NOT CONTAINED. This is a shell, so it can cd anywhere and use
+    absolute paths. Nothing here stops `cd C:\\Windows`. What limits the damage
+    is that she is not an administrator, not that she is kept in a folder.
+  - `shell=True` IS DELIBERATE. A Windows user has pipes, redirection and `&&`,
+    and a runner without them is not what was asked for. The cost is that the
+    command is a string rather than an argv list, so it is read as a shell
+    command by design.
+  - THE AUDIT LOG IS NOT IMMUTABLE. runbox.py is her own code and pipeline-
+    patchable, so she could in principle change what gets logged. That change
+    would go through a git diff, the smoke test and a health gate - a review
+    trail, not a wall. logs/ being sealed stops the tools restating the record;
+    it cannot stop the runner being rewritten.
+  - ONLY MASTER REACHES THIS. run_command is absent from LOOKUP_TOOL_NAMES, so a
+    stranger's schema never contains it and run() refuses it anyway.
 """
 from __future__ import annotations
 
 import subprocess
 import sys
+import time
+from pathlib import Path
 
 import paths
 
 ROOT = paths.ROOT
+LOGS = ROOT / "logs"
 
-# A verb that hangs is worse than one that fails: it holds the turn open and
-# nothing tells her why. Sixty seconds is generous for every verb listed.
-TIMEOUT = 60
+# Module-level and reassignable on purpose: the smoke test points it at a sandbox
+# so a check never appends real audit lines. The same trick pipeline.ROOT uses,
+# and for the same reason.
+AUDIT = LOGS / "runbox.log"
+
+# Long enough for a real install - a browser download is minutes - and short
+# enough that a hung build does not hold her turn forever.
+TIMEOUT = 900
 MAX_OUTPUT = 8_000
 KILL_TIMEOUT = 20
 
-# sys.executable rather than a literal path: this runs inside her own process, so
-# it is already the interpreter she is running on. Hardcoding a second path here
-# would be a second source of truth for something the process already knows, and
-# the launcher has been bitten by exactly that before.
 PY = sys.executable
 
-# Every verb, as a literal argv. Read this as the whole of her authority.
-#
-# Deliberately read-only, all of it. Nothing here writes, installs, fetches or
-# mutates: git's three read verbs and the smoke test. She can see her own state
-# and check her own work, which is the 90% she was asking a human for. Anything
-# that changes the box is still a patch, still reviewed, still revertible.
-#
-# `smoke` is safe to expose because tests/smoke_test.py already redirects every
-# live path it could touch and sandboxes its own writes - it was built to be run
-# by a live process, and the pipeline already runs it on every self-edit.
-VERBS: dict[str, tuple[str, ...]] = {
-    "git_status": ("git", "status", "--short", "--branch"),
-    "git_log": ("git", "log", "--oneline", "-20"),
-    "git_diff": ("git", "diff", "--stat"),
-    "smoke": (PY, "tests/smoke_test.py"),
+# Convenience, NOT a boundary. These are the things she reaches for most, kept
+# as named shortcuts so she does not have to spell them out. Anything not listed
+# runs as an ordinary command, and deleting this whole dict would not narrow what
+# she can do by one inch - which is exactly why it is not a security control and
+# is not described as one.
+SHORTCUTS: dict[str, str] = {
+    "git_status": "git status --short --branch",
+    "git_log": "git log --oneline -20",
+    "git_diff": "git diff --stat",
+    "smoke": f'"{PY}" tests/smoke_test.py',
 }
+
+
+def _audit(command: str, code: int | None, elapsed: float, note: str = "") -> None:
+    """Append one line. Never let a logging failure cost her the result."""
+    try:
+        AUDIT.parent.mkdir(parents=True, exist_ok=True)
+        line = (f"{time.strftime('%Y-%m-%d %H:%M:%S')} "
+                f"exit={code} {elapsed:6.1f}s :: {command[:2000]}")
+        if note:
+            line += f"  [{note}]"
+        with AUDIT.open("a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    except Exception:
+        pass
 
 
 def _cap(text: str) -> str:
@@ -82,43 +102,49 @@ def _cap(text: str) -> str:
 def _kill_tree(pid: int) -> None:
     """taskkill /T, because communicate() only guarantees the direct child.
 
-    Without /T a verb that spawned something leaves it running after we have
-    already reported a timeout - and then the box has a stray process nobody is
+    Without /T a timed-out command leaves its children running after we have
+    already reported a timeout, and then the box has stray processes nobody is
     tracking. Same lesson as the launcher, which needed /T for the same reason.
     """
     try:
         subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
                        capture_output=True, timeout=KILL_TIMEOUT)
     except Exception:
-        pass  # already gone, or we never had the rights; nothing to add
+        pass  # already gone, or never had the rights; nothing to add
 
 
 def catalog() -> str:
-    """What she may run. Printed on a bad verb so she can correct herself."""
-    lines = ["verbs I may run (literal argv, no arguments, read-only):"]
-    for name in sorted(VERBS):
-        lines.append(f"  {name:<12} {' '.join(VERBS[name])}")
-    lines.append("")
-    lines.append("if you need something else, add a verb in runbox.py and "
-                 "propose the patch - there is no free-form command.")
+    lines = [
+        "I can run commands in my own folder, as a standard (non-admin) user.",
+        "",
+        "shortcuts (just the common ones, not a limit):",
+    ]
+    for name in sorted(SHORTCUTS):
+        lines.append(f"  {name:<12} {SHORTCUTS[name]}")
+    lines += [
+        "",
+        "anything else runs as-is, e.g. npm install, python -m venv .venv, "
+        "npx playwright install chrome.",
+        "cwd is always my folder. Long commands get killed at "
+        f"{TIMEOUT // 60} minutes. Output is capped at {MAX_OUTPUT} chars.",
+    ]
     return "\n".join(lines)
 
 
-def run(verb: str = "") -> str:
-    """Run one allowlisted verb. Returns text; never raises at the caller."""
-    verb = (verb or "").strip()
-    if not verb:
+def run(command: str = "") -> str:
+    """Run one shell command in her folder. Returns text; never raises."""
+    command = (command or "").strip()
+    if not command:
         return catalog()
 
-    argv = VERBS.get(verb)
-    if argv is None:
-        return (f"there is no verb called {verb!r}, and there are no free-form "
-                f"commands or arguments here.\n\n" + catalog())
+    resolved = SHORTCUTS.get(command, command)
+    started = time.time()
 
     try:
         proc = subprocess.Popen(
-            list(argv),
+            resolved,
             cwd=str(ROOT),
+            shell=True,                 # deliberate: see the module docstring
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,   # one stream, so a failure is not hidden
@@ -126,23 +152,26 @@ def run(verb: str = "") -> str:
             encoding="utf-8",
             errors="replace",
         )
-    except FileNotFoundError:
-        # Git as the boxed account hits 'dubious ownership' on C:\\lulu, and
-        # anything else may simply not be on PATH for her. Name the likely cause
-        # instead of returning a bare errno she cannot act on.
-        return (f"{verb}: could not start {argv[0]!r} - not on PATH for me, or "
-                f"not runnable by my account. Nothing was run.")
+    except Exception as exc:
+        _audit(resolved, None, 0.0, f"spawn failed: {exc}")
+        return f"could not start {resolved!r}: {exc}"
 
     try:
         out, _ = proc.communicate(timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         _kill_tree(proc.pid)
-        return (f"{verb}: timed out after {TIMEOUT}s and the process tree was "
-                f"killed. Nothing partial is returned, because half an answer "
-                f"from a killed run reads like a real one.")
+        elapsed = time.time() - started
+        _audit(resolved, None, elapsed, "TIMEOUT - tree killed")
+        return (f"$ {resolved}\n"
+                f"timed out after {TIMEOUT}s and the process tree was killed. "
+                f"Nothing partial is returned, because half an answer from a "
+                f"killed run reads like a real one.")
+
+    elapsed = time.time() - started
+    _audit(resolved, proc.returncode, elapsed)
 
     out = (out or "").strip()
-    head = f"$ {' '.join(argv)}   (exit {proc.returncode})"
+    head = f"$ {resolved}   (exit {proc.returncode}, {elapsed:.1f}s)"
     if not out:
         return head + "\n(no output)"
     return head + "\n" + _cap(out)

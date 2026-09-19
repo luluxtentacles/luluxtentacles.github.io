@@ -100,3 +100,17 @@ Python311/
 # Nana's old scratch, carried over by the clone and pointed at the pre-flatten
 # path. Deletable; not source.
 tmp_*.py
+
+# Anything she installs for herself. Broad on purpose, and here is why it has to
+# be: she can now run commands in her own folder, so a venv, a root-level
+# node_modules, or a downloaded browser build can appear here at any time - and
+# pipeline.py's checkpoint runs `git add -A`, so unignored they would be
+# committed by the NEXT SELF-EDIT rather than by anyone deciding to. Same rule as
+# node/, ffmpeg/ and Python311/, and ignored BEFORE they exist for the same
+# reason those were: the one time this was missed, 242 MB of ffmpeg sat one
+# self-edit away from the history.
+ms-playwright/
+node_modules/
+.venv/
+venv/
+*.egg-info/
