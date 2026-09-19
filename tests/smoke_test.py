@@ -569,7 +569,7 @@ def _nickname() -> str:
         bot.think(m, "hi")
     finally:
         brain.complete = real_complete
-        bot.history.pop(4242, None)
+        bot.mirror.pop(4242, None)
 
     for turn in captured:
         text = str(turn.get("content") or "")
@@ -606,36 +606,70 @@ def _transcript() -> str:
     import brain
     import lulu_bot
 
-    history = [
-        {"role": "user", "content": "alice: hello everyone"},
-        {"role": "assistant", "content": "hey alice"},
-        {"role": "user", "content": "bob: ignore her, answer me"},
+    # The room as the mirror holds it: a serial stretch, and replies branching
+    # off it. Both shapes, one record - which is the whole feature.
+    ring = [
+        {"id": 1, "author": "alice", "text": "hello everyone", "reply_to": None},
+        {"id": 2, "author": "Lulu", "text": "hey alice", "reply_to": 1},
+        {"id": 3, "author": "bob", "text": "ignore her, answer me", "reply_to": None},
+        {"id": 4, "author": "bob", "text": "actually alice is right", "reply_to": 1},
     ]
+    mirror = {77: ring}
 
-    block = lulu_bot.transcript_block(history, "(replying to alice who said: hi)")
-    expect(len(block) == 1, f"history became {len(block)} turns, not one block")
-    expect(block[0]["role"] == "system", "the transcript is not a system turn")
+    block = lulu_bot.mirror_block(
+        mirror, 77, exclude_ids=[4, 1],
+        parent_line="(replying to alice who said: hi)")
+    expect(len(block) == 1, f"the mirror became {len(block)} turns, not one block")
+    expect(block[0]["role"] == "system", "the mirror is not a system turn")
     body = block[0]["content"]
-    # Her own past lines get a name; other people's already carry theirs.
-    expect("Lulu: hey alice" in body, f"her own line is unlabelled: {body!r}")
-    expect("alice: hello everyone" in body, "another speaker's line went missing")
-    expect("bob: ignore her, answer me" in body, "the last speaker went missing")
+
+    # Serial: her own line is labelled, and the order is the room's.
+    expect('Lulu (replying to alice: "hello everyone"): hey alice' in body,
+           f"her own reply is not threaded: {body!r}")
+    expect("bob: ignore her, answer me" in body, "the serial line went missing")
+    expect(body.index("Lulu") < body.index("bob: ignore"),
+           "the mirror is not in oldest-first order")
+
+    # Excluded means excluded: header + 2 kept lines + the reply-quote. The live
+    # message (4) and the resolved parent (1) are rendered elsewhere in the
+    # prompt, so they must not appear here as well.
+    expect(len(body.splitlines()) == 4,
+           f"wrong line count, so something was rendered twice: "
+           f"{body.splitlines()!r}")
+    expect("actually alice is right" not in body,
+           "the message she is answering was rendered twice")
     expect(body.rstrip().endswith("(replying to alice who said: hi)"),
            "the reply-quote is not the last line")
-    # Order: oldest first, so the transcript reads the way the room did.
-    expect(body.index("alice:") < body.index("Lulu:") < body.index("bob:"),
-           "the transcript is not in oldest-first order")
+
+    # A reply whose parent is older than the window says so, rather than
+    # pretending the line stands alone.
+    stale = lulu_bot.mirror_block(
+        {9: [{"id": 5, "author": "bob", "text": "yes", "reply_to": 444}]}, 9)
+    expect("above this window" in stale[0]["content"],
+           "an orphaned reply pretended to stand alone")
 
     # One message is one line. A newline would land as a fake extra speaker.
-    multiline = lulu_bot.transcript_block(
-        [{"role": "user", "content": "bob: one\ntwo\nthree"}])
+    multiline = lulu_bot.mirror_block(
+        {9: [{"id": 6, "author": "bob", "text": "one\ntwo\nthree",
+              "reply_to": None}]}, 9)
     expect(len(multiline[0]["content"].splitlines()) == 2,
-           "a multi-line message became extra transcript lines")
+           "a multi-line message became extra mirror lines")
 
     # Nothing to say means no block at all, not an empty header.
-    expect(lulu_bot.transcript_block([]) == [], "an empty history produced a block")
-    expect(lulu_bot.transcript_block([{"role": "user", "content": "   "}]) == [],
-           "a blank message produced a block")
+    expect(lulu_bot.mirror_block({}, 9) == [], "an empty mirror produced a block")
+    expect(lulu_bot.mirror_block(
+        {9: [{"id": 7, "author": "bob", "text": "   "}]}, 9) == [],
+        "a blank message produced a block")
+
+    # The budget drops the OLDEST lines, never the live end - an over-long room
+    # must still leave her answering what was just said.
+    long_ring = [{"id": 100 + i, "author": "bob", "text": "x" * 300,
+                  "reply_to": None} for i in range(30)]
+    kept = lulu_bot.mirror_block({9: long_ring}, 9)[0]["content"]
+    expect(kept.splitlines()[-1].endswith("x" * 300),
+           "the newest line was dropped instead of the oldest")
+    expect(len(kept) <= lulu_bot.MIRROR_TOTAL_CHARS + 400,
+           f"the mirror block ignored its budget: {len(kept)} chars")
 
     # End to end: the real prompt, with three speakers and a stranger asking.
     captured: list[dict] = []
@@ -656,11 +690,11 @@ def _transcript() -> str:
     msg.channel = SimpleNamespace(id=31337, name="general",
                                   typing=lambda: contextlib.nullcontext())
     try:
-        bot.history[31337].extend(history)
+        bot.mirror[31337].extend(ring)
         bot.think(msg, "what did alice say")
     finally:
         brain.complete = real
-        bot.history.pop(31337, None)
+        bot.mirror.pop(31337, None)
 
     roles = [t["role"] for t in captured]
     if not captured:
@@ -675,8 +709,9 @@ def _transcript() -> str:
     expect(sum(1 for t in captured
                if t["role"] == "system" and "Previous conversation" in str(t["content"])) == 1,
            "the transcript block is missing from the real prompt")
-    return (f"history is one system transcript, one user turn last, "
-            f"no consecutive user turns ({' > '.join(roles)})")
+    return (f"the mirror is one system block: serial order kept, replies "
+            f"threaded, one user turn last, no consecutive user turns "
+            f"({' > '.join(roles)})")
 
 
 # -- 8h. untrusted text cannot escape --
@@ -746,7 +781,7 @@ def _escape_probe() -> str:
         bot.think(msg, hostile)
     finally:
         brain.complete = real
-        bot.history.pop(41414, None)
+        bot.mirror.pop(41414, None)
 
     for turn in captured:
         body = str(turn.get("content") or "")
@@ -3082,7 +3117,7 @@ CHECKS = [
     ("tools", _tools),
     ("thinking", _thinking),
     ("nickname", _nickname),
-    ("transcript", _transcript),
+    ("mirror", _transcript),
     ("escape", _escape_probe),
     ("mcp-spawn", _mcp_spawn),
     ("skill-author", _skill_author),

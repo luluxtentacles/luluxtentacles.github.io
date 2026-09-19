@@ -29,8 +29,22 @@ import vision
 import whisper_stt
 
 LOG = logging.getLogger("lulu")
-# 25 turns x 2 entries = the last 50 messages per channel.
-HISTORY_TURNS = 25
+# The channel mirror: what was actually said in a room, in order.
+#
+# She used to keep only her own ADDRESSED exchanges (25 of them, doubled into a
+# 50-entry record), which had two holes and master found both. Two people talking
+# to each other in her channel were invisible to her until one of them mentioned
+# her, and a reply chain only ever showed the single message she was answering -
+# never the thread above it. A channel is one sequence with optional branches, so
+# this keeps both: the deque holds the order, reply_to holds the branch.
+#
+# What goes in: what people say, and what she says back. What does NOT: progress
+# narration and restart announcements, which are her own housekeeping rather than
+# conversation, and would push real messages out of the window.
+MIRROR_LINES = 30          # messages kept per channel, oldest dropped
+MIRROR_LINE_CHARS = 240    # per message, so one essay cannot eat the block
+MIRROR_TOTAL_CHARS = 3500  # the whole block's budget; oldest lines go first
+MIRROR_QUOTE_CHARS = 60    # how much of a replied-to message to quote inline
 # Discord's own ceiling is 2000 characters per message.
 MAX_MESSAGE = 2000
 # How many brain calls one message may take. 6 was too few for real digging and
@@ -175,41 +189,76 @@ def _one_line(text) -> str:
     return escape_line(text)
 
 
-def transcript_block(history, parent_line: str = "") -> list[dict]:
-    """The channel's previous conversation as ONE system message.
+def _mirror_line(entry: dict, by_id: dict) -> str:
+    """One channel message as one line, naming the message it was answering.
 
-    Master's shape: the history is context she reads, and the message she is
-    actually answering is the last real user turn AFTER it. Built as a single
-    system block rather than a pile of alternating turns, because the old shape
-    made every past message read as though it had been addressed to her face -
-    and stacked consecutive "user" turns whenever two people spoke in a row,
-    which some providers handle badly.
-
-    Plain "Name: text" lines. Deliberately NOT nyan's 'You:'/'Name: "quoted"'
-    liturgy: nyan was fine-tuned on that exact format, so it is load-bearing
-    there - and costume here, where nothing was trained on it.
-
-    The reply-quote goes in as the last line rather than as its own user turn,
-    so the turn she answers is genuinely the last thing said.
+    The annotation is what makes a reply chain readable inside a flat,
+    oldest-first list. The line still sits where it was said - so a top-down
+    conversation still reads top-down - and it also says what it was replying to,
+    so a branch is legible without the order being rewritten around it.
     """
+    who = entry.get("author") or "someone"
+    text = _one_line(entry.get("text"))
+    if not text:
+        return ""
+    target = entry.get("reply_to")
+    if not target:
+        return f"{who}: {text}"
+    parent = by_id.get(target)
+    if parent is None:
+        # Its parent is older than the window. Say so plainly rather than
+        # pretending the line stands alone - an unmarked reply reads as a
+        # non-sequitur, which is exactly the confusion this removes.
+        return f"{who} (replying to a message above this window): {text}"
+    pwho = parent.get("author") or "someone"
+    quote = _one_line(parent.get("text"))[:MIRROR_QUOTE_CHARS]
+    return f'{who} (replying to {pwho}: "{quote}"): {text}'
+
+
+def mirror_block(mirror, channel_id, exclude_ids=(),
+                 parent_line: str = "") -> list[dict]:
+    """The channel as it actually read, as ONE system message.
+
+    Both shapes at once, which is the whole point. Order is preserved, so a
+    serial conversation reads top-down; every line that was a reply names what it
+    answered, so a chain reads as a chain.
+
+    `exclude_ids` are messages already rendered elsewhere in the prompt - the one
+    she is answering (the real user turn) and the resolved reply-quote - so the
+    same words never appear twice, and this block cannot drift from them.
+
+    The budget is spent from the NEWEST line backwards, so a busy room keeps what
+    was just said and drops the oldest. Dropping the live end instead would leave
+    her answering last week with a perfect record of it.
+    """
+    ring = list((mirror or {}).get(channel_id) or ())
+    if not ring:
+        return []
+    by_id = {e.get("id"): e for e in ring if e.get("id") is not None}
+    drop = set(exclude_ids)
     lines = []
-    for turn in history:
-        content = _one_line(turn.get("content"))
-        if not content:
+    for entry in ring:
+        if entry.get("id") is not None and entry.get("id") in drop:
             continue
-        if turn.get("role") == "assistant":
-            # Her own past lines carry no name in storage, so they get one here.
-            lines.append(f"{SELF_LABEL}: {content}")
-        else:
-            # Stored already as "Name: text" when the exchange was recorded.
-            lines.append(content)
+        line = _mirror_line(entry, by_id)
+        if line:
+            lines.append(line)
+    total = 0
+    kept: list[str] = []
+    for line in reversed(lines):
+        total += len(line) + 1
+        if kept and total > MIRROR_TOTAL_CHARS:
+            break
+        kept.append(line)
+    kept.reverse()
     if parent_line:
-        lines.append(parent_line)
-    if not lines:
+        kept.append(parent_line)
+    if not kept:
         return []
     return [{"role": "system", "content": (
-        "Previous conversation in this channel, oldest first. This is context "
-        "you are watching, not messages addressed to you:\n" + "\n".join(lines)
+        "Previous conversation in this channel, oldest first, with what each "
+        "line was replying to where it was a reply. This is context you are "
+        "watching, not messages addressed to you:\n" + "\n".join(kept)
     )}]
 
 
@@ -481,8 +530,11 @@ class Lulu(discord.Client):
         self.config = config
         # The purse takes its cap and its prices from config, once, here.
         spend.configure(config)
-        self.history: dict[int, deque] = defaultdict(
-            lambda: deque(maxlen=HISTORY_TURNS * 2))
+        # The channel mirror: every message in every room she can see, in order,
+        # with its reply pointer. Subsumes the old addressed-only history - one
+        # record, so the two cannot drift apart. See mirror_block.
+        self.mirror: dict[int, deque] = defaultdict(
+            lambda: deque(maxlen=MIRROR_LINES))
         self.own_message_ids: set[int] = set()
         self.always_skills: list[str] = list(config.get("always_skills", []))
         # Her ears. Off unless config.json turns them on: transcription is a real
@@ -667,7 +719,6 @@ class Lulu(discord.Client):
 
         LOG.info("chatter: rolling a casual message in #%s", message.channel.id)
 
-        history = self.history[message.channel.id]
         turns = [{"role": "system", "content": self.system_prompt()}]
         turns.append({"role": "system", "content": (
             "You are relaxing in this server right now. Someone just sent a "
@@ -676,7 +727,8 @@ class Lulu(discord.Client):
             "joining the conversation because you feel like it. Keep it brief "
             "and human."
         )})
-        turns.extend(transcript_block(history))
+        turns.extend(mirror_block(self.mirror, message.channel.id,
+                                  exclude_ids=[getattr(message, "id", None)]))
         known = user_knowledge_block(message.author.id)
         if known:
             turns.append({"role": "system", "content": (
@@ -706,7 +758,9 @@ class Lulu(discord.Client):
         LOG.info("chatter -> #%s (%d chars): %s",
                  message.channel.id, len(answer), answer)
         try:
-            await message.channel.send(answer[:MAX_MESSAGE])
+            sent = await message.channel.send(answer[:MAX_MESSAGE])
+            self._note(message.channel.id, SELF_LABEL, answer[:MAX_MESSAGE],
+                       getattr(sent, "id", None))
         except discord.HTTPException:
             LOG.warning("chatter send failed in %s", message.channel.id)
 
@@ -1056,6 +1110,20 @@ class Lulu(discord.Client):
         except Exception as exc:
             LOG.warning("could not record who this is: %s", exc)
 
+        # Every line in the room, not just the ones aimed at her - that is the
+        # entire point of the mirror, and it has to happen BEFORE the address
+        # gate below returns early for an unaddressed message. So this sits above
+        # it, and takes the message the way it will be read: mentions turned into
+        # names, one line, and the id of whatever it was replying to.
+        ref = message.reference
+        self._note(
+            message.channel.id,
+            clean_name(getattr(message.author, "display_name", "") or ""),
+            self.readable_text(message),
+            getattr(message, "id", None),
+            getattr(ref, "message_id", None) if ref else None,
+        )
+
         addressed = self.is_addressed(message)
         # A DM to her is inherently addressed: there is nobody else in the room
         # and nothing to reply to. Guarded by the owner check above, so this can
@@ -1186,6 +1254,31 @@ class Lulu(discord.Client):
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
 
+    def _note(self, channel_id, author: str, text: str,
+              message_id: int | None = None,
+              reply_to: int | None = None) -> None:
+        """Record one line of a channel: the order AND the branch.
+
+        Raw on the way in, sanitised on the way out - the house rule everywhere
+        else in here, and it matters more for a store that is read back into a
+        prompt on every single turn. A name or a message is escaped where it is
+        USED, never where it is kept.
+
+        Never fatal. A broken mirror must not cost anyone a reply.
+        """
+        try:
+            line = " ".join(str(text or "").split())
+            if not line:
+                return
+            self.mirror[channel_id].append({
+                "id": message_id,
+                "author": author or "someone",
+                "text": line[:MIRROR_LINE_CHARS],
+                "reply_to": reply_to,
+            })
+        except Exception as exc:
+            LOG.warning("could not note a channel line: %s", exc)
+
     def _begin_turn(self, channel_id: int) -> int:
         """Claim the turn slot for a channel, superseding whatever holds it.
 
@@ -1275,7 +1368,6 @@ class Lulu(discord.Client):
               parent: discord.Message | None = None,
               parts: list | None = None,
               seq: int = 0) -> str:
-        history = self.history[message.channel.id]
         # A display name is user-settable and reaches the prompt as its own line,
         # so it is cleaned once here and used everywhere below.
         who = clean_name(message.author.display_name)
@@ -1315,7 +1407,15 @@ class Lulu(discord.Client):
             parent_line = (f"(replying to "
                            f"{clean_name(parent.author.display_name)} who said: "
                            f"{_one_line(parent.content)[:500]})")
-        turns.extend(transcript_block(history, parent_line))
+        # Both shapes of the room, in one block. The message she is answering and
+        # the resolved reply-quote are excluded because they are already in this
+        # prompt - as the live user turn and as `parent_line` - so the same words
+        # never arrive twice.
+        skip = [getattr(message, "id", None)]
+        if parent is not None:
+            skip.append(getattr(parent, "id", None))
+        turns.extend(mirror_block(self.mirror, message.channel.id,
+                                  exclude_ids=skip, parent_line=parent_line))
         known = user_knowledge_block(message.author.id)
         if known:
             turns.append({"role": "system", "content": (
@@ -1401,8 +1501,8 @@ class Lulu(discord.Client):
             LOG.info("turn superseded mid-answer; nothing recorded")
             return SUPERSEDED
 
-        history.append({"role": "user", "content": f"{who}: {safe_text}"})
-        history.append({"role": "assistant", "content": answer})
+        # No transcript write here any more: her own reply is recorded by send(),
+        # the only place that knows the line actually went out and with what id.
         # The journal records EVERYONE, not just master - "who I talked to" is the
         # whole point of it. Shared memory stays master-only, because that store
         # is what my other faces read and it should hold things worth keeping.
@@ -1591,6 +1691,11 @@ class Lulu(discord.Client):
             chunk, content = content[:MAX_MESSAGE], content[MAX_MESSAGE:]
             sent = await message.reply(chunk, mention_author=False)
             self.own_message_ids.add(sent.id)
+            # Her own line goes in the room's mirror too, pointing at the message
+            # she answered. Without it the mirror would hold every question and
+            # no answers, and a reply chain would read one-sided.
+            self._note(message.channel.id, SELF_LABEL, chunk, sent.id,
+                       getattr(message, "id", None))
 
 
 def _pid_alive(pid: int) -> bool | None:
