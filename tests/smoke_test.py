@@ -3176,9 +3176,29 @@ def _look_at() -> str:
            f"the total cap is not real: two big images gave {len(two)} parts")
     expect(vision.MAX_TOTAL_BYTES >= vision.MAX_IMAGE_BYTES,
            "the total cap is below a single image's cap")
+
+    # 5. A content type is a claim, not evidence. Bytes that are not a picture
+    # are DROPPED, never relabelled and forwarded - the old fallback returned
+    # them as "image/png" whenever Pillow could not open them.
+    for label, body in (("an exe", b"MZ\x90\x00\x03"),
+                        ("html", b"<html>hi</html>"),
+                        ("a zip", b"PK\x03\x04"),
+                        ("nothing", b"")):
+        expect(vision.sniff(body) == "", f"{label} sniffed as an image")
+        liar = asyncio.run(vision.collect([_FakeAtt("evil.png", body)]))
+        expect(liar == [], f"{label} claiming to be a png was forwarded: {liar}")
+
+    # And the four real formats are recognised by their own first bytes.
+    for label, body, want in (
+            ("png", b"\x89PNG\r\n\x1a\n", "image/png"),
+            ("jpeg", b"\xff\xd8\xff\xe0", "image/jpeg"),
+            ("gif", b"GIF89a", "image/gif"),
+            ("webp", b"RIFF\x00\x00\x00\x00WEBPVP8 ", "image/webp")):
+        expect(vision.sniff(body) == want, f"sniff missed {label}")
     return ("owner-only, reuses webtool's address guard (file:// and loopback "
-            "refused), stops before fetching with no brain, and the per-message "
-            "total cap is real")
+            "refused), stops before fetching with no brain, the per-message "
+            "total cap is real, and a non-image is dropped rather than "
+            "relabelled and forwarded")
 
 
 CHECKS = [

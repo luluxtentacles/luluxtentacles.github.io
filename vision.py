@@ -14,6 +14,10 @@ reading ability not tied to messages" and "so she can use it for web browsing".
                second one that could drift from it.
 
 describe() is the whole capability in one call: url in, what-is-in-it out.
+
+Nothing here trusts a content type. A picture is whatever its first bytes prove
+it is - see sniff - so bytes that are not one of the four formats are refused
+rather than relabelled and forwarded.
 """
 from __future__ import annotations
 
@@ -62,6 +66,36 @@ MAX_FETCH_BYTES = 12_000_000
 # worth less than the call it cost.
 DESCRIBE_MAX_TOKENS = 1000
 
+# The formats she will look at, proved by their actual first bytes.
+#
+# This exists because a content type is a CLAIM, not evidence. Discord sets it
+# from the filename, and any server can put whatever it likes next to
+# "Content-Type: image/png". The old fallback believed it: whenever Pillow was
+# missing or the data would not open, it returned the untouched bytes labelled
+# "image/png" - so a non-image was shrunk never AND forwarded anyway, which is a
+# lie told to the vision model on request. Now the bytes have to prove what they
+# are, and the label sent is the one they earned.
+_MAGIC: tuple[tuple[bytes, str], ...] = (
+    (b"\x89PNG\r\n\x1a\n", "image/png"),
+    (b"\xff\xd8\xff", "image/jpeg"),
+    (b"GIF87a", "image/gif"),
+    (b"GIF89a", "image/gif"),
+)
+
+
+class NotAnImage(Exception):
+    """The bytes are not one of the four formats she will look at."""
+
+
+def sniff(data: bytes) -> str:
+    """The mime these bytes actually are, or "" if they are not a picture."""
+    for signature, mime in _MAGIC:
+        if data.startswith(signature):
+            return mime
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    return ""
+
 
 def is_image_attachment(attachment) -> bool:
     """True for the attachments her eyes can read."""
@@ -78,22 +112,32 @@ def _encode(body: bytes, mime: str) -> str:
 
 
 def _shrink(data: bytes) -> tuple[bytes, str]:
-    """One image, downscaled and re-encoded when Pillow is available.
+    """One PROVEN image, downscaled and re-encoded when Pillow is available.
 
-    Returns (bytes, mime). Falls back to the untouched original when Pillow
-    is missing or the bytes will not open - a heavy picture beats no
-    picture, and the total cap in collect() still holds the line.
+    Returns (bytes, mime). Raises NotAnImage for anything that is not actually a
+    picture - that is the change that matters here. The old fallback returned the
+    untouched data labelled "image/png" whenever Pillow was missing or the bytes
+    would not open, so a non-image was shrunk never and forwarded anyway.
+
+    A genuine image that Pillow cannot re-encode is still passed through at its
+    original size: a heavy picture beats no picture, and collect() holds the
+    total line. What is refused is a thing that was never a picture at all.
     """
+    mime = sniff(data)
+    if not mime:
+        raise NotAnImage("not a png, jpeg, gif or webp")
     try:
         from PIL import Image
     except ImportError:
-        return data, "image/png"
+        # Cannot downscale without Pillow, but the bytes proved they are an
+        # image, so the label stays honest even at full size.
+        return data, mime
     try:
         image = Image.open(io.BytesIO(data))
         image.load()
     except Exception as exc:
-        LOG.warning("could not open an image: %s", exc)
-        return data, "image/png"
+        LOG.warning("vision: could not re-encode a real image: %s", exc)
+        return data, mime
 
     if getattr(image, "is_animated", False):
         image.seek(0)  # first frame of a gif is plenty
@@ -177,7 +221,12 @@ def from_url(url: str) -> list[dict]:
         if ctype and not ctype.startswith("image/") and not path.endswith(IMAGE_EXTS):
             raise ValueError(f"that address is {ctype}, not an image")
         name = path.rsplit("/", 1)[-1][:60] or target
-        part, _ = _build(data, name)
+        try:
+            part, _ = _build(data, name)
+        except NotAnImage as exc:
+            raise ValueError(
+                f"that address answered with something that is not an image "
+                f"({exc})") from exc
         return [part]
     raise ValueError("too many redirects")
 
@@ -234,7 +283,11 @@ async def collect(attachments) -> list[dict]:
         except Exception as exc:
             LOG.warning("vision: could not read %s: %s", name, exc)
             continue
-        part, encoded_len = _build(data, name)
+        try:
+            part, encoded_len = _build(data, name)
+        except NotAnImage as exc:
+            LOG.warning("vision: %s is not an image (%s); ignored", name, exc)
+            continue
         if total and total + encoded_len > MAX_TOTAL_BYTES:
             # She still gets the first pictures rather than none - an empty
             # answer because a message was image-heavy helps nobody.
