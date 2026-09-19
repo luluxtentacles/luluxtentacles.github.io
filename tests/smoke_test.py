@@ -25,6 +25,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+# A trial is the smoke test run against her staged text BEFORE it is staged. This
+# IS that smoke test, so a trial started from inside a run would nest one inside
+# itself - slower with every layer and proving nothing new. tools._trial_run
+# honours this flag, and every check in this file therefore sees the old, cheap
+# behaviour: staging is not interrupted by a test.
+os.environ.setdefault("LULU_NO_TRIAL", "1")
+
 VERBOSE = "--verbose" in sys.argv
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -1037,8 +1044,10 @@ def _patch_file_probe() -> str:
            "patch_file leaked into the lookup set - file surgery is master-only")
 
     # The dry run is what makes "test before you restart" possible at all.
+    # The dry run now carries the trial's verdict, so "would stage cleanly"
+    # means the smoke test actually passed - not just that the text parsed.
     expect(dry.startswith("dry run:"), f"a dry run did not report dry: {dry!r}")
-    expect("would stage cleanly" in dry,
+    expect("smoke test PASSES" in dry,
            f"a clean dry run is not reassuring: {dry!r}")
     expect("-    return alpha" in dry and "+    return alpha * 2" in dry,
            f"the dry run does not show the change: {dry!r}")
@@ -1054,6 +1063,77 @@ def _patch_file_probe() -> str:
     return ("a unique find splices and keeps the surrounding lines; missing, "
             "ambiguous, empty and no-op finds are all refused; LF and CRLF "
             "match; check_only shows the diff and stages nothing")
+
+
+# -- 8n. the trial: the net, run against her text BEFORE anything is written ----
+# What this replaced: she staged, the supervisor applied, the smoke test ran, and
+# the failure arrived in pending/rejected with the window already spent - twice in
+# three minutes on 2026-09-19, on the same file, learning nothing from the first.
+# The trial builds a throwaway copy of her folder with her staged text poured
+# over it, runs the real smoke test inside that copy, and refuses to stage if it
+# fails. Nobody runs a command for that; staging itself is the moment of truth.
+#
+# A real trial is NOT run here - it would nest a smoke run inside this one, which
+# is exactly what LULU_NO_TRIAL exists to prevent. The pieces that decide the
+# outcome are tested directly, and the door is tested with the trial stubbed.
+def _trial() -> str:
+    import tools
+    import paths
+
+    # A relocated copy must name its own address. The containment check compares
+    # her always-loaded skill against paths.ROOT, so without this a faithful copy
+    # at another path fails on the path rather than on the rule - and a trial that
+    # cries wolf would be worse than having none.
+    moved = tools._relocate(f"you live in {tools.paths.ROOT} and stay there",
+                            r"X:\copy")
+    expect("X:\\copy" in moved, f"the address was not rewritten: {moved!r}")
+    expect(str(tools.paths.ROOT) not in moved,
+           f"the original address survived in the copy: {moved!r}")
+
+    # The summary is what she actually reads, so the failing check has to survive
+    # the trimming.
+    body = ("noise before\nFAIL  nickname    AssertionError: ceiling is 13\n"
+            "SMOKE TEST FAILED: 1/41 checks broke\n"
+            "  nickname: AssertionError: ceiling is 13\n noise after")
+    told = tools._trial_summary(body)
+    expect("FAIL" in told and "nickname" in told,
+           f"the summary lost the failing check: {told!r}")
+
+    # Inside a smoke run it must not nest another.
+    prior = os.environ.get("LULU_NO_TRIAL")
+    os.environ["LULU_NO_TRIAL"] = "1"
+    try:
+        expect(tools._trial_run({"x.py": "y = 1\n"}) == (True, ""),
+               "the trial started a nested smoke run")
+    finally:
+        if prior is None:
+            os.environ.pop("LULU_NO_TRIAL", None)
+        else:
+            os.environ["LULU_NO_TRIAL"] = prior
+
+    # And the door itself: a trial that says no stages NOTHING, writes no request
+    # for the supervisor, and still shows her why.
+    real_run = tools._trial_run
+    real_write = tools._write_request
+    asked = []
+    tools._trial_run = lambda overlay: (False, "FAIL  nickname  ceiling is 13")
+    tools._write_request = lambda files, why: asked.append((files, why))
+    try:
+        out = tools.propose_patch("scratch_trial_probe.py", "value = 1\n",
+                                  "the trial must stop this")
+    finally:
+        tools._trial_run = real_run
+        tools._write_request = real_write
+    expect(out.startswith("nothing was staged"),
+           f"a failing trial staged anyway: {out!r}")
+    expect("FAIL" in out and "nickname" in out,
+           f"the refusal hides the reason: {out!r}")
+    expect(not asked, "a failing trial still asked the supervisor to restart her")
+    expect(not (paths.ROOT / "pending" / "staged" / "scratch_trial_probe.py").exists(),
+           "a failing trial left a staged file behind")
+    return ("a relocated copy names its own address, the summary keeps the "
+            "failing check, the trial never nests inside a smoke run, and a "
+            "failing trial stages nothing and says why")
 
 
 # -- 8m. she works out loud ------------------------------------------------
@@ -2348,6 +2428,7 @@ CHECKS = [
     ("skill-author", _skill_author),
     ("stage-gate", _stage_gate),
     ("patch-file", _patch_file_probe),
+    ("trial", _trial),
     ("progress", _progress),
     ("restart-reason", _restart_reason),
     ("ffmpeg", _ffmpeg),

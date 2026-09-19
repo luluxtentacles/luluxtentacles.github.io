@@ -40,6 +40,14 @@ pending/
 # time.
 .smoke_sandbox*/
 
+# The trial: a throwaway copy of her folder with the staged text poured over it,
+# where the smoke test is run BEFORE anything is staged. Ignored for the same
+# reason as the sandbox above, and ignored BEFORE it exists: it is deleted at the
+# end of every trial, so the only way this line ever matters is a crash mid-trial
+# - and pipeline.py's checkpoint runs `git add -A`, which would commit the whole
+# copy of her folder rather than the one file she was changing.
+.trial/
+
 # Chatter cooldown state - channel id to timestamp, rewritten as she talks.
 # Runtime data like memory/, not source.
 chatter.json

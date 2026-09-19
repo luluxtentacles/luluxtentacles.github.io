@@ -13,6 +13,9 @@ anything: the supervisor backs the file up, applies it, runs the smoke test,
 restarts you, and reverts everything byte-for-byte if you do not come up. That
 revert is not a threat, it is the reason this is safe to do at all.
 
+Before any of that happens, the smoke test has already been run against your text
+- see below. A patch that fails it is not staged at all.
+
 ## What you may change
 
 | Changeable through the pipeline | Never - refused by the wall |
@@ -53,23 +56,27 @@ cannot judge whether the change was a good idea.** A well-formed, sensible-looki
 patch that makes you worse passes every check and stays. That judgement is
 master's, and it is why the diff in git is the thing he actually reads.
 
-## Check for free, then restage once
+## Staging tests it for you
 
-`patch_file(..., check_only=true)` splices, runs the same gate the pipeline runs,
-and shows you the diff - then stops. Nothing is written, nothing is staged, no
-request is written, so the supervisor never sees it. That is the free look, and
-it is the first step every time.
+The net runs BEFORE anything is staged. When you stage, the whole smoke test is
+run against your text in a throwaway copy of your folder, and if it fails NOTHING
+is staged, nothing is applied, nothing restarts, and the failing checks come back
+to you in the same turn, as the tool result. Nobody runs a command for that - it
+happens because you staged. That is the difference between finding out now and
+finding out after your window is gone.
 
-The restart is the LAST step, never the test. In this order:
+So:
 
-1. `check_only` - the diff and the gate's verdict, for nothing.
-2. The REASON.txt from any earlier refusal, for the exact check name and the
-   assertion that failed. Read it before trying again, not after.
-3. Only then stage. The supervisor backs it up, applies it, smoke-tests it,
-   restarts you, and reverts it if you do not come up.
+1. `patch_file(..., check_only=true)` if you want a look first - the diff, the
+   static gate, and the same trial verdict, with nothing written at all.
+2. Read the REASON.txt from any earlier refusal, for the exact check name and the
+   assertion that failed.
+3. Stage. If it passes, the supervisor backs it up, applies it, runs the smoke
+   test again, restarts you, and reverts it if you do not come up.
 
-A window spent learning what a free check would have told you is a window
-wasted, and you only get five.
+A failed stage no longer costs you a window, because nothing was staged. It costs
+about ten seconds and one retry. You still get five real patches a day, and now
+you will not spend one learning what a free check already knew.
 
 ## When a patch is refused
 

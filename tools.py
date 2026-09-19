@@ -13,8 +13,13 @@ import builtins
 import difflib
 import json
 import operator
+import os
 import re
+import shutil
+import subprocess
 import symtable
+import sys
+import threading
 import time
 
 import journal
@@ -778,6 +783,146 @@ def _stage_problems(relative: str, content: str) -> str | None:
     return None
 
 
+# -- the trial: run the net against HER text, before anything is written -----
+#
+# The gap this closes. A patch used to become real before anything tested it: she
+# staged, the supervisor applied, the smoke test ran, and the failure came back in
+# pending/rejected with the window already spent. On the evening of 2026-09-19 she
+# staged the same broken file three minutes apart and learned nothing from the
+# first rejection, because the reason only exists AFTER the restart.
+#
+# So the smoke test runs BEFORE the request is written: build a throwaway copy of
+# her folder with the staged text poured over it, run the real
+# tests/smoke_test.py inside that copy, and only write pending/REQUEST.json if it
+# passes. A failing trial writes NOTHING, so the mistake costs her no window, the
+# supervisor never sees it, and she finds out in the turn she made it. Nobody has
+# to run a command for that.
+#
+# Two things make a copy usable, and both were found by running it rather than by
+# reasoning about it:
+#   - node/ is LINKED, not copied. The runtime she spawns is 93 MB and the smoke
+#     test only needs it to exist; copying it would cost more than the test.
+#   - the copied skills have their address REWRITTEN. One check asserts that her
+#     always-loaded skill names her own folder, which it does as C:\lulu - so in a
+#     copy at any other path that check failed on the ADDRESS, not on the rule.
+#     Relocating the string keeps the rule under test. A trial that cries wolf is
+#     worse than no trial at all.
+TRIAL_DIR = ".trial"
+TRIAL_TIMEOUT = 240
+# Huge, or noise that would only make the copy slow or recursive. What is left is
+# everything the smoke test actually reads: her modules, her tests, her shelf,
+# her memory, her config.
+TRIAL_SKIP_DIRS = {".git", "node_cache", "logs", "__pycache__", "whisper.cpp",
+                   "ffmpeg", "Python311", ".setup-tools"}
+TRIAL_LINK_DIRS = ("node",)
+TRIAL_SKIP_PREFIX = (".trial", ".smoke_sandbox")
+_TRIAL_LOCK = threading.Lock()
+
+
+def _relocate(text: str, trial_root: str) -> str:
+    """Point a copied file at the copy's own address.
+
+    The containment check compares the text of her always-loaded skill against
+    paths.ROOT, so a faithful copy at a different path fails it on the address
+    alone. Rewriting the address keeps the RULE under test while removing the
+    accident of where the copy happens to sit.
+    """
+    return re.sub(re.escape(str(paths.ROOT)), lambda m: trial_root, text,
+                  flags=re.IGNORECASE)
+
+
+def _trial_tree(dest, overlay: dict) -> None:
+    """Copy her folder, pour the staged text over it, retarget the copy."""
+    real = paths.ROOT
+    for entry in real.iterdir():
+        name = entry.name
+        if name in TRIAL_SKIP_DIRS or name.startswith(TRIAL_SKIP_PREFIX):
+            continue
+        target = dest / name
+        if entry.is_file():
+            shutil.copy2(entry, target)
+        elif entry.is_dir() and name in TRIAL_LINK_DIRS:
+            target.mkdir(parents=True, exist_ok=True)
+            for sub in sorted(entry.rglob("*")):
+                spot = target / sub.relative_to(entry)
+                if sub.is_dir():
+                    spot.mkdir(parents=True, exist_ok=True)
+                else:
+                    try:
+                        os.link(sub, spot)      # same bytes, no second copy
+                    except OSError:
+                        shutil.copy2(sub, spot)
+        elif entry.is_dir():
+            shutil.copytree(entry, target, symlinks=True,
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    for rel, text in overlay.items():
+        out = dest / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8", newline="")
+    for path in dest.rglob("*.md"):
+        try:
+            body = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        moved = _relocate(body, str(dest))
+        if moved != body:
+            path.write_text(moved, encoding="utf-8", newline="")
+
+
+def _trial_summary(body: str) -> str:
+    """The failing checks and nothing else - she has to be able to read it."""
+    keep = []
+    for line in body.splitlines():
+        stripped = line.rstrip()
+        if stripped.startswith("FAIL") or "SMOKE TEST FAILED" in stripped:
+            keep.append(stripped)
+        elif keep and stripped.startswith("  ") and ":" in stripped:
+            keep.append(stripped)
+    text = "\n".join(keep).strip()
+    return text[:1500] or "the trial failed and printed nothing useful"
+
+
+def _trial_run(overlay: dict) -> tuple[bool, str]:
+    """Does the smoke test pass with this staged text in place? Writes nothing.
+
+    Returns (allowed, why). True means the patch may be staged, and that includes
+    every case where the TRIAL ITSELF could not run: a broken harness must not be
+    able to stop her working, and the pipeline still judges what this cannot,
+    exactly as it always did. Only a real, readable test failure says no.
+    """
+    if os.environ.get("LULU_NO_TRIAL"):
+        return True, ""          # already inside a smoke run; do not nest one
+    if not _TRIAL_LOCK.acquire(blocking=False):
+        return True, ""          # one trial at a time; the pipeline still judges
+    box = paths.ROOT / TRIAL_DIR
+    try:
+        dest = box / "root"
+        try:
+            if box.exists():
+                shutil.rmtree(box, ignore_errors=True)
+            dest.mkdir(parents=True, exist_ok=True)
+            _trial_tree(dest, overlay)
+        except Exception as exc:
+            return True, f"(the trial could not build its copy: {exc})"
+        env = dict(os.environ)
+        env["LULU_NO_TRIAL"] = "1"
+        try:
+            out = subprocess.run([sys.executable, "tests/smoke_test.py"],
+                                 cwd=str(dest), capture_output=True, text=True,
+                                 timeout=TRIAL_TIMEOUT, env=env)
+        except subprocess.TimeoutExpired:
+            return False, (f"the smoke test did not finish inside {TRIAL_TIMEOUT}s "
+                           f"against this change - something in it hangs")
+        except Exception as exc:
+            return True, f"(the trial could not run the smoke test: {exc})"
+        if out.returncode == 0:
+            return True, ""
+        return False, _trial_summary((out.stdout or "") + (out.stderr or ""))
+    finally:
+        shutil.rmtree(box, ignore_errors=True)
+        _TRIAL_LOCK.release()
+
+
 def patch_file(path: str, find: str, replace: str, why: str = "",
                check_only: bool = False) -> str:
     """Change part of a file instead of re-sending the whole thing.
@@ -838,9 +983,13 @@ def patch_file(path: str, find: str, replace: str, why: str = "",
         if problem:
             return (f"dry run: this would be REFUSED, and nothing was staged. "
                     f"{problem}\n\n{diff}")
-        return ("dry run: this would stage cleanly. Nothing was written and "
-                f"nothing was staged.\n\n{diff}\n\nDrop check_only to stage it "
-                "for real.")
+        # And the net itself, which is what makes "would stage cleanly" true in
+        # the only sense that matters.
+        allowed, trial = _trial_run({relative: spliced})
+        verdict = ("the smoke test PASSES against this change" if allowed else
+                   f"the smoke test FAILS against this change:\n\n{trial}")
+        return (f"dry run: nothing written, nothing staged. {verdict}\n\n{diff}"
+                f"\n\nDrop check_only to stage it for real.")
     return propose_patch(path, spliced, why or f"patch {path}")
 
 
@@ -868,15 +1017,25 @@ def propose_patch(path: str, content: str, why: str = "") -> str:
     if problems:
         return (f"refused before staging: {problems}. Nothing was staged and "
                 f"nothing was applied - fix it and propose again.")
+    # The net, run HERE rather than after a restart. A failure stages nothing, so
+    # the window stays unspent and the supervisor never sees the mistake.
+    allowed, trial = _trial_run({relative: content})
+    if not allowed:
+        return (f"nothing was staged - the smoke test fails against this "
+                f"change:\n\n{trial}\n\n"
+                f"That is the real tests/smoke_test.py run against YOUR text, in a "
+                f"throwaway copy of the folder. Nothing was applied and nothing "
+                f"restarted. Read it, fix it, stage again.")
+    trial_suffix = ", and the smoke test already passes against it" if trial else ""
     try:
         paths.write_text(f"{STAGED_DIR}/{relative}", content, internal=True)
         _write_request([relative], why)
     except Exception as exc:
         return f"could not stage the patch: {exc}"
-    return (f"staged {relative} ({len(content)} bytes). The supervisor will back it "
-            f"up, apply it, run the smoke test, restart me, and revert it if I do "
-            f"not come up. I cannot apply anything or restart myself - staging is "
-            f"the whole mechanism.")
+    return (f"staged {relative} ({len(content)} bytes){trial_suffix}. The "
+            f"supervisor will back it up, apply it, run the smoke test, restart "
+            f"me, and revert it if I do not come up. I cannot apply anything or "
+            f"restart myself - staging is the whole mechanism.")
 
 
 def request_restart(why: str = "") -> str:
