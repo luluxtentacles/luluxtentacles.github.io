@@ -1,0 +1,94 @@
+# Secrets - never commit
+token.txt
+brain_key.txt
+config.json
+.env
+# MCP credential values. Named here for a mechanical reason, not tidiness: the
+# pipeline's checkpoint runs `git add -A - discord/`, so any new file in this
+# folder is swept into a commit the next time a self-edit is processed. A
+# secrets file that is not ignored gets committed by the machinery itself.
+mcp_secrets.json
+
+# Runtime
+#
+# memory/ used to be ignored wholesale, which was harmless while this tree had no
+# repo. It is NOT harmless now: the den-memory store lives at memory/store.py, and
+# an ignore of the whole folder would leave CODE untracked while ignoring the data
+# beside it. Ignore the runtime data, keep the source.
+memory/*
+!memory/store.py
+!memory/test_store.py
+logs/
+__pycache__/
+*.pyc
+
+# Staging area for self-edits. Runtime state, and the pipeline's checkpoint
+# commits with `git add -A - discord/`, so without this line a rejected or
+# staged patch gets swept into git history. That happened once already.
+pending/
+
+# Where the smoke test redirects every live path so no check can write a file a
+# running process acts on. Throwaway, one per run (pid-suffixed), recreated each
+# time.
+.smoke_sandbox*/
+
+# Chatter cooldown state - channel id to timestamp, rewritten as she talks.
+# Runtime data like memory/, not source.
+chatter.json
+
+# The purse and its price cache. Both are rewritten as she talks, and the
+# pipeline's checkpoint runs `git add -A - discord/` - so unignored, every
+# self-edit would commit today's spending total and a price dump into history.
+# The ledger is deliberately NOT under memory/: that tier is sealed, which is
+# why the first version of the cap could never write its total at all.
+spend.json
+price_cache.json
+
+# whisper.cpp - the build, its DLLs and 1.8 GB of models. Master's build, not
+# den source, and it must stay invisible to the machinery: pipeline.py's
+# checkpoint runs `git add -A - discord/`, so unignored this whole tree would be
+# swept into a commit the next time she self-edits. Resolved at runtime only.
+whisper.cpp/
+
+# A node runtime she can execute, plus the cache npx downloads into. Same rule as
+# whisper.cpp and for the same reason: pipeline.py's checkpoint runs
+# `git add -A - discord/`, so 107 MB of runtime would be committed by the next
+# self-edit. Ignored BEFORE it exists, and pointed at from mcp.json rather than
+# from any PATH - run-bot.cmd sets no PATH at all, and the machine's own node
+# lives inside a human's profile while she runs as the lulu-bot account.
+node/
+node_cache/
+
+# Which start I have already announced, so a crash loop cannot turn into one
+# message per attempt. Runtime state like chatter.json, and the pipeline's
+# checkpoint runs `git add -A - discord/`, so unignored this little file would be
+# committed by the next self-edit.
+restart_seen.json
+
+# ffmpeg, dropped in by hand for voice-message transcription. Same rule as
+# whisper.cpp and node/, for the same reason: the pipeline's checkpoint runs
+# `git add -A - discord/`, and this is 242 MB - unignored it would be committed by
+# the next self-edit rather than by anyone deciding to. Resolved at runtime only,
+# by whisper_stt, which looks beside her before it looks at PATH.
+ffmpeg/
+
+# The open long-task. Rewritten every turn while a task runs, and the pipeline's
+# checkpoint runs `git add -A - discord/` - so unignored, every self-edit would
+# commit whatever the current job happened to be mid-flight. Runtime state like
+# chatter.json and spend.json, not source. It cannot live under memory/: that
+# tier is sealed, and the first version of the purse made exactly that mistake.
+task.json
+
+# The interpreter she runs on, now that it lives beside her instead of in the
+# den. 110 MB of runtime, and pipeline.py's checkpoint runs `git add -A`, so
+# unignored it would be committed by the next self-edit rather than by anyone
+# deciding to. Same rule as node/ and whisper.cpp/.
+Python311/
+
+# Migration scratch: rename.py and relabel_memory.py did their one job and are
+# parked, not shipped. Throwaway tooling, like the den's scratch\ folder.
+.setup-tools/
+
+# Nana's old scratch, carried over by the clone and pointed at the pre-flatten
+# path. Deletable; not source.
+tmp_*.py

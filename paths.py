@@ -1,0 +1,223 @@
+"""The wall around this folder.
+
+Every file the bot reads or writes goes through resolve(). Anything that
+escapes the folder raises SandboxError instead of quietly succeeding.
+
+Honest limit: this is an in-process guard, not an OS jail. Code that imports
+open() directly could bypass it. What it does guarantee is that no path the
+*configuration or runtime* hands in can point outside the folder.
+"""
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+
+# No exceptions. The token is read from the den once at startup, and that read
+# is declared in lulu_bot.py where it can be audited; this guard stays absolute.
+
+# Files the tools may read but never overwrite. Without this, a write_file call
+# could replace paths.py itself - the wall - and the next restart would hand
+# over everything. The skill shelf is listed because those bodies ARE the
+# system prompt.
+# ---------------------------------------------------------------------------
+# Three tiers. This used to be one flat name-list, and the gap in it was real:
+# setup/run-bot.cmd - the script that decides what runs at startup - sat inside
+# her write reach, so a write_file plus a restart was enough to run anything.
+#
+#   SEALED     no tool call and no proposed patch. The wall itself, the
+#              launcher, the pipeline, the credentials. Breaking one of these
+#              voids every other guarantee, so they are not self-updatable:
+#              master edits them by hand.
+#   PROPOSABLE direct writes refused. The only way in is propose_patch, which
+#              stages the file for the supervisor to apply behind git, the
+#              smoke test and a health check, with auto-revert on failure.
+#   the rest   ordinary writing: her own data, scripts and scratch.
+# ---------------------------------------------------------------------------
+SEALED_NAMES = {
+    # the wall, and the pipeline that enforces it
+    "paths.py", "supervisor.py", "pipeline.py",
+    # the keys
+    "config.json", "config.example.json", "brain_key.txt", ".gitignore",
+    # MCP credentials - and the tracked example beside them. Both sealed, not
+    # just the one holding values: the example IS committed, and the pipeline's
+    # checkpoint sweeps `git add -A - discord/`, so a real value written into
+    # the example by any tool would be committed on the next self-edit. The
+    # first cut of this sealed mcp.json and forgot the secrets file entirely.
+    "mcp_secrets.json", "mcp_secrets.example.json",
+}
+SEALED_DIRS = {
+    "setup",    # the launcher: what actually runs at startup
+    "memory",   # her store. One write_file here wiped it once already.
+    "pending",  # the staging area, written only by propose_patch
+    "tests",    # the net that judges every self-edit. See the note below.
+    "logs",     # her own audit trail. An agent that can restate the record of what
+                # it did has no record. Sealed at the same time as autonomy, and for
+                # the same reason: the log is only evidence while she cannot edit it.
+    "node",     # The runtime she spawns MCP servers with. Sealed for one specific
+                # reason: node/ is gitignored, so a replaced node.exe would be
+                # invisible to git - an unversioned, writable binary is a blind spot
+                # in the only audit trail there is. Sealing does NOT stop her running
+                # it: subprocess never goes through resolve(). node_cache/ stays
+                # ordinary writing, because npx has to download into it.
+    "ffmpeg",   # Same argument, same shape: gitignored, 242 MB, executed by the STT
+                # path to decode voice messages. A swapped binary is invisible to
+                # git, so it is sealed for the same reason node/ is. Sealing does not
+                # stop her RUNNING it - the exec goes through subprocess, not
+                # resolve().
+    ".git",
+}
+
+# `tests` is sealed for a reason worth writing down, because it was reachable
+# until it was not. The smoke test is what decides whether a proposed patch may
+# keep running, and it used to be ordinary writing: a bare write_file could put
+# a stub there that exits 0, after which every later patch is applied on the
+# strength of a net that no longer exists. The judge had no guard on itself.
+# Hand-edited only - and it matters more now that her reach extends to things
+# that spawn processes.
+
+# Her prompt shelf. Unsealed on master's call: she is boxed inside Discord, and
+# only the owner id can reach propose_patch at all, so a bad skill edit is a
+# contained mess rather than an escape.
+#
+# PROPOSABLE, and deliberately NOT directly writable. A bare write_file still
+# cannot touch a skill, because a prompt change that skips the pipeline is
+# precisely the one nothing would catch. Through the pipeline it gets a git
+# checkpoint, the shelf check in the smoke test, and an automatic revert.
+PROPOSABLE_DIRS = {".agents"}
+
+# Code that runs her. Changeable - but only through the pipeline, never by a
+# bare tool call.
+PROPOSABLE_NAMES = {
+    "lulu_bot.py", "tools.py", "brain.py", "skills.py", "shared_memory.py",
+    "people.py", "journal.py", "webtool.py",
+    # Her ears. Everything this module does with an attachment ends in a spawned
+    # process, so it belongs in the tier a bare write_file cannot reach - the
+    # same reason spend.py and the MCP client are listed rather than left to be
+    # born ordinary files.
+    "whisper_stt.py",
+    # The purse. Listed with the code it governs rather than left to be born an
+    # ordinary file: the module that decides whether she may spend is not
+    # something a bare write_file should be able to reach.
+    "spend.py",
+    # Her review window: the module that decides when she may change herself, so
+    # it belongs in the same tier as the code it changes. Left out on the first
+    # pass and caught by a probe - still writable by a bare write_file, which is
+    # the exact omission this comment exists to stop repeating.
+    "self_review.py",
+    # Her long-task worker, on the same argument: it runs her over several turns,
+    # picks its own tools, and is started only by master. Code that runs her is
+    # pipeline-only, never a bare write_file.
+    "taskmode.py",
+    # The MCP client and its server registry, listed BEFORE either exists, on
+    # purpose. Left out, they would be born as ordinary files - so the module
+    # that spawns new processes would be the one file she can write freely, and
+    # the registry of what may be spawned would be writable without a pipeline.
+    "mcp_client.py", "mcp.json",
+}
+
+
+class SandboxError(RuntimeError):
+    """A path escaped the bot's folder. Refuse; do not warn and continue."""
+
+
+def resolve(relative: str | os.PathLike, *, must_exist: bool = False) -> Path:
+    """Turn a folder-relative path into an absolute one, or refuse."""
+    candidate = Path(relative)
+    if candidate.is_absolute():
+        raise SandboxError(f"absolute paths are not allowed: {relative}")
+    full = (ROOT / candidate).resolve()
+    if full != ROOT and ROOT not in full.parents:
+        raise SandboxError(f"path escapes the sandbox: {relative}")
+    if must_exist and not full.exists():
+        raise SandboxError(f"nothing there: {relative}")
+    return full
+
+
+def pin_cwd() -> None:
+    """Make relative opens land inside the folder even if the caller is sloppy."""
+    os.chdir(ROOT)
+
+
+def read_text(relative: str, default: str | None = None) -> str:
+    path = resolve(relative)
+    if not path.exists():
+        if default is None:
+            raise FileNotFoundError(relative)
+        return default
+    return path.read_text(encoding="utf-8")
+
+
+def _relative_parts(path: Path) -> tuple[str, ...]:
+    try:
+        return path.relative_to(ROOT).parts
+    except ValueError:
+        raise SandboxError(f"path escapes the sandbox: {path}") from None
+
+
+def _sealed(path: Path, parts: tuple[str, ...]) -> bool:
+    return path.name in SEALED_NAMES or bool(parts) and parts[0] in SEALED_DIRS
+
+
+def assert_writable(path: Path) -> None:
+    """Refuse to overwrite the code that runs me, the shelf that prompts me, or
+    the store that remembers for me.
+
+    This is the guard on a bare tool call. It is deliberately stricter than
+    assert_proposable: a write_file can never touch something that runs her -
+    not her code, and not her prompt either.
+    """
+    parts = _relative_parts(path)
+    relative = "/".join(parts)
+    if _sealed(path, parts):
+        raise SandboxError(
+            f"{relative} is sealed: the wall, the launcher and the keys are "
+            f"never writable by a tool call")
+    if path.name in PROPOSABLE_NAMES or (parts and parts[0] in PROPOSABLE_DIRS):
+        raise SandboxError(
+            f"{relative} runs me: change it with propose_patch, which stages it "
+            f"for the supervisor to apply behind git and the smoke test")
+
+
+def assert_proposable(path: Path) -> None:
+    """The guard for propose_patch - staged changes, not direct writes.
+
+    Sealed is sealed even here. Everything else may be staged, because the
+    supervisor applies it behind a checkpoint, the smoke test, a health check
+    and an automatic revert.
+    """
+    parts = _relative_parts(path)
+    if _sealed(path, parts):
+        relative = "/".join(parts)
+        raise SandboxError(f"{relative} is sealed: not self-updatable, ask master")
+
+
+def write_text(relative: str, text: str, *, internal: bool = False) -> Path:
+    """Write inside the folder.
+
+    `internal=True` is for my own storage layer, which has to bypass the guard
+    to write memory at all. Tool calls never pass it - that gap is precisely
+    what keeps write_file away from my source and my store.
+    """
+    path = resolve(relative)
+    if not internal:
+        assert_writable(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def read_json(relative: str, default=None):
+    path = resolve(relative)
+    if not path.exists():
+        if default is None:
+            raise FileNotFoundError(relative)
+        return default
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(relative: str, data, *, internal: bool = False) -> Path:
+    return write_text(relative, json.dumps(data, indent=2, ensure_ascii=False),
+                      internal=internal)

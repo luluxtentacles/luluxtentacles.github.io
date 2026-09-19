@@ -1,0 +1,30 @@
+{
+  "token_file": "token.txt",
+
+  "brain": {
+    "base_url": "http://127.0.0.1:8080/v1",
+    "model": "local-model",
+    "api_key": "",
+    "temperature": 0.9,
+
+    "_max_tokens": "How many tokens ONE turn may write, for anyone who is not master - thinking AND chat share this number. Measured on glm-5.3-flash: about 4 characters per token, so a full 2000-character Discord message costs roughly 493 tokens, and reasoning tokens are billed to the same budget. 400 was cutting answers off before they started. 500 is a full reply with a little headroom, and deliberately not more: it is the ceiling on strangers.",
+    "max_tokens": 500,
+
+    "_owner_max_tokens": "Master's ceiling. High on purpose: his replies are capped at 2000 characters by Discord anyway, and a tight cap costs him the answer rather than the money - spend.py never prices his turns. Set it to 0 to omit the field and let the provider decide, which is a literal no-limit.",
+    "owner_max_tokens": 8000
+  },
+
+  "always_skills": ["lulu-voice"],
+
+  "stt": false,
+  "stt_folder": "whisper.cpp",
+  "stt_model": "whisper.cpp/ggml-small-q5_1.bin",
+
+  "_stt_ffmpeg": "Where ffmpeg lives. LEAVE THIS OUT and whisper_stt looks inside her own folder first - which is where a hand-dropped ffmpeg/ffmpeg.exe belongs, and the only place a binary can live because run-bot.cmd sets no PATH at all. Set it to a bare name like \"ffmpeg\" only to force an old-style PATH lookup.",
+  "stt_ffmpeg": "ffmpeg/ffmpeg.exe",
+
+  "stt_language": "auto",
+  "stt_timeout": 180,
+
+  "say_channels": []
+}
