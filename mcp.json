@@ -5,7 +5,9 @@
       "args": [
         "node/node_modules/npm/bin/npx-cli.js",
         "-y",
-        "@playwright/mcp"
+        "@playwright/mcp",
+        "--browser",
+        "chromium"
       ],
       "env": {
         "npm_config_cache": "node_cache"

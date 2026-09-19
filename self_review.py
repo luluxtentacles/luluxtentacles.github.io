@@ -281,6 +281,15 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
     if mine:
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
+    where += (
+        "\nOne way to spend this, and the one master keeps asking for: go and\n"
+        "find something out. You have the open web and a real browser now -\n"
+        "`web_fetch` for one page, `mcp_call('playwright', ...)` when a search\n"
+        "engine or a live page needs a browser. The method, which engines\n"
+        "actually answer from this box, and the sources that do, are on your own\n"
+        "shelf: use the `research` skill. If a window ends with something you did\n"
+        "not know at the start, written down where you will still have it, that\n"
+        "was a good window.\n")
     return BRIEF + where
 
 

@@ -37,7 +37,12 @@ import zlib
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 TIMEOUT_SECONDS = 20
-MAX_BYTES = 400_000
+# 400_000 was a refusal, not a cap: a page bigger than it came back as "I stopped
+# early" with no text at all, so a big reference index like sacred-texts.com was
+# simply unreadable. Master's call 2026-09-20 - she goes all over the internet for
+# research - so the ceiling is 1.5MB now and an oversized page is TRUNCATED and
+# returned rather than thrown away. MAX_CHARS is what actually reaches the prompt.
+MAX_BYTES = 1_500_000
 MAX_CHARS = 20_000
 MAX_REDIRECTS = 4
 ALLOWED_SCHEMES = {"http", "https"}
@@ -153,8 +158,11 @@ def fetch(url: str) -> str:
             return f"[could not reach {target}: {type(exc).__name__}]"
 
         raw = _decode(raw, encoding)
-        if len(raw) > MAX_BYTES:
-            return f"[that page is bigger than {MAX_BYTES} bytes; I stopped early]"
+        # Cut it, do not refuse it. A page larger than the ceiling still has an
+        # answer in its first megabyte far more often than not, and returning
+        # nothing is the one outcome that teaches her the page is unreachable.
+        clipped = len(raw) > MAX_BYTES
+        raw = raw[:MAX_BYTES]
 
         charset = "utf-8"
         match = re.search(r"charset=([\w\-]+)", content_type)
@@ -166,6 +174,7 @@ def fetch(url: str) -> str:
             text = _to_text(text)
 
         where = f" ({final})" if final != target else ""
-        header = f"[{len(text)} chars from {target}{where}]"
+        note = f", first {MAX_BYTES} bytes of a bigger page" if clipped else ""
+        header = f"[{len(text)} chars from {target}{where}{note}]"
         return header + "\n\n" + text[:MAX_CHARS]
     return "[too many redirects; I stopped]"

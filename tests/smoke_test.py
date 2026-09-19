@@ -1607,7 +1607,7 @@ def _task() -> str:
 # on without it. So the expected skills must all be present, with a body and a
 # description.
 REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
-                   "self-upgrade", "mcp-client", "hobbies")
+                   "self-upgrade", "mcp-client", "hobbies", "research")
 
 
 def _shelf() -> str:
