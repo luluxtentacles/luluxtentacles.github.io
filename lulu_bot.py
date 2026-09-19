@@ -364,9 +364,12 @@ CHATTER_DECAY_SECONDS = 2 * 60 * 60
 
 # The 4-hour sweep, master's rule 2026-09-20: "when you do your shit every 4
 # hours, say what you did here". A background loop tails my own log since the
-# last sweep and posts a short summary into the sweep channel, through the
-# say() pipeline - so the allowlist still governs where it lands, and until
-# say_channels contains lulu-den the sweep is queued there instead.
+# last sweep and posts a short summary, through the say() pipeline.
+#
+# A sweep is speech I start MYSELF, so its destination is update_channels, not
+# a say() allowlist - there is no say() allowlist any more (2026-09-20). That is
+# the list for things I volunteer; say() is for rooms master deliberately points
+# me at, and those are different promises.
 SWEEP_SECONDS = 4 * 60 * 60
 SWEEP_LOG_LINES = 4000          # how far back into logs/bot.log one sweep reads
 SWEEP_MAX_CHARS = 400           # a report, not an essay - same cap as say()

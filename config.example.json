@@ -24,7 +24,5 @@
   "stt_ffmpeg": "ffmpeg/ffmpeg.exe",
 
   "stt_language": "auto",
-  "stt_timeout": 180,
-
-  "say_channels": []
+  "stt_timeout": 180
 }

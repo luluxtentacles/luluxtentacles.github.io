@@ -1356,36 +1356,21 @@ SAY_WINDOW = 10 * 60       # seconds
 SAY_MAX_CHARS = 400
 
 
-def _say_allowlist() -> list[str]:
-    """Channels master has allowed, from config.json -> say_channels.
-
-    Empty or missing means nobody can send me anywhere, which is the correct
-    default for a feature that lets a bot speak in rooms it was not invited to.
-    """
-    try:
-        raw = paths.read_json("config.json", default={}) or {}
-    except Exception:
-        return []
-    allowed = raw.get("say_channels")
-    if not isinstance(allowed, list):
-        return []
-    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
-
-
 def update_channels() -> list[str]:
     """Where I announce myself, from config.json -> update_channels.
 
-    Deliberately NOT the say allowlist. Those are two different promises and
-    master asked to keep them apart (2026-09-20: "instead of calling them say"):
-    say() governs speaking in a room I was not invited to, while this is the list
-    of rooms he actually asked to hear from me in - restart reports and the like.
+    Master, 2026-09-20: one list, for the things I say on my OWN initiative - a
+    restart report, a status line. It governs the channels I volunteer into, not
+    the ones he sends me to. "Instead of calling them say" was the whole point:
+    an announcement list and a speech restriction are different promises and
+    were only ever the same key by accident.
 
     Read fresh on every call so editing config.json does not need a restart. And
     it is not a way for me to widen my own reach: config.json is in
     paths.SEALED_NAMES, so nothing I run can write to it.
 
-    Empty or missing means I announce nothing anywhere. Same fail-closed default
-    as say(), and for the same reason - a list nobody wrote down is not consent.
+    Empty or missing means I announce nothing anywhere - a list nobody wrote down
+    is not consent.
     """
     try:
         raw = paths.read_json("config.json", default={}) or {}
@@ -1398,14 +1383,24 @@ def update_channels() -> list[str]:
 
 
 def say(channel: str, text: str) -> str:
-    """Queue one message into an allowed channel. Never sends from here.
+    """Queue one message into any channel I am pointed at. Never sends from here.
 
     Guards, in order, and all of them are mechanical rather than polite:
       1. owner-only - 'say' is not in LOOKUP_TOOL_NAMES, so run() refuses a
          stranger before this function is ever reached.
-      2. allowlist - config.json -> say_channels. Empty means refuse everything.
-      3. rate limit - SAY_MAX sends per SAY_WINDOW, counted per process.
-      4. length - a blurt, not an essay.
+      2. rate limit - SAY_MAX sends per SAY_WINDOW, counted per process.
+      3. length - a blurt, not an essay.
+
+    There is deliberately NO channel allowlist. Master's call, 2026-09-20: if he
+    tells me to say something somewhere, I go there. The old say_channels gate
+    was handed to me as a restriction on speaking in a room I was not invited to
+    - but every reachable caller of this is the OWNER, so its only live effect
+    was refusing the man giving the order ("i am not allowed to talk in #general"
+    is not a security boundary, it is a bug with a fence around it).
+
+    What still holds the line is unchanged: I can only reach a channel I can
+    already see, the rate limit caps how often, and a stranger's turn never gets
+    this tool at all. Volume was always the real risk here, not geography.
     """
     target = (channel or "").strip().lstrip("#").lower()
     body = " ".join((text or "").split())
@@ -1415,14 +1410,6 @@ def say(channel: str, text: str) -> str:
         return "nothing to say"
     if len(body) > SAY_MAX_CHARS:
         return f"too long to blurt out ({len(body)} chars, max {SAY_MAX_CHARS})"
-
-    allowed = _say_allowlist()
-    if not allowed:
-        return ("i am not allowed to speak anywhere on my own - master would have "
-                "to add a channel to say_channels in config.json first")
-    if target not in allowed:
-        return (f"i am not allowed to talk in #{target}. allowed: "
-                + ", ".join("#" + c for c in allowed))
 
     now = time.time()
     _SAY_TIMES[:] = [t for t in _SAY_TIMES if now - t < SAY_WINDOW]

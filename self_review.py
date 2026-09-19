@@ -20,7 +20,8 @@ Four settled decisions, each for its own reason:
                    called it, 2026-09-20: normal agent function, all of it. The
                    wall did not move for it. paths.py still refuses a direct
                    write to her code, her shelf or her store; `say` is still
-                   pinned to config say_channels and rate limited; and every
+                   rate limited and owner-only - only its channel allowlist is
+                   gone, master's call 2026-09-20; and every
                    self-edit still goes through propose_patch, behind git, the
                    smoke test and a health check.
 

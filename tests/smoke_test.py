@@ -2188,52 +2188,54 @@ def _empty_reply() -> str:
 # checked mechanically, and the tool must never post anything itself: it queues,
 # and the event loop sends.
 def _say_guard() -> str:
+    """say() is owner-only, unconstrained in WHERE, capped in HOW MUCH.
+
+    Master, 2026-09-20: the say_channels allowlist is GONE. He wants her to go
+    wherever he points her, and every reachable caller of say() is the owner - so
+    the old gate's only live effect was refusing the man giving the order. This
+    check is the inverse of the one it replaces: it proves there is NO allowlist
+    now, and that the guards which still matter survived the change.
+    """
     import tools
 
-    real_allowlist = tools._say_allowlist
     tools._OUTBOX.clear()
     tools._SAY_TIMES.clear()
     try:
-        # 1. strangers cannot reach it at all
+        # 1. strangers cannot reach it at all - the guard that still matters
         expect("say" not in tools.LOOKUP_TOOL_NAMES,
                "say is offered to people who are not master")
         out = tools.run("say", {"channel": "general", "text": "hi"},
                         allowed=tools.LOOKUP_TOOL_NAMES)
         expect(out.startswith("refused:"), f"a stranger could say something: {out}")
 
-        # 2. no allowlist configured means refuse everything
-        tools._say_allowlist = lambda: []
+        # 2. NO allowlist: a channel master names is queued, full stop
+        expect(not hasattr(tools, "_say_allowlist"),
+               "the say_channels allowlist is still here - it was meant to be gone")
         out = tools.say("general", "hi")
-        expect("not allowed" in out, f"empty allowlist still allowed a send: {out}")
-        expect(not tools._OUTBOX, "something was queued with no allowlist")
+        expect("queued" in out, f"a channel master named was refused: {out}")
+        expect(len(tools._OUTBOX) == 1, "the send did not queue exactly once")
 
-        # 3. off-allowlist channel refused
-        tools._say_allowlist = lambda: ["snailcat"]
-        out = tools.say("general", "hi")
-        expect("not allowed" in out, f"an unallowed channel was accepted: {out}")
-        expect(not tools._OUTBOX, "an unallowed channel was queued")
+        # 3. length still caps a blurt, and an over-long one is not queued
+        out = tools.say("general", "x" * (tools.SAY_MAX_CHARS + 1))
+        expect("too long" in out, f"an over-long say was accepted: {out}")
+        expect(len(tools._OUTBOX) == 1, "an over-long say was still queued")
 
-        # 4. allowed channel queues, and the tool itself never posted
-        out = tools.say("#snailcat", "hello there")
-        expect("queued" in out, f"an allowed send was not queued: {out}")
-        expect(len(tools._OUTBOX) == 1, "the allowed send did not queue exactly once")
-
-        # 5. rate limit holds after SAY_MAX
+        # 4. rate limit holds after SAY_MAX
         tools.say("snailcat", "two")
         tools.say("snailcat", "three")
         out = tools.say("snailcat", "four")
         expect("already spoken" in out, f"the rate limit did not hold: {out}")
 
-        # 6. drain hands over exactly what was queued, then empties
+        # 5. drain hands over exactly what was queued, then empties
         queued = tools.drain_outbox()
         expect(len(queued) == tools.SAY_MAX,
                f"drain returned {len(queued)}, expected {tools.SAY_MAX}")
         expect(not tools._OUTBOX, "drain did not empty the outbox")
     finally:
-        tools._say_allowlist = real_allowlist
         tools._OUTBOX.clear()
         tools._SAY_TIMES.clear()
-    return "owner-only, allowlist, rate limit and queue/drain all enforced"
+    return ("owner-only, NO channel allowlist, length and rate limit, "
+            "queue/drain all enforced")
 
 
 # -- 19. the restart notice, written once and consumed once ---------------
