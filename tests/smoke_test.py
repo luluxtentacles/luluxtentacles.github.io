@@ -347,7 +347,7 @@ def _dm_shut() -> str:
 
     m = SimpleNamespace(content=f"<@{bot_id}> hi", mentions=[me], reference=None,
                         author=SimpleNamespace(id=999, bot=False, display_name="s"),
-                        guild=None)
+                        guild=None, attachments=[])
     m.channel = discord.DMChannel.__new__(discord.DMChannel)
     m.channel.id = 5555
     asyncio.run(bot.on_message(m))
@@ -388,7 +388,7 @@ def _dm_owner() -> str:
             author=SimpleNamespace(id=author_id, bot=False, display_name="who",
                                    name="who", global_name="", nick="",
                                    mention=""),
-            guild=None)
+            guild=None, attachments=[])
         m.channel = discord.DMChannel.__new__(discord.DMChannel)
         m.channel.id = 7777
         return m
