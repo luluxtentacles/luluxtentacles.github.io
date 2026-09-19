@@ -2104,6 +2104,43 @@ def _runbox() -> str:
     return "cwd pinned, timeout set, every command audited, master only"
 
 
+# -- 8z. the containment rule is part of the contract -------------------------
+# Master asked for a rule that she stays inside her own folder, and it lives in
+# lulu-voice/SKILL.md - the always-loaded skill, so it is in her prompt every
+# turn. That file is PROPOSABLE, so she can propose a patch to it, and a patch
+# that quietly deleted the rule would be well-formed, pass the shelf check, and
+# apply.
+#
+# This does NOT test that she OBEYS it. Nothing in here could, and the limit is
+# the point: the ACLs are what actually hold her in. What it tests is that the
+# instruction is still THERE, so removing it becomes a deliberate act that shows
+# up in a diff instead of a silent one that slides through. Same shape as
+# REQUIRED_SKILLS just above, which is the existing precedent for "a thing you
+# may not quietly delete".
+#
+# Anchored on the heading, not the wording, so rewording the rule cannot fail it.
+# If master genuinely wants it gone, the fix is to delete this check in the SAME
+# change - and the failure message says so out loud, because a hard gate on a
+# guideline with no documented way out would be worse than the guideline.
+def _containment() -> str:
+    import paths
+
+    skill = paths.ROOT / ".agents" / "skills" / "lulu-voice" / "SKILL.md"
+    expect(skill.is_file(), "her always-loaded voice skill is missing")
+    text = skill.read_text(encoding="utf-8")
+    expect("## Where you are allowed to be" in text,
+           "the stay-inside-her-folder rule is gone from lulu-voice/SKILL.md. "
+           "She is told this every turn. If it is being removed on purpose, "
+           "delete the 'containment' check from tests/smoke_test.py in the SAME "
+           "change, so the two stay honest together.")
+    # str(paths.ROOT) is her folder. Comparing against it rather than a literal
+    # means the check follows the folder if it ever moves, and it keeps a
+    # backslash out of this source file where it would need escaping.
+    expect(str(paths.ROOT) in text,
+           "the containment rule no longer names her own folder")
+    return "the stay-inside-her-folder rule is present in her always-loaded skill"
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -2129,6 +2166,7 @@ CHECKS = [
     ("ffmpeg", _ffmpeg),
     ("task", _task),
     ("shelf", _shelf),
+    ("containment", _containment),
     ("skill-patch", _skill_patch),
     ("budget", _budget),
     ("entrypoint", _entrypoint),
