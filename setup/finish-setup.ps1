@@ -85,13 +85,40 @@ function Stop-Lulu {
     return $false
 }
 
-Assert-Admin
+# Elevation is only needed to WRITE, so -Check runs anywhere. But unelevated we
+# genuinely CANNOT see her process: another account's CommandLine reads blank, so
+# Get-LuluProcs finds nothing. Printing "nothing running" while unable to look is
+# the exact false negative this script was rewritten to stop - it is how a
+# restarted-but-unchanged bot was once reported as a success. So the listing is
+# made honest rather than merely permitted.
+$elevated = ([Security.Principal.WindowsPrincipal] `
+             [Security.Principal.WindowsIdentity]::GetCurrent()
+            ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 Write-Host "=== before ==="
 Show-Task $luluTask
-Get-LuluProcs | ForEach-Object { Write-Host ("  running: pid {0}" -f $_.ProcessId) }
+if ($elevated) {
+    $procs = @(Get-LuluProcs)
+    if ($procs) {
+        $procs | ForEach-Object { Write-Host ("  running: pid {0}" -f $_.ProcessId) }
+    } else {
+        Write-Host "  running: nothing"
+    }
+} else {
+    Write-Host "  running: CANNOT TELL - not elevated, so her process is invisible here"
+}
 
-if ($Check) { Write-Host "`n-check given: nothing was written."; exit 0 }
+if ($Check) {
+    Write-Host "`n-check given: nothing was written."
+    if (-not $elevated) {
+        Write-Host "Not elevated: the task and process lines above may both read as"
+        Write-Host "absent while she is perfectly fine. Run this from an admin shell"
+        Write-Host "for the truth, or without --check to restart her."
+    }
+    exit 0
+}
+
+Assert-Admin
 
 # Fail with a sentence a human can act on. Start-ScheduledTask on a task that
 # does not exist throws a raw red error and nothing else - which is exactly what

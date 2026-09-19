@@ -2,8 +2,8 @@
 REM Restart Lulu. Self-elevates, because her task runs as the boxed `lulu-bot`
 REM account and stopping/starting it is Access denied to a normal user.
 REM
-REM   restart-lulu.cmd          stop her, start her again, verify
-REM   restart-lulu.cmd --check  report her state, change nothing
+REM   restart-lulu.cmd          stop her, start her again, verify (asks for admin)
+REM   restart-lulu.cmd --check  report her state, change nothing (no admin needed)
 REM
 REM Stops and starts the SCHEDULED TASK, not her process: the task owns the
 REM lulu-bot credential, and only it can start her.
@@ -13,6 +13,12 @@ REM paged out and the shard falls behind ("Can't keep up"). A restart is the fix
 
 setlocal
 set "SETUP=%~dp0"
+
+REM --check reads and writes nothing, so it does NOT need elevation - skip the
+REM self-elevation for it and let her state be read from any shell. Everything
+REM else still elevates, because stopping her task and killing her process are
+REM Access denied to a normal user.
+if "%~1"=="--check" goto :run
 
 net session >nul 2>&1
 if errorlevel 1 (
@@ -27,6 +33,7 @@ if "%ELEVATED%"=="0" (
     exit /b
 )
 
+:run
 if "%1"=="--check" (
     powershell -NoProfile -ExecutionPolicy Bypass -File "%SETUP%finish-setup.ps1" -Check
 ) else (
