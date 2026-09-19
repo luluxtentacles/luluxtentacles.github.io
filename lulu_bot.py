@@ -450,6 +450,224 @@ def _prompt_chars(turns: list[dict]) -> int:
             total += len(content)
     return total
 
+
+# -- context: folding history before the prompt outgrows the window --------
+#
+# Nothing in this folder knew how big the window is, and nothing ever folded
+# anything. `turns` grows all the way through a tool loop that can run
+# MAX_TOOL_ROUNDS deep, and the mirror block is the only part of the prompt that
+# had a budget of its own. A prompt that reaches the window does not degrade
+# gracefully - the provider refuses the whole request, and the refusal arrives
+# after the turn was spent.
+#
+# Master, 2026-09-20: "write her a compact history function when we are at 80%
+# token limit for any chat". So: measure, and fold the middle before that.
+CONTEXT_TOKENS = 128_000        # assumed window when config.json does not say
+CONTEXT_FLOOR_TOKENS = 4_000    # below this a "limit" is a bug, not a limit
+CONTEXT_CEILING_TOKENS = 2_000_000
+CONTEXT_COMPACT_AT = 0.80       # fold once the prompt is this full
+CONTEXT_KEEP_TAIL = 6           # newest messages always kept verbatim
+COMPACT_LINE_CHARS = 200        # per folded line
+COMPACT_MAX_LINES = 60          # the digest's own ceiling
+IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
+CHARS_PER_TOKEN = 4             # the ratio config.example.json already documents
+
+
+def context_limit(config) -> int:
+    """How many tokens the model can hold: config.json -> brain.context_tokens.
+
+    Not invented per call, and not guessed from the price list - models.dev
+    carries prices, not windows, so the cache cannot answer this. A missing,
+    unreadable or absurd value falls back to the documented default rather than
+    to a number that would fold every prompt on the first round.
+    """
+    brain_cfg = (config or {}).get("brain") or {}
+    raw = brain_cfg.get("context_tokens", CONTEXT_TOKENS)
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return CONTEXT_TOKENS
+    if value < CONTEXT_FLOOR_TOKENS:
+        return CONTEXT_TOKENS
+    return min(value, CONTEXT_CEILING_TOKENS)
+
+
+def _flat_content(content) -> str:
+    """The text of a message's content, whether it is a string or parts."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        bits = []
+        for part in content:
+            if isinstance(part, dict) and part.get("type") != "image_url":
+                bits.append(str(part.get("text") or ""))
+        return " ".join(bits)
+    return "" if content is None else str(content)
+
+
+def estimate_tokens(turns) -> int:
+    """Roughly what this prompt costs. The provider's own count beats it.
+
+    A picture is charged a flat IMAGE_TOKENS instead of the length of its
+    base64: the encoding is ~4 characters per THREE bytes, so counting it as
+    text would report a screenshot as tens of thousands of tokens that are not
+    being billed, and fold a prompt that was never full.
+
+    reasoning_content is counted because it is sent back on every later hop -
+    it is payload, whatever else it is.
+    """
+    chars = 0
+    images = 0
+    for turn in turns or ():
+        if not isinstance(turn, dict):
+            continue
+        content = turn.get("content")
+        if isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict) and part.get("type") == "image_url":
+                    images += 1
+        chars += len(_flat_content(content))
+        reasoning = turn.get("reasoning_content")
+        if isinstance(reasoning, str):
+            chars += len(reasoning)
+    return chars // CHARS_PER_TOKEN + images * IMAGE_TOKENS
+
+
+def _condense(text, limit: int = COMPACT_LINE_CHARS) -> str:
+    """One folded line: collapsed, bounded, with the cut marked."""
+    line = " ".join(str(text or "").split())
+    if len(line) <= limit:
+        return line
+    return line[:limit].rstrip() + "..."
+
+
+def _turn_units(turns: list[dict]) -> list[list[dict]]:
+    """Group the prompt so a tool round can never be split apart.
+
+    An assistant message that calls tools and the tool results answering it are
+    ONE message pair as far as the API is concerned: drop the assistant half and
+    the results become orphans, drop the results and the calls are unanswered,
+    and either way the next request comes back 400. So folding happens on whole
+    units, never on messages.
+    """
+    units: list[list[dict]] = []
+    index = 0
+    while index < len(turns):
+        turn = turns[index]
+        unit = [turn]
+        index += 1
+        if (isinstance(turn, dict) and turn.get("role") == "assistant"
+                and turn.get("tool_calls")):
+            while (index < len(turns) and isinstance(turns[index], dict)
+                   and turns[index].get("role") == "tool"):
+                unit.append(turns[index])
+                index += 1
+        units.append(unit)
+    return units
+
+
+def _digest_line(unit: list[dict]) -> str:
+    """One unit, as a line she can still read later."""
+    head = unit[0] if unit and isinstance(unit[0], dict) else {}
+    role = head.get("role")
+    calls = head.get("tool_calls") or []
+    if role == "assistant" and calls:
+        names = []
+        for call in calls:
+            name = ((call or {}).get("function") or {}).get("name") or "?"
+            names.append(str(name))
+        line = "you called " + ", ".join(names)
+        results = [u for u in unit[1:] if isinstance(u, dict)]
+        if results:
+            line += " -> " + " | ".join(
+                _condense(_flat_content(u.get("content")), 120) for u in results)
+        return line
+    if role == "tool":
+        return "tool result: " + _condense(_flat_content(head.get("content")), 120)
+    if role == "user":
+        return "user: " + _condense(_flat_content(head.get("content")))
+    if role == "assistant":
+        return "you said: " + _condense(_flat_content(head.get("content")))
+    return f"{role or 'context'}: " + _condense(_flat_content(head.get("content")))
+
+
+def compact_history(turns: list[dict], limit_tokens: int, measured: int | None = None,
+                    compact_at: float = CONTEXT_COMPACT_AT,
+                    keep_tail: int = CONTEXT_KEEP_TAIL,
+                    ) -> tuple[list[dict], str]:
+    """Fold the MIDDLE of a prompt into one digest once it nears the window.
+
+    Returns (turns, note). When nothing needed folding, `turns` is the ORIGINAL
+    list, unchanged and by identity, and `note` is "" - so a caller can tell
+    "nothing to do" from "folded" without guessing.
+
+    `measured` is the token count the provider reported for the prompt it just
+    received. When it is there it decides, because it is the truth about this
+    window on this endpoint; the estimate is only for the first round, before
+    anything has been sent.
+
+    What is always kept:
+      - the leading block up to and including the FIRST user message, which is
+        the system prompt, her memory and people blocks, the mirror of the room
+        and the actual thing she is answering. Folding away the live question to
+        save room is not a trade, it is a bug.
+      - the newest `keep_tail` units, verbatim.
+
+    What is folded: whole units in between, as one system message naming the
+    tools she already called and what came back. It says out loud that it is a
+    compaction, so she does not read her own history as something she is being
+    told now, and it says not to repeat the folded work.
+
+    Never raises. A prompt that cannot be measured still has to run.
+    """
+    size = int(measured) if measured else estimate_tokens(turns)
+    trigger = int(limit_tokens * compact_at)
+    if size < trigger:
+        return turns, ""
+
+    units = _turn_units(turns)
+    first_user = next((i for i, u in enumerate(units)
+                       if isinstance(u[0], dict) and u[0].get("role") == "user"),
+                      None)
+    if first_user is None:
+        # No live user turn to anchor on. Folding blind here would drop the only
+        # thing the model was asked to answer.
+        return turns, ""
+
+    head = first_user + 1
+    tail_start = max(head, len(units) - keep_tail)
+    # Never let the kept tail begin with an orphaned tool result: its assistant
+    # half would be in the digest, and that shape is a 400 from the provider.
+    while (tail_start > head and isinstance(units[tail_start][0], dict)
+           and units[tail_start][0].get("role") == "tool"):
+        tail_start -= 1
+
+    middle = units[head:tail_start]
+    if not middle:
+        return turns, ""
+
+    lines = [line for line in (_digest_line(u) for u in middle) if line]
+    if not lines:
+        return turns, ""
+
+    shown = lines[-COMPACT_MAX_LINES:]
+    dropped = len(lines) - len(shown)
+    body = (f"[earlier in this turn, compacted to save room: {len(lines)} step(s) "
+            f"folded. You already did these - do not repeat them, and do not "
+            f"answer them as though they were new.]")
+    if dropped:
+        body += f"\n({dropped} older step(s) not repeated here)"
+    folded = [{"role": "system", "content": body + "\n" + "\n".join(shown)}]
+
+    head_turns = [t for u in units[:head] for t in u]
+    tail_turns = [t for u in units[tail_start:] for t in u]
+    result = head_turns + folded + tail_turns
+    note = (f"context compacted: ~{size} -> ~{estimate_tokens(result)} tokens "
+            f"({len(middle)} step(s) folded, {dropped} not repeated), "
+            f"trigger {trigger} ({int(compact_at * 100)}% of {limit_tokens})")
+    return result, note
+
+
 # The token she logs in with. It lives INSIDE her folder now. This comment used
 # to read "the two sanctioned reads outside this folder", which was true before
 # the tree was flattened and is not any more - and Nyan's ledger is not read from
@@ -1616,7 +1834,21 @@ class Lulu(discord.Client):
         last_line = ""
         prompt_total = 0
         cached_total = 0
+        prompt_this_round = None
         for round_index in range(MAX_TOOL_ROUNDS):
+            # Fold the prompt's middle BEFORE it can outgrow the window. From the
+            # second round on this uses the exact number the provider reported for
+            # the round just sent; on the first round, before anything has gone
+            # out, it estimates. Never fatal: a turn that cannot measure itself
+            # still has to run.
+            try:
+                turns, folded = compact_history(
+                    turns, context_limit(self.config.get("brain")),
+                    measured=prompt_this_round)
+                if folded:
+                    LOG.info(folded)
+            except Exception as exc:
+                LOG.warning("could not compact the context: %s", exc)
             if supersede_check is not None and supersede_check():
                 LOG.info("turn superseded - abandoning the tool loop")
                 return SUPERSEDED
@@ -1643,6 +1875,10 @@ class Lulu(discord.Client):
                 stats = brain.cache_stats(reply.get("_usage"))
                 if stats["prompt"]:
                     prompt_total += stats["prompt"]
+                    # What THIS prompt weighed, for the compaction trigger. The
+                    # running total is the bill; this is the window in use, and
+                    # only the per-round number answers that.
+                    prompt_this_round = stats["prompt"]
                 cached_total += stats["cached"] or 0
                 whole = (f"{round(100.0 * cached_total / prompt_total, 1)}%"
                          if prompt_total else "no prompt reported")
