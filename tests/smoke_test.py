@@ -242,7 +242,14 @@ def _wall() -> str:
              # Credentials - and the tracked example beside them, because a real
              # value written into the example would be committed by the
              # pipeline's `git add -A - discord/` sweep on the next self-edit.
-             "mcp_secrets.json", "mcp_secrets.example.json"]
+             "mcp_secrets.json", "mcp_secrets.example.json",
+             # The Discord token. It was the one credential MISSING from
+             # paths.SEALED_NAMES - it shipped as an ordinary file, so a bare
+             # write_file could have replaced it and locked her out of her own
+             # account. Master asking whether her secrets were reachable is the
+             # only reason it got noticed at all, which is exactly why it is
+             # asserted here now instead of trusted.
+             "discord_token.txt"]
     for rel in never:
         target = paths.resolve(rel)
         try:
@@ -2138,7 +2145,20 @@ def _containment() -> str:
     # backslash out of this source file where it would need escaping.
     expect(str(paths.ROOT) in text,
            "the containment rule no longer names her own folder")
-    return "the stay-inside-her-folder rule is present in her always-loaded skill"
+
+    # The same argument, for the other rule in this file that must not vanish:
+    # she speaks on Discord, so a token repeated out loud is a token gone. There
+    # is no mechanical guard for that one - read_file has no read guard and the
+    # shell has no path restriction - so telling her is the whole defence, and a
+    # defence that can be deleted by a patch is not one.
+    expect("Never repeat a token, key or password" in text,
+           "the never-repeat-a-secret rule is gone from lulu-voice/SKILL.md. She "
+           "talks on Discord, so this is the only thing standing between a "
+           "credential and a public channel. If it is being removed on purpose, "
+           "delete the 'containment' check from tests/smoke_test.py in the SAME "
+           "change.")
+    return ("her always-loaded skill still carries the stay-in-her-folder rule "
+            "and the never-repeat-a-secret rule")
 
 
 CHECKS = [

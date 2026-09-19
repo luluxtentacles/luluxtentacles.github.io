@@ -41,6 +41,16 @@ SEALED_NAMES = {
     "paths.py", "supervisor.py", "pipeline.py",
     # the keys
     "config.json", "config.example.json", "brain_key.txt", ".gitignore",
+    # The Discord token. It was the ONE credential missing from this list, and it
+    # is the one that matters most: a bare write_file could have replaced it and
+    # locked her out of her own account, or pointed her at somebody else's. It
+    # shipped as an ordinary file and nobody noticed until master asked whether
+    # her secrets were reachable.
+    #
+    # WRITING is what is sealed, not reading. load_token does a plain read_text,
+    # which never goes through this module, so sealing this cannot stop her
+    # logging in - and it must not, because she cannot boot without reading it.
+    "discord_token.txt",
     # MCP credentials - and the tracked example beside them. Both sealed, not
     # just the one holding values: the example IS committed, and the pipeline's
     # checkpoint sweeps `git add -A - discord/`, so a real value written into

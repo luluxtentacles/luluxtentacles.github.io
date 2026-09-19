@@ -334,8 +334,15 @@ def _prompt_chars(turns: list[dict]) -> int:
             total += len(content)
     return total
 
-# The two sanctioned reads outside this folder: the token, read once at startup,
-# and Nyan's people ledger (which lives in people.py). Both are read-only.
+# The token she logs in with. It lives INSIDE her folder now. This comment used
+# to read "the two sanctioned reads outside this folder", which was true before
+# the tree was flattened and is not any more - and Nyan's ledger is not read from
+# here at all: people.py takes the drop Nyanbot writes into her own memory/nyan/,
+# and the raw ledger is only a fallback for a drop that failed.
+#
+# The token itself is sealed in paths.SEALED_NAMES, so no tool call and no
+# proposed patch can overwrite it. Reading is deliberately still allowed - she
+# cannot log in otherwise.
 TOKEN_SOURCE = Path(r"C:\Lulu\discord_token.txt")
 
 # The one bot she answers. Every other bot is system noise, but Nyan is the
@@ -380,10 +387,17 @@ def load_config() -> dict:
 
 
 def load_token(config: dict) -> str:
-    """The one sanctioned punch through the wall.
+    """Read the login token, once, at startup.
 
-    The token stays in the den and is read exactly once, here. Nothing else
-    outside this folder is opened, at startup or afterwards.
+    This used to call itself "the one sanctioned punch through the wall" and to
+    say the token stayed in the den. Neither is true any more, and a docstring
+    that describes a threat model which no longer exists is worse than none: the
+    token lives at C:\\Lulu\\discord_token.txt, INSIDE her folder, and it is
+    sealed in paths.SEALED_NAMES so nothing she runs can overwrite it.
+
+    Plain read_text on purpose - the seal covers writes, not reads, and it has to
+    work that way here. She cannot log in without reading this, so no in-process
+    guard should be able to stand in the way of it.
     """
     source = Path(config.get("token_source") or TOKEN_SOURCE)
     if not source.exists():
