@@ -1372,6 +1372,31 @@ def _say_allowlist() -> list[str]:
     return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
 
 
+def update_channels() -> list[str]:
+    """Where I announce myself, from config.json -> update_channels.
+
+    Deliberately NOT the say allowlist. Those are two different promises and
+    master asked to keep them apart (2026-09-20: "instead of calling them say"):
+    say() governs speaking in a room I was not invited to, while this is the list
+    of rooms he actually asked to hear from me in - restart reports and the like.
+
+    Read fresh on every call so editing config.json does not need a restart. And
+    it is not a way for me to widen my own reach: config.json is in
+    paths.SEALED_NAMES, so nothing I run can write to it.
+
+    Empty or missing means I announce nothing anywhere. Same fail-closed default
+    as say(), and for the same reason - a list nobody wrote down is not consent.
+    """
+    try:
+        raw = paths.read_json("config.json", default={}) or {}
+    except Exception:
+        return []
+    allowed = raw.get("update_channels")
+    if not isinstance(allowed, list):
+        return []
+    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+
+
 def say(channel: str, text: str) -> str:
     """Queue one message into an allowed channel. Never sends from here.
 

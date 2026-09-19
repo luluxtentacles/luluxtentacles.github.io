@@ -901,32 +901,48 @@ class Lulu(discord.Client):
             self._remember_start(seq, kind, now)
             return
 
-        # The same allowlist that governs say(): if I am not permitted to speak
-        # unprompted in a channel, I am not permitted to announce myself there
-        # either. One policy for where my mouth reaches.
-        allowed = tools._say_allowlist()
-        if not allowed:
-            LOG.info("restart notice: no channel I am allowed to speak in")
+        # Where a restart report belongs: config.json -> update_channels.
+        #
+        # NOT the say allowlist. Those are two different promises and master
+        # asked to keep them apart (2026-09-20: "instead of calling them say").
+        # say() governs speaking in a room I was not invited to; this is the room
+        # he asked to hear from me in. It reads config.json fresh, and config.json
+        # is sealed in paths.SEALED_NAMES, so nothing I run can widen it.
+        #
+        # It used to borrow _say_allowlist() - "one policy for where my mouth
+        # reaches" - and the effect was that a config with no say_channels
+        # silently announced nothing at all.
+        rooms = tools.update_channels()
+        if not rooms:
+            LOG.info("restart notice: no update_channels in config.json")
             return
 
-        name = str(notice.get("channel") or "").strip().lstrip("#").lower()
-        if name not in allowed:
-            name = allowed[0]
-
-        target = self.resolve_channel(name)
-        if target is None:
-            LOG.warning("restart notice: no channel called #%s", name)
-            return
+        # The room the restart came from goes first when it is one of them - a
+        # patch staged in #lulu-den should report back into #lulu-den - then the
+        # rest, because master named more than one place on purpose.
+        origin = str(notice.get("channel") or "").strip().lstrip("#").lower()
+        ordered = ([origin] if origin in rooms else []) + [r for r in rooms
+                                                           if r != origin]
 
         text = restart_sentence(reason, str(notice.get("why") or ""))
         if not text:
             return
-        try:
-            await target.send(text[:MAX_MESSAGE])
-            LOG.info("restart notice posted into #%s: %s", name, text[:140])
+        posted: list[str] = []
+        for name in dict.fromkeys(ordered):      # deduped, order kept
+            target = self.resolve_channel(name)
+            if target is None:
+                LOG.warning("restart notice: no channel called #%s", name)
+                continue
+            try:
+                await target.send(text[:MAX_MESSAGE])
+                posted.append(name)
+            except Exception as exc:
+                LOG.warning("could not announce the restart in #%s: %s",
+                            name, exc)
+        if posted:
+            LOG.info("restart notice posted into %s: %s",
+                     ", ".join("#" + n for n in posted), text[:140])
             self._remember_start(seq, kind, now)
-        except Exception as exc:
-            LOG.warning("could not announce the restart: %s", exc)
 
     def _remember_start(self, seq, kind: str, at: float) -> None:
         """Record that this start has been announced, so it is announced once."""
