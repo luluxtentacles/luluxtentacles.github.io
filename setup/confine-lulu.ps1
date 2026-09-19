@@ -92,14 +92,27 @@ function Assert-Admin {
 }
 
 function Get-BotAce([string]$path) {
-    $out = icacls $path 2>&1 | Out-String
-    @($out -split "`r?`n" | Where-Object { $_ -match [regex]::Escape($Account) })
+    # Ask the ACL. Do NOT parse icacls text - the first cut grepped its output for
+    # the literal '(DENY)' and that string does not exist: icacls renders a deny
+    # of FullControl as '(N)', No Access, because that is what it means.
+    #
+    # Consequence, 2026-09-19: -Apply wrote all four denies correctly and then
+    # reported every one of them as FAILED, telling master to -Undo work that had
+    # succeeded. A verification that lies in the "undo your work" direction is
+    # the worst kind there is, and the lesson is that a check must ask the same
+    # system that made the change.
+    try {
+        $acl = Get-Acl -LiteralPath $path -ErrorAction Stop
+    } catch {
+        return @()
+    }
+    @($acl.Access | Where-Object {
+        $_.IdentityReference -match "\\$([regex]::Escape($Account))$"
+    })
 }
 
 function Test-Denied([string]$path) {
-    $aces = Get-BotAce $path
-    if ($aces.Count -eq 0) { return $false }
-    return [bool](($aces -join " ") -match '\(DENY\)')
+    @((Get-BotAce $path) | Where-Object { $_.AccessControlType -eq 'Deny' }).Count -gt 0
 }
 
 function Show-State {
@@ -114,7 +127,10 @@ function Show-State {
         $denied = Test-Denied $p
         Write-Host ("  {0,-22} {1}   ({2})" -f $p,
             $(if ($denied) { "DENIED" } else { "reachable" }), $entry.Why)
-        foreach ($ace in (Get-BotAce $p)) { Write-Host ("      " + $ace.Trim()) }
+        foreach ($ace in (Get-BotAce $p)) {
+            Write-Host ("      {0} {1}  ({2})" -f $ace.AccessControlType,
+                        $ace.FileSystemRights, $ace.IdentityReference)
+        }
     }
 }
 
