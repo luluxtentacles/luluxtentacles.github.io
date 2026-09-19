@@ -2036,6 +2036,22 @@ def _runbox() -> str:
     expect(tools.run("run_command", {"verb": "git_status"},
                      allowed=set(tools.LOOKUP_TOOL_NAMES)).startswith("refused:"),
            "run_command ran for a non-owner")
+
+    # And the allowlist ITSELF has to be pipeline-only, or "there is no npx
+    # verb" is a suggestion rather than a rule: a bare write_file that rewrites
+    # this module can add any verb it likes. It shipped as an ordinary file
+    # once - the same omission as self_review.py - which is why this is
+    # asserted rather than assumed.
+    import paths
+    try:
+        paths.assert_writable(paths.resolve("runbox.py"))
+    except paths.SandboxError:
+        pass
+    else:
+        raise AssertionError(
+            "runbox.py is writable by a bare tool call - the command allowlist "
+            "is unprotected, so 'no npx verb' is only a suggestion")
+
     return f"{len(runbox.VERBS)} verbs, no arguments, no shell, master only"
 
 

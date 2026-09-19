@@ -116,6 +116,14 @@ PROPOSABLE_NAMES = {
     # that spawns new processes would be the one file she can write freely, and
     # the registry of what may be spawned would be writable without a pipeline.
     "mcp_client.py", "mcp.json",
+    # The command allowlist. This one was left out on the first pass and it is
+    # the same omission as self_review.py above: runbox.py is the file that
+    # DECIDES what she may run, and it shipped as an ordinary file, so a bare
+    # write_file could have added any verb it liked - which makes "there is no
+    # npx verb" a suggestion rather than a rule. Being pipeline-only is the
+    # right tier rather than sealed: she may propose a new verb, and if it is a
+    # package runner the smoke test's banned-binary check refuses it.
+    "runbox.py",
 }
 
 
