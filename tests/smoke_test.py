@@ -2808,6 +2808,85 @@ def _limits() -> str:
             f"rounds {lulu_bot.MAX_TOOL_ROUNDS}")
 
 
+# -- 9f. the chatter roll, its clock, and the decay timer -------------------
+# Two bugs lived here and both are silent, which is the only reason this check
+# exists. (1) last_reply was stamped with time.monotonic - seconds since the BOX
+# BOOTED - and then persisted and read back after a reboot, so an old stamp came
+# back larger than the new uptime and the cooldown test stayed true forever: one
+# channel was already permanently mute. (2) the port dropped Nyan's decay job, so
+# a sleeping channel never got likelier. Neither throws. Both just make her
+# quieter, which reads as her being boring rather than broken.
+def _chatter() -> str:
+    import time
+
+    import lulu_bot
+
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": []})
+    # This file is HER live memory. Stubbed on every path below, because a check
+    # that writes it would be editing the thing it is inspecting.
+    bot._save_chatter_state = lambda: None
+
+    # 1. the clock. A stamp from a previous BOOT session, exactly like the one
+    #    found on disk (352836s of uptime, against 6.5h of the then-current one).
+    poisoned = {"chance": lulu_bot.CHATTER_CHANCE_BASE,
+                "last_reply": 352836.171}
+    bot.chatter_state = {"1": dict(poisoned)}
+
+    real_random = lulu_bot.random.random
+    lulu_bot.random.random = lambda: 0.0          # forces the roll to land
+    try:
+        landed = bot._rolling_roll(1)
+    finally:
+        lulu_bot.random.random = real_random
+    expect(landed,
+           "a stamp from a previous boot still holds the cooldown shut - the "
+           "monotonic clock is back, and that channel can never speak again")
+    expect(bot.chatter_state["1"]["last_reply"] > 1_600_000_000,
+           "last_reply is not a wall-clock stamp, so it cannot survive a reboot")
+
+    # and a reply made moments ago must still be held off
+    bot.chatter_state = {"1": {"chance": lulu_bot.CHATTER_CHANCE_BASE,
+                               "last_reply": time.time()}}
+    bot.chatter_state["1"]["chance"] = 1 / lulu_bot.CHATTER_MIN_DENOMINATOR
+    lulu_bot.random.random = lambda: 0.0
+    try:
+        expect(not bot._rolling_roll(1),
+               "the 15-minute cooldown is not holding at all")
+    finally:
+        lulu_bot.random.random = real_random
+
+    # 2. the decay timer: Nyan's other half, which the port had dropped.
+    expect(lulu_bot.CHATTER_DECAY_SECONDS > 0, "no decay interval is set")
+
+    bot.chatter_state = {"1": {"chance": 1 / 200, "last_reply": 0.0},
+                         "2": {"chance": 1 / lulu_bot.CHATTER_MIN_DENOMINATOR,
+                               "last_reply": 0.0}}
+    expect(bot._decay_once() == 1,
+           "the decay pass did not loosen exactly the one channel with room")
+    expect(round(1 / bot.chatter_state["1"]["chance"]) == 199,
+           f"the decay moved the denominator wrong: "
+           f"{round(1 / bot.chatter_state['1']['chance'])}")
+    expect(1 / bot.chatter_state["2"]["chance"] == lulu_bot.CHATTER_MIN_DENOMINATOR,
+           "the decay pushed a channel past the 1/2 floor")
+
+    # it must survive junk rather than taking the event loop down with it
+    bot.chatter_state = {"bad": {}, "worse": {"chance": 0},
+                         "nan": {"chance": float("nan")}}
+    try:
+        bot._decay_once()
+    except Exception as exc:
+        raise AssertionError(f"a malformed entry crashed the decay: {exc!r}")
+
+    # and it has to actually be started, or none of the above ever runs
+    import inspect
+    src = inspect.getsource(lulu_bot.Lulu.on_ready)
+    expect("_chatter_decay" in src,
+           "the decay loop exists but is never started in on_ready")
+    return (f"chatter: wall-clock stamp survives a reboot, cooldown holds, "
+            f"decay 1/n -> 1/n-1 floored at "
+            f"1/{lulu_bot.CHATTER_MIN_DENOMINATOR}, started in on_ready")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -2841,6 +2920,7 @@ CHECKS = [
     ("budget", _budget),
     ("cadence", _cadence),
     ("limits", _limits),
+    ("chatter", _chatter),
     ("entrypoint", _entrypoint),
     ("api", _api),
     ("propose", _propose),

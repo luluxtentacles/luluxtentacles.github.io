@@ -344,6 +344,16 @@ CHATTER_COOLDOWN_SECONDS = 15 * 60
 CHATTER_MIN_DENOMINATOR = 2
 CHATTER_FILE = "memory/chatter.json"
 
+# Nyan's other half: a background job that tightens the odds on a TIMER, so a
+# channel nobody is typing in still gets likelier the longer it stays quiet.
+# Her botv3 registers check_guild_activity and that loop sleeps 7200s while its
+# own docstring claims "every hour" - and it caps at -1 per pass while the same
+# docstring says "by 2". Both are wrong in the original; this is the CODE, not
+# the comment, so it is 2 hours and -1. Two hours rather than one on purpose:
+# Lulu is per-CHANNEL where Nyan is per-guild, so a shorter timer would make her
+# likelier in twelve rooms at once instead of one server.
+CHATTER_DECAY_SECONDS = 2 * 60 * 60
+
 # What she says when the credits are gone. Not a random line - a fixed sign
 # hung in the window. While it is up: no chatter, and only @mentions/replies
 # get an answer (that same line, until credits return on restart).
@@ -482,6 +492,7 @@ class Lulu(discord.Client):
         self._restart_task: asyncio.Task | None = None
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
+        self._chatter_task: asyncio.Task | None = None
         load_user_knowledge()
 
     # -- casual chatter (nyan port) --------------------------------------
@@ -511,6 +522,29 @@ class Lulu(discord.Client):
             "last_reply": 0.0,
         })
 
+    @staticmethod
+    def _chatter_denominator(entry) -> int:
+        """Where an entry is standing, as 1-in-N odds. Nyan's own guard.
+
+        Anything that is not a positive number - nan, 0, a negative, a string
+        where a float should be - stands at the base odds rather than raising.
+
+        Two different mechanisms, doing two different jobs, and confusing them
+        is how the first cut of this grew a math import it did not need:
+          - the comparison catches nan, because 'nan > 0' is False. It is the
+            ONLY thing that can: round(1/nan) raises before any cap is applied.
+          - the max(2, ...) floor catches infinity, because round(1/inf) is 0
+            and max(2, -1) is 2. It is a frequency cap that happens to be the
+            backstop for inf.
+        """
+        try:
+            chance = float(entry.get("chance", CHATTER_CHANCE_BASE))
+        except (AttributeError, TypeError, ValueError):
+            chance = CHATTER_CHANCE_BASE
+        if not chance > 0:               # nan, 0 and negatives all land here
+            chance = CHATTER_CHANCE_BASE
+        return max(CHATTER_MIN_DENOMINATOR, round(1 / chance))
+
     def _rolling_roll(self, channel_id: int) -> bool:
         """Nyan's decreasing-denominator roll, done in-place.
 
@@ -520,12 +554,28 @@ class Lulu(discord.Client):
         """
         entry = self._chatter_entry(channel_id)
         # tighten odds: denominator - 1 each message, floor of 2
-        denom = max(CHATTER_MIN_DENOMINATOR, round(1 / entry["chance"]))
+        denom = self._chatter_denominator(entry)
         entry["chance"] = 1 / max(CHATTER_MIN_DENOMINATOR, denom - 1)
         landed = random.random() < entry["chance"]
         if landed:
-            now = time.monotonic()
-            if now - entry["last_reply"] < CHATTER_COOLDOWN_SECONDS:
+            # WALL CLOCK, not monotonic. time.monotonic() is seconds since the
+            # BOX BOOTED, and this value is written to disk and read back after
+            # a reboot - so a stamp from a long previous session came back
+            # LARGER than the new uptime, made the age negative, and the
+            # cooldown test (age < 900) stayed true forever. One channel had
+            # already been silenced that way: 352836 vs 6.5h of uptime. Nyan
+            # cannot hit this because guild_activity.save_guild_data persists
+            # only 'chance'; the port added a persisted monotonic stamp, which
+            # was the mistake. time.time() survives a reboot, because that is
+            # what it is for.
+            now = time.time()
+            try:
+                last = float(entry["last_reply"])
+            except (KeyError, TypeError, ValueError):
+                last = 0.0
+            if not 0 <= last <= now:     # junk, or a stamp from the future
+                last = 0.0
+            if now - last < CHATTER_COOLDOWN_SECONDS:
                 # in cooldown: keep the chance, wait for it to cool
                 LOG.info("chatter roll landed in #%s but cooldown holds", channel_id)
                 return False
@@ -533,6 +583,45 @@ class Lulu(discord.Client):
             entry["chance"] = CHATTER_CHANCE_BASE  # reset after a send
         self._save_chatter_state()
         return landed
+
+    def _decay_once(self) -> int:
+        """One pass of the timer: loosen every channel by one. Returns how many.
+
+        Split out from the loop so it can be tested directly - the shape
+        self_review.due() already uses, and for the same reason: a check that
+        has to drive a real async loop before it can see anything is a check
+        nobody writes.
+        """
+        changed = 0
+        for entry in self.chatter_state.values():
+            denom = self._chatter_denominator(entry)
+            looser = max(CHATTER_MIN_DENOMINATOR, denom - 1)
+            if looser != denom:
+                entry["chance"] = 1 / looser
+                changed += 1
+        return changed
+
+    async def _chatter_decay(self):
+        """Loosen the odds in channels nobody is talking in. Nyan's timer half.
+
+        Every CHATTER_DECAY_SECONDS, each channel's denominator drops by one,
+        floored, so a room that goes quiet gets likelier until someone says
+        something. This is the half the port dropped: without it her odds only
+        ever moved when a message arrived, and a sleeping channel stayed at
+        1/200 forever.
+
+        Never raises out into the event loop, and never blocks a message - it
+        sleeps first, so a fresh boot does not immediately re-tighten anything.
+        """
+        while True:
+            await asyncio.sleep(CHATTER_DECAY_SECONDS)
+            try:
+                changed = self._decay_once()
+                if changed:
+                    self._save_chatter_state()
+                LOG.info("chatter decay: %d channel(s) loosened", changed)
+            except Exception as exc:
+                LOG.warning("chatter decay stumbled: %s", exc)
 
     async def maybe_chatter(self, message: discord.Message) -> None:
         """One unprompted non-reply message per channel, on Nyan-style odds:
@@ -709,6 +798,10 @@ class Lulu(discord.Client):
         # costs nothing and does not need this task cancelled.
         if self._task_task is None or self._task_task.done():
             self._task_task = asyncio.create_task(taskmode.watch(self))
+        # The chatter odds also loosen on a timer, not only on messages - see
+        # CHATTER_DECAY_SECONDS. Nyan has this; the port had dropped it.
+        if self._chatter_task is None or self._chatter_task.done():
+            self._chatter_task = asyncio.create_task(self._chatter_decay())
 
     def mark_healthy(self) -> None:
         """Tell the supervisor I actually came up.
@@ -896,8 +989,9 @@ class Lulu(discord.Client):
                  message.author, message.channel, message.content[:100], addressed)
 
         # Casual chatter: if she is NOT being addressed, she may still send one
-        # regular message here per channel every 3 hours, as a person who lives
-        # in the server and relaxes here would.
+        # regular message here per channel per chatter cooldown - 15 minutes,
+        # and only when the rolling roll lands. The comment here used to say
+        # "every 3 hours", which was never true of this code.
         if not addressed:
             # Casual chatter is for people. A bot never earns an unprompted
             # line, or two bots could trade them with nobody in the room.
