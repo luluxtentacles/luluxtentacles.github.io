@@ -81,7 +81,8 @@ def write_reason(kind: str, detail: str = "", files=None, sha=None) -> None:
         pipeline.log(f"WARNING could not write the restart reason: {exc}")
 
 
-def serve(require_health: bool, command: list[str] | None = None) -> tuple[bool, int, str | None]:
+def serve(require_health: bool, command: list[str] | None = None,
+          on_healthy=None) -> tuple[bool, int, str | None]:
     """Start her, watch her, wait for the exit.
 
     Returns (healthy, exit_code, requested_why). `healthy` only means anything
@@ -90,6 +91,17 @@ def serve(require_health: bool, command: list[str] | None = None) -> tuple[bool,
     `command` exists so the loop and the health gate can be tested with a stub
     child instead of a live bot. Defaults to her, which is the only thing the
     real supervisor ever runs.
+
+    `on_healthy` runs ONCE, at the moment the fresh marker is seen - NOT after
+    she exits, and that distinction is the entire bug it exists to fix. This wait
+    lasts as long as she stays up, so anything deferred until it returns acts on
+    a report that can be minutes stale and on a staged directory that has moved
+    on underneath it. On 2026-09-20 that is exactly how her next patch was filed
+    as applied without ever reaching the file, and the request that would have
+    applied it was deleted on the way out.
+
+    A callback that raises must not cost her a healthy patch, so it is caught
+    and logged; the caller keeps its own retry for after the exit.
     """
     marker_before = pipeline.marker_state()
     proc = subprocess.Popen(command or [sys.executable, "lulu_bot.py"],
@@ -112,6 +124,11 @@ def serve(require_health: bool, command: list[str] | None = None) -> tuple[bool,
             if now and now != marker_before:
                 healthy = True
                 pipeline.log("health: fresh marker - she came up")
+                if on_healthy is not None:
+                    try:
+                        on_healthy()
+                    except Exception as exc:
+                        pipeline.log(f"WARNING health callback failed: {exc}")
 
         if pipeline.REQUEST.exists():
             request = pipeline.load_request() or {}
@@ -193,11 +210,18 @@ def main() -> int:
             pipeline.log(f"pipeline outcome: {outcome}")
 
             if outcome == "applied":
-                # The smoke test passed. Now she has to actually come up.
+                # The smoke test passed. Now she has to actually come up - and the
+                # patch is FILED at the moment the marker goes fresh, not after she
+                # eventually exits. Deferring it meant this branch could still be
+                # holding a report from minutes ago when an unrelated later event
+                # woke it: that is the accept() that ate her flush_outbox fix.
                 pipeline.log(f"gating {', '.join(report['files'])} on a health check")
                 write_reason("patch-applied", why, report.get("files"), report.get("sha"))
-                healthy, code, _ = serve(require_health=True)
+                healthy, code, _ = serve(require_health=True,
+                                         on_healthy=lambda: pipeline.accept(report))
                 if healthy:
+                    # Belt, and cheap: accept() is idempotent for one report, so
+                    # this only does anything if the callback itself failed.
                     pipeline.accept(report)
                     pending = ("running-new-code", why, report.get("files"),
                                report.get("sha"))

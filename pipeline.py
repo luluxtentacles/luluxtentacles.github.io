@@ -28,6 +28,7 @@ Usage:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -105,6 +106,34 @@ def load_request() -> dict | None:
     except Exception as exc:
         log(f"WARNING request file is unreadable ({exc}); treating as plain restart")
         return {"files": [], "why": "unreadable request"}
+
+
+def request_token() -> str | None:
+    """A fingerprint of the request that is on disk RIGHT NOW.
+
+    Paired with claim_request() so a later clear_request() can tell the request
+    this run consumed from a NEWER one somebody staged while it was busy.
+    """
+    try:
+        return hashlib.sha256(REQUEST.read_bytes()).hexdigest()
+    except FileNotFoundError:
+        return None
+    except Exception as exc:
+        log(f"WARNING could not fingerprint the request: {exc}")
+        return None
+
+
+def _sha256(path: Path) -> str | None:
+    """Content hash of one file, streamed, so a big one cannot be slurped."""
+    try:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(65536), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
+    except Exception as exc:
+        log(f"WARNING could not hash {path}: {exc}")
+        return None
 
 
 def staged_files() -> list[str]:
@@ -287,8 +316,32 @@ def archive(reason: str, outcome: str) -> Path | None:
     return box
 
 
-def clear_request() -> None:
-    for path in (REQUEST, CLAIMED):
+def clear_request(token: str | None = None) -> None:
+    """Throw away the request this run consumed - and ONLY that one.
+
+    `token` is request_token() taken at the top of process(), BEFORE
+    claim_request() renamed the file out of the way (a failed claim leaves it in
+    place, so both cases are covered). If REQUEST.json is on disk now and its
+    fingerprint does not match, it is a request that arrived while this run was
+    applying, smoke-testing and health-gating the last one - and deleting it
+    would silently cancel a restart somebody just asked for. That is not
+    hypothetical: on 2026-09-20 it ate her flush_outbox fix.
+
+    The claimed copy, and the backup directory, are always this run's own and
+    always go.
+    """
+    try:
+        if REQUEST.exists():
+            if token is not None and request_token() == token:
+                REQUEST.unlink()
+            else:
+                log("WARNING a newer request is on disk - leaving it for the next "
+                    "cycle instead of cancelling it")
+    except FileNotFoundError:
+        pass
+    except Exception as exc:
+        log(f"WARNING could not clear request: {exc}")
+    for path in (CLAIMED,):
         try:
             path.unlink()
         except FileNotFoundError:
@@ -366,18 +419,24 @@ def process(why: str) -> dict:
     """
     files = staged_files()
     report = {"why": why, "files": files, "sha": None, "smoke": None,
-              "backups": {}, "reverted": False, "outcome": "noop"}
+              "backups": {}, "reverted": False, "outcome": "noop",
+              "claim": None, "filed": False}
 
     # Read the request BEFORE claiming it: claim_request renames the file out of
-    # the way, so after it there is nothing left to read the origin from.
+    # the way, so after it there is nothing left to read the origin from. The
+    # fingerprint is taken at the same moment and for the same reason - every
+    # clear_request() below passes it, so this run can only ever delete the
+    # request it actually consumed.
     request = load_request() or {}
     origin = str(request.get("origin") or "master")
     report["origin"] = origin
+    token = request_token()
+    report["claim"] = token
 
     if not files:
         log("no staged files: this is a plain restart, nothing to apply")
         report["outcome"] = "restart-only"
-        clear_request()
+        clear_request(token)
         return report
 
     # The budget, checked before anything is touched. Held patches are FILED
@@ -394,7 +453,7 @@ def process(why: str) -> dict:
                 f"{SELF_REVIEW_DAILY_MAX}). Nothing was applied and she was not "
                 f"restarted. Try again tomorrow, and make the next one count.",
                 "rejected-budget"))
-            clear_request()
+            clear_request(token)
             return report
 
     # Claim before applying. Every serve() loop in the supervisor watches
@@ -410,7 +469,7 @@ def process(why: str) -> dict:
     if not backups:
         log("nothing applied - staged files were all rejected")
         report["outcome"] = "nothing-applied"
-        clear_request()
+        clear_request(token)
         return report
 
     ok, output = run_smoke()
@@ -428,7 +487,7 @@ def process(why: str) -> dict:
     report["detail"] = output
     revert(backups)
     report["archive"] = str(archive(f"smoke test failed\n\n{output}", "rejected-smoke"))
-    clear_request()
+    clear_request(token)
     return report
 
 
@@ -440,22 +499,49 @@ def reject_after_unhealthy(report: dict, detail: str) -> dict:
     report["outcome"] = "reverted-health"
     report["detail"] = detail
     report["archive"] = str(archive(f"health check failed\n\n{detail}", "rejected-health"))
-    clear_request()
+    clear_request(report.get("claim"))
     return report
 
 
 def accept(report: dict) -> None:
-    """The patch survived. File it as applied and clear the request."""
+    """The patch survived. File what actually reached the tree, and clear the request.
+
+    Two things here are load-bearing, and both were learned the hard way on
+    2026-09-20, when her flush_outbox fix was staged while the PREVIOUS patch was
+    still being health-gated:
+
+      - only the files in THIS report move out of pending/staged. The old version
+        rglobbed the whole staged directory, so it filed a patch that had never
+        been applied, and then cleared the request that would have applied it: the
+        fix went into the applied box, the record named the wrong file, and she
+        kept running the old code.
+      - a staged copy is only filed when it is byte-identical to the file now on
+        disk - that is, when it has nothing left to do. A copy that differs has
+        NOT been applied, so it stays staged for the next request to pick up.
+
+    Idempotent for one report, because the health callback in supervisor.serve()
+    files it the moment the marker goes fresh and the caller may reasonably ask
+    again after the exit.
+    """
+    if report.get("filed"):
+        return
     box = PENDING / "applied"
     stamp = time.strftime("%Y%m%d-%H%M%S")
+    dest = box / stamp
+    kept: list[str] = []
     try:
-        dest = box / stamp
-        if STAGED.is_dir():
-            for path in sorted(STAGED.rglob("*")):
-                if path.is_file():
-                    target = dest / path.relative_to(STAGED)
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.move(str(path), str(target))
+        box.mkdir(parents=True, exist_ok=True)
+        for rel in report.get("files") or []:
+            source = STAGED / rel
+            if not source.is_file():
+                continue
+            target = ROOT / rel
+            if not target.is_file() or _sha256(target) != _sha256(source):
+                kept.append(rel)
+                continue
+            landed = dest / rel
+            landed.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(source), str(landed))
         (box / f"{stamp}.txt").write_text(
             f"applied: {', '.join(report.get('files') or [])}\n"
             f"when: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
@@ -467,8 +553,12 @@ def accept(report: dict) -> None:
             encoding="utf-8")
     except Exception as exc:
         log(f"WARNING could not file the applied patch: {exc}")
+    if kept:
+        log("kept " + ", ".join(kept) + " in pending/staged - not the bytes this "
+            "run applied, so a later request owns them")
+    report["filed"] = True
     log(f"patch accepted: {', '.join(report.get('files') or [])}")
-    clear_request()
+    clear_request(report.get("claim"))
 
 
 # -- proof ----------------------------------------------------------------
