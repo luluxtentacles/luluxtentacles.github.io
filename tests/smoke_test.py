@@ -244,12 +244,30 @@ def _wall() -> str:
              # pipeline's `git add -A - discord/` sweep on the next self-edit.
              "mcp_secrets.json", "mcp_secrets.example.json"]
     for rel in never:
+        target = paths.resolve(rel)
         try:
-            paths.assert_writable(paths.resolve(rel))
+            paths.assert_writable(target)
+        except paths.SandboxError:
+            pass
+        else:
+            raise AssertionError(f"{rel} is writable by a tool call")
+        # And the OTHER door. propose_patch routes through assert_proposable, and
+        # since the pipeline fix that is the guard apply() consults as well.
+        #
+        # Only the genuinely SEALED entries are asserted here. The list above is
+        # a list of paths assert_writable refuses, and that is deliberately
+        # STRICTER than the seal: the skill shelf is proposable on purpose, which
+        # is the whole skill-patch feature. Demanding assert_proposable refuse it
+        # too was wrong the first time this check ran - so ask the seal itself
+        # instead of keeping a second list that can drift away from it.
+        if not paths._sealed(target, paths._relative_parts(target)):
+            continue
+        try:
+            paths.assert_proposable(target)
         except paths.SandboxError:
             continue
-        raise AssertionError(f"{rel} is writable by a tool call")
-    return f"{len(never)} paths still sealed"
+        raise AssertionError(f"{rel} is sealed but still proposable to the pipeline")
+    return f"{len(never)} paths walled, every sealed one refused by both doors"
 
 
 # -- 5. the reply gate still behaves --------------------------------------
@@ -1914,11 +1932,120 @@ def _spend() -> str:
             f"cap tripped after {calls} heavy calls")
 
 
+# -- 8x. the judge guards ITSELF ---------------------------------------------
+# _wall() proves a sealed path cannot be REACHED, and that was the only place the
+# seal was checked. It is not the place that writes. apply() rglobs
+# pending/staged and copies whatever it finds over the real file, so any route
+# that landed a file in there - a bare open() from code she patched into tools.py,
+# which paths.py warns is possible because it is an in-process guard and not an OS
+# jail - used to reach supervisor.py unopposed. A staged supervisor.py would have
+# replaced the thing that reverts her.
+#
+# This is the judge's guard on itself, and it holds because pipeline.py is sealed.
+# Only NAME-sealed targets are asserted here: the sandbox fakes the root, so a
+# target's relative parts start at the sandbox name and the DIRECTORY seals
+# (tests/, setup/, memory/) cannot trigger in here. Those are covered by _wall()
+# against the real root, without writing anything.
+def _sealed_apply() -> str:
+    import pipeline
+    import shutil
+
+    root = SANDBOX / "applyroot"
+    shutil.rmtree(root, ignore_errors=True)
+    root.mkdir(parents=True, exist_ok=True)
+
+    real_root, real_staged, real_backup = (pipeline.ROOT, pipeline.STAGED,
+                                           pipeline.BACKUP)
+    refused = []
+    try:
+        pipeline.ROOT = root
+        pipeline.STAGED = root / "staged"
+        pipeline.BACKUP = root / ".backup"
+        pipeline.STAGED.mkdir(parents=True, exist_ok=True)
+
+        for rel in ("supervisor.py", "pipeline.py", "paths.py", "config.json"):
+            staged = pipeline.STAGED / rel
+            staged.parent.mkdir(parents=True, exist_ok=True)
+            staged.write_text("# forged by a probe\n", encoding="utf-8")
+            backups = pipeline.apply([rel])
+            if (root / rel).exists():
+                raise AssertionError(
+                    f"apply() wrote {rel} - a forged staged file reached a "
+                    f"sealed target")
+            expect(not backups, f"apply() reported applying sealed {rel}")
+            refused.append(rel)
+
+        # The other half, or the gate is just a wall: an ordinary file must
+        # still go through, or nothing she legitimately changes could land.
+        (pipeline.STAGED / "ordinary_probe.py").write_text("x = 1\n",
+                                                            encoding="utf-8")
+        backups = pipeline.apply(["ordinary_probe.py"])
+        expect("ordinary_probe.py" in backups,
+               "apply() stopped applying ordinary files")
+        expect((root / "ordinary_probe.py").is_file(),
+               "an ordinary staged file never landed")
+    finally:
+        pipeline.ROOT, pipeline.STAGED, pipeline.BACKUP = (real_root, real_staged,
+                                                           real_backup)
+        shutil.rmtree(root, ignore_errors=True)
+    return (f"{len(refused)} sealed targets refused at apply, and an ordinary "
+            f"file still lands")
+
+
+# -- 8y. the bounded runner stays bounded -------------------------------------
+# runbox is the only path from her to the machine, so the properties that make
+# it bounded are asserted rather than trusted: no verb takes an argument, no verb
+# is a shell or a package installer, and master keeps it to himself.
+def _runbox() -> str:
+    import runbox
+    import tools
+
+    expect(runbox.VERBS, "runbox advertises no verbs at all")
+
+    # Every verb is a literal argv of strings - a list, never a shell string.
+    for name, argv in runbox.VERBS.items():
+        expect(isinstance(argv, (list, tuple)),
+               f"{name} is not an argv sequence: {argv!r}")
+        expect(argv and all(isinstance(part, str) for part in argv),
+               f"{name} is empty or has a non-string part: {argv!r}")
+
+    # No package runner and no shell. `npx <anything>` fetches and executes
+    # arbitrary code, so a verb for it is a shell with extra steps - the one
+    # thing this module exists not to be.
+    banned = {"npx", "npm", "pip", "yarn", "pnpm", "curl", "wget", "sh",
+              "bash", "cmd", "powershell", "pwsh"}
+    for name, argv in runbox.VERBS.items():
+        stem = os.path.basename(argv[0]).lower()
+        if stem.endswith(".exe"):
+            stem = stem[:-4]
+        expect(stem not in banned, f"{name} runs {argv[0]!r}, which is not bounded")
+
+    # An unknown verb is refused, not executed, and the refusal is actionable.
+    out = runbox.run("rm -rf /")
+    expect("no verb called" in out, f"an unknown verb was not refused: {out!r}")
+    expect("git_status" in out, "the refusal does not list what she may run")
+
+    # Master only, structurally - the same gate start_task uses.
+    expect("run_command" not in tools.LOOKUP_TOOL_NAMES,
+           "run_command is in the lookup set, so a stranger could reach it")
+    expect(all(t["function"]["name"] != "run_command"
+               for t in tools.LOOKUP_SCHEMA),
+           "run_command leaked into the stranger schema")
+    expect("run_command" in tools.DISPATCH,
+           "run_command is advertised but not dispatchable")
+    expect(tools.run("run_command", {"verb": "git_status"},
+                     allowed=set(tools.LOOKUP_TOOL_NAMES)).startswith("refused:"),
+           "run_command ran for a non-owner")
+    return f"{len(runbox.VERBS)} verbs, no arguments, no shell, master only"
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
     ("sandbox", _sandbox),
     ("wall", _wall),
+    ("sealed-apply", _sealed_apply),
+    ("runbox", _runbox),
     ("spend", _spend),
     ("gate", _gate),
     ("dm-shut", _dm_shut),

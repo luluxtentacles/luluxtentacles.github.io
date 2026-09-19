@@ -35,6 +35,8 @@ import sys
 import time
 from pathlib import Path
 
+import paths
+
 ROOT = Path(__file__).resolve().parent
 PENDING = ROOT / "pending"
 STAGED = PENDING / "staged"
@@ -184,6 +186,27 @@ def apply(files: list[str]) -> dict[str, Path | None]:
             continue
         if not _inside(target):
             log(f"WARNING refusing to write outside the folder: {rel}")
+            continue
+        # The seal, checked HERE as well as when staging - and this is the copy
+        # that actually holds.
+        #
+        # paths.assert_proposable already refuses a sealed file when a patch is
+        # STAGED, so the tools cannot reach these. But that is the only place it
+        # was checked, and this function does not consult it at all: it rglobs
+        # pending/staged and copies whatever it finds over the real file. So any
+        # route that lands a file in there - a bare open() from code she patched
+        # into tools.py, which paths.py itself warns is possible, since it is an
+        # in-process guard and not an OS jail - used to reach supervisor.py,
+        # pipeline.py and tests/ unopposed. A staged supervisor.py would have
+        # replaced the thing that reverts her.
+        #
+        # That is the same bug paths.py already documents for tests/: the judge
+        # had no guard on itself. It does now, and it holds because pipeline.py
+        # is itself sealed - so this check cannot be patched out.
+        try:
+            paths.assert_proposable(target)
+        except paths.SandboxError as exc:
+            log(f"WARNING refusing sealed target: {rel} - {exc}")
             continue
         if target.exists():
             saved = BACKUP / rel

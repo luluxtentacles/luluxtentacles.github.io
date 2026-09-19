@@ -18,6 +18,7 @@ import journal
 import mcp_client
 import paths
 import people
+import runbox
 import shared_memory
 import skills
 import webtool
@@ -430,6 +431,32 @@ SCHEMA = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_command",
+            "description": (
+                "Run one fixed, read-only maintenance verb in my own folder: "
+                "git status, git log, git diff, or my own smoke test. Master "
+                "only. There are NO free-form commands and NO arguments - pass "
+                "just the verb name, and an unknown verb returns the list. If "
+                "you need something that is not there, add a verb in "
+                "runbox.py and propose the patch; do not try to compose a "
+                "command out of pieces."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "verb": {
+                        "type": "string",
+                        "description": ("one of: git_status, git_log, "
+                                        "git_diff, smoke"),
+                    },
+                },
+                "required": ["verb"],
+            },
+        },
+    },
 ]
 
 
@@ -452,11 +479,12 @@ def finish_task(summary: str = "") -> str:
 # prompt, and run() enforces the same list again in case a tool call arrives
 # anyway.
 #
-# Note what is deliberately NOT here: start_task and finish_task. A long task is
-# master's tool - it spends his money over several turns and DMs him after each
-# one. A stranger's schema never contains them, and run() refuses them even if a
-# call arrived anyway, so the gate is structural rather than a matter of the
-# model's manners.
+# Note what is deliberately NOT here: start_task, finish_task and run_command.
+# A long task is master's tool - it spends his money over several turns and DMs
+# him after each one. run_command reaches the machine rather than a file, so a
+# stranger must not have it either. A stranger's schema never contains them, and
+# run() refuses them even if a call arrived anyway, so the gate is structural
+# rather than a matter of the model's manners.
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
@@ -1074,6 +1102,7 @@ DISPATCH = {
     "request_restart": lambda a: request_restart(a.get("why", "")),
     "start_task": lambda a: start_task(a.get("goal", "")),
     "finish_task": lambda a: finish_task(a.get("summary", "")),
+    "run_command": lambda a: runbox.run(a.get("verb", "")),
 }
 
 
