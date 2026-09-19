@@ -947,7 +947,7 @@ class Lulu(discord.Client):
         answer = self.skill_command(text)
         if answer is None:
             async with message.channel.typing():
-                answer = await self.think_out_loud(message, text, parent)
+                answer = await self.think_out_loud(message, text, parent, parts)
         if answer == CREDITS_MSG:
             self.credits_dead = True
             LOG.info("brain says: out of credits")
