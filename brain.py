@@ -156,9 +156,21 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     budget, so a thinking model can spend the whole allowance before it writes a
     word of the answer.
     """
+    # Images in the prompt need a brain that can actually see. The default
+    # model may be text-only and would silently ignore the pixels, so any call
+    # carrying an image part is routed to vision_model when one is configured.
+    # Same endpoint, same key - the swap is the model field and nothing else.
+    model = config["model"]
+    if any(
+        isinstance(m.get("content"), list)
+        and any(isinstance(b, dict) and b.get("type") == "image_url"
+                for b in m["content"])
+        for m in messages
+    ) and config.get("vision_model"):
+        model = config["vision_model"]
     base_url = str(config["base_url"]).rstrip("/")
     payload = {
-        "model": config["model"],
+        "model": model,
         "messages": (cache_breakpoints(messages)
                      if config.get("prompt_cache") else messages),
         "temperature": config.get("temperature", 0.9),

@@ -921,6 +921,12 @@ class Lulu(discord.Client):
         if not text:
             text = "(just looked at me)"
 
+        # Eyes: images attached to the message become content parts (base64
+        # image_url entries), passed down into think() alongside the text.
+        parts = await vision.collect(message.attachments)
+        if parts:
+            text = "(just sent me an image)"
+
         # Reply chains: when she is addressed via a reply, the quoted parent
         # belongs in the prompt too, not just in the gate. Resolve it here so
         # think() can place it right above the new message.
@@ -988,7 +994,8 @@ class Lulu(discord.Client):
                 LOG.warning("say: could not post into #%s: %s", name, exc)
 
     async def think_out_loud(self, message: discord.Message, text: str,
-                             parent: discord.Message | None = None) -> str:
+                             parent: discord.Message | None = None,
+                             parts: list | None = None) -> str:
         """Run think() off the loop, posting what she says as she says it.
 
         think() is synchronous and runs in a worker thread, so it cannot await
@@ -1001,7 +1008,7 @@ class Lulu(discord.Client):
         # Never post the previous turn's leftovers as though they were live.
         tools.drain_progress(channel.id)
         task = asyncio.create_task(
-            asyncio.to_thread(self.think, message, text, parent))
+            asyncio.to_thread(self.think, message, text, parent, parts))
         try:
             while not task.done():
                 await asyncio.wait({task}, timeout=PROGRESS_POLL_SECONDS)
@@ -1103,7 +1110,11 @@ class Lulu(discord.Client):
         # prompt. Escaped here rather than at storage: the stores keep what was
         # really said, and every path back INTO a prompt escapes.
         safe_text = escape_line(text)
-        turns.append({"role": "user", "content": f"{who}: {safe_text}"})
+        if parts:
+            turns.append({"role": "user", "content":
+                          [{"type": "text", "text": f"{who}: {safe_text}"}] + parts})
+        else:
+            turns.append({"role": "user", "content": f"{who}: {safe_text}"})
 
         # So learn_person knows who 'I' am without the model passing an id, and
         # so a restart asked for here knows which channel to report back in.
