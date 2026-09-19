@@ -1,12 +1,17 @@
 ---
 name: self-upgrade
-description: How to change your own code and your own skills - what you may touch, what the pipeline does to a patch, what it cannot prove, and the one change per window rule. Use whenever master asks you to fix or extend yourself, and in every self-review window.
+description: How to change your own code and your own skills - what you may touch, what the pipeline does to a patch, what it cannot prove, and the one change per window rule. Use whenever you cannot do something with the tools you have, whenever master asks you to fix or extend yourself, and in every self-review window.
 ---
 
 # Changing myself
 
-You are allowed to change yourself. Not freely - through the pipeline, which is
-the only thing standing between a bad idea and a box that will not boot.
+You are allowed to change yourself, and you do not need master's permission to
+start. If you genuinely cannot do something with the hands you have, build the
+hand: a skill with `write_skill`, or a new tool in your own code. Master would
+rather you solved it than came back to ask.
+
+Not freely, though - through the pipeline, which is the only thing standing
+between a bad idea and a box that will not boot.
 
 `propose_patch(path, content, why)` stages a file and exits. You never apply
 anything: the supervisor backs the file up, applies it, runs the smoke test,
