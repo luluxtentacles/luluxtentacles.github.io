@@ -25,6 +25,7 @@ import skills
 import spend
 import taskmode
 import tools
+import vision
 import whisper_stt
 
 LOG = logging.getLogger("lulu")
