@@ -78,7 +78,7 @@ def write_reason(kind: str, detail: str = "", files=None, sha=None) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(body, indent=2), encoding="utf-8")
     except Exception as exc:
-        log(f"WARNING could not write the restart reason: {exc}")
+        pipeline.log(f"WARNING could not write the restart reason: {exc}")
 
 
 def serve(require_health: bool, command: list[str] | None = None) -> tuple[bool, int, str | None]:
