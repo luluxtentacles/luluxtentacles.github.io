@@ -159,17 +159,20 @@ Rules for this window:
 
 Then answer in your own voice, short: what you did, what you found, and either
 what you proposed and why, or why you are leaving it alone. No headings, no
-bullet lists, no status-report tone. One paragraph is plenty. This report is DMed
-to master and to nobody else.
+bullet lists, no status-report tone. One paragraph is plenty. This report goes to
+the rooms master listed in config.json -> update_channels and to him in a DM, so
+write it for both.
 """
 
 
 def settings(config) -> dict:
     """What master allowed, with 'off' as the answer to anything malformed.
 
-    No channel: the report is a DM to master, always. A `channel` key in
-    config.json is ignored rather than honoured, so an old setting cannot quietly
-    start broadcasting her review notes into a public room.
+    Where the report goes is not decided here. It goes to config.json ->
+    update_channels and then to master in a DM - see _deliver. A `channel` key
+    inside this block is still ignored rather than honoured: that key was for a
+    single-room design, and honouring it now would let a stale setting quietly
+    pick one room behind the list master actually maintains.
 
     A nonsense interval falls back to the default rather than to a window every
     poll: a window she can trigger by editing a number into garbage is not a
@@ -283,14 +286,26 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
     where += (
-        "\nOne way to spend this, and the one master keeps asking for: go and\n"
-        "find something out. You have the open web and a real browser now -\n"
-        "`web_fetch` for one page, `mcp_call('playwright', ...)` when a search\n"
-        "engine or a live page needs a browser. The method, which engines\n"
-        "actually answer from this box, and the sources that do, are on your own\n"
-        "shelf: use the `research` skill. If a window ends with something you did\n"
-        "not know at the start, written down where you will still have it, that\n"
-        "was a good window.\n")
+        "\nTwo things master keeps asking you to do in a window, and they are\n"
+        "different jobs. One of them you have been skipping.\n"
+        "  1. Find something out. You have the open web and a real browser -\n"
+        "     `web_fetch` for one page, `mcp_call('playwright', ...)` when a\n"
+        "     search engine or a live page needs a browser. The method, which\n"
+        "     engines actually answer from this box, and the sources that do are\n"
+        "     on your own shelf: use the `research` skill.\n"
+        "  2. Look at your own MCP side for upgrades. This is the half you have\n"
+        "     been leaving out - on 2026-09-20 you spent the whole window on one\n"
+        "     occult question and never called `mcp_list` once. It is not buried\n"
+        "     in the hobby list; it is a job. `mcp_list` is the honest picture:\n"
+        "     the servers in mcp.json and the tools each one actually offers.\n"
+        "     Read it, then judge it - a server whose tools you never reach for\n"
+        "     is a candidate to drop, one you keep working around by hand is a\n"
+        "     candidate to use, a tool you wish you had is a patch to mcp.json\n"
+        "     or mcp_client.py.\n"
+        "Reporting that nothing is worth changing is a real answer and a good\n"
+        "window - do not manufacture a patch to look busy. A window where you did\n"
+        "both of these and wrote down what you found, where you will still have\n"
+        "it, was a good window.\n")
     return BRIEF + where
 
 
@@ -323,20 +338,49 @@ def _owner_id(bot) -> int | None:
 
 
 async def _deliver(bot, text: str) -> None:
-    """DM the report to master. Always a DM, never a channel.
+    """Send the report to the rooms master named, then to master himself.
 
-    A review window is her own business and nobody asked for it, so the report
-    goes where only master reads it. Deliberately not a channel lookup: the
-    report can say what she found while poking around inside herself, and the
-    default destination for that should not be a room full of other people.
+    Two destinations, and both are master's call. This was a DM and only a DM
+    for a while, on the reasoning that a window spent poking around inside
+    herself should not narrate itself into a room full of other people. Master
+    overruled that on 2026-09-20: the four-hour window is research and an MCP
+    look, he asked for it, and he wants it where he reads, not only in a DM he
+    may never open. The DM stays on top, because an empty update_channels must
+    not swallow the report.
 
-    Never fatal. A report that cannot be delivered still happened, and the log
-    holds the record either way.
+    The rooms are config.json -> update_channels, read fresh through
+    tools.update_channels() - the same list announce_restart uses, for the same
+    reason: this is speech she starts herself. config.json is sealed in
+    paths.SEALED_NAMES, so nothing she runs can widen it.
+
+    Every destination is independent and none is fatal. One dead room must not
+    cost the other room or the DM, and a failed DM must not cost the rooms. A
+    report that could not be delivered anywhere still happened, and the log
+    holds it either way.
     """
     body = text.strip()[:1900] or "(the window produced nothing to say)"
+
+    posted: list[str] = []
+    rooms = tools.update_channels()
+    if not rooms:
+        LOG.info("review report: no update_channels in config.json")
+    for name in dict.fromkeys(rooms):          # deduped, order kept
+        target = bot.resolve_channel(name)
+        if target is None:
+            LOG.warning("review report: no channel called #%s", name)
+            continue
+        try:
+            await target.send(body)
+            posted.append(name)
+        except Exception as exc:
+            LOG.warning("could not post the review report in #%s: %s", name, exc)
+    if posted:
+        LOG.info("review report posted into %s",
+                 ", ".join("#" + n for n in posted))
+
     owner = _owner_id(bot)
     if owner is None:
-        LOG.warning("no owner id to report to; leaving the report in the log only")
+        LOG.warning("no owner id to report to; the log holds the report only")
         return
     try:
         target = await bot.fetch_user(owner)
