@@ -2513,20 +2513,40 @@ def _runbox() -> str:
             env = runbox.child_env()
         finally:
             _os.environ = real_environ
+        present = [str(p) for p in runbox.PATH_DIRS if p.is_dir()]
         front = [p for p in env["PATH"].split(_os.pathsep) if p]
-        expect(front and front[0].endswith("Python311"),
-               f"her interpreter is not first on PATH: {front[:2]!r}")
+        # The contract is NOT "Python311 is first". It is "whichever of her
+        # runtime dirs EXIST are first, in declared order" - and asserting the
+        # hard-coded artifact instead was a false refusal that refused EVERY
+        # patch. A trial tree does not carry her interpreter: Python311 is 2.5 GB
+        # across 108,146 files, so it is skipped when the copy is built, while
+        # node/ is linked because mcp-spawn only needs it to exist. Since every
+        # check_only and every propose_patch runs the whole suite inside one of
+        # those copies, demanding a directory that cannot be there refused all
+        # self-editing while the live suite stayed green. Found by Lulu, not by
+        # me - she read it as "the gate is fighting the sandbox, not the diff"
+        # and she was right on every point.
+        expect(front[:len(present)] == present,
+               f"her runtimes are not first on PATH: front={front[:2]!r} "
+               f"present={present!r}")
         expect(env.get("PYTHONUNBUFFERED") == "1",
                "her commands do not run unbuffered, unlike her own process")
 
-        # And the end-to-end version, because a dict entry proves nothing about
-        # whether a shell actually resolves it. This runs a real interpreter.
-        who = runbox.run('python -c "import sys; print(sys.executable)"')
-        expect("(exit 0" in who, f"a bare `python` did not run cleanly: {who!r}")
-        expect(str(paths.ROOT).lower() in who.lower(),
-               f"bare `python` resolved OUTSIDE her folder: {who!r}")
-        expect("not recognized" not in who.lower(),
-               f"bare `python` is still a failed PATH lookup: {who!r}")
+        # The thing master actually asked for, at full strength wherever her
+        # interpreter is really present - which is the real root, the tree the
+        # pipeline's own smoke run uses before it applies anything.
+        if (paths.ROOT / "Python311").is_dir():
+            expect(present and present[0].endswith("Python311"),
+                   f"her interpreter is not first on PATH: {present[:2]!r}")
+            # End to end, because a PATH entry proves nothing about whether a
+            # shell resolves it. This runs a real interpreter.
+            who = runbox.run('python -c "import sys; print(sys.executable)"')
+            expect("(exit 0" in who,
+                   f"a bare `python` did not run cleanly: {who!r}")
+            expect(str(paths.ROOT).lower() in who.lower(),
+                   f"bare `python` resolved OUTSIDE her folder: {who!r}")
+            expect("not recognized" not in who.lower(),
+                   f"bare `python` is still a failed PATH lookup: {who!r}")
     finally:
         runbox.AUDIT = real_audit
         if sandbox_audit.exists():
