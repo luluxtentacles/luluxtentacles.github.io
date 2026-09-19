@@ -56,6 +56,19 @@ $new = @(
         Desc   = 'Restart Lulu (asks for admin - she runs as the boxed lulu-bot account)'
         Window = 1
     },
+    # The panic button. Master asked for it so a runaway, a bad loop, or anything
+    # else on fire can be ended in one click without reasoning about process
+    # trees mid-incident. Icon 131 is the red X: it should not look like the
+    # restart button next to it.
+    @{
+        Place  = 'Desktop'
+        Name   = 'Kill Lulu.lnk'
+        Target = 'C:\lulu\setup\kill-lulu.cmd'
+        Work   = 'C:\lulu\setup'
+        Icon   = '%SystemRoot%\System32\shell32.dll,131'
+        Desc   = 'STOP Lulu now - task, supervisor and bot (asks for admin). Right-click, Run as administrator if the prompt is refused.'
+        Window = 1
+    },
     @{
         Place  = 'Startup'
         Name   = 'Lulu Console.lnk'
