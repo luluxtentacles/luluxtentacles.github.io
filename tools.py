@@ -1394,6 +1394,10 @@ _OUTBOX: list[dict] = []
 _SAY_TIMES: list[float] = []
 
 SAY_MAX = 3                # sends allowed inside one window
+# Discord's own ceiling for a normal bot account. A file bigger than this is
+# refused at queueing time with its size named, rather than failing later in
+# the bot's send with an HTTPException nobody can act on.
+FILE_MAX_BYTES = 8 * 1024 * 1024
 SAY_WINDOW = 10 * 60       # seconds
 SAY_MAX_CHARS = 400
 

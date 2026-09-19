@@ -1,0 +1,106 @@
+Comparing files tools.py and PENDING\APPLIED\20260920-035638\TOOLS.PY
+***** tools.py
+ 1483:  
+ 1484:  def drain_outbox() -> list[dict]:
+ 1485:      """Hand the queued sends to the event loop and empty the queue.
+ 1486:  
+ 1487:      Called by the bot after think() returns. The tool layer never posts; this is
+ 1488:      the handover, and it is deliberately the only way anything leaves.
+ 1489:      """
+ 1490:      queued = list(_OUTBOX)
+ 1491:      _OUTBOX.clear()
+ 1492:      return queued
+ 1493:  
+***** PENDING\APPLIED\20260920-035638\TOOLS.PY
+ 1483:  
+ 1484:  def attach(channel: str, path: str, text: str = "") -> str:
+ 1485:      """Queue one file from inside my own folder, posted with a caption.
+ 1486:  
+ 1487:      Same path as say(): validate here, queue here, and let the event loop do
+ 1488:      the actual posting. Guards:
+ 1489:        - the path must resolve inside my folder (paths.resolve refuses the rest)
+ 1490:        - it must exist and be a file
+ 1491:        - Discord's ceiling: FILE_MAX_BYTES, named at queue time rather than
+ 1492:          failing in the send with an HTTPException nobody can act on
+ 1493:      Rate limit is shared with say() on purpose - a queued attachment is a
+ 1494:      send, whatever it carries.
+ 1495:      """
+ 1496:      target = (channel or "").strip().lstrip("#").lower()
+ 1497:      if not target:
+ 1498:          return "attach where?"
+ 1499:      try:
+ 1500:          resolved = paths.resolve(path or "", must_exist=True)
+ 1501:      except paths.SandboxError as exc:
+ 1502:          return f"refused: {exc}"
+ 1503:      except Exception as exc:
+ 1504:          return f"cannot look at {path}: {exc}"
+ 1505:      if not resolved.is_file():
+ 1506:          return f"{path} is not a file"
+ 1507:      size = resolved.stat().st_size
+ 1508:      if size > FILE_MAX_BYTES:
+ 1509:          return (f"too big for discord ({size:,} bytes, ceiling "
+ 1510:                  f"{FILE_MAX_BYTES:,})")
+ 1511:      body = " ".join((text or "").split())
+ 1512:      if len(body) > SAY_MAX_CHARS:
+ 1513:          return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
+ 1514:  
+ 1515:      now = time.time()
+ 1516:      _SAY_TIMES[:] = [t for t in _SAY_TIMES if now - t < SAY_WINDOW]
+ 1517:      if len(_SAY_TIMES) >= SAY_MAX:
+ 1518:          wait = int((SAY_WINDOW - (now - _SAY_TIMES[0])) / 60) + 1
+ 1519:          return (f"i have already spoken up {SAY_MAX} times in "
+ 1520:                  f"{SAY_WINDOW // 60} minutes - about {wait} more minutes")
+ 1521:      _SAY_TIMES.append(now)
+ 1522:      _OUTBOX.append({"channel": target, "text": body, "file": path})
+ 1523:      return (f"queued {path} ({size:,} bytes) for #{target}"
+ 1524:              + (" with a caption" if body else ""))
+ 1525:  
+*****
+
+***** tools.py
+ 1494:  
+ 1495:  # -- progress: what she says WHILE she works --------------------------------
+ 1496:  # Same thread boundary as the outbox above and the same shape: run_turns runs in
+ 1497:  # a worker thread with no event loop, so a line goes into a queue and the loop
+ 1498:  # posts it. A SEPARATE queue from _OUTBOX because these go to the room she was
+ 1499:  # ADDRESSED in, not to the say allowlist - and because the outbox drains only
+ 1500:  # after her answer is already out, which is exactly the silence this exists to
+ 1501:  # fix: eight tool rounds over thirty-seven seconds, one reply at the end.
+ 1502:  # Keyed by channel, because she can be mid-dig in two rooms at once.
+ 1503:  PROGRESS_MAX_QUEUED = 20
+ 1504:  _PROGRESS: list[dict] = []
+ 1505:  
+***** PENDING\APPLIED\20260920-035638\TOOLS.PY
+ 1526:  
+ 1527:  def drain_outbox() -> list[dict]:
+ 1528:      """Hand the queued sends to the event loop and empty the queue.
+ 1529:  
+ 1530:      Called by the bot after think() returns. The tool layer never posts; this is
+ 1531:      the handover, and it is deliberately the only way anything leaves.
+ 1532:      """
+ 1533:      queued = list(_OUTBOX)
+ 1534:      _OUTBOX.clear()
+ 1535:      return queued
+ 1536:  
+*****
+
+***** tools.py
+ 1506:  
+ 1507:  def queue_progress(channel_id, text: str) -> None:
+***** PENDING\APPLIED\20260920-035638\TOOLS.PY
+ 1537:  
+ 1538:  # -- progress: what she says WHILE she works --------------------------------
+ 1539:  # Same thread boundary as the outbox above and the same shape: run_turns runs in
+ 1540:  # a worker thread with no event loop, so a line goes into a queue and the loop
+ 1541:  # posts it. A SEPARATE queue from _OUTBOX because these go to the room she was
+ 1542:  # ADDRESSED in, not to the say allowlist - and because the outbox drains only
+ 1543:  # after her answer is already out, which is exactly the silence this exists to
+ 1544:  # fix: eight tool rounds over thirty-seven seconds, one reply at the end.
+ 1545:  # Keyed by channel, because she can be mid-dig in two rooms at once.
+ 1546:  PROGRESS_MAX_QUEUED = 20
+ 1547:  _PROGRESS: list[dict] = []
+ 1548:  
+ 1549:  
+ 1550:  def queue_progress(channel_id, text: str) -> None:
+*****
+
