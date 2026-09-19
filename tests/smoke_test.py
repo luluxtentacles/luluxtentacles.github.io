@@ -2631,12 +2631,14 @@ def _containment() -> str:
             "and the never-repeat-a-secret rule")
 
 
-# -- 9d. her own time opens on an interval, and only when it should --------
+# -- 9d. her own time: an interval, and ten turns inside a window ----------
 # This was once one window a calendar day, at or after an hour. It is an interval
-# now, measured from the last window's START, and the three ways an interval can
-# be wrong - too early, never, and always - are each pinned here. Nothing touches
-# the disk: _state is replaced, because a check that depends on when it happens
-# to run is how a green suite starts lying.
+# now, measured from the last window's START, and a window survives her own
+# restart so a patch can be judged and the next one started in the same occasion.
+# The three ways an interval can be wrong - too early, never, and always - and the
+# four ways a resumption can be wrong are each pinned here. Nothing touches the
+# disk: _state is replaced, because a check that depends on when it happens to
+# run is how a green suite starts lying.
 def _cadence() -> str:
     import self_review
 
@@ -2660,6 +2662,34 @@ def _cadence() -> str:
         expect(self_review.due(on, now=start),
                "an unreadable stamp owed nothing")
 
+        # A window interrupted by MY OWN restart is still the same window - and
+        # its interval has not elapsed, so only resumption can open it. This is
+        # the whole point of ten turns, so it gets pinned from both sides: it
+        # must resume, and it must not resume the instant it restarted, because
+        # that is what a crash loop looks like to the supervisor.
+        open_window = {"self_review": {"enabled": True, "interval_hours": 4,
+                                       "max_turns": 10}}
+        interrupted = {"last_started": start, "in_progress": True,
+                       "turns_used": 3, "last_turn_at": start + 600}
+        self_review._state = lambda: interrupted
+        expect(self_review.due(open_window, now=start + 600 + 300),
+               "an interrupted window did not resume")
+        expect(not self_review.due(open_window, now=start + 600 + 1),
+               "a window resumed the moment it restarted - that is a crash loop")
+        expect(not self_review.due(
+                   open_window,
+                   now=start + 600 + self_review.RESUME_MAX_AGE_SECONDS + 1),
+               "a window from hours ago was picked back up instead of let go")
+
+        self_review._state = lambda: {"last_started": start, "in_progress": True,
+                                      "turns_used": 10, "last_turn_at": start + 600}
+        expect(not self_review.due(open_window, now=start + 600 + 300),
+               "a window that had spent its turns opened an eleventh")
+        self_review._state = lambda: {"last_started": start, "in_progress": False,
+                                      "turns_used": 4, "last_turn_at": start + 600}
+        expect(not self_review.due(open_window, now=start + 600 + 300),
+               "a finished window reopened itself")
+
         for bad in ({"self_review": {"enabled": True, "interval_hours": "soon"}},
                     {"self_review": {"enabled": True, "interval_hours": 0}},
                     {"self_review": {"enabled": True, "interval_hours": -4}},
@@ -2669,6 +2699,19 @@ def _cadence() -> str:
                    f"a nonsense interval did not fall back: {bad!r}")
         expect(self_review.settings({"self_review": "yes"})["enabled"] is False,
                "malformed settings switched her own time on")
+        expect(self_review.settings(
+                   {"self_review": {"enabled": True,
+                                     "max_turns": 7}})["max_turns"] == 7,
+               "a sane turn count was ignored")
+        for bad_turns in ({"self_review": {"enabled": True, "max_turns": "ten"}},
+                          {"self_review": {"enabled": True, "max_turns": 0}},
+                          {"self_review": {"enabled": True, "max_turns": -1}},
+                          {"self_review": {"enabled": True,
+                                            "max_turns":
+                                            self_review.MAX_TURNS_CEILING + 1}}):
+            expect(self_review.settings(bad_turns)["max_turns"]
+                   == self_review.DEFAULT_MAX_TURNS,
+                   f"a nonsense turn count did not fall back: {bad_turns!r}")
     finally:
         self_review._state = real
 
@@ -2679,10 +2722,14 @@ def _cadence() -> str:
            "hers to read")
     expect("what master says I am into" in self_review._brief(),
            "her interests did not reach the window brief")
+    expect("turn 1 of" in self_review._brief(),
+           "the brief does not say which turn this is")
+    expect("same window continuing" in self_review._brief(4, 10, True),
+           "a resumed window did not tell her it was the same one")
     expect("write_diary" in self_review.REVIEW_TOOL_NAMES,
            "she cannot keep her own diary in her own time")
-    return ("her own time: one window per interval, off when disabled, and her "
-            "interests ride into the brief")
+    return ("her own time: an interval, up to ten turns a window, resumed after "
+            "her own restart, and her interests ride into the brief")
 
 
 CHECKS = [

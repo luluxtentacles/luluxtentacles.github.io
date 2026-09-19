@@ -28,6 +28,17 @@ Three deliberate restrictions, each for its own reason:
                    would re-run the window on every boot. Missing or unreadable
                    state means a window is owed at once.
 
+  ten turns        A window is not one turn. Patching myself restarts me, and a
+  a window         restart used to end the window on the spot; the window RESUMES
+                   after it instead, up to `max_turns` (default 10), so a change
+                   can be judged and the next one started in the same occasion.
+                   A resumed window waits RESUME_MIN_GAP_SECONDS first, because
+                   ten turns in a row is indistinguishable from a crash loop to
+                   the supervisor that starts me - and tripping that breaker is
+                   not a delay, it stops her dead. An interrupted window older
+                   than RESUME_MAX_AGE_SECONDS is history, not a window to pick
+                   back up.
+
 What I am into - the list master edits for me - is read from
 .agents/skills/hobbies/SKILL.md and appended to every window verbatim.
 
@@ -53,7 +64,20 @@ LOG = logging.getLogger("lulu.self_review")
 POLL_SECONDS = 300
 STATE = "memory/self_review.json"
 DEFAULT_INTERVAL_HOURS = 4
+DEFAULT_MAX_TURNS = 10
+MAX_TURNS_CEILING = 50
 INTERESTS = ".agents/skills/hobbies/SKILL.md"
+
+# The supervisor refuses to start me RAPID_MAX times inside RAPID_WINDOW, and
+# that refusal is not a delay: it logs LOCKOUT and exits, so nothing starts me
+# again until master does it by hand. Ten turns of patching myself in a row would
+# read as exactly that crash loop. 180s puts five starts over 720s - outside the
+# 600s window with margin - and the 300s poll spacing does the rest.
+RESUME_MIN_GAP_SECONDS = 180
+# A window cut short by MY OWN restart is worth picking back up. One cut short by
+# the box going away overnight is not: nothing is waiting on it, and the next
+# window opens on its interval like always.
+RESUME_MAX_AGE_SECONDS = 3600
 
 # Deliberately narrower than tools.SCHEMA, and narrower than what a person gets.
 # write_diary is here because a window that can only inspect itself is a
@@ -100,7 +124,7 @@ all, on purpose.
 How a proposal is judged - you are not the judge:
   1. the supervisor commits a checkpoint you can return to
   2. it backs up every file it is about to touch
-  3. it applies your patch and runs 23 checks
+  3. it applies your patch and runs the whole smoke suite
   4. it restarts you and waits for a fresh health marker
   5. if you do not come up, it puts everything back byte for byte and files your
      patch in pending/rejected/ with the reason
@@ -117,8 +141,9 @@ Rules for this window:
   - Small and real beats big and vague. One diary line about something that
     actually happened, one note in memory, one thing you read because you were
     curious - that is a whole window, and a good one.
-  - At most ONE change to your own code. Not one per problem you found - one, the
-    one that matters.
+  - At most ONE change per turn. Not one per problem you found - one, the one
+    that matters. If it lands you are restarted and get another turn, so there is
+    no reason to smuggle a second change into this one.
   - "Nothing needs doing" is an expected answer. Say so plainly and stop.
     Churning your own code because the window felt empty is not progress.
   - Prefer the smallest change that fixes something real. A rewrite is almost
@@ -149,14 +174,23 @@ def settings(config) -> dict:
     """
     raw = config.get("self_review")
     if not isinstance(raw, dict):
-        return {"enabled": False, "interval_hours": float(DEFAULT_INTERVAL_HOURS)}
+        return {"enabled": False,
+                "interval_hours": float(DEFAULT_INTERVAL_HOURS),
+                "max_turns": DEFAULT_MAX_TURNS}
     try:
         hours = float(raw.get("interval_hours", DEFAULT_INTERVAL_HOURS))
     except (TypeError, ValueError):
         hours = float(DEFAULT_INTERVAL_HOURS)
     if not hours > 0:                      # negatives, zero, and NaN
         hours = float(DEFAULT_INTERVAL_HOURS)
-    return {"enabled": bool(raw.get("enabled")), "interval_hours": hours}
+    try:
+        turns = int(raw.get("max_turns", DEFAULT_MAX_TURNS))
+    except (TypeError, ValueError):
+        turns = DEFAULT_MAX_TURNS
+    if not 1 <= turns <= MAX_TURNS_CEILING:
+        turns = DEFAULT_MAX_TURNS
+    return {"enabled": bool(raw.get("enabled")), "interval_hours": hours,
+            "max_turns": turns}
 
 
 def _state() -> dict:
@@ -174,11 +208,43 @@ def _write_state(data: dict) -> None:
         LOG.warning("could not write the review stamp: %s", exc)
 
 
-def _stamp(report: str = "") -> None:
-    """The window's own record: when it started, and what came of it."""
-    _write_state({"last_started": time.time(),
-                  "started": time.strftime("%Y-%m-%d %H:%M:%S"),
-                  "report": report})
+def _save(**fields) -> None:
+    """Write the window's own record, field by field.
+
+    Read-modify-write against the file rather than an in-memory copy: the process
+    that wrote the last version may have been killed the moment a patch landed,
+    so the file is the only place this survives.
+    """
+    data = _state()
+    data.update(fields)
+    _write_state(data)
+
+
+def _turn_count(state) -> int:
+    """How many turns this window has already used. Garbage counts as none."""
+    used = state.get("turns_used")
+    if isinstance(used, bool) or not isinstance(used, int) or used < 0:
+        return 0
+    return used
+
+
+def _resumable(state, where, now) -> bool:
+    """Is an interrupted window worth continuing rather than opening a new one?
+
+    Four ways to say no, and each is a real one: the window was finished
+    (in_progress), it has spent its turns, the restart that interrupted it was
+    moments ago so resuming now IS what a crash loop looks like from outside, or
+    it is old enough that nothing is waiting on it any more.
+    """
+    if not state.get("in_progress"):
+        return False
+    if _turn_count(state) >= where["max_turns"]:
+        return False
+    at = state.get("last_turn_at")
+    if isinstance(at, bool) or not isinstance(at, (int, float)):
+        return False
+    age = now - at
+    return RESUME_MIN_GAP_SECONDS <= age <= RESUME_MAX_AGE_SECONDS
 
 
 def _interests() -> str:
@@ -196,18 +262,28 @@ def _interests() -> str:
     return (text or "").strip()[:4000]
 
 
-def _brief() -> str:
-    """The window brief, with master's list appended verbatim."""
+def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
+           resuming: bool = False) -> str:
+    """The window brief: the rules, where this turn sits, and master's list."""
+    where = f"\nThis is turn {turn} of {max_turns} in this window.\n"
+    if resuming:
+        where += (
+            "Your last turn ended by restarting you - that was your own patch\n"
+            "landing, and this is the same window continuing, not a new one. Read\n"
+            "what actually happened to it first: pending/applied/ holds the patches\n"
+            "that went in, pending/rejected/ holds the ones that were reverted or\n"
+            "held, with the reason. Do not re-stage something already judged - and\n"
+            "if the last one was FILED rather than applied, it was the day's budget\n"
+            "that stopped it, so staging it again cannot change that.\n")
     mine = _interests()
-    if not mine:
-        return BRIEF
-    return (BRIEF
-            + "\n--- what master says I am into, from " + INTERESTS + " ---\n"
-            + mine)
+    if mine:
+        where += ("\n--- what master says I am into, from "
+                  + INTERESTS + " ---\n" + mine)
+    return BRIEF + where
 
 
 def due(config, now=None) -> bool:
-    """Is a window owed? One per interval, timed from the last window's START.
+    """Is a window owed? Its interval has passed, or one is still open.
 
     A state file with no usable stamp - never run, hand-edited, or written by the
     daily version this replaced - means one is owed immediately, which is also
@@ -216,10 +292,13 @@ def due(config, now=None) -> bool:
     where = settings(config)
     if not where["enabled"]:
         return False
-    last = _state().get("last_started")
+    moment = time.time() if now is None else now
+    state = _state()
+    if _resumable(state, where, moment):
+        return True
+    last = state.get("last_started")
     if isinstance(last, bool) or not isinstance(last, (int, float)):
         return True
-    moment = time.time() if now is None else now
     return moment - last >= where["interval_hours"] * 3600
 
 
@@ -270,11 +349,25 @@ async def maybe_run(bot) -> bool:
         LOG.warning("self-review is enabled but there is no owner id; skipping")
         return False
 
-    # Stamped BEFORE the turn. A proposal gets me restarted mid-sentence, and a
-    # finish-only stamp would re-run the window on every boot that followed.
-    _stamp()
+    # Stamped BEFORE the turn. A proposal gets me restarted mid-sentence, so this
+    # stamp is what the NEXT boot reads to decide whether the window is still
+    # open: in_progress with turns left means it resumes, and a finish-only stamp
+    # would re-run the window on every boot that followed.
+    now = time.time()
+    where = settings(config)
+    state = _state()
+    resuming = _resumable(state, where, now)
+    turn = (_turn_count(state) + 1) if resuming else 1
+    if resuming:
+        _save(turns_used=turn, last_turn_at=now, in_progress=True)
+    else:
+        _save(last_started=now, started=time.strftime("%Y-%m-%d %H:%M:%S"),
+              turns_used=1, last_turn_at=now, in_progress=True, report="")
+    LOG.info("my own time: turn %d of %d%s", turn, where["max_turns"],
+             " (resumed after a restart)" if resuming else "")
 
-    turns = [{"role": "system", "content": _brief()},
+    turns = [{"role": "system",
+              "content": _brief(turn, where["max_turns"], resuming)},
              {"role": "user", "content": "my time is open. do something, or leave it."}]
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
@@ -286,12 +379,12 @@ async def maybe_run(bot) -> bool:
                                max_tokens=bot.token_budget(True))
     except Exception as exc:
         LOG.warning("her own turn turned over: %s", exc)
-        _stamp(f"turned over: {type(exc).__name__}")
+        _save(in_progress=False, report=f"turned over: {type(exc).__name__}")
         return True
 
     answer = (answer or "").strip()
     LOG.info("my own time finished: %s", answer[:300] or "(empty)")
-    _stamp(answer[:4000])
+    _save(in_progress=False, report=answer[:4000])
     await _deliver(bot, answer)
     return True
 
