@@ -166,8 +166,39 @@ class McpClient:
         if self.env:
             env.update(self.env)
         command = self.command
-        if not os.path.isabs(command):
-            command = str(paths.ROOT / command)
+        if os.path.isabs(command):
+            # An ABSOLUTE command used to be taken at face value, and that was a
+            # hole. mcp.json is pipeline-patchable, so a patch could point a
+            # "server" at ANY executable on the box - and because start()
+            # spawns BEFORE it handshakes, the process would RUN and only then
+            # fail to speak MCP: a real side effect wearing a confusing error.
+            #
+            # So an MCP command must resolve inside her own folder. That keeps
+            # the surface auditable (the diff shows a path under her root) and
+            # makes the obvious abuse - naming a system binary - impossible.
+            #
+            # Honest limit: this does NOT stop `node -e "..."`, because node is
+            # a general interpreter and running one is the point of having it.
+            # The rule constrains WHERE the binary comes from, not what a
+            # permitted interpreter can be told to do.
+            root = os.path.realpath(str(paths.ROOT))
+            resolved = os.path.realpath(command)
+            try:
+                inside = os.path.commonpath([root, resolved]) == root
+            except ValueError:
+                # Different drives - commonpath raises rather than answering.
+                inside = False
+            if not inside:
+                raise paths.SandboxError(
+                    f"mcp.json names a command outside my folder: {command}. "
+                    f"An MCP server has to run from inside {root} - put the "
+                    f"binary there and use a relative path like "
+                    f"\"node/node.exe\".")
+            command = resolved
+        else:
+            # Relative goes through the wall, which also gives existence a real
+            # error instead of a Popen FileNotFoundError at the last moment.
+            command = str(paths.resolve(command, must_exist=True))
         binary_dir = os.path.dirname(command)
         if binary_dir:
             env["PATH"] = binary_dir + os.pathsep + env.get("PATH", "")

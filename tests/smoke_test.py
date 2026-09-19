@@ -781,8 +781,37 @@ def _mcp_spawn() -> str:
                f"(got {first!r}) - npx's bare `node` lookup will fail")
         expect(cwd == str(paths.ROOT), f"{name}: cwd is not the bot root")
         expect(os.path.isdir(cwd), f"{name}: cwd {cwd!r} is not a folder")
+
+    # An ABSOLUTE command used to be taken at face value. mcp.json is
+    # pipeline-patchable, so a patch could point a "server" at any executable on
+    # the box - and start() spawns BEFORE it handshakes, so the process would RUN
+    # and only then fail to speak MCP: a real side effect wearing a confusing
+    # error. An MCP command must now resolve inside her own folder.
+    #
+    # This is also what gives the rule teeth. The pipeline applies a patch only
+    # when THIS FILE passes, so an mcp.json re-pointed outside her folder fails
+    # here and gets reverted automatically instead of running even once.
+    outside = mcp_client.McpClient(r"C:\Windows\System32\cmd.exe", ["/c", "echo", "x"])
+    try:
+        outside.spawn_spec()
+    except paths.SandboxError as exc:
+        expect("outside my folder" in str(exc),
+               f"the refusal does not say why: {exc}")
+    else:
+        raise AssertionError(
+            "an absolute MCP command outside her folder was accepted - mcp.json "
+            "could point a server at any executable on the box")
+
+    # And a RELATIVE one must still work, or the rule has simply broken every
+    # server she has.
+    normal = mcp_client.McpClient("node/node.exe", [])
+    resolved_command, _, _ = normal.spawn_spec()
+    expect(os.path.isabs(resolved_command) and os.path.exists(resolved_command),
+           f"a normal relative command stopped resolving: {resolved_command!r}")
+
     return ("every server resolves to a real absolute command with its own "
-            "folder first on PATH and the root as cwd, even with PATH emptied")
+            "folder first on PATH and the root as cwd, even with PATH emptied; "
+            "a command outside her folder is refused")
 
 
 # -- 8j. adding a skill -----------------------------------------------------
