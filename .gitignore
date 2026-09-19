@@ -122,3 +122,11 @@ node_modules/
 .venv/
 venv/
 *.egg-info/
+# Where the playwright MCP server drops its console logs and page snapshots. It is
+# NOT ms-playwright/ - that is the browser build, this is the scratch the tools
+# write on every single browser call, into the working directory. Ignored for the
+# same reason as everything else above: checkpoint runs `git add -A`, so one
+# browser call followed by one self-edit would put page dumps in her history.
+# Found 2026-09-20 by running `git add -A --dry-run` after a browser test, having
+# first believed it was covered because the names look alike.
+.playwright-mcp/
