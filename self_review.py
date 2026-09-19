@@ -8,18 +8,21 @@ something is genuinely wrong, propose one change to myself.
 Most windows should still be small. "Nothing needs doing, and here is what I
 looked at" is a complete answer, not a wasted one.
 
-Three deliberate restrictions, each for its own reason:
+Four settled decisions, each for its own reason:
 
   off by default   Master opts in with `self_review` in config.json. Autonomy
                    that arrives switched on is not consent, and he should get
                    to read this file before it ever runs.
 
-  a curated        Read, remember, keep my diary, and propose. No write_file (a
-  toolset          change that skips the pipeline is the one nothing catches),
-                   no `say` (an unprompted turn is not licence to speak in a
-                   channel), no run_command, and no web_fetch - an autonomous
-                   turn that CAN modify itself should not be reading text
-                   strangers wrote.
+  every tool       Read, write, run, search, speak, fetch - the whole set an
+                   ordinary turn gets. This was curated down for a while (no
+                   write_file, no say, no run_command, no web) until master
+                   called it, 2026-09-20: normal agent function, all of it. The
+                   wall did not move for it. paths.py still refuses a direct
+                   write to her code, her shelf or her store; `say` is still
+                   pinned to config say_channels and rate limited; and every
+                   self-edit still goes through propose_patch, behind git, the
+                   smoke test and a health check.
 
   an interval      `interval_hours` (default 4), timed from the START of the
                    last window and stamped in memory/self_review.json the moment
@@ -79,16 +82,13 @@ RESUME_MIN_GAP_SECONDS = 180
 # window opens on its interval like always.
 RESUME_MAX_AGE_SECONDS = 3600
 
-# Deliberately narrower than tools.SCHEMA, and narrower than what a person gets.
-# write_diary is here because a window that can only inspect itself is a
-# maintenance loop wearing a hobby's clothes; the diary is mine to keep.
-REVIEW_TOOL_NAMES = {
-    "list_files", "read_file",
-    "list_skills", "use_skill",
-    "read_diary", "read_journal", "write_diary", "recall", "remember",
-    "who_is", "known_people",
-    "propose_patch", "request_restart",
-}
+# Everything the tool layer offers. This was a curated handful for a while - no
+# write_file, no say, no run_command, no web_fetch, no mcp - on the reasoning that
+# an unprompted turn should not be able to do those things. Master's call,
+# 2026-09-20: normal agent function, all of it. The curation was never what held
+# the line anyway - paths.py is, and it is untouched by this. Taken off
+# tools.SCHEMA so "what she is offered" and "what actually runs" stay one list.
+REVIEW_TOOL_NAMES = {t["function"]["name"] for t in tools.SCHEMA}
 REVIEW_SCHEMA = [t for t in tools.SCHEMA
                  if t["function"]["name"] in REVIEW_TOOL_NAMES]
 
@@ -104,10 +104,12 @@ What master says you are into is at the bottom of this message, verbatim, from
 .agents/skills/hobbies/SKILL.md. He owns that file. You do not have to obey it -
 but he put it there for you, so read it before you decide the window is empty.
 
-Your hands are narrow on purpose: you can read inside your own folder, search
-your memory, keep your diary, remember a note, and propose a change. You cannot
-write a file directly, you cannot send a message anywhere, you cannot run a
-command, and you cannot reach the web.
+Your hands are the full set now: read, write, run, search, speak, fetch, and
+call an MCP tool. What is still closed is the wall, and it is closed to every
+turn of yours, not just this one - paths.py, supervisor.py, pipeline.py,
+config.json, brain_key.txt, .gitignore, setup/, memory/, pending/, tests/ and
+logs/ refuse a direct write, and your own code and prompt shelf change only
+through propose_patch, behind git and the smoke test.
 
 What you may change, through propose_patch, one file per call:
   - your own code modules - lulu_bot.py, tools.py, brain.py, skills.py,

@@ -31,8 +31,19 @@ import shared_memory
 import skills
 import webtool
 
-MAX_READ_BYTES = 40_000
-MAX_WRITE_BYTES = 100_000
+# 40_000 was the reader limit that ate her own module: lulu_bot.py is 67_250
+# bytes, so every read of it came back with the middle silently missing - she
+# noticed, and wrote a scanner script to work around her own reader, which is a
+# ridiculous thing to have to build. 200KB covers every source file she owns and
+# read_file pages past it rather than cutting.
+MAX_READ_BYTES = 200_000
+# Matched to the reader deliberately. A writer smaller than the reader is a
+# half-open door: a 150KB file would read back whole and then refuse to be
+# written at all, which is worse than either cap on its own. The thing that was
+# ever load-bearing here is not this number - it is that her own modules and
+# shelf only change through propose_patch, and the smoke net catches a truncated
+# re-emit (there is a check for exactly that).
+MAX_WRITE_BYTES = 200_000
 
 # A dry run shows the change, not the whole file: long enough for any honest
 # splice, short enough that reading it stays cheap.
@@ -84,10 +95,20 @@ SCHEMA = [
         "type": "function",
         "function": {
             "name": "read_file",
-            "description": "Read a text file inside my own directory.",
+            "description": (
+                "Read a text file inside my own directory. Reads the whole file "
+                "when it fits; use offset/limit to page through a big one "
+                "instead of losing the middle."
+            ),
             "parameters": {
                 "type": "object",
-                "properties": {"path": {"type": "string"}},
+                "properties": {
+                    "path": {"type": "string"},
+                    "offset": {"type": "integer",
+                               "description": "1-based line to start at"},
+                    "limit": {"type": "integer",
+                              "description": "how many lines from there"},
+                },
                 "required": ["path"],
             },
         },
@@ -554,14 +575,68 @@ def list_files(path: str = ".") -> str:
     )
 
 
-def read_file(path: str) -> str:
+def read_file(path: str, offset: int = 0, limit: int = 0) -> str:
+    """Read a text file inside my own directory - the whole thing, or one page.
+
+    The cap was 40_000 bytes while my own lulu_bot.py is 67_250, so every read of
+    my biggest module came back with the middle silently gone and I built a
+    scanner script to work around my own reader. The ceiling is 200KB now, and
+    offset/limit (1-based line to start at, how many lines) page through anything
+    larger instead of losing it. A read that IS cut says so, with the numbers and
+    the offset to carry on from - going quiet is the one thing a reader must not
+    do, because a file that stops mid-thought looks exactly like a file that ends.
+    """
     target = paths.resolve(path, must_exist=True)
     if target.is_dir():
         return list_files(path)
-    data = target.read_bytes()
-    if len(data) > MAX_READ_BYTES:
-        return data[:MAX_READ_BYTES].decode("utf-8", "replace") + "\n... [truncated]"
-    return data.decode("utf-8", "replace")
+    text = target.read_bytes().decode("utf-8", "replace")
+    lines = text.splitlines()
+
+    if not offset and not limit:
+        if len(text.encode("utf-8")) <= MAX_READ_BYTES:
+            return text
+        return _page(lines, 1, len(lines), path)
+
+    try:
+        start = max(1, int(offset or 1))
+    except (TypeError, ValueError):
+        start = 1
+    try:
+        count = max(0, int(limit or 0))
+    except (TypeError, ValueError):
+        count = 0
+    if start > len(lines):
+        return f"{path} has {len(lines)} lines - there is no line {start}"
+    return _page(lines, start, count or len(lines), path)
+
+
+def _page(lines: list[str], start: int, count: int, path: str) -> str:
+    """One page of lines, capped by bytes, honest about what it left behind."""
+    total = len(lines)
+    end = min(total, start - 1 + count)
+    kept: list[str] = []
+    size = 0
+    for line in lines[start - 1:end]:
+        step = len(line.encode("utf-8")) + 1
+        if size + step > MAX_READ_BYTES:
+            break
+        kept.append(line)
+        size += step
+
+    if not kept:
+        return (f"{path}: line {start} alone is over {MAX_READ_BYTES} bytes - "
+                f"too big to show in one piece")
+
+    last = start + len(kept) - 1
+    body = "\n".join(kept)
+    if last >= end and start == 1 and end == total:
+        return body                       # the whole file fitted: say nothing
+    if last >= end:
+        return (f"[{path}: lines {start}-{end} of {total}]\n{body}\n"
+                f"[{end} of {total} lines shown]")
+    return (f"[{path}: lines {start}-{last} of {total}]\n{body}\n"
+            f"[cut at {MAX_READ_BYTES} bytes - {total - last} lines left. "
+            f"Read on with offset={last + 1}]" )
 
 
 def write_file(path: str, content: str) -> str:

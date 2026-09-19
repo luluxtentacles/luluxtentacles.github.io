@@ -59,7 +59,11 @@ AUDIT = LOGS / "runbox.log"
 # Long enough for a real install - a browser download is minutes - and short
 # enough that a hung build does not hold her turn forever.
 TIMEOUT = 900
-MAX_OUTPUT = 8_000
+# Her other reader limit, and it cut real work: 8_000 chars is about a build log's
+# first screen, so a command that printed the answer at the end looked like a
+# command that printed nothing. Master's call 2026-09-20, with her read_file cap:
+# normal agent function. 60s of timeout and 32KB of output still bound it.
+MAX_OUTPUT = 32_000
 KILL_TIMEOUT = 20
 
 PY = sys.executable

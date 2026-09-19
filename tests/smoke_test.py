@@ -581,9 +581,13 @@ def _nickname() -> str:
             expect(not line.strip().startswith("[system]"),
                    f"a nickname injection became its own prompt line: {line!r}")
 
-    # And the rounds ceiling is the number master asked for.
-    expect(lulu_bot.MAX_TOOL_ROUNDS == 12,
-           f"round ceiling is {lulu_bot.MAX_TOOL_ROUNDS}, expected 12")
+    # And the rounds ceiling is the number master asked for. It went 6 -> 12 ->
+    # 40 on 2026-09-20: 12 truncated genuine multi-step work, and this number is
+    # what decides whether a hard question converges or gets answered from a
+    # half-finished dig. Pinned exactly, because it is a cost decision rather than
+    # a bug - the prompt is resent every round, so this number IS the bill.
+    expect(lulu_bot.MAX_TOOL_ROUNDS == 40,
+           f"round ceiling is {lulu_bot.MAX_TOOL_ROUNDS}, expected 40")
     return (f"names flattened and capped at {lulu_bot.NAME_MAX}; "
             f"no system line from a nickname; rounds {lulu_bot.MAX_TOOL_ROUNDS}")
 
@@ -2732,6 +2736,78 @@ def _cadence() -> str:
             "her own restart, and her interests ride into the brief")
 
 
+# -- 9e. the caps that were eating her own work -----------------------------
+# Her read cap was 40_000 bytes and lulu_bot.py is 67_250, so every read of her
+# biggest module came back with the middle silently missing - she noticed, and
+# wrote a scanner script to work around her own reader. A cap that quietly cuts
+# is indistinguishable from a file that really ends, which is the worst failure
+# a reader can have, so the caps AND the paging note are both pinned here.
+def _limits() -> str:
+    import os
+
+    import lulu_bot
+    import paths
+    import runbox
+    import tools
+
+    biggest = max((paths.ROOT / name).stat().st_size
+                  for name in ("lulu_bot.py", "tools.py", "people.py"))
+    expect(tools.MAX_READ_BYTES > biggest,
+           f"the reader cap ({tools.MAX_READ_BYTES}) cannot hold her own biggest "
+           f"module ({biggest} bytes)")
+    expect(tools.MAX_WRITE_BYTES >= tools.MAX_READ_BYTES,
+           "she can read a file whole but cannot write one back")
+    expect(runbox.MAX_OUTPUT >= 8_000, "command output is still cut at the old cap")
+    expect(lulu_bot.MAX_TOOL_ROUNDS >= 12, "the tool-round ceiling went DOWN")
+
+    # A page, on a file whose exact length is known, built for the test and taken
+    # away again - so this cannot depend on what happens to be in her folder.
+    probe = f"tmp_limits_probe_{os.getpid()}.txt"
+    target = paths.resolve(probe)
+    try:
+        paths.write_text(probe, "\n".join(f"line {n}" for n in range(1, 4001)),
+                         internal=True)
+
+        whole = tools.read_file(probe)
+        # splitlines, not a substring: write_text translates \n to \r\n on
+        # Windows, so an assertion that hard-codes \n tests the test.
+        got = whole.splitlines()
+        expect(got and got[0] == "line 1" and got[-1] == "line 4000"
+               and len(got) == 4000,
+               f"a file that fits came back cut: {len(got)} of 4000 lines")
+        expect("truncated" not in whole.lower() and "[cut at" not in whole,
+               "a whole read still claims to be cut")
+
+        page = tools.read_file(probe, offset=10, limit=3)
+        shown = page[:120]
+        expect("line 10" in page and "line 12" in page and "line 13" not in page,
+               f"offset/limit did not page: {shown!r}")
+        expect("lines 10-12" in page, f"a page did not name its lines: {shown!r}")
+
+        expect("there is no line" in tools.read_file(probe, offset=99_999),
+               "reading past the end of a file said nothing")
+
+        # The regression that actually bit her: a real module, whole. The check is
+        # on the FRAMING the reader adds, not on any word in the body - lulu_bot.py
+        # genuinely contains the word "truncated" in a comment, so a substring test
+        # for it fails on a file that came back perfect. That mistake cost three
+        # runs of this suite before it was caught.
+        bot = tools.read_file("lulu_bot.py")
+        expect(len(bot.encode("utf-8")) > 40_000,
+               "her own lulu_bot.py came back at or under the old cap")
+        expect(not bot.startswith("[lulu_bot.py:") and "[cut at" not in bot,
+               "her own lulu_bot.py is still being cut")
+        expect(bot.rstrip().endswith('raise SystemExit(main())') or
+               bot.rstrip().endswith('main()'),
+               "the read did not reach the end of her module")
+    finally:
+        target.unlink(missing_ok=True)
+
+    return (f"reader {tools.MAX_READ_BYTES} bytes (her biggest module is "
+            f"{biggest}), paging names its lines, runbox {runbox.MAX_OUTPUT}, "
+            f"rounds {lulu_bot.MAX_TOOL_ROUNDS}")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -2764,6 +2840,7 @@ CHECKS = [
     ("skill-patch", _skill_patch),
     ("budget", _budget),
     ("cadence", _cadence),
+    ("limits", _limits),
     ("entrypoint", _entrypoint),
     ("api", _api),
     ("propose", _propose),

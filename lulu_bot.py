@@ -33,12 +33,14 @@ LOG = logging.getLogger("lulu")
 HISTORY_TURNS = 25
 # Discord's own ceiling is 2000 characters per message.
 MAX_MESSAGE = 2000
-# How many brain calls one message may take. 6 was too few for real digging; 12
-# is where a genuinely hard question still converges. Not higher because the
-# prompt is resent EVERY round and tool results accumulate, so the cost grows
-# faster than linearly - measured over rounds 1-5: 2.3k -> 39.9k total tokens,
-# with round 4 alone doubling the prompt.
-MAX_TOOL_ROUNDS = 12
+# How many brain calls one message may take. 6 was too few for real digging and
+# 12 truncated genuine multi-step work - she would hit the ceiling mid-task, get
+# told to stop looking, and answer from a half-finished dig. Master's call
+# 2026-09-20: 40, normal agent function. The cost curve is why this is a number
+# at all - the prompt is resent EVERY round and tool results accumulate, so round
+# 4 alone doubled the prompt in the measurement that set 12 - so 40 is headroom,
+# not a target; most turns still finish inside ten rounds.
+MAX_TOOL_ROUNDS = 40
 
 # What one turn may write, in tokens - thinking and chat TOGETHER.
 #
