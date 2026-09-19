@@ -3004,6 +3004,67 @@ def _chat_context() -> str:
             "person, a context-less turn sees defaults")
 
 
+def _restart_dm() -> str:
+    """A change to her system reaches master privately, not only a channel.
+
+    Master asked for this on 2026-09-20: a restart announced only into a channel
+    is missed unless he happens to be sitting in that channel. So the DM is his
+    own line, and it must not depend on the room list either.
+    """
+    import asyncio
+    import inspect
+
+    import lulu_bot
+
+    owner = 424242424242424242
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [owner], "brain": {}})
+
+    seen: list = []
+
+    class FakeUser:
+        async def send(self, body):
+            seen.append(("sent", body))
+
+    async def fake_fetch_user(uid):
+        seen.append(("resolved", uid))
+        return FakeUser()
+
+    bot.fetch_user = fake_fetch_user
+    asyncio.run(bot._dm_owner("i restarted because a patch landed",
+                              ["snailcat", "lulu-den"]))
+
+    expect(len(seen) == 2, f"expected one resolve then one send, got {seen}")
+    expect(seen[0] == ("resolved", owner),
+           f"the DM did not go to owner_ids[0]: {seen[0]!r}")
+    body = seen[1][1]
+    expect("i restarted because a patch landed" in body,
+           f"the DM lost the report: {body!r}")
+    expect("#snailcat" in body and "#lulu-den" in body,
+           f"the DM does not say where else it went: {body!r}")
+
+    # No owner id: one warning, never an exception - this runs inside the announce
+    # path, where raising would take the whole notice down with it.
+    lonely = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+    asyncio.run(lonely._dm_owner("nobody to tell"))
+
+    # A dead DM must not take the announce path with it either.
+    broken = lulu_bot.Lulu({"always_skills": [], "owner_ids": [owner], "brain": {}})
+
+    async def boom(uid):
+        raise RuntimeError("discord is having a day")
+
+    broken.fetch_user = boom
+    asyncio.run(broken._dm_owner("still fine"))
+
+    # And the restart path actually reaches it - the DM is independent of the
+    # room list, so it is called outside the channel loop, not inside it.
+    src = inspect.getsource(lulu_bot.Lulu.announce_restart)
+    expect("_dm_owner" in src,
+           "announce_restart never DMs master - only rooms would hear about it")
+    return ("a restart or update DMs owner_ids[0], says where else it went, and "
+            "survives a missing owner or a dead DM")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -3052,6 +3113,7 @@ CHECKS = [
     ("restart-notice", _restart_notice),
     ("supersede", _supersede),
     ("chat-context", _chat_context),
+    ("restart-dm", _restart_dm),
 ]
 
 

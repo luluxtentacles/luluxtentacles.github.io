@@ -901,32 +901,31 @@ class Lulu(discord.Client):
             self._remember_start(seq, kind, now)
             return
 
-        # Where a restart report belongs: config.json -> update_channels.
-        #
-        # NOT the say allowlist. Those are two different promises and master
-        # asked to keep them apart (2026-09-20: "instead of calling them say").
-        # say() governs speaking in a room I was not invited to; this is the room
-        # he asked to hear from me in. It reads config.json fresh, and config.json
-        # is sealed in paths.SEALED_NAMES, so nothing I run can widen it.
-        #
-        # It used to borrow _say_allowlist() - "one policy for where my mouth
-        # reaches" - and the effect was that a config with no say_channels
-        # silently announced nothing at all.
-        rooms = tools.update_channels()
-        if not rooms:
-            LOG.info("restart notice: no update_channels in config.json")
-            return
-
-        # The room the restart came from goes first when it is one of them - a
-        # patch staged in #lulu-den should report back into #lulu-den - then the
-        # rest, because master named more than one place on purpose.
-        origin = str(notice.get("channel") or "").strip().lstrip("#").lower()
-        ordered = ([origin] if origin in rooms else []) + [r for r in rooms
-                                                           if r != origin]
-
         text = restart_sentence(reason, str(notice.get("why") or ""))
         if not text:
             return
+
+        # Rooms: config.json -> update_channels.
+        #
+        # NOT the say allowlist. Those are two different promises and master
+        # asked to keep them apart (2026-09-20: "instead of calling them say").
+        # say() governs speaking in a room I was not invited to; this is where he
+        # asked to hear from me. It reads config.json fresh, and config.json is
+        # sealed in paths.SEALED_NAMES, so nothing I run can widen it.
+        #
+        # It used to borrow _say_allowlist(), and the effect was that a config
+        # with no say_channels key announced nothing at all, silently.
+        #
+        # The room the restart came from goes first when it is one of them - a
+        # patch staged in #lulu-den should report back into #lulu-den - then the
+        # rest, because master named more than one place on purpose. One dead
+        # channel does not stop the others.
+        rooms = tools.update_channels()
+        if not rooms:
+            LOG.info("restart notice: no update_channels in config.json")
+        origin = str(notice.get("channel") or "").strip().lstrip("#").lower()
+        ordered = ([origin] if origin in rooms else []) + [r for r in rooms
+                                                           if r != origin]
         posted: list[str] = []
         for name in dict.fromkeys(ordered):      # deduped, order kept
             target = self.resolve_channel(name)
@@ -942,7 +941,44 @@ class Lulu(discord.Client):
         if posted:
             LOG.info("restart notice posted into %s: %s",
                      ", ".join("#" + n for n in posted), text[:140])
-            self._remember_start(seq, kind, now)
+
+        # Master's own line, and independent of the room list on purpose: a DM is
+        # how he hears about a change to me without having to be sitting in the
+        # right channel, so an empty update_channels must not swallow it.
+        await self._dm_owner(text, posted)
+        # Marked regardless of delivery. The notice file is one-shot, so a failed
+        # send must not turn every later boot into another attempt at it.
+        self._remember_start(seq, kind, now)
+
+    async def _dm_owner(self, text: str, posted: list[str] | None = None) -> None:
+        """Send master a private line about a change to myself.
+
+        His request, 2026-09-20: "make her DM me the bot owner when she does some
+        update to her system like restart". The channels are where the rooms hear
+        it; this is where HE does - and the rooms he is not sitting in are most
+        of them, so a report that only ever lands in a channel is a report he
+        misses.
+
+        Never fatal and never raises: it is called from inside the announce path,
+        where an exception would take the whole notice down with it.
+        """
+        owners = list(self.config.get("owner_ids") or [])
+        try:
+            owner = int(owners[0]) if owners else None
+        except (TypeError, ValueError):
+            owner = None
+        if owner is None:
+            LOG.warning("restart DM: no owner id in config.json")
+            return
+        body = text.strip()
+        if posted:
+            body += "\n\n(also said in " + ", ".join("#" + n for n in posted) + ")"
+        try:
+            target = await self.fetch_user(owner)
+            await target.send(body[:MAX_MESSAGE])
+            LOG.info("restart DM sent to master")
+        except Exception as exc:
+            LOG.warning("could not DM master about the restart: %s", exc)
 
     def _remember_start(self, seq, kind: str, at: float) -> None:
         """Record that this start has been announced, so it is announced once."""
