@@ -1136,6 +1136,121 @@ def _trial() -> str:
             "failing trial stages nothing and says why")
 
 
+# -- 8o. prompt caching: is the prefix actually being reused? ---------------
+# One question, two halves. A tool loop resends a growing prefix up to twelve
+# times, which is precisely what prompt caching exists to pay for - and nothing
+# in this code collected the evidence. `usage` was fetched and priced, but the
+# cached-token count was never logged, so the question had no instrument
+# attached; and the session header minted a fresh uuid4 on EVERY call, which is
+# the one detail that can defeat automatic prefix caching outright.
+#
+# Nothing here costs a token: the transport is stubbed.
+def _cache_probe() -> str:
+    import json as _json
+    import logging as _logging
+
+    import brain
+    import lulu_bot
+    import tools
+
+    # 1. Call one and call two must carry the SAME session id.
+    seen = []
+
+    class _Fake:
+        def __init__(self, payload):
+            self._body = _json.dumps(payload).encode("utf-8")
+
+        def read(self):
+            return self._body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def fake_urlopen(request, timeout=None):
+        seen.append({str(k).lower(): v for k, v in request.headers.items()})
+        return _Fake({"choices": [{"message": {"content": "ok"}}],
+                      "usage": {"prompt_tokens": 100, "completion_tokens": 5}})
+
+    real_urlopen = brain.urllib.request.urlopen
+    brain.urllib.request.urlopen = fake_urlopen
+    try:
+        cfg = {"base_url": "https://example.invalid/v1", "model": "m",
+               "api_key": "not-a-real-key"}
+        brain.complete(cfg, [{"role": "user", "content": "one"}])
+        brain.complete(cfg, [{"role": "user", "content": "two"}])
+    finally:
+        brain.urllib.request.urlopen = real_urlopen
+
+    expect(len(seen) == 2, f"expected two calls, saw {len(seen)}")
+    expect(seen[0].get("x-opencode-session"), "no session id was sent at all")
+    expect(seen[0].get("x-opencode-session") == seen[1].get("x-opencode-session"),
+           "the session id changed between calls - a fresh one per request is "
+           "the one thing that can defeat automatic prompt caching")
+    expect(seen[0].get("x-opencode-session") == brain.SESSION_ID,
+           "the session id sent is not the module's")
+
+    # 2. The measurement, and the distinction it has to keep. An endpoint that
+    #    reports cached: 0 is measurably NOT caching; one that reports no cache
+    #    field at all is not measurable. Those need different fixes, so they must
+    #    not read the same.
+    hit = brain.usage_note({"prompt_tokens": 12000, "completion_tokens": 40,
+                            "prompt_tokens_details": {"cached_tokens": 9000}})
+    expect("9000" in hit and "75.0% hit" in hit, f"a hit is unreported: {hit!r}")
+    miss = brain.usage_note({"prompt_tokens": 12000, "completion_tokens": 40,
+                             "prompt_tokens_details": {"cached_tokens": 0}})
+    expect("cached=0" in miss, f"a reported miss does not read as one: {miss!r}")
+    silent = brain.usage_note({"prompt_tokens": 12000, "completion_tokens": 40})
+    expect(silent and "cached=0" not in silent,
+           f"an endpoint that reports nothing was read as a miss: {silent!r}")
+    expect("?" in silent, f"the unmeasurable case is not marked: {silent!r}")
+    expect(brain.usage_note({}) == "", "empty usage produced a line")
+    # The flat spelling of the same number, which other providers use.
+    other = brain.usage_note({"prompt_tokens": 1000,
+                              "cache_read_input_tokens": 500})
+    expect("500" in other, f"the flat wire spelling was ignored: {other!r}")
+    expect(brain.cache_stats(None) == {"prompt": None, "cached": None},
+           "cache_stats did not survive a None usage")
+
+    # 3. And it reaches the log, which is the entire point of measuring.
+    def spy(config, messages, tools_=None, max_tokens=None):
+        return {"content": "done", "tool_calls": [],
+                "_usage": {"prompt_tokens": 1000, "completion_tokens": 10,
+                           "prompt_tokens_details": {"cached_tokens": 900}}}
+
+    lines = []
+
+    class _Capture(_logging.Handler):
+        def emit(self, record):
+            lines.append(record.getMessage())
+
+    real_complete = brain.complete
+    handler = _Capture()
+    # The bot sets the root logger to INFO in main(), and main() is never called
+    # by a smoke run - so without this the record is filtered out before it
+    # reaches any handler, and the check fails for a reason that has nothing to
+    # do with the code under test. Production is fine: main() sets INFO.
+    prior_level = lulu_bot.LOG.level
+    lulu_bot.LOG.setLevel(_logging.INFO)
+    lulu_bot.LOG.addHandler(handler)
+    brain.complete = spy
+    try:
+        bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+        bot.run_turns([{"role": "user", "content": "hi"}], tools.SCHEMA, set())
+    finally:
+        brain.complete = real_complete
+        lulu_bot.LOG.removeHandler(handler)
+        lulu_bot.LOG.setLevel(prior_level)
+
+    expect(any("cached=900" in line for line in lines),
+           f"the cached count never reached the log: {lines[-3:]!r}")
+    return ("the session id is stable across calls, both wire spellings of the "
+            "cached count are read, a reported miss is not confused with no "
+            "news, and the number lands in the log")
+
+
 # -- 8m. she works out loud ------------------------------------------------
 # The complaint this answers: a long dig read as a hang. Her tool loop runs in a
 # worker thread, so it cannot post, and the coroutine that COULD post was blocked
@@ -2429,6 +2544,7 @@ CHECKS = [
     ("stage-gate", _stage_gate),
     ("patch-file", _patch_file_probe),
     ("trial", _trial),
+    ("cache", _cache_probe),
     ("progress", _progress),
     ("restart-reason", _restart_reason),
     ("ffmpeg", _ffmpeg),

@@ -18,6 +18,77 @@ TIMEOUT_SECONDS = 120
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
               "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
+# The session id sent on every call, generated ONCE per process.
+#
+# It used to be a fresh uuid4 per call - `str(uuid.uuid4())` inline in the
+# headers - and that is the one detail in this file that can defeat a provider's
+# automatic prompt cache. The prefix is what gets cached; if the routing session
+# changes on every request there is nothing stable to match it against. A tool
+# loop is up to 12 rounds resending a growing prefix, which is exactly the case
+# caching exists to pay for, and it was mints a new identity between rounds.
+#
+# Overridable on purpose: the bot can set this to rotate a session mid-run if a
+# measurement ever shows that is what the provider wants.
+SESSION_ID = str(uuid.uuid4())
+
+
+def cache_stats(usage: dict) -> dict:
+    """What the provider reported about caching on this call, as numbers.
+
+    Two spellings of the same fact exist in the wild and both are read: the
+    OpenAI-style `prompt_tokens_details.cached_tokens`, and a flat
+    `cache_read_input_tokens` / `prompt_cache_hit_tokens` at the top level.
+    """
+    usage = usage if isinstance(usage, dict) else {}
+    prompt = usage.get("prompt_tokens")
+    prompt = prompt if isinstance(prompt, int) else None
+    cached = None
+    details = usage.get("prompt_tokens_details")
+    if isinstance(details, dict):
+        for key in ("cached_tokens", "cache_read", "cache_read_input_tokens"):
+            value = details.get(key)
+            if isinstance(value, int):
+                cached = value
+                break
+    if cached is None:
+        for key in ("cache_read_input_tokens", "prompt_cache_hit_tokens"):
+            value = usage.get(key)
+            if isinstance(value, int):
+                cached = value
+                break
+    out = {"prompt": prompt, "cached": cached}
+    if prompt:
+        out["hit_percent"] = round(100.0 * (cached or 0) / prompt, 1)
+    return out
+
+
+def usage_note(usage: dict) -> str:
+    """One line for the log: what this call cost and how much came from cache.
+
+    The distinction this exists to keep: an endpoint that reports prompt_tokens
+    but never a cached count is one we CANNOT measure, while one that reports
+    cached: 0 is one we can, and which is simply not caching. Printing "0" for
+    both would hide the difference between "no cache" and "no news", and those
+    two need different fixes - so they are worded differently here.
+    """
+    usage = usage if isinstance(usage, dict) else {}
+    stats = cache_stats(usage)
+    if stats["prompt"] is None and stats["cached"] is None:
+        return ""
+    parts = []
+    if stats["prompt"] is not None:
+        parts.append(f"prompt={stats['prompt']}")
+    if stats["cached"] is None:
+        parts.append("cached=? (this endpoint reports no cache field)")
+    else:
+        parts.append(f"cached={stats['cached']}")
+        if "hit_percent" in stats:
+            parts.append(f"{stats['hit_percent']}% hit")
+    completion = usage.get("completion_tokens")
+    if isinstance(completion, int):
+        parts.append(f"completion={completion}")
+    return "usage: " + ", ".join(parts)
+
 
 def complete(config: dict, messages: list[dict], tools: list | None = None,
              max_tokens: int | None = None) -> dict:
@@ -46,7 +117,7 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     headers = {
         "Content-Type": "application/json",
         "User-Agent": USER_AGENT,
-        "x-opencode-session": str(uuid.uuid4()),
+        "x-opencode-session": SESSION_ID,
     }
     api_key = config.get("api_key")
     if api_key:

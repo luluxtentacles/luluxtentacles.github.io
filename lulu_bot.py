@@ -1029,7 +1029,8 @@ class Lulu(discord.Client):
         return author_id in set(self.config.get("owner_ids", []))
 
     def think(self, message: discord.Message, text: str,
-              parent: discord.Message | None = None) -> str:
+              parent: discord.Message | None = None,
+              parts: list | None = None) -> str:
         history = self.history[message.channel.id]
         # A display name is user-settable and reaches the prompt as its own line,
         # so it is cleaned once here and used everywhere below.
@@ -1186,6 +1187,8 @@ class Lulu(discord.Client):
         empty_retries = 0
         posted = 0
         last_line = ""
+        prompt_total = 0
+        cached_total = 0
         for round_index in range(MAX_TOOL_ROUNDS):
             if round_index == MAX_TOOL_ROUNDS - 1:
                 turns.append({"role": "user", "content":
@@ -1199,6 +1202,22 @@ class Lulu(discord.Client):
             # reasoning worth seeing too, and that is most of them.
             log_thinking(reply.get("reasoning_content"))
             log_tool_calls(calls)
+            # What one round actually cost, and how much of it came from cache.
+            # Nothing counted this before, so "are we caching the growing prefix
+            # the tool loop resends" was a question with no instrument attached.
+            # The running total is here because the interesting number is not
+            # any single round - it is the whole turn, which is what the bill
+            # measures.
+            note = brain.usage_note(reply.get("_usage"))
+            if note:
+                stats = brain.cache_stats(reply.get("_usage"))
+                if stats["prompt"]:
+                    prompt_total += stats["prompt"]
+                cached_total += stats["cached"] or 0
+                whole = (f"{round(100.0 * cached_total / prompt_total, 1)}%"
+                         if prompt_total else "no prompt reported")
+                LOG.info("%s | this turn: %d prompt, %d cached (%s)",
+                         note, prompt_total, cached_total, whole)
             # What she says WHILE she works, queued for the event loop to post as
             # it happens. This content arrived with the tool call she was making,
             # so it costs nothing extra - and until now it was discarded, which
