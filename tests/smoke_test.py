@@ -1326,7 +1326,7 @@ MODULE_API = {
     "tools": ("run", "SCHEMA", "DISPATCH"),
     "paths": ("resolve", "assert_writable", "assert_proposable"),
 }
-NANA_METHODS = ("on_ready", "on_message", "send", "think", "run_turns",
+LULU_METHODS = ("on_ready", "on_message", "send", "think", "run_turns",
                 "is_addressed", "readable_text", "mark_healthy")
 
 
@@ -1342,10 +1342,10 @@ def _api() -> str:
     expect(not missing, "gone from the API: " + ", ".join(missing))
 
     import lulu_bot
-    for name in NANA_METHODS:
+    for name in LULU_METHODS:
         expect(hasattr(lulu_bot.Lulu, name), f"Lulu lost {name}()")
     return (f"{sum(len(v) for v in MODULE_API.values())} callables, "
-            f"{len(NANA_METHODS)} Lulu methods")
+            f"{len(LULU_METHODS)} Lulu methods")
 
 
 # -- 12. the self-edit tier --------------------------------------------
