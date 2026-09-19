@@ -41,9 +41,16 @@ LOG = logging.getLogger("lulu")
 # What goes in: what people say, and what she says back. What does NOT: progress
 # narration and restart announcements, which are her own housekeeping rather than
 # conversation, and would push real messages out of the window.
-MIRROR_LINES = 30          # messages kept per channel, oldest dropped
+MIRROR_LINES = 200         # lines RETAINED per channel - a MEMORY bound now,
+                           # not a context bound. Master, 2026-09-20: "we should
+                           # use this compacting instead of counting the number
+                           # of messages in each channel". So retention is
+                           # generous and what reaches the prompt is decided by
+                           # the budget below, by FOLDING instead of dropping.
 MIRROR_LINE_CHARS = 240    # per message, so one essay cannot eat the block
-MIRROR_TOTAL_CHARS = 3500  # the whole block's budget; oldest lines go first
+MIRROR_TOTAL_CHARS = 5000  # the block's budget in characters, for the LINES
+MIRROR_VERBATIM_SHARE = 0.70   # of that budget: newest lines, left untouched
+MIRROR_FOLD_LINE_CHARS = 90    # per line in the folded digest of the rest
 MIRROR_QUOTE_CHARS = 60    # how much of a replied-to message to quote inline
 # Discord's own ceiling is 2000 characters per message.
 MAX_MESSAGE = 2000
@@ -227,9 +234,18 @@ def mirror_block(mirror, channel_id, exclude_ids=(),
     she is answering (the real user turn) and the resolved reply-quote - so the
     same words never appear twice, and this block cannot drift from them.
 
-    The budget is spent from the NEWEST line backwards, so a busy room keeps what
-    was just said and drops the oldest. Dropping the live end instead would leave
-    her answering last week with a perfect record of it.
+    The budget is spent from the NEWEST line backwards and the OLDEST are folded
+    into a condensed digest rather than deleted, which is master's call of
+    2026-09-20: stop deciding by how many messages a channel has, and let the
+    budget fold what will not fit. A fixed line count was the old rule, and the
+    worst thing about it was silence - a line that fell off the end was simply
+    gone, with nothing in the prompt saying it had ever existed. Now the oldest
+    lines are still there, cut down to who said what, and the block says how many
+    were folded. Never the live end: dropping the newest would leave her
+    answering last week with a perfect record of it.
+
+    `_condense` lives further down the file, next to the context compaction that
+    uses the same trick. Forward reference, resolved at call time.
     """
     ring = list((mirror or {}).get(channel_id) or ())
     if not ring:
@@ -243,23 +259,56 @@ def mirror_block(mirror, channel_id, exclude_ids=(),
         line = _mirror_line(entry, by_id)
         if line:
             lines.append(line)
-    total = 0
-    kept: list[str] = []
+
+    header = ("Previous conversation in this channel, oldest first, with what "
+              "each line was replying to where it was a reply. This is context "
+              "you are watching, not messages addressed to you:\n")
+    # The budget is the LINES' budget. The header and the reply-quote ride on top
+    # of it, inside the +400 the net already allows for exactly that. Paying for
+    # them out of this pot cost the room two verbatim lines when it was measured,
+    # and the room is what this block is for.
+    allowance = MIRROR_TOTAL_CHARS
+
+    # Newest first, verbatim, up to MIRROR_VERBATIM_SHARE of the budget. The
+    # newest line is always taken even if it alone blows the share: it is the
+    # line being answered.
+    verbatim: list[str] = []
+    spent = 0
+    cap = int(allowance * MIRROR_VERBATIM_SHARE)
     for line in reversed(lines):
-        total += len(line) + 1
-        if kept and total > MIRROR_TOTAL_CHARS:
+        cost = len(line) + 1
+        if verbatim and spent + cost > cap:
             break
-        kept.append(line)
-    kept.reverse()
+        verbatim.append(line)
+        spent += cost
+    verbatim.reverse()
+
+    # Everything older, folded into the space that is left - newest of the older
+    # lines first, because those are the ones still being referred to.
+    older = lines[:len(lines) - len(verbatim)]
+    folded: list[str] = []
+    if older:
+        note = (f"[{len(older)} earlier line(s) folded to save room, "
+                f"condensed, nearest first:]")
+        budget = allowance - spent - len(note) - 1
+        used = 0
+        for line in reversed(older):
+            piece = "- " + _condense(line, MIRROR_FOLD_LINE_CHARS)
+            if used + len(piece) + 1 > budget:
+                break
+            folded.append(piece)
+            used += len(piece) + 1
+        folded.reverse()
+        if len(folded) < len(older):
+            note += f" ({len(older) - len(folded)} oldest not repeated)"
+        folded.insert(0, note)
+
+    kept = folded + verbatim
     if parent_line:
         kept.append(parent_line)
     if not kept:
         return []
-    return [{"role": "system", "content": (
-        "Previous conversation in this channel, oldest first, with what each "
-        "line was replying to where it was a reply. This is context you are "
-        "watching, not messages addressed to you:\n" + "\n".join(kept)
-    )}]
+    return [{"role": "system", "content": header + "\n".join(kept)}]
 
 
 def log_thinking(reasoning, who: str = "") -> None:
