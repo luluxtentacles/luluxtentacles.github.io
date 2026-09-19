@@ -1155,6 +1155,7 @@ def _cache_probe() -> str:
 
     # 1. Call one and call two must carry the SAME session id.
     seen = []
+    sent: list[dict] = []
 
     class _Fake:
         def __init__(self, payload):
@@ -1171,6 +1172,7 @@ def _cache_probe() -> str:
 
     def fake_urlopen(request, timeout=None):
         seen.append({str(k).lower(): v for k, v in request.headers.items()})
+        sent.append(_json.loads(request.data.decode("utf-8")))
         return _Fake({"choices": [{"message": {"content": "ok"}}],
                       "usage": {"prompt_tokens": 100, "completion_tokens": 5}})
 
@@ -1191,6 +1193,58 @@ def _cache_probe() -> str:
            "the one thing that can defeat automatic prompt caching")
     expect(seen[0].get("x-opencode-session") == brain.SESSION_ID,
            "the session id sent is not the module's")
+
+    # 1b. The breakpoints, which are the only reason caching happens at all:
+    #     automatic prefix caching measured cached_tokens 0 twice on this
+    #     endpoint, and one explicit marker took the next identical call to
+    #     4352 of 4522. Two halves - present when asked for, ABSENT when not,
+    #     because a provider-agnostic client must not send a field the next
+    #     endpoint will reject.
+    expect("cache_control" not in _json.dumps(sent[0]["messages"]),
+           "a plain call sent cache directives, which another provider may "
+           "answer with a 400")
+
+    marked_cfg = {"base_url": "https://example.invalid/v1", "model": "m",
+                  "api_key": "x", "prompt_cache": True}
+    turns = [{"role": "system", "content": "the skill"},
+             {"role": "user", "content": "the ask"},
+             {"role": "assistant", "content": "mid-way through"}]
+    untouched = _json.dumps(turns)
+    brain.urllib.request.urlopen = fake_urlopen
+    try:
+        brain.complete(marked_cfg, turns)
+    finally:
+        brain.urllib.request.urlopen = real_urlopen
+
+    body = sent[-1]["messages"]
+    expect(_json.dumps(turns) == untouched,
+           "the breakpoints were written INTO the caller's list - turns is "
+           "reused every round and then kept as history, so a marker there "
+           "would accumulate")
+    first_blocks = body[0].get("content")
+    expect(isinstance(first_blocks, list)
+           and first_blocks[-1].get("cache_control") == {"type": "ephemeral"},
+           f"the stable system message carries no breakpoint: {body[0]!r}")
+    last_blocks = body[-1].get("content")
+    expect(isinstance(last_blocks, list)
+           and last_blocks[-1].get("cache_control") == {"type": "ephemeral"},
+           f"the growing prefix is unmarked, so the tool loop cannot reuse what "
+           f"it just resent: {body[-1]!r}")
+    expect(isinstance(body[1].get("content"), str),
+           f"a message in the middle was rewritten for no reason: {body[1]!r}")
+
+    # Content that is ALREADY blocks - the vision parts - is left alone rather
+    # than guessed at.
+    with_parts = [{"role": "system", "content": "skill"},
+                  {"role": "user", "content": [
+                      {"type": "text", "text": "look at this"},
+                      {"type": "image_url",
+                       "image_url": {"url": "data:image/png;base64,AAAA"}}]}]
+    kept = brain.cache_breakpoints(with_parts)
+    expect(kept[-1]["content"][-1].get("type") == "image_url",
+           "the breakpoint was jammed onto an image part")
+    expect(brain.cache_breakpoints([]) == [],
+           "an empty message list did not survive")
 
     # 2. The measurement, and the distinction it has to keep. An endpoint that
     #    reports cached: 0 is measurably NOT caching; one that reports no cache
@@ -1248,7 +1302,9 @@ def _cache_probe() -> str:
            f"the cached count never reached the log: {lines[-3:]!r}")
     return ("the session id is stable across calls, both wire spellings of the "
             "cached count are read, a reported miss is not confused with no "
-            "news, and the number lands in the log")
+            "news, the breakpoints are marked when asked for and absent when "
+            "not, the caller's list is never mutated, and the number lands in "
+            "the log")
 
 
 # -- 8m. she works out loud ------------------------------------------------

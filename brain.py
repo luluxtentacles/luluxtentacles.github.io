@@ -90,6 +90,53 @@ def usage_note(usage: dict) -> str:
     return "usage: " + ", ".join(parts)
 
 
+# Explicit prompt-cache breakpoints.
+#
+# MEASURED, not assumed. Against this endpoint the SAME 4,521-token prompt sent
+# twice in one session reported cached_tokens 0 BOTH times - automatic prefix
+# caching is simply not on. Adding one Anthropic-style breakpoint to that
+# identical prompt took the second call to cached_tokens 4352, which is 96% of
+# it, and spend.cost already bills cached tokens at 0.26 against 1.40 for fresh
+# input. So the win is real, and it needs an explicit marker rather than a
+# stable prefix.
+#
+# OFF unless config.json -> brain.prompt_cache is set. This file is deliberately
+# provider-agnostic - a local llama.cpp server, or anything else OpenAI-shaped,
+# "works without touching this file" - and a content-block payload carrying a
+# field it does not know is exactly the shape such an endpoint answers with a
+# 400. Opt-in keeps that promise, and opt-in costs one key.
+#
+# Two breakpoints, both on STRING content only:
+#   - the FIRST message, which is the always-loaded skill and does not change
+#     between turns, so it is reused turn to turn;
+#   - the LAST message, so each round of the tool loop caches the prefix it just
+#     sent and the next round reads it back. That is the one worth the most: the
+#     loop resends everything, up to twelve times a turn.
+# A message whose content is already a list of blocks - the vision parts - is
+# left alone rather than guessed at.
+def cache_breakpoints(messages: list[dict]) -> list[dict]:
+    """A COPY of `messages` with cache breakpoints marking the stable prefix.
+
+    Never mutates the caller's list. `turns` is reused every round and then
+    becomes the prompt, so a marker written into it would accumulate, and the
+    history she keeps would fill up with cache instructions nobody asked for.
+    """
+    if not messages:
+        return messages
+    first, last = 0, len(messages) - 1
+    out = []
+    for index, message in enumerate(messages):
+        content = message.get("content") if isinstance(message, dict) else None
+        if index in (first, last) and isinstance(content, str) and content:
+            marked = dict(message)
+            marked["content"] = [{"type": "text", "text": content,
+                                  "cache_control": {"type": "ephemeral"}}]
+            out.append(marked)
+        else:
+            out.append(message)
+    return out
+
+
 def complete(config: dict, messages: list[dict], tools: list | None = None,
              max_tokens: int | None = None) -> dict:
     """One round trip. Returns the raw assistant message, tool_calls included.
@@ -106,7 +153,8 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     base_url = str(config["base_url"]).rstrip("/")
     payload = {
         "model": config["model"],
-        "messages": messages,
+        "messages": (cache_breakpoints(messages)
+                     if config.get("prompt_cache") else messages),
         "temperature": config.get("temperature", 0.9),
     }
     budget = config.get("max_tokens", 400) if max_tokens is None else max_tokens
