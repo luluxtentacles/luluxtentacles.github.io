@@ -394,6 +394,45 @@ async def _deliver(bot, text: str) -> None:
         LOG.warning("could not deliver the review report: %s", exc)
 
 
+def _patch_pending() -> bool:
+    """Is a patch staged - which means the supervisor is about to restart me?
+
+    Asked at the END of a turn, and it exists because this is the moment the
+    window used to close itself by accident.
+
+    A turn that stages a patch still finishes normally first: I answer, run_turns
+    returns, and the tail of maybe_run wrote in_progress=False seconds before
+    lulu_bot's restart watcher closed the process. The next boot then read
+    in_progress=False, found nothing to resume, and the ten-turn window ended at
+    turn one. That is not a theory - `grep 'resumed after a restart'` over the
+    whole live log returns NOTHING, so not one window has ever gone past its
+    first turn, and every patch restarted me into a fresh window instead of
+    letting me finish the one I was in.
+
+    Two signals, because either one is enough: the restart request the supervisor
+    watches, and a staged FILE. Both are the paths the tool layer owns
+    (tools.REQUEST_FILE, tools.STAGED_DIR), so the smoke sandbox redirects them
+    along with everything else and a test cannot touch the real ones.
+
+    Files, not directory entries, and that is not tidiness: pending/staged holds
+    empty leftover directories (.agents/skills/who-said-that/ and friends) after
+    a patch has been filed, so `any(iterdir())` is true on an EMPTY stage - and a
+    window that believes a patch is pending never closes itself. This is the same
+    question pipeline.staged_files() asks, asked the same way on purpose.
+    """
+    try:
+        if paths.resolve(tools.REQUEST_FILE).exists():
+            return True
+    except Exception as exc:
+        LOG.warning("could not look for a staged patch: %s", exc)
+    try:
+        staged = paths.resolve(tools.STAGED_DIR)
+        return (staged.is_dir()
+                and any(p.is_file() for p in staged.rglob("*")))
+    except Exception:
+        return False
+
+
 async def maybe_run(bot) -> bool:
     """One window, if one is owed. True when it actually ran."""
     config = getattr(bot, "config", None) or {}
@@ -440,7 +479,22 @@ async def maybe_run(bot) -> bool:
 
     answer = (answer or "").strip()
     LOG.info("my own time finished: %s", answer[:300] or "(empty)")
-    _save(in_progress=False, report=answer[:4000])
+    if _patch_pending():
+        # A patch is staged, so the supervisor is about to restart me and this is
+        # the same occasion continuing, not a new one. Leave the window OPEN -
+        # in_progress True with turns_used at the turn just finished - so the
+        # next boot's _resumable() picks it up and continues without anybody
+        # asking. Closing it here is what made ten turns unreachable.
+        #
+        # last_turn_at moves to NOW on purpose: RESUME_MIN_GAP_SECONDS is
+        # measured from the end of the last turn, and the supervisor must have
+        # restarted me before the next turn starts.
+        _save(turns_used=turn, last_turn_at=time.time(), in_progress=True,
+              report=answer[:4000])
+        LOG.info("a patch is staged - window stays open through the restart "
+                 "(turn %d of %d)", turn, where["max_turns"])
+    else:
+        _save(in_progress=False, report=answer[:4000])
     await _deliver(bot, answer)
     return True
 
