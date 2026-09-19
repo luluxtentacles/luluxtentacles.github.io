@@ -145,14 +145,35 @@ Write-Host "  wrote $launcher"
 Write-Host "  python: $python"
 
 Write-Host "5. scheduled task"
-Unregister-ScheduledTask -TaskName "LuluDiscordBot" -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "cmd.exe" `
-    -Argument "/c `"$launcher`"" -WorkingDirectory $BotRoot
-$trigger = New-ScheduledTaskTrigger -AtStartup
-$principal = New-ScheduledTaskPrincipal -UserId $Account -LogonType Password -RunLevel Limited
-Register-ScheduledTask -TaskName "LuluDiscordBot" -Action $action -Trigger $trigger `
-    -Principal $principal -User $Account -Password $Password | Out-Null
-Write-Host "  registered LuluDiscordBot (runs as $Account at startup)"
+# NOT registered here, on purpose. This block used to call
+#
+#     New-ScheduledTaskPrincipal ... | Register-ScheduledTask -Principal ... -User ... -Password ...
+#
+# which are MUTUALLY EXCLUSIVE parameter sets. Windows refuses the whole call
+# with "Parameter set cannot be resolved using the specified named parameters"
+# (FullyQualifiedErrorId AmbiguousParameterSet), and because $ErrorActionPreference
+# is Stop the script died there - after creating the account and rewriting ACLs,
+# leaving the job half done and looking like a failure.
+#
+# The param set was not the real problem though. Registering with -LogonType
+# Password needs SeBatchLogonRight, which an ordinary account does NOT have - the
+# documented cause of a task that registers fine and then never starts
+# (LastTaskResult 0x41303). Registration done here would silently repeat that bug.
+#
+# register-task.ps1 exists for exactly this: it grants the batch right, proves the
+# credential with a real BATCH logon, refuses to register on an unverified one,
+# adds the 5-minute watchdog, starts her, and writes logs\task-check.txt. Two
+# places doing this is how they drift apart - so this script stops before it.
+Write-Host "  not registered here - register-task.ps1 owns that, and it must run second"
 Write-Host ""
-Write-Host "Done. Start it now with:  Start-ScheduledTask -TaskName LuluDiscordBot"
-Write-Host "Watch it with:            Get-Content '$BotRoot\logs\bot.log' -Wait"
+Write-Host "Done with what this script does. Next, in this SAME elevated shell:"
+Write-Host ""
+Write-Host "    .\register-task.ps1"
+Write-Host ""
+Write-Host "  It will ask for the $Account password again (it has to prove the batch"
+Write-Host "  logon, and a task with an unverified credential registers fine and then"
+Write-Host "  never runs). If the batch right cannot be granted, fall back to:"
+Write-Host ""
+Write-Host "    .\register-task.ps1 -SkipCredential"
+Write-Host ""
+Write-Host "Watch her with:  Get-Content '$BotRoot\logs\bot.log' -Wait"
