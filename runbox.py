@@ -40,6 +40,7 @@ Known limits, written down instead of implied:
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -62,6 +63,33 @@ MAX_OUTPUT = 8_000
 KILL_TIMEOUT = 20
 
 PY = sys.executable
+
+# Her own interpreter and her own node, first on PATH for every command she runs.
+#
+# A bare `python` resolved to NOTHING for her: the machine PATH carries no Python
+# at all (checked, not assumed), she is a standard local account, and `py` points
+# at an install that is not the one she runs on. run-bot.cmd already solves this
+# for node with `set "PATH=%CD%\node;%PATH%"` - Python was simply missed. Same
+# reasoning as mcp_client.spawn_spec, and the same reason the launcher needed it:
+# her shell must not depend on an environment the account may not have.
+#
+# Only folders that exist are added, so a missing runtime degrades to the old
+# behaviour instead of pushing a dead entry to the front of PATH.
+PATH_DIRS = (ROOT / "Python311", ROOT / "node")
+
+
+def child_env() -> dict:
+    """What her commands inherit: her own runtimes first, then everything else."""
+    env = dict(os.environ)
+    front = [str(part) for part in PATH_DIRS if part.is_dir()]
+    existing = env.get("PATH") or ""
+    if front:
+        env["PATH"] = os.pathsep.join(front + ([existing] if existing else []))
+    # Same two settings the launcher uses, so a command of hers behaves the way
+    # her own process does. setdefault, never overwrite: an explicit choice wins.
+    env.setdefault("PYTHONUNBUFFERED", "1")
+    env.setdefault("PYTHONIOENCODING", "utf-8")
+    return env
 
 # Convenience, NOT a boundary. These are the things she reaches for most, kept
 # as named shortcuts so she does not have to spell them out. Anything not listed
@@ -125,6 +153,8 @@ def catalog() -> str:
         "",
         "anything else runs as-is, e.g. npm install, python -m venv .venv, "
         "npx playwright install chrome.",
+        "a bare `python` and a bare `node` both work: my own are put first on "
+        "PATH for anything I run, so I never have to hunt for the interpreter.",
         "cwd is always my folder. Long commands get killed at "
         f"{TIMEOUT // 60} minutes. Output is capped at {MAX_OUTPUT} chars.",
     ]
@@ -144,6 +174,7 @@ def run(command: str = "") -> str:
         proc = subprocess.Popen(
             resolved,
             cwd=str(ROOT),
+            env=child_env(),            # her python and node first on PATH
             shell=True,                 # deliberate: see the module docstring
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,

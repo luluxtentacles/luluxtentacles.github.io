@@ -2495,6 +2495,38 @@ def _runbox() -> str:
                f"the empty call does not say what she is: {help_text!r}")
         expect(len(sandbox_audit.read_text(encoding="utf-8").splitlines()) == 1,
                "an empty call was audited as if it had run something")
+
+        # Her own runtimes are first on PATH for every command.
+        #
+        # A bare `python` resolved to NOTHING for her before this: the machine
+        # PATH carries no Python at all, she is a standard local account, and `py`
+        # points at an install that is not hers. She said so herself - "the
+        # shell's dumb: bare python isn't on path" - and the launcher had already
+        # solved the identical problem for node. Asserted with PATH EMPTIED, the
+        # same trick the mcp-spawn check uses: if this ever starts depending on
+        # the account's environment again, the check fails.
+        import os as _os
+
+        real_environ = _os.environ
+        try:
+            _os.environ = {"PATH": ""}
+            env = runbox.child_env()
+        finally:
+            _os.environ = real_environ
+        front = [p for p in env["PATH"].split(_os.pathsep) if p]
+        expect(front and front[0].endswith("Python311"),
+               f"her interpreter is not first on PATH: {front[:2]!r}")
+        expect(env.get("PYTHONUNBUFFERED") == "1",
+               "her commands do not run unbuffered, unlike her own process")
+
+        # And the end-to-end version, because a dict entry proves nothing about
+        # whether a shell actually resolves it. This runs a real interpreter.
+        who = runbox.run('python -c "import sys; print(sys.executable)"')
+        expect("(exit 0" in who, f"a bare `python` did not run cleanly: {who!r}")
+        expect(str(paths.ROOT).lower() in who.lower(),
+               f"bare `python` resolved OUTSIDE her folder: {who!r}")
+        expect("not recognized" not in who.lower(),
+               f"bare `python` is still a failed PATH lookup: {who!r}")
     finally:
         runbox.AUDIT = real_audit
         if sandbox_audit.exists():
@@ -2525,7 +2557,8 @@ def _runbox() -> str:
             "runbox.py is writable by a bare tool call - the module that decides "
             "what she can run is unprotected")
 
-    return "cwd pinned, timeout set, every command audited, master only"
+    return ("cwd pinned, timeout set, every command audited, a bare `python` and "
+            "`node` resolve to her own, master only")
 
 
 # -- 8z. the containment rule is part of the contract -------------------------
