@@ -18,12 +18,15 @@ param(
     [string]$Account = "lulu-bot",
     [string]$Password,
     [string]$BotRoot = "C:\Lulu",
-    [string]$TokenFile = "C:\Lulu_token.txt",
-    [string]$SharedMemory = "C:\Lulu\memory",
-    # Python is installed per-user under your profile, which the new account
-    # cannot read. Grant read+execute on the install folder only - ACLs are
-    # per-object, so this does not expose the rest of your profile.
-    [string]$PythonRoot = "",
+    # The real path, which is what config.json token_source and lulu_bot.py
+    # TOKEN_SOURCE both expect. It used to point at C:\Lulu_token.txt, which
+    # never existed - so the grant silently did nothing.
+    [string]$TokenFile = "C:\Lulu\discord_token.txt",
+    # The bot's own python, which lives inside BotRoot since the tree was
+    # flattened. Defaulted rather than left empty: an empty value makes the
+    # generated launcher call bare `python.exe`, which does not resolve for an
+    # account with no user profile.
+    [string]$PythonRoot = "C:\Lulu\Python311",
     [switch]$Strict,
     [switch]$Undo
 )
@@ -96,8 +99,13 @@ if (Test-Path $TokenFile) {
     icacls $TokenFile /grant:r "${Account}:R" | Out-Null
     Write-Host "  granted R      $TokenFile"
 }
-Grant $SharedMemory "R"                               # read our memory, never write it
 if ($PythonRoot) { Grant $PythonRoot "RX" }           # run python
+# Deliberately NO read-only grant on memory\. Once the tree was flattened,
+# C:\Lulu\memory IS her runtime state - bot.pid, health.marker, her ledgers
+# and her journal - so sealing it read-only stops her taking her own pidlock
+# and fails her health check, which the supervisor then reads as "never came
+# up". The "read the shared store, never write it" rule is enforced in
+# shared_memory.py, which can tell the two files apart; a folder ACL cannot.
 
 if ($Strict) {
     Write-Host "3. strict mode: sealing C:\Lulu against other local accounts"
@@ -121,7 +129,15 @@ cd /d "$BotRoot"
 set PYTHONUNBUFFERED=1
 set PYTHONIOENCODING=utf-8
 if not exist "logs" mkdir "logs"
-"$python" lulu_bot.py >> "logs\bot.log" 2>&1
+if not exist "$python" (
+    echo no python at $python >> "logs\bot.log"
+    exit /b 1
+)
+rem Supervised, not direct. She cannot restart herself - killing her own
+rem process is the last thing she can do - so supervisor.py owns her process,
+rem and applies any staged self-edit behind git, the smoke test and a health
+rem check. Going straight to lulu_bot.py here would bypass all of that.
+"$python" supervisor.py >> "logs\bot.log" 2>&1
 "@
 New-Item -ItemType Directory -Force -Path (Split-Path $launcher) | Out-Null
 Set-Content -Path $launcher -Value $body -Encoding ASCII

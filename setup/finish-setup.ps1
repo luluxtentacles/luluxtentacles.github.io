@@ -93,6 +93,18 @@ Get-LuluProcs | ForEach-Object { Write-Host ("  running: pid {0}" -f $_.ProcessI
 
 if ($Check) { Write-Host "`n-check given: nothing was written."; exit 0 }
 
+# Fail with a sentence a human can act on. Start-ScheduledTask on a task that
+# does not exist throws a raw red error and nothing else - which is exactly what
+# a missing task looked like from the outside: "restart says error".
+if (-not (Get-ScheduledTask -TaskName $luluTask -ErrorAction SilentlyContinue)) {
+    Write-Host ""
+    Write-Host "  FAILED: no scheduled task named '$luluTask'."
+    Write-Host "  Nothing can start her until it exists. Register it first:"
+    Write-Host "    cd C:\lulu\setup"
+    Write-Host "    .\register-task.ps1"
+    exit 1
+}
+
 $oldIds = @(Get-LuluProcs | ForEach-Object { $_.ProcessId })
 Write-Host "`nrestarting ..."
 
