@@ -9,9 +9,12 @@ means nobody has hands, including a stranger who guesses the magic words.
 from __future__ import annotations
 
 import ast
+import builtins
+import difflib
 import json
 import operator
 import re
+import symtable
 import time
 
 import journal
@@ -25,6 +28,19 @@ import webtool
 
 MAX_READ_BYTES = 40_000
 MAX_WRITE_BYTES = 100_000
+
+# A dry run shows the change, not the whole file: long enough for any honest
+# splice, short enough that reading it stays cheap.
+DIFF_MAX_CHARS = 4_000
+
+# Names the import machinery binds at module level. They are not in the source
+# and not in dir(builtins), so a scope check that did not know them would refuse
+# every file that touches __file__ - which is a real false refusal, on brain.py.
+IMPLICIT_GLOBALS = {
+    "__file__", "__name__", "__doc__", "__spec__", "__loader__",
+    "__package__", "__builtins__", "__path__", "__debug__",
+    "__annotations__", "__cached__",
+}
 
 # Who the current turn is from, so learn_person can say 'this person' without
 # the model having to pass an id it does not reliably know.
@@ -92,7 +108,9 @@ SCHEMA = [
                 "text, instead of writing the whole file out again. `find` "
                 "must match exactly once - if it is missing or ambiguous "
                 "nothing changes and I get told why. Use this for small edits; "
-                "it goes through the same pipeline as propose_patch."
+                "it goes through the same pipeline as propose_patch. Pass "
+                "check_only to see the diff and the gate's verdict first: "
+                "nothing is staged, so looking is free."
             ),
             "parameters": {
                 "type": "object",
@@ -107,6 +125,11 @@ SCHEMA = [
                         "description": "what to put in its place",
                     },
                     "why": {"type": "string"},
+                    "check_only": {
+                        "type": "boolean",
+                        "description": ("true = show the diff and stage "
+                                        "nothing. Always do this first."),
+                    },
                 },
                 "required": ["path", "find", "replace"],
             },
@@ -621,6 +644,98 @@ def _normalise_newlines(text: str) -> str:
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
+def _unified_diff(relative: str, before: str, after: str) -> str:
+    """What a splice would change, in the shape git already taught everyone."""
+    text = "\n".join(difflib.unified_diff(
+        before.splitlines(), after.splitlines(),
+        fromfile=f"a/{relative}", tofile=f"b/{relative}", lineterm="", n=3))
+    if len(text) > DIFF_MAX_CHARS:
+        text = text[:DIFF_MAX_CHARS] + "\n... (trimmed - the change is long)"
+    return text
+
+
+def _dangling_names(relative: str, content: str) -> str | None:
+    """Names that are used but bound nowhere - the NameError class.
+
+    ast.parse proves a file is well formed and says nothing about whether the
+    names in it exist. On 2026-09-19 she staged a lulu_bot.py that used `parts`
+    inside think(), while the only `parts` in the whole file was a local of
+    system_prompt(). It parsed perfectly. Three smoke checks then died with
+    `NameError: name 'parts' is not defined` - after the restart, so the window
+    was already spent by the time she could read the reason.
+
+    A scope walk catches it in the turn it is written. A name is reported only
+    when a function both READS it and never binds it, and no enclosing scope,
+    module binding or builtin supplies it. A name bound only in a SIBLING
+    function is exactly the bug above, so it is not excused.
+    """
+    try:
+        tree = ast.parse(content)
+    except (SyntaxError, ValueError):
+        return None          # the syntax complaint is the branch above's job
+
+    # Say nothing rather than guess. A star import or an exec()/eval() call
+    # binds names this cannot see, and a false refusal blocks honest work.
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.ImportFrom)
+                and any(alias.name == "*" for alias in node.names)):
+            return None
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id in {"exec", "eval"}):
+            return None
+
+    try:
+        table = symtable.symtable(content, relative, "exec")
+    except (SyntaxError, ValueError):
+        return None
+
+    known = {sym.get_name() for sym in table.get_symbols()}
+    known |= set(dir(builtins)) | IMPLICIT_GLOBALS
+
+    # `global x` inside a function binds a module attribute that never appears
+    # at module scope, so symtable reports x as global-and-absent. It is not
+    # dangling, and without this it would be refused.
+    stack = [table]
+    while stack:
+        scope = stack.pop()
+        for sym in scope.get_symbols():
+            if sym.is_assigned() and sym.is_global():
+                known.add(sym.get_name())
+        stack.extend(scope.get_children())
+
+    # Where each name is first read, so the refusal names a line she can open.
+    # Symbol has no line number until 3.12 and this runs on 3.11.
+    used_at: dict[str, int] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            used_at.setdefault(node.id, node.lineno)
+
+    dangling: list[str] = []
+    stack = [table]
+    while stack:
+        scope = stack.pop()
+        if scope.get_type() == "function":
+            for sym in scope.get_symbols():
+                name = sym.get_name()
+                if name in known or not sym.is_referenced() or sym.is_assigned():
+                    continue
+                if sym.is_local() or sym.is_free() or sym.is_parameter():
+                    continue
+                dangling.append(name)
+        stack.extend(scope.get_children())
+
+    if not dangling:
+        return None
+    shown = ", ".join(
+        f"`{name}`" + (f" at line {used_at[name]}" if name in used_at else "")
+        for name in sorted(set(dangling))[:5])
+    return (f"{relative} reads {shown} but nothing binds it - not in that "
+            f"function, not in an enclosing one, not at module level, and not a "
+            f"builtin. That is a NameError the moment the line runs: it passes "
+            f"ast.parse, reaches her, and dies after the restart instead of "
+            f"here. Check the name is bound in the SAME function that reads it.")
+
+
 def _stage_problems(relative: str, content: str) -> str | None:
     """Why this text must not be staged - or None when it is safe.
 
@@ -646,6 +761,7 @@ def _stage_problems(relative: str, content: str) -> str | None:
             return f"{relative} does not parse - line {exc.lineno}: {exc.msg}"
         except ValueError as exc:
             return f"{relative} does not parse - {exc}"
+        return _dangling_names(relative, content)
     elif relative.endswith(".json"):
         try:
             json.loads(content)
@@ -662,7 +778,8 @@ def _stage_problems(relative: str, content: str) -> str | None:
     return None
 
 
-def patch_file(path: str, find: str, replace: str, why: str = "") -> str:
+def patch_file(path: str, find: str, replace: str, why: str = "",
+               check_only: bool = False) -> str:
     """Change part of a file instead of re-sending the whole thing.
 
     Until now the only way to change a file was to write out every byte of it
@@ -677,6 +794,11 @@ def patch_file(path: str, find: str, replace: str, why: str = "") -> str:
     here silently edits the wrong place. Both are refused with the reason, so
     she can look again in the same turn.
 
+    `check_only` splices, runs the same gate the pipeline runs, and shows the
+    diff - then stops. Nothing is written, nothing is staged, no request is
+    written, so pricing a change costs nothing and the supervisor never sees a
+    hint of it. The restart stays the last step instead of the test.
+
     Still pipeline-only: this splices the text and hands it to propose_patch, so
     nothing skips the smoke test, the restart, or the revert.
     """
@@ -688,6 +810,7 @@ def patch_file(path: str, find: str, replace: str, why: str = "") -> str:
         return f"refused: {exc}"
     if target.is_dir():
         return f"{path} is a folder, not a file"
+    relative = target.relative_to(paths.ROOT).as_posix()
     try:
         original = _normalise_newlines(target.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError) as exc:
@@ -706,8 +829,19 @@ def patch_file(path: str, find: str, replace: str, why: str = "") -> str:
                 f"matches exactly once.")
     if needle == replacement:
         return "find and replace are identical, so there is nothing to change"
-    return propose_patch(path, original.replace(needle, replacement, 1),
-                         why or f"patch {path}")
+    spliced = original.replace(needle, replacement, 1)
+    if check_only:
+        # The same gate the pipeline would run, run here for free. Nothing is
+        # staged, so a bad idea costs bytes instead of one of her five windows.
+        problem = _stage_problems(relative, spliced)
+        diff = _unified_diff(relative, original, spliced)
+        if problem:
+            return (f"dry run: this would be REFUSED, and nothing was staged. "
+                    f"{problem}\n\n{diff}")
+        return ("dry run: this would stage cleanly. Nothing was written and "
+                f"nothing was staged.\n\n{diff}\n\nDrop check_only to stage it "
+                "for real.")
+    return propose_patch(path, spliced, why or f"patch {path}")
 
 
 def propose_patch(path: str, content: str, why: str = "") -> str:
@@ -1081,7 +1215,8 @@ DISPATCH = {
     "read_file": lambda a: read_file(a.get("path", "")),
     "write_file": lambda a: write_file(a.get("path", ""), a.get("content", "")),
     "patch_file": lambda a: patch_file(a.get("path", ""), a.get("find", ""),
-                                       a.get("replace", ""), a.get("why", "")),
+                                       a.get("replace", ""), a.get("why", ""),
+                                       bool(a.get("check_only"))),
     "list_skills": lambda a: list_skills(),
     "use_skill": lambda a: use_skill(a.get("id", "")),
     "write_skill": lambda a: write_skill(a.get("skill_id", ""),

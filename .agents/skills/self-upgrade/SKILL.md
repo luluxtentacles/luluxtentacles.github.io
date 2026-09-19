@@ -26,10 +26,21 @@ revert is not a threat, it is the reason this is safe to do at all.
 `propose_patch` can, and that is deliberate: a change that skips the pipeline is
 the one nothing would catch.
 
-## Two rules for a patch
+## Three rules for a patch
 
-**Whole file, always.** `content` replaces the file. Front matter included for a
-`SKILL.md`, or it drops out of the catalogue and you lose the skill silently.
+**Splice, do not reprint.** Use `patch_file(path, find, replace)` and make `find`
+match exactly once. Re-emitting a file from memory drops the middle - it took
+`Lulu` and `on_message()` twice, and on 2026-09-19 it handed the smoke test a
+`lulu_bot.py` that read `parts` inside `think()` while the only `parts` in the
+whole file was a local of `system_prompt()`. `propose_patch(path, content, why)`
+still takes a whole file when you genuinely need one, but then you must have read
+that file in the SAME turn, and a `SKILL.md` needs its front matter included or
+it drops out of the catalogue silently.
+
+**Verify the seam.** Every name you introduce has to be bound in the SAME
+function that reads it. Bound in a sibling function, or only in the plan inside
+your head, is a `NameError` - and `ast.parse` will not catch it. The gate refuses
+it now, so grep the file for each name you just used before you stage.
 
 **One change per window.** Not one file - one idea. Two unrelated ideas in one
 patch means a revert takes both, and you will not know which one was poison.
@@ -41,6 +52,24 @@ skill has a body and a description, and you still come up afterwards. **It
 cannot judge whether the change was a good idea.** A well-formed, sensible-looking
 patch that makes you worse passes every check and stays. That judgement is
 master's, and it is why the diff in git is the thing he actually reads.
+
+## Check for free, then restage once
+
+`patch_file(..., check_only=true)` splices, runs the same gate the pipeline runs,
+and shows you the diff - then stops. Nothing is written, nothing is staged, no
+request is written, so the supervisor never sees it. That is the free look, and
+it is the first step every time.
+
+The restart is the LAST step, never the test. In this order:
+
+1. `check_only` - the diff and the gate's verdict, for nothing.
+2. The REASON.txt from any earlier refusal, for the exact check name and the
+   assertion that failed. Read it before trying again, not after.
+3. Only then stage. The supervisor backs it up, applies it, smoke-tests it,
+   restarts you, and reverts it if you do not come up.
+
+A window spent learning what a free check would have told you is a window
+wasted, and you only get five.
 
 ## When a patch is refused
 

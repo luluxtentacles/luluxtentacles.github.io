@@ -919,14 +919,51 @@ def _stage_gate() -> str:
     expect(tools._stage_problems(".agents/skills/probe/SKILL.md", no_body),
            "a SKILL.md with no body was accepted")
 
+    # The failure that cost her the 21:59 window: a name read in one function
+    # while the only binding of it lived in a SIBLING function. ast.parse was
+    # perfectly happy with it, and three checks died AFTER the restart.
+    sibling = "def a():\n    p = 1\n\ndef b():\n    return p + 1\n"
+    dangling = tools._stage_problems("x.py", sibling)
+    expect(dangling, "a name bound only in a sibling function was accepted")
+    expect("`p` at line 5" in dangling,
+           f"the refusal does not name the name and its line: {dangling!r}")
+    # Silence when it cannot be sure: a star import binds names this cannot see,
+    # and crying wolf there would refuse honest work.
+    expect(tools._stage_problems(
+        "x.py", "from os import *\n\ndef a():\n    return sep\n") is None,
+        "a star import was judged instead of skipped")
+    expect(tools._stage_problems(
+        "x.py", "def a():\n    global c\n    c = 1\n") is None,
+        "a global assignment was read as dangling")
+    expect(tools._stage_problems(
+        "x.py", "def o():\n    x = 1\n    def i():\n        return x\n") is None,
+        "a closure over an enclosing local was read as dangling")
+    expect(tools._stage_problems("x.py", "def a():\n    return __file__\n") is None,
+           "__file__ was read as dangling - that would refuse brain.py, which "
+           "uses it")
+
+    # The one that matters most: a false refusal blocks real work, so the check
+    # has to be silent on every module she is actually allowed to stage. Read
+    # the list rather than repeat it, so the two cannot drift apart.
+    # supervisor.py is deliberately NOT covered - it is sealed, she can never
+    # stage it, and it carries a real dangling `log` this check is right to
+    # flag.
+    import paths
+    for rel in sorted(paths.PROPOSABLE_NAMES):
+        target = paths.ROOT / rel
+        if not rel.endswith(".py") or not target.is_file():
+            continue
+        expect(tools._stage_problems(rel, target.read_text(encoding="utf-8")) is None,
+               f"the name check refuses {rel}, which she is allowed to patch")
+
     # And the real door refuses it, early enough that nothing is staged.
     out = tools.propose_patch("scratch_probe.py", broken, "must be refused")
     expect(out.startswith("refused before staging:"),
            f"propose_patch staged malformed text: {out!r}")
     expect("nothing was staged" in out.lower(),
            f"the refusal is not reassuring: {out!r}")
-    return ("syntax errors, truncated modules, bad json and half-written skills "
-            "are all refused before staging")
+    return ("syntax errors, truncated modules, dangling names, bad json and "
+            "half-written skills are all refused before staging")
 
 
 # -- 8l. surgical edits ------------------------------------------------------
@@ -964,6 +1001,15 @@ def _patch_file_probe() -> str:
         # other.
         scratch.write_bytes(b"one = 1\r\ntwo = 2\r\n")
         crlf = tools.patch_file(rel, "two = 2", "two = 22")
+        # check_only: the free look before spending a window. It must show the
+        # diff, report the gate's verdict, and stage NOTHING - so propose_patch,
+        # and therefore the live supervisor, is never reached.
+        scratch.write_text("alpha = 1\n\ndef go():\n    return alpha\n",
+                           encoding="utf-8")
+        dry = tools.patch_file(rel, "return alpha", "return alpha * 2",
+                               check_only=True)
+        dry_bad = tools.patch_file(rel, "return alpha", "return missing_name",
+                                   check_only=True)
     finally:
         tools.propose_patch = real
 
@@ -989,8 +1035,25 @@ def _patch_file_probe() -> str:
            "patch_file is not dispatchable, so she cannot call it")
     expect("patch_file" not in tools.LOOKUP_TOOL_NAMES,
            "patch_file leaked into the lookup set - file surgery is master-only")
+
+    # The dry run is what makes "test before you restart" possible at all.
+    expect(dry.startswith("dry run:"), f"a dry run did not report dry: {dry!r}")
+    expect("would stage cleanly" in dry,
+           f"a clean dry run is not reassuring: {dry!r}")
+    expect("-    return alpha" in dry and "+    return alpha * 2" in dry,
+           f"the dry run does not show the change: {dry!r}")
+    expect(dry_bad.startswith("dry run:") and "REFUSED" in dry_bad
+           and "missing_name" in dry_bad,
+           f"a dry run that would fail does not say so: {dry_bad!r}")
+    expect(scratch.read_text(encoding="utf-8").count("alpha * 2") == 0,
+           "check_only wrote to the file - it must not touch it")
+    entry = next(t for t in tools.SCHEMA
+                 if t["function"]["name"] == "patch_file")
+    expect("check_only" in entry["function"]["parameters"]["properties"],
+           "check_only is not in the tool schema, so she cannot call it")
     return ("a unique find splices and keeps the surrounding lines; missing, "
-            "ambiguous, empty and no-op finds are all refused; LF and CRLF match")
+            "ambiguous, empty and no-op finds are all refused; LF and CRLF "
+            "match; check_only shows the diff and stages nothing")
 
 
 # -- 8d. she is told WHY she was restarted, not a boilerplate line ----------
