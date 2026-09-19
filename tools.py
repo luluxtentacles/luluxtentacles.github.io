@@ -60,7 +60,32 @@ IMPLICIT_GLOBALS = {
 
 # Who the current turn is from, so learn_person can say 'this person' without
 # the model having to pass an id it does not reliably know.
-_CONTEXT: dict = {"user_id": None, "name": "", "channel": "", "origin": "master"}
+#
+# PER THREAD, not one dict for the whole process. Each turn runs in its own
+# worker thread (asyncio.to_thread), so a single shared dict meant two rooms
+# running at once fought over the same slot: whichever turn called set_context
+# last owned it for everybody. A tool call in room A could then tag its restart
+# notice - or a learn_person - with room B's channel and person. Treating each
+# channel as its own chat means its own context, and the thread IS the turn.
+_LOCAL = threading.local()
+
+_CONTEXT_DEFAULT = {"user_id": None, "name": "", "channel": "",
+                    "origin": "master"}
+
+
+def _ctx() -> dict:
+    """This thread's turn context, created on first use.
+
+    Never read another thread's, and never fall back to one: a tool that runs
+    with no context at all must see the defaults, not the last room that
+    happened to speak. Any tool call in a thread that never called
+    set_context gets user_id None, which is what learn_person refuses on.
+    """
+    ctx = getattr(_LOCAL, "ctx", None)
+    if ctx is None:
+        ctx = dict(_CONTEXT_DEFAULT)
+        _LOCAL.ctx = ctx
+    return ctx
 
 
 def set_context(user_id, name: str = "", channel: str = "",
@@ -72,11 +97,14 @@ def set_context(user_id, name: str = "", channel: str = "",
     function does, and only the self-review loop passes "self-review". That
     string is then the sole thing the supervisor's daily patch budget counts -
     so a change master asked for is never rate-limited by my own pacing rules.
+
+    Writes to THIS thread only, which is this turn only.
     """
-    _CONTEXT["user_id"] = user_id
-    _CONTEXT["name"] = name or ""
-    _CONTEXT["channel"] = channel or ""
-    _CONTEXT["origin"] = origin or "master"
+    ctx = _ctx()
+    ctx["user_id"] = user_id
+    ctx["name"] = name or ""
+    ctx["channel"] = channel or ""
+    ctx["origin"] = origin or "master"
 
 SCHEMA = [
     {
@@ -668,7 +696,7 @@ def _write_notice(files: list[str], why: str) -> None:
     paths.write_text(NOTICE_FILE, json.dumps({
         "why": (why or "no reason given")[:500],
         "files": files,
-        "channel": _CONTEXT.get("channel") or "",
+        "channel": _ctx().get("channel") or "",
         "at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "epoch": time.time(),
     }, indent=2), internal=True)
@@ -683,7 +711,7 @@ def _write_request(files: list[str], why: str) -> None:
         # Where the idea came from. The supervisor's daily budget counts only
         # patches she started herself, so anything master asked for goes straight
         # through. See set_context for why the model cannot fake this.
-        "origin": _CONTEXT.get("origin") or "master",
+        "origin": _ctx().get("origin") or "master",
     }, indent=2), internal=True)
     _write_notice(files, why)
 
@@ -1298,10 +1326,11 @@ def learn_person(text: str, who: str = "") -> str:
     target = (who or "").strip()
     name = ""
     if not target or target.lower() in {"me", "myself", "this person", "them"}:
-        if _CONTEXT["user_id"] is None:
+        ctx = _ctx()
+        if ctx["user_id"] is None:
             return "I do not know who this is about"
-        target = str(_CONTEXT["user_id"])
-        name = _CONTEXT["name"]
+        target = str(ctx["user_id"])
+        name = ctx["name"]
     elif not target.isdigit():
         return ("I know people by discord id, and the prompt gives you the ids "
                 "of anyone mentioned in the message")

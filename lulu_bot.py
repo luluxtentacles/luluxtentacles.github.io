@@ -71,6 +71,14 @@ PROGRESS_POLL_SECONDS = 1.0
 PROGRESS_MAX = 4                 # lines one turn may post
 PROGRESS_MAX_CHARS = 300         # per line
 
+# The answer to a question she was already told to drop.
+#
+# Returned in place of words when a newer message in the same channel has taken
+# the turn slot, so the caller can tell "she had nothing to say" apart from
+# "stop talking" - and never posts it. The NUL prefix cannot occur in real model
+# output, so no genuine answer can be mistaken for this.
+SUPERSEDED = "\x00superseded"
+
 
 # A nickname is untrusted input.
 #
@@ -502,6 +510,11 @@ class Lulu(discord.Client):
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
         self._chatter_task: asyncio.Task | None = None
+        # The turn slot, one per channel: which generation owns the room right
+        # now, and the task running it. Together they are how a follow-up
+        # message interrupts a dig instead of stacking a second one beside it.
+        self._turn_seq: dict[int, int] = {}
+        self._turn_tasks: dict[int, asyncio.Task] = {}
         load_user_knowledge()
 
     # -- casual chatter (nyan port) --------------------------------------
@@ -1059,8 +1072,20 @@ class Lulu(discord.Client):
 
         answer = self.skill_command(text)
         if answer is None:
+            channel_id = message.channel.id
+            # Claim the slot BEFORE the work starts. A newer message in this
+            # room bumps the generation and cancels whatever was running, so a
+            # follow-up interrupts her mid-dig - it does not queue behind it,
+            # and it no longer runs beside it either.
+            seq = self._begin_turn(channel_id)
             async with message.channel.typing():
-                answer = await self.think_out_loud(message, text, parent, parts)
+                answer = await self.think_out_loud(message, text, parent,
+                                                   parts, seq)
+            if answer == SUPERSEDED or self._superseded(channel_id, seq):
+                # The words in hand answer a question she was already told to
+                # drop. Posting them is exactly the double-reply this prevents.
+                LOG.info("turn superseded before the reply; dropping it unposted")
+                return
         if answer == CREDITS_MSG:
             self.credits_dead = True
             LOG.info("brain says: out of credits")
@@ -1106,9 +1131,39 @@ class Lulu(discord.Client):
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
 
+    def _begin_turn(self, channel_id: int) -> int:
+        """Claim the turn slot for a channel, superseding whatever holds it.
+
+        Returns this turn's generation. One message per channel is answered at a
+        time, and a follow-up does not queue behind the running one - it
+        REPLACES it, which is the point. Before this existed nothing tracked the
+        slot at all, so two messages in the same room ran side by side in two
+        worker threads and raced to reply twice and write memory twice.
+        """
+        seq = self._turn_seq.get(channel_id, 0) + 1
+        self._turn_seq[channel_id] = seq
+        running = self._turn_tasks.get(channel_id)
+        if running is not None and not running.done():
+            running.cancel()
+            LOG.info("new message in channel %s superseded the running turn",
+                     channel_id)
+        return seq
+
+    def _superseded(self, channel_id: int, seq: int) -> bool:
+        """Has a newer message in this channel claimed the turn slot?
+
+        A seq of 0 means the caller never claimed one - the smoke test, and any
+        direct think() call. Those are never superseded, so nothing that already
+        worked starts failing because a slot it never wanted has changed hands.
+        """
+        if not seq:
+            return False
+        return self._turn_seq.get(channel_id) != seq
+
     async def think_out_loud(self, message: discord.Message, text: str,
                              parent: discord.Message | None = None,
-                             parts: list | None = None) -> str:
+                             parts: list | None = None,
+                             seq: int = 0) -> str:
         """Run think() off the loop, posting what she says as she says it.
 
         think() is synchronous and runs in a worker thread, so it cannot await
@@ -1116,19 +1171,32 @@ class Lulu(discord.Client):
         thread is still working. Before this existed the only drain ran after
         the answer was already sent, so anything she said mid-dig arrived as a
         footnote - which is exactly why a long dig read as her being silent.
+
+        `seq` is this turn's generation. Cancelling this task does NOT stop the
+        worker thread - it is inside a blocking HTTP read that cannot be cut
+        short - so the thread is stopped cooperatively through the same
+        generation, and whatever it still returns is dropped, not posted.
         """
         channel = message.channel
         # Never post the previous turn's leftovers as though they were live.
         tools.drain_progress(channel.id)
         task = asyncio.create_task(
-            asyncio.to_thread(self.think, message, text, parent, parts))
+            asyncio.to_thread(self.think, message, text, parent, parts, seq))
+        self._turn_tasks[channel.id] = task
         try:
             while not task.done():
                 await asyncio.wait({task}, timeout=PROGRESS_POLL_SECONDS)
                 await self.post_progress(channel)
         finally:
             await self.post_progress(channel)
-        return await task
+        try:
+            return await task
+        except asyncio.CancelledError:
+            # Cancelled either because a newer message took the slot, or because
+            # the bot is going down. Only the first is ours to swallow.
+            if self._superseded(channel.id, seq):
+                return SUPERSEDED
+            raise
 
     async def post_progress(self, channel) -> None:
         """Post the lines she queued for this room, and only this room's."""
@@ -1150,7 +1218,8 @@ class Lulu(discord.Client):
 
     def think(self, message: discord.Message, text: str,
               parent: discord.Message | None = None,
-              parts: list | None = None) -> str:
+              parts: list | None = None,
+              seq: int = 0) -> str:
         history = self.history[message.channel.id]
         # A display name is user-settable and reaches the prompt as its own line,
         # so it is cleaned once here and used everywhere below.
@@ -1265,7 +1334,17 @@ class Lulu(discord.Client):
         answer = self.run_turns(turns, schema, allowed,
                                 meter=None if is_owner else message.author.id,
                                 max_tokens=self.token_budget(is_owner),
-                                progress_channel=message.channel.id)
+                                progress_channel=message.channel.id,
+                                supersede_check=lambda: self._superseded(
+                                    message.channel.id, seq))
+
+        if answer == SUPERSEDED or self._superseded(message.channel.id, seq):
+            # Dropped mid-answer, so nothing is recorded. An interrupted turn is
+            # one she did not have: writing it to the transcript, the journal or
+            # shared memory would put words in her mouth that never reached the
+            # room, and leave her next turn answering a question nobody asked.
+            LOG.info("turn superseded mid-answer; nothing recorded")
+            return SUPERSEDED
 
         history.append({"role": "user", "content": f"{who}: {safe_text}"})
         history.append({"role": "assistant", "content": answer})
@@ -1289,7 +1368,8 @@ class Lulu(discord.Client):
 
     def run_turns(self, turns: list[dict], schema, allowed,
                   meter=None, max_tokens=None,
-                  progress_channel=None) -> str:
+                  progress_channel=None,
+                  supersede_check=None) -> str:
         """Drive the tool loop until the model stops asking for tools.
 
         `max_tokens` is the per-call ceiling, handed straight to the provider. It
@@ -1306,6 +1386,14 @@ class Lulu(discord.Client):
         `progress_channel` is where the lines she writes WHILE working get
         queued. Nothing is posted from here - this runs in a worker thread - so
         the event loop drains it as it goes. None means nobody is watching.
+
+        `supersede_check` is the interruption hook, consulted twice per round:
+        before the call, and again before any progress line is queued. A newer
+        message in the same channel flips it and the loop abandons the dig
+        rather than finishing it. Between rounds is the only place this CAN
+        work - a call already in flight is a blocking HTTP read that nothing
+        here can cut short. Defaults to None, which is what the review window
+        and task mode pass: those are not interruptible turns.
         """
         answer = ""
         empty_retries = 0
@@ -1314,6 +1402,9 @@ class Lulu(discord.Client):
         prompt_total = 0
         cached_total = 0
         for round_index in range(MAX_TOOL_ROUNDS):
+            if supersede_check is not None and supersede_check():
+                LOG.info("turn superseded - abandoning the tool loop")
+                return SUPERSEDED
             if round_index == MAX_TOOL_ROUNDS - 1:
                 turns.append({"role": "user", "content":
                               "Enough looking - answer now, in your own words, using "
@@ -1346,7 +1437,8 @@ class Lulu(discord.Client):
             # it happens. This content arrived with the tool call she was making,
             # so it costs nothing extra - and until now it was discarded, which
             # is why a long dig read as a hang.
-            if calls and progress_channel is not None and posted < PROGRESS_MAX:
+            if (calls and progress_channel is not None and posted < PROGRESS_MAX
+                    and not (supersede_check and supersede_check())):
                 line = _progress_text(answer)
                 if line and line != last_line:
                     tools.queue_progress(progress_channel, line)
@@ -1446,12 +1538,63 @@ class Lulu(discord.Client):
             self.own_message_ids.add(sent.id)
 
 
+def _pid_alive(pid: int) -> bool | None:
+    """Is `pid` a live process? True = yes, False = gone, None = cannot tell.
+
+    os.kill(pid, 0) is NOT a usable liveness probe on Windows. Measured on
+    2026-09-20: a pid whose process is gone gives a plain OSError (WinError 87),
+    but one it cannot open at all gives
+    SystemError("<class 'OSError'> returned a result with an exception set").
+    SystemError is not an OSError, so it went past every except clause in
+    _ensure_single_instance, killed the boot with exit code 1, and the
+    supervisor restarted her into the same wall until it locked out. Ask the
+    kernel instead: OpenProcess separates "gone" from "not mine", and never
+    raises.
+    """
+    import os
+
+    if os.name == "nt":
+        import ctypes
+
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        STILL_ACTIVE = 259
+        ERROR_INVALID_PARAMETER = 87
+        ERROR_NOT_FOUND = 1168
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False,
+                                      pid)
+        if not handle:
+            err = ctypes.get_last_error()
+            if err in (ERROR_INVALID_PARAMETER, ERROR_NOT_FOUND):
+                return False  # no such process at all, so the pid is stale
+            return None  # access denied, or anything else: cannot tell
+        try:
+            code = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return None
+            return code.value == STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False  # posix: no such process, the pid is stale
+    except PermissionError:
+        return True  # live, just not this account's to inspect
+    except OSError:
+        return None
+    return True
+
+
 def _ensure_single_instance() -> None:
     """Refuse to run a second copy of the bot.
 
     A pidfile with the running pid is kept in memory/. If another lulu_bot.py is
     already alive, exit with a clear message instead of stacking a duplicate
-    that would double-reply in every channel.
+    that would double-reply in every channel. A pid that is provably dead is
+    stale - she was killed, not stopped - and the lock is taken over.
     """
     import os
     import sys
@@ -1461,31 +1604,24 @@ def _ensure_single_instance() -> None:
         try:
             old = int(lock_path.read_text(encoding="utf-8").strip())
         except ValueError:
-            old = None
+            old = None  # truncated or empty: stale by definition
+        except OSError as exc:
+            print(f"lulu_bot.py cannot read its own pidfile ({exc}); "
+                  f"refusing to start", file=sys.stderr)
+            raise SystemExit(1)
         if old is not None:
-            try:
-                os.kill(old, 0)  # raises if the process is gone
+            alive = _pid_alive(old)
+            if alive is True:
                 print(f"another lulu_bot.py is already running (pid {old}); "
                       f"refusing to stack a second instance", file=sys.stderr)
                 raise SystemExit(1)
-            except PermissionError:
-                # The pid belongs to a process this account cannot inspect. That
-                # is NOT the same as stale, and a second bot means double replies
-                # in every channel - so fail closed. This branch used to be dead
-                # code: PermissionError is an OSError, and the clause below was
-                # listed first, so it swallowed this case and took the lock.
+            if alive is None:
+                # Something owns that pid and this account cannot look at it.
+                # That is NOT the same as stale, and a second bot means double
+                # replies in every channel - so fail closed.
                 print(f"lulu_bot.py pid {old} exists but cannot be checked; "
                       f"refusing to start", file=sys.stderr)
                 raise SystemExit(1)
-            except ProcessLookupError:
-                pass  # posix: no such process, the pid is stale
-            except OSError as exc:
-                if getattr(exc, "winerror", None) == 87:
-                    pass  # ERROR_INVALID_PARAMETER: the pid is not a live process
-                else:
-                    print(f"lulu_bot.py could not verify pid {old} ({exc}); "
-                          f"refusing to start", file=sys.stderr)
-                    raise SystemExit(1)
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     lock_path.write_text(str(os.getpid()), encoding="utf-8")
 

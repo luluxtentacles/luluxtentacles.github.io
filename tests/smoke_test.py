@@ -2887,6 +2887,123 @@ def _chatter() -> str:
             f"1/{lulu_bot.CHATTER_MIN_DENOMINATOR}, started in on_ready")
 
 
+def _supersede() -> str:
+    """A follow-up in the same room interrupts; another room does not.
+
+    Each channel is its own chat, so the turn slot is per channel. This pins
+    both halves of that: a second message in room A takes A's slot away from the
+    running turn, and room B's activity never touches A's.
+    """
+    import lulu_bot
+
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+
+    room_a = bot._begin_turn(111)
+    room_b = bot._begin_turn(222)
+    expect(not bot._superseded(111, room_a),
+           "a turn in another room superseded this one - channels are not "
+           "separate chats")
+    expect(not bot._superseded(222, room_b),
+           "a turn superseded itself in its own room")
+
+    room_a2 = bot._begin_turn(111)
+    expect(room_a2 != room_a, "the per-channel turn generation never advanced")
+    expect(bot._superseded(111, room_a),
+           "a follow-up in the same room did NOT supersede the running turn - "
+           "the new message would stack beside it instead of interrupting")
+    expect(not bot._superseded(111, room_a2),
+           "the newest turn was superseded by itself")
+
+    # seq 0 means "never claimed a slot": the tests, and any direct think()
+    # call. Reading that as superseded would drop answers nobody asked to drop.
+    expect(not bot._superseded(111, 0),
+           "a turn that never claimed a slot was treated as superseded")
+
+    # The loop abandons the dig when the hook flips - before any model call, so
+    # an interrupted turn costs nothing.
+    out = bot.run_turns([{"role": "user", "content": "hi"}], None, None,
+                        supersede_check=lambda: True)
+    expect(out == lulu_bot.SUPERSEDED,
+           f"run_turns did not abandon a superseded dig: {out!r}")
+
+    # And it is OFF by default: the review window and task mode pass no hook, so
+    # their turns must never be abandoned. Driven with a stubbed brain, the same
+    # way the empty-reply check does it, so no network is involved.
+    import brain
+
+    real = brain.complete
+    brain.complete = lambda config, messages, tools=None, max_tokens=None: {
+        "content": "still here", "tool_calls": []}
+    try:
+        out2 = bot.run_turns([{"role": "user", "content": "hi"}], None, None)
+        expect(out2 == "still here",
+               f"a turn with no hook did not run to its answer: {out2!r}")
+    finally:
+        brain.complete = real
+
+    # think() is what actually hands the hook in, wired to this room's own slot.
+    import inspect
+    src = inspect.getsource(lulu_bot.Lulu.think)
+    expect("supersede_check" in src and "_superseded" in src,
+           "think() never passes the supersede hook - a follow-up could not "
+           "interrupt a running dig")
+    return ("per-channel turn slot: same-room follow-up interrupts, another "
+            "room does not, an unclaimed slot never drops, off by default")
+
+
+def _chat_context() -> str:
+    """Each room's turn carries its OWN tool context.
+
+    tools.set_context used to write one process-wide dict while every turn runs
+    in its own worker thread, so two rooms at once fought over one slot. The
+    barrier below makes both contexts set BEFORE either is read - with a shared
+    dict, both threads then read the same one and this fails.
+    """
+    import threading
+
+    import tools
+
+    rooms = (("snail-dock", "Tentacles", 1), ("the-den", "kei", 2))
+    seen: dict = {}
+    gate = threading.Barrier(len(rooms))
+
+    def turn(room, person, uid):
+        tools.set_context(uid, person, room)
+        gate.wait(timeout=10)  # both are set before either reads
+        seen[room] = dict(tools._ctx())
+
+    threads = [threading.Thread(target=turn, args=room, daemon=True)
+               for room in rooms]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+    expect(not any(t.is_alive() for t in threads), "a context probe thread hung")
+
+    for room, person, uid in rooms:
+        got = seen.get(room) or {}
+        expect(got.get("channel") == room,
+               f"room {room} saw channel {got.get('channel')!r} - two rooms are "
+               f"sharing one tool context")
+        expect(got.get("user_id") == uid and got.get("name") == person,
+               f"room {room} saw another room's person: {got!r}")
+
+    # A thread that never set a context must see the DEFAULTS, not the last room
+    # that happened to speak - that is the leak in its purest form.
+    bare: dict = {}
+
+    def quiet():
+        bare.update(tools._ctx())
+
+    thread = threading.Thread(target=quiet, daemon=True)
+    thread.start()
+    thread.join(timeout=10)
+    expect(bare.get("user_id") is None and bare.get("channel") == "",
+           f"a turn with no context inherited another room's: {bare!r}")
+    return ("per-thread tool context: two rooms keep their own channel and "
+            "person, a context-less turn sees defaults")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -2933,6 +3050,8 @@ CHECKS = [
     ("empty-reply", _empty_reply),
     ("say-guard", _say_guard),
     ("restart-notice", _restart_notice),
+    ("supersede", _supersede),
+    ("chat-context", _chat_context),
 ]
 
 

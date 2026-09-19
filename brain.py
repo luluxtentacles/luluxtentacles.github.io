@@ -11,7 +11,13 @@ import urllib.error
 import urllib.request
 import uuid
 
-TIMEOUT_SECONDS = 120
+# How long one model call may hang before we give up on it. Master raised this
+# to 600s on 2026-09-20: a tool loop resends a growing prompt every round, and a
+# slow round was being cut off at two minutes - which surfaced as her going
+# quiet rather than as an error. A whole TURN is bounded separately, by the
+# supersede check in run_turns, so a follow-up message still cuts a stuck turn
+# short without waiting for this to expire.
+TIMEOUT_SECONDS = 600
 
 # opencode.ai sits behind Cloudflare, which rejects urllib's default agent and
 # route the Go tier by session rather than by key alone. Both are required.
