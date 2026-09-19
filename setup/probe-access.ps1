@@ -197,6 +197,22 @@ function Probed([string]$path) {
             [System.IO.File]::Delete($probe)
             $write = $true
         } catch { $write = $false }
+    } else {
+        # A FILE write test, which the first cut did not do at all - so every file
+        # row reported write '-' and that reads as "denied" when it actually meant
+        # "never checked". The trusted base is made of files, so that was the most
+        # important row to get wrong.
+        #
+        # Done without touching a single byte: FileMode.Open (NOT Truncate and NOT
+        # Create) opens for writing at the existing length, we write nothing, and
+        # close. No content change, no timestamp change, nothing for her to notice.
+        # It fails only when the ACL genuinely refuses write access, which is
+        # exactly the question.
+        try {
+            $fs = [System.IO.File]::Open($path, 'Open', 'Write', 'ReadWrite')
+            $fs.Close()
+            $write = $true
+        } catch { $write = $false }
     }
     return [pscustomobject]@{ Read = $read; Write = $write; Exec = $false
                               Via = "attempted live" }
