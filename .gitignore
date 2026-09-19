@@ -1,5 +1,13 @@
 # Secrets - never commit
 token.txt
+# The literal name above was NOT enough. Her Discord token is not called
+# token.txt - config.json points token_source at C:\Lulu\discord_token.txt, and
+# the migration tools expected C:\lulu\lulu_token.txt. Neither matched the
+# pattern, so either one would have landed as a committable secret, and
+# pipeline.checkpoint() runs `git add -A` - the next self-edit would have put
+# her live token in history with nobody deciding to. Match the shape, not one
+# spelling of it.
+*token*.txt
 brain_key.txt
 config.json
 .env
