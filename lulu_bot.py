@@ -944,6 +944,14 @@ class Lulu(discord.Client):
                 except discord.HTTPException:
                     parent = None
 
+        # Eyes, second glance: a reply to a picture-carrying message carries
+        # no attachments of its own, so when this message had none, look at
+        # the parent's before deciding she was sent nothing.
+        if not parts and parent is not None:
+            parts = await vision.collect(parent.attachments)
+            if parts:
+                text = "(the message i replied to just had an image)"
+
         answer = self.skill_command(text)
         if answer is None:
             async with message.channel.typing():
