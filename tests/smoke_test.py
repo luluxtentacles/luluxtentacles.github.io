@@ -1603,7 +1603,7 @@ def _task() -> str:
 # on without it. So the expected skills must all be present, with a body and a
 # description.
 REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
-                   "self-upgrade", "mcp-client")
+                   "self-upgrade", "mcp-client", "hobbies")
 
 
 def _shelf() -> str:
@@ -2631,6 +2631,60 @@ def _containment() -> str:
             "and the never-repeat-a-secret rule")
 
 
+# -- 9d. her own time opens on an interval, and only when it should --------
+# This was once one window a calendar day, at or after an hour. It is an interval
+# now, measured from the last window's START, and the three ways an interval can
+# be wrong - too early, never, and always - are each pinned here. Nothing touches
+# the disk: _state is replaced, because a check that depends on when it happens
+# to run is how a green suite starts lying.
+def _cadence() -> str:
+    import self_review
+
+    start = 1_000_000.0
+    on = {"self_review": {"enabled": True, "interval_hours": 4}}
+    off = {"self_review": {"enabled": False, "interval_hours": 4}}
+    real = self_review._state
+    try:
+        self_review._state = lambda: {"last_started": start}
+        expect(not self_review.due(on, now=start + 3 * 3600),
+               "a window opened before its interval had passed")
+        expect(self_review.due(on, now=start + 4 * 3600),
+               "the window never opened at its interval")
+        expect(not self_review.due(off, now=start + 100 * 3600),
+               "a window opened while it was switched off")
+
+        self_review._state = lambda: {}
+        expect(self_review.due(on, now=start),
+               "a window that had never run owed nothing")
+        self_review._state = lambda: {"last_started": "yesterday"}
+        expect(self_review.due(on, now=start),
+               "an unreadable stamp owed nothing")
+
+        for bad in ({"self_review": {"enabled": True, "interval_hours": "soon"}},
+                    {"self_review": {"enabled": True, "interval_hours": 0}},
+                    {"self_review": {"enabled": True, "interval_hours": -4}},
+                    {"self_review": {"enabled": True, "interval_hours": float("nan")}}):
+            expect(self_review.settings(bad)["interval_hours"]
+                   == self_review.DEFAULT_INTERVAL_HOURS,
+                   f"a nonsense interval did not fall back: {bad!r}")
+        expect(self_review.settings({"self_review": "yes"})["enabled"] is False,
+               "malformed settings switched her own time on")
+    finally:
+        self_review._state = real
+
+    # Master's list of what she is into has to actually arrive, or the window is a
+    # maintenance loop with a room it never enters.
+    expect(self_review._interests().strip(),
+           "her interests file is missing or empty, so the window has nothing of "
+           "hers to read")
+    expect("what master says I am into" in self_review._brief(),
+           "her interests did not reach the window brief")
+    expect("write_diary" in self_review.REVIEW_TOOL_NAMES,
+           "she cannot keep her own diary in her own time")
+    return ("her own time: one window per interval, off when disabled, and her "
+            "interests ride into the brief")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -2662,6 +2716,7 @@ CHECKS = [
     ("containment", _containment),
     ("skill-patch", _skill_patch),
     ("budget", _budget),
+    ("cadence", _cadence),
     ("entrypoint", _entrypoint),
     ("api", _api),
     ("propose", _propose),

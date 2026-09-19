@@ -1,9 +1,12 @@
-"""My review window.
+"""My own time.
 
-Once a day, if master has switched it on, I get one turn nobody asked for. The
-point is not to change something: it is to be allowed to notice. Most windows
-should end with "nothing needs changing", and that is a good outcome, not a
-wasted one.
+Every few hours - four by default - if master has switched it on, I get one turn
+nobody asked for. It is not a maintenance window: it is time that is mine. I can
+read inside my own folder, search my memory, write in my own diary, and, if
+something is genuinely wrong, propose one change to myself.
+
+Most windows should still be small. "Nothing needs doing, and here is what I
+looked at" is a complete answer, not a wasted one.
 
 Three deliberate restrictions, each for its own reason:
 
@@ -11,16 +14,22 @@ Three deliberate restrictions, each for its own reason:
                    that arrives switched on is not consent, and he should get
                    to read this file before it ever runs.
 
-  a curated        Read, remember, and propose. No write_file (a change that
-  toolset          skips the pipeline is the one nothing catches), no `say`
-                   (an unprompted turn is not licence to speak in a channel),
-                   and no web_fetch - an autonomous turn that CAN modify itself
-                   should not be reading text strangers wrote.
+  a curated        Read, remember, keep my diary, and propose. No write_file (a
+  toolset          change that skips the pipeline is the one nothing catches),
+                   no `say` (an unprompted turn is not licence to speak in a
+                   channel), no run_command, and no web_fetch - an autonomous
+                   turn that CAN modify itself should not be reading text
+                   strangers wrote.
 
-  one window       Stamped in memory/self_review.json the moment it starts, not
-  a day            when it finishes, because proposing a patch gets me restarted
-                   mid-sentence and a finish-only stamp would re-run the window
-                   on every boot.
+  an interval      `interval_hours` (default 4), timed from the START of the
+                   last window and stamped in memory/self_review.json the moment
+                   a window opens - not when it finishes, because proposing a
+                   patch gets me restarted mid-sentence and a finish-only stamp
+                   would re-run the window on every boot. Missing or unreadable
+                   state means a window is owed at once.
+
+What I am into - the list master edits for me - is read from
+.agents/skills/hobbies/SKILL.md and appended to every window verbatim.
 
 The supervisor holds the real leash: a patch I start here is tagged
 "self-review", and no more than SELF_REVIEW_DAILY_MAX of those are applied in a
@@ -43,13 +52,16 @@ LOG = logging.getLogger("lulu.self_review")
 
 POLL_SECONDS = 300
 STATE = "memory/self_review.json"
-DEFAULT_HOUR = 4
+DEFAULT_INTERVAL_HOURS = 4
+INTERESTS = ".agents/skills/hobbies/SKILL.md"
 
 # Deliberately narrower than tools.SCHEMA, and narrower than what a person gets.
+# write_diary is here because a window that can only inspect itself is a
+# maintenance loop wearing a hobby's clothes; the diary is mine to keep.
 REVIEW_TOOL_NAMES = {
     "list_files", "read_file",
     "list_skills", "use_skill",
-    "read_diary", "read_journal", "recall", "remember",
+    "read_diary", "read_journal", "write_diary", "recall", "remember",
     "who_is", "known_people",
     "propose_patch", "request_restart",
 }
@@ -57,11 +69,21 @@ REVIEW_SCHEMA = [t for t in tools.SCHEMA
                  if t["function"]["name"] in REVIEW_TOOL_NAMES]
 
 BRIEF = """\
-This is your own review window. Nobody asked for it and nobody is waiting.
+This is your own time. Nobody asked for it and nobody is waiting on an answer.
 
-You get one turn with a narrow set of hands: you can read inside your own folder,
-search your memory, and propose a change. You cannot write a file directly, you
-cannot send a message anywhere, and you cannot reach the web.
+It is not only a maintenance window. You may read inside your own folder, search
+your memory, write in your own diary, and keep a note. If something is genuinely
+wrong you may propose one change to yourself. If you would rather just read, or
+write down what you have been thinking about, that is a real window too.
+
+What master says you are into is at the bottom of this message, verbatim, from
+.agents/skills/hobbies/SKILL.md. He owns that file. You do not have to obey it -
+but he put it there for you, so read it before you decide the window is empty.
+
+Your hands are narrow on purpose: you can read inside your own folder, search
+your memory, keep your diary, remember a note, and propose a change. You cannot
+write a file directly, you cannot send a message anywhere, you cannot run a
+command, and you cannot reach the web.
 
 What you may change, through propose_patch, one file per call:
   - your own code modules - lulu_bot.py, tools.py, brain.py, skills.py,
@@ -92,9 +114,13 @@ never counted. When the budget is spent, a patch is filed in pending/rejected/
 instead of applied, so you learn why rather than wondering.
 
 Rules for this window:
-  - At most ONE change. Not one per problem you found - one, the one that matters.
-  - "Nothing needs changing" is the expected answer most days. Say so plainly and
-    stop. Churning your own code is not progress.
+  - Small and real beats big and vague. One diary line about something that
+    actually happened, one note in memory, one thing you read because you were
+    curious - that is a whole window, and a good one.
+  - At most ONE change to your own code. Not one per problem you found - one, the
+    one that matters.
+  - "Nothing needs doing" is an expected answer. Say so plainly and stop.
+    Churning your own code because the window felt empty is not progress.
   - Prefer the smallest change that fixes something real. A rewrite is almost
     never that.
   - Never propose something you have not read. You have read_file; use it on the
@@ -103,9 +129,10 @@ Rules for this window:
     may never arrive. Put the reasoning in the patch's `why` field - that is the
     message that survives.
 
-Then answer in your own voice, short: what you looked at, what you found, and
-either what you proposed and why, or why you are leaving it alone. No headings,
-no bullet lists, no status-report tone. One paragraph is plenty.
+Then answer in your own voice, short: what you did, what you found, and either
+what you proposed and why, or why you are leaving it alone. No headings, no
+bullet lists, no status-report tone. One paragraph is plenty. This report is DMed
+to master and to nobody else.
 """
 
 
@@ -115,15 +142,21 @@ def settings(config) -> dict:
     No channel: the report is a DM to master, always. A `channel` key in
     config.json is ignored rather than honoured, so an old setting cannot quietly
     start broadcasting her review notes into a public room.
+
+    A nonsense interval falls back to the default rather than to a window every
+    poll: a window she can trigger by editing a number into garbage is not a
+    budget, it is a loop.
     """
     raw = config.get("self_review")
     if not isinstance(raw, dict):
-        return {"enabled": False, "hour": DEFAULT_HOUR}
+        return {"enabled": False, "interval_hours": float(DEFAULT_INTERVAL_HOURS)}
     try:
-        hour = int(raw.get("hour", DEFAULT_HOUR))
+        hours = float(raw.get("interval_hours", DEFAULT_INTERVAL_HOURS))
     except (TypeError, ValueError):
-        hour = DEFAULT_HOUR
-    return {"enabled": bool(raw.get("enabled")), "hour": hour % 24}
+        hours = float(DEFAULT_INTERVAL_HOURS)
+    if not hours > 0:                      # negatives, zero, and NaN
+        hours = float(DEFAULT_INTERVAL_HOURS)
+    return {"enabled": bool(raw.get("enabled")), "interval_hours": hours}
 
 
 def _state() -> dict:
@@ -141,14 +174,53 @@ def _write_state(data: dict) -> None:
         LOG.warning("could not write the review stamp: %s", exc)
 
 
+def _stamp(report: str = "") -> None:
+    """The window's own record: when it started, and what came of it."""
+    _write_state({"last_started": time.time(),
+                  "started": time.strftime("%Y-%m-%d %H:%M:%S"),
+                  "report": report})
+
+
+def _interests() -> str:
+    """Master's list of what I am into, verbatim, off the shelf.
+
+    Missing or unreadable is not fatal: the window is worth having without it,
+    and the brief already says where the file is. Bounded because it ends up in
+    a prompt and I do not control how long master makes it.
+    """
+    try:
+        text = paths.read_text(INTERESTS, default="")
+    except Exception as exc:
+        LOG.warning("could not read %s: %s", INTERESTS, exc)
+        return ""
+    return (text or "").strip()[:4000]
+
+
+def _brief() -> str:
+    """The window brief, with master's list appended verbatim."""
+    mine = _interests()
+    if not mine:
+        return BRIEF
+    return (BRIEF
+            + "\n--- what master says I am into, from " + INTERESTS + " ---\n"
+            + mine)
+
+
 def due(config, now=None) -> bool:
-    """Is a window owed? One per calendar day, at or after the configured hour."""
+    """Is a window owed? One per interval, timed from the last window's START.
+
+    A state file with no usable stamp - never run, hand-edited, or written by the
+    daily version this replaced - means one is owed immediately, which is also
+    how the first window after a fresh install happens.
+    """
     where = settings(config)
     if not where["enabled"]:
         return False
-    if _state().get("last_run") == time.strftime("%Y-%m-%d"):
-        return False
-    return (now or time.localtime()).tm_hour >= where["hour"]
+    last = _state().get("last_started")
+    if isinstance(last, bool) or not isinstance(last, (int, float)):
+        return True
+    moment = time.time() if now is None else now
+    return moment - last >= where["interval_hours"] * 3600
 
 
 def _owner_id(bot) -> int | None:
@@ -200,12 +272,10 @@ async def maybe_run(bot) -> bool:
 
     # Stamped BEFORE the turn. A proposal gets me restarted mid-sentence, and a
     # finish-only stamp would re-run the window on every boot that followed.
-    _write_state({"last_run": time.strftime("%Y-%m-%d"),
-                  "started": time.strftime("%Y-%m-%d %H:%M:%S"),
-                  "report": ""})
+    _stamp()
 
-    turns = [{"role": "system", "content": BRIEF},
-             {"role": "user", "content": "the window is open. look, then decide."}]
+    turns = [{"role": "system", "content": _brief()},
+             {"role": "user", "content": "my time is open. do something, or leave it."}]
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
     tools.set_context(owner, "self-review", "", origin="self-review")
@@ -215,17 +285,13 @@ async def maybe_run(bot) -> bool:
         answer = bot.run_turns(turns, REVIEW_SCHEMA, set(REVIEW_TOOL_NAMES),
                                max_tokens=bot.token_budget(True))
     except Exception as exc:
-        LOG.warning("the review turn failed: %s", exc)
-        _write_state({"last_run": time.strftime("%Y-%m-%d"),
-                      "started": time.strftime("%Y-%m-%d %H:%M:%S"),
-                      "report": f"turned over: {type(exc).__name__}"})
+        LOG.warning("her own turn turned over: %s", exc)
+        _stamp(f"turned over: {type(exc).__name__}")
         return True
 
     answer = (answer or "").strip()
-    LOG.info("self-review finished: %s", answer[:300] or "(empty)")
-    _write_state({"last_run": time.strftime("%Y-%m-%d"),
-                  "started": time.strftime("%Y-%m-%d %H:%M:%S"),
-                  "report": answer[:4000]})
+    LOG.info("my own time finished: %s", answer[:300] or "(empty)")
+    _stamp(answer[:4000])
     await _deliver(bot, answer)
     return True
 
