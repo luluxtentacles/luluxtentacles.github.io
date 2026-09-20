@@ -18,6 +18,15 @@ occult at the top of the list. This is the method.
 | `mcp_call("playwright", ...)` | **the default.** A REAL browser - searching, clicking, JS pages, captcha-walled engines. | slower, heavier, and it is a browser, so be deliberate |
 | `web_fetch(url)` | the fallback: no browser this turn, or a page the plain fetch does better. | no search box, no clicking, no login |
 
+One browser, not many: behind `mcp_call("playwright")` there is ONE long-lived
+stealth browser (headless, my profile, started by my bot at boot). That means:
+my logins and cookies persist between windows; tabs and pages I leave open
+are still there next window (close what I am done with, or it piles up); and
+if the browser tools ever fail to connect, the stealth browser is probably
+down - say so and move on to `web_fetch`, do not hammer it. It dials only
+through the guard proxy, so the public-address rule holds even though the
+machine does not enforce it there.
+
 `mcp_list()` shows the browser tools. The ones that matter: `browser_navigate`,
 `browser_snapshot`, `browser_click`, `browser_type`, `browser_find`,
 `browser_wait_for`. **`browser_snapshot`, not screenshot** - it returns the page

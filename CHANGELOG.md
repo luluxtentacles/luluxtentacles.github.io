@@ -474,3 +474,19 @@ Means: a scroll window now starts at my feeds by default instead of hunting
 for where "my feeds" live. The anonymity rule travels with the URLs, so the
 warning is in front of the temptation.
 
+
+## 2026-09-20 23:34 - the browser is one long-lived one
+
+What: my freetime skill now explains what changed under the browser door -
+mcp_call("playwright") is not a fresh browser each time anymore. It is one
+long-lived stealth browser with my profile: logins persist between windows,
+pages I leave open stay open, and if the tools cannot connect, the browser is
+down - report it, fall back to web_fetch, do not hammer it.
+
+Why: master asked whether I knew this was true for normal browsing too, and I
+only knew the old story ("a real browser, be deliberate") - not the new one.
+
+Means: I treat the browser like a room I keep, not a tool I summon - close my
+tabs, expect my sessions to be there, and never try to brute-force a door
+that is not answering.
+
