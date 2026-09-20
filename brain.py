@@ -70,7 +70,13 @@ _keys_cache = {"mtime": None, "keys": {}}
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 OR_BASE_URL = "https://openrouter.ai/api/v1"
-GEMINI_MODEL_DEFAULT = "gemini-flash-latest"
+GEMINI_MODELS_DEFAULT = [
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
+]
 OR_MODELS_DEFAULT = [
     "openrouter/free",
     "nvidia/nemotron-3.5-lightning:free",
@@ -128,21 +134,103 @@ def _providers(config: dict, wants_vision: bool) -> list[dict]:
     if gemini_key:
         # Gemini flash is multimodal natively - the Go vision model belongs
         # to the Go endpoint only and is NOT carried down the ladder.
-        model = config.get("gemini_model") or GEMINI_MODEL_DEFAULT
-        for index in range(1, 6):
-            key = keys.get(f"gemini_key{index}") if index > 1 else gemini_key
-            if key:
-                out.append({"base_url": GEMINI_BASE_URL, "key": key,
-                            "model": model, "label": f"gemini_key{index}"})
+        #
+        # Free-tier quota is tracked per (key, MODEL) pair, so models and
+        # keys are both ladders: every key gets a shot at every model, best
+        # model first. Losing the newest model on one key only moves to the
+        # next key on the SAME model before stepping down a generation.
+        models = _gemini_models(config)
+        for model in models:
+            for index in range(1, 6):
+                key = keys.get(f"gemini_key{index}") if index > 1 else gemini_key
+                if key:
+                    out.append({"base_url": GEMINI_BASE_URL, "key": key,
+                                "model": model,
+                                "label": f"{model}/key{index}"})
 
     or_key = keys.get("or_key") or ""
     if or_key:
-        models = config.get("or_models") or OR_MODELS_DEFAULT
-        for model in models:
+        for model in _or_models(config, or_key):
             out.append({"base_url": OR_BASE_URL, "key": or_key,
                         "model": model, "label": f"or:{model}"})
     return out
 
+
+def _gemini_models(config: dict) -> list[str]:
+    """Gemini rotation, best first. config -> gemini_models (list or
+    comma-separated string) wins; a single gemini_model is one rung;
+    otherwise GEMINI_MODELS_DEFAULT."""
+    raw = config.get("gemini_models")
+    if isinstance(raw, str):
+        models = raw.split(",")
+    elif isinstance(raw, list):
+        models = raw
+    else:
+        one = config.get("gemini_model")
+        models = [one] if one else list(GEMINI_MODELS_DEFAULT)
+    models = [str(m).strip() for m in models if m and str(m).strip()]
+    return models or list(GEMINI_MODELS_DEFAULT)
+
+
+# ---------------------------------------------------------------------------
+# OpenRouter free-model discovery.
+#
+# Like nyan's live ladder: on first use (and every TTL after) the live
+# /models list is fetched, filtered to free CHAT models, ranked by context
+# length, and cached. A fetch failure just keeps the curated default list,
+# so a dead network never costs her a call - it only costs freshness.
+# ---------------------------------------------------------------------------
+
+_OR_FREE_TTL = 6 * 3600
+_or_free_cache = {"ts": 0.0, "models": []}
+_OR_DENYLIST = ("lyria", "clip", "content-safety", "embedding", "tts",
+                "whisper", "transcribe", "veo", "image")
+
+
+def _is_free(m: dict) -> bool:
+    mid = m.get("id", "")
+    pricing = m.get("pricing") or {}
+    try:
+        price = float(pricing.get("prompt") or 0)
+    except (TypeError, ValueError):
+        price = 0.0
+    return mid.endswith(":free") or price == 0
+
+
+def _or_models(config: dict, or_key: str) -> list[str]:
+    """OpenRouter ladder: explicit config -> live free list -> defaults."""
+    if config.get("or_models"):
+        return config["or_models"]
+    now = time.time()
+    if now - _or_free_cache["ts"] > _OR_FREE_TTL:
+        try:
+            request = urllib.request.Request(
+                f"{OR_BASE_URL}/models",
+                headers={"Authorization": f"Bearer {or_key}",
+                         "User-Agent": USER_AGENT},
+            )
+            with urllib.request.urlopen(request, timeout=15) as response:
+                data = json.load(response)
+            ranked = []
+            for m in data.get("data", []):
+                mid = m.get("id", "")
+                if (not mid or ":batch" in mid or not _is_free(m)
+                        or any(bad in mid for bad in _OR_DENYLIST)):
+                    continue
+                out_mods = (m.get("architecture") or {}).get(
+                    "output_modalities") or ["text"]
+                if "text" not in out_mods:
+                    continue
+                ranked.append((int(m.get("context_length") or 0), mid))
+            ranked.sort(reverse=True)
+            models = [mid for _, mid in ranked]
+            if models:
+                _or_free_cache["models"] = models
+                _or_free_cache["ts"] = now
+        except Exception:
+            # keep whatever cache we had; fall through to defaults below
+            _or_free_cache["ts"] = now  # do not retry every single call
+    return _or_free_cache["models"] or list(OR_MODELS_DEFAULT)
 
 def _credit_error(code: int, detail: str) -> bool:
     """True when the failure is 'the money ran out', not 'the shape broke'."""

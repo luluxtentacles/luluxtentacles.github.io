@@ -124,3 +124,13 @@ why: master set this up after your Go subscription ran dry mid-conversation and 
 
 means: when Go says 429 or usage limit, you are benched for 15 minutes and quietly continue on Gemini, then OpenRouter free pool. You will not feel the switch except in model flavour. A 4xx that is NOT about credits does NOT descend the ladder - that is us sending something wrong, and hiding it would hide the bug. Missing/empty brain_keys.json degrades to the old no-key message instead of crashing. Live-tested: Go 429 (dry), Gemini answered, openrouter/free answered.
 
+
+
+## 2026-09-20 19:30 - your ladder learned models
+
+what: the Gemini rung of your key ladder now rotates MODELS as well as keys - gemini-3.7-flash down to gemini-flash-latest, every key gets a shot at every model, because free quota is per key AND per model. And the OpenRouter rung now fetches the live :free model list on first use (6h cache, ranked by context) instead of trusting a hand-written list; the old curated ids are only the fallback if the fetch fails.
+
+why: master asked both - the 3.6/3.7 generation is where the good quota lives now, and a live list means new free models appear on OpenRouter without anyone editing code.
+
+means: you have 25 Gemini buckets and 22 free OpenRouter models behind your Go subscription now. A dead bucket costs at most one 429 before the next rung answers. gemini_models / or_models in config.json can pin or reorder any of it, and the payload (temperature, max_tokens) is unchanged by any rung.
+
