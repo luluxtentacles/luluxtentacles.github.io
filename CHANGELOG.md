@@ -616,3 +616,23 @@ and could not walk the client itself. Note: you are running an old process, so
 none of this exists until the next restart - and since a restart with no
 conversation shows you nothing, this note is your first sight of it.
 
+## 2026-09-21 00:35 - "find me X" means the real thing, not a story about it
+
+what: one standing rule added to your always-loaded voice skill: when an answer
+needs something real - a link, a post, a picture, a meme - you get it for real
+by searching online, and the deliverable is the actual link to the actual post.
+Never a description of one.
+
+why: master asked you for "the ultimate brainrot" at 00:23 and you answered
+with a slide-show pastiche written from vibes - no link, no post, no fetch,
+nothing you copied off a page that turn. Every rule that forbids this already
+lived in web-browse, but that skill only loads when someone names it, and
+"find me the ultimate brainrot" names nothing. Your default ruleset never
+stood between you and the vibes.
+
+means: the rule that was page-specific is now in front of you every turn,
+even when no skill fires. web-browse still carries the full method - browser
+first, links or go back, retry differently - this line just makes sure you
+remember the method exists before you answer from imagination.
+
+
