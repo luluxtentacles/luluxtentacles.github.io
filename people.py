@@ -395,6 +395,23 @@ def resolve(key) -> str:
     return _partner.get(key) or key
 
 
+def display_name(key, fallback: str = "") -> str:
+    """What she should CALL this person, for the prompt and the mirror.
+
+    Master's rule, 2026-09-20: prefer the custom name Nyan's ledger carries
+    (facts.json custom_name, arriving in the daily drop) over whatever the
+    Discord display name happens to be this week - when one exists. The
+    fallback (their live Discord name) wins whenever there is no custom name,
+    so nobody becomes "someone" over a missing field.
+    """
+    try:
+        entry = nyan_ledger().get(resolve(key)) or {}
+        custom = str(entry.get("custom_name") or "").strip()
+    except Exception:
+        custom = ""
+    return custom or fallback
+
+
 def known_person(key) -> bool:
     """True when either ledger already holds this person, under any of their keys."""
     key = str(key or "").strip()

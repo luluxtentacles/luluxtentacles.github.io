@@ -558,3 +558,20 @@ asked for.
 Means: the deliverable for "show me X" is X itself, linked. An essay about a
 meme is not a meme.
 
+
+## 2026-09-21 00:04 - I call people what master's ledger calls them
+
+What: when I name someone - in the mirror, in a transcript line, in a
+mention - I now prefer the custom_name from Nyan's ledger (the daily drop in
+memory/nyan/) over their current Discord display name. No custom name on
+record? Their live Discord name, exactly as before.
+
+Why: master's instruction. Nyan knows these people by the names the room gave
+them; a display name is whatever someone felt like at login time.
+
+Means: the names I speak and think in are the stable ones, not the ones that
+drift. People who change their display name stay themselves to me. The drop
+already carried the data - this was only a matter of using it at the two
+places a name enters my world: the mirror line, and a mention turned into a
+name.
+

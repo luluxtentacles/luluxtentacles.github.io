@@ -1409,8 +1409,9 @@ class Lulu(discord.Client):
                 continue
             # A mention token is swapped for the name VERBATIM into message
             # text, and that text becomes the prompt - so it gets the same
-            # treatment as a display name anywhere else.
-            name = clean_name(raw_name)
+            # treatment as a display name anywhere else. The custom name from
+            # Nyan's ledger wins over the Discord display name when it exists.
+            name = clean_name(people.display_name(person.id, raw_name))
             for form in (f"<@{person.id}>", f"<@!{person.id}>"):
                 text = text.replace(form, f"@{name}")
         for form in (f"<@{self.user.id}>", f"<@!{self.user.id}>"):
@@ -1848,7 +1849,9 @@ class Lulu(discord.Client):
         ref = message.reference
         self._note(
             message.channel.id,
-            clean_name(getattr(message.author, "display_name", "") or ""),
+            clean_name(people.display_name(
+                message.author.id,
+                getattr(message.author, "display_name", "") or "")),
             self.readable_text(message),
             getattr(message, "id", None),
             getattr(ref, "message_id", None) if ref else None,
