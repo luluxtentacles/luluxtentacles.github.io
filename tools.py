@@ -498,7 +498,7 @@ SCHEMA = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "channel": {"type": "string", "description": "channel name or id, e.g. snailcat"},
+                    "channel": {"type": "string", "description": "channel name or id - LEAVE EMPTY to post in the room you are talking in right now; only name a room when the person named one"},
                     "text": {"type": "string", "description": "what to say - short, in my own voice"},
                 },
                 "required": ["channel", "text"],
@@ -1775,6 +1775,12 @@ def say(channel: str, text: str) -> str:
     target = (channel or "").strip().lstrip("#").lower()
     body = " ".join((text or "").split())
     if not target:
+        # No room named: the room this turn is being talked in. Master,
+        # 2026-09-21 - "where's the meme" in #general must never turn into a
+        # post in #snailcat just because snailcat is the example in the
+        # schema. An ask that names no room means HERE.
+        target = (_ctx().get("channel") or "").strip().lstrip("#").lower()
+    if not target:
         return "say what, and where?"
     if not body:
         return "nothing to say"
@@ -1801,6 +1807,9 @@ def attach(channel: str, path: str, text: str = "") -> str:
     send, whatever it carries.
     """
     target = (channel or "").strip().lstrip("#").lower()
+    if not target:
+        # Same rule as say(): no room named means the room the ask came from.
+        target = (_ctx().get("channel") or "").strip().lstrip("#").lower()
     if not target:
         return "attach where?"
     try:

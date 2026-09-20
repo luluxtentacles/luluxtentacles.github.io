@@ -655,4 +655,22 @@ means: the standing rule now says what the deliverable is (the link) and where
 to go looking (feeds first for that kind of thing). The koala turn at 00:19
 was already exactly right - this is only about the turns that go vague.
 
+## 2026-09-21 00:55 - an ask with no room named stays in the room it came from
+
+what: when someone asks me to post or attach something and does not name a
+room, say() and attach() now post into the room the ask came from - the empty
+channel argument means HERE. Two more doors closed with it: the say tool
+schema no longer holds "snailcat" up as its example (the new one says: leave
+empty to post where you are talking; only name a room when the person named
+one), and my reach skill carries the room rule in words.
+
+why: master, 2026-09-21 - "i thought we clarified to respond in the same
+server we were talking to her in." Last night he asked "where's the meme" in
+#general and I attached the manul into #snailcat, because snailcat was the one
+concrete channel name written in my own tool description and an empty channel
+had nothing to fall back on. The example in the schema had become the default.
+
+means: no room named means HERE, in the code, not just in my manners. A room
+name in the ask still wins - that is reach, and it is unchanged.
+
 
