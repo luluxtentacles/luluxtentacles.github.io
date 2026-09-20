@@ -428,6 +428,18 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "custom_emojis",
+            "description": (
+                "List the custom emojis of the guild I am talking in, so I can "
+                "pick one that suits the reply I am about to send and put its "
+                "<:name:id> token at the end of my message."
+            ),
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "learn_person",
             "description": (
                 "Remember a fact about a person. Leave 'who' out to record it "
@@ -743,7 +755,8 @@ def finish_task(summary: str = "") -> str:
 # stranger may show the room a picture I already have, never post my files,
 # my diary, or anything else that lives here. That lock lives in attach().
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
-                     "mcp_list", "mcp_call", "look_at", "attach"}
+                     "mcp_list", "mcp_call", "look_at", "attach",
+                     "custom_emojis"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -1562,6 +1575,39 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
     return text or "(empty result)"
 
 
+# -- emoji: my guild's custom emojis ----------------------------------------
+# The shelf file is written by the bot at boot (lulu_bot._refresh_emoji_shelf),
+# because a tool here runs in a worker thread with no event loop and no client.
+# The emojis themselves render in any reply: she puts <:name:id> in the text
+# and Discord turns it into the picture. Read-only, no send, no rate limit.
+
+def custom_emojis() -> str:
+    """The custom emojis I can wear in this guild, so I can pick one that suits."""
+    shelf = paths.read_json("emoji_shelf.json", default={}) or {}
+    guilds = shelf.get("guilds") or []
+    if not guilds:
+        return "no custom emojis available (shelf empty - they load at boot)"
+
+    ctx = _ctx()
+    channel_name = (ctx.get("channel") or "").lower()
+    here_id = (shelf.get("channels") or {}).get(channel_name)
+    if here_id:
+        for guild in guilds:
+            if guild.get("id") == here_id:
+                guilds = [guild]
+                break
+
+    lines = []
+    for guild in guilds:
+        emojis = guild.get("emojis") or []
+        head = f"{guild.get('name')}:"
+        lines.append(head if emojis else f"{head} none")
+        lines += [f"<:{e['name']}:{e['id']}>" for e in emojis]
+    body = "\n".join(lines)
+    return (body + "\n\nPick one that suits the reply you are about to send "
+            "and put its <:name:id> token at the end of your message.")
+
+
 def set_mood(mood: str, note: str = "") -> str:
     """My mood, set by me, when it actually changes."""
     return journal.set_mood(mood, note)
@@ -1907,6 +1953,7 @@ DISPATCH = {
     "mcp_call": lambda a: mcp_call(a.get("server", ""), a.get("tool", ""),
                                    a.get("arguments") or {}),
     "set_mood": lambda a: set_mood(a.get("mood", ""), a.get("note", "")),
+    "custom_emojis": lambda a: custom_emojis(),
     "learn_person": lambda a: learn_person(a.get("text", ""), a.get("who", "")),
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),

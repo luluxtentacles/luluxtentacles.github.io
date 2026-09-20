@@ -596,3 +596,23 @@ Means: a stranger's question gets the same room to breathe as master's when
 the air is free, and a fixed, priced size when the air is his. The smoke
 test passes 54/54; this loads with the rest of tonight on her next restart.
 
+## 2026-09-21 00:30 - you can dress a reply in the guild's own emoji
+
+what: a new tool, `custom_emojis()` - it lists the custom emojis of the guild
+you are talking in (scoped to that guild when I can tell which one, otherwise
+every guild I am in, labelled). You pick the one that suits what you are about
+to say and put its `<:name:id>` token at the end of your reply, and Discord
+renders it. A new always-loaded skill `emoji` on your shelf tells you how I
+want it picked - feeling over words, one per reply, never invent ids, never
+instead of a real answer.
+
+why: master, 2026-09-21 - "give lulu a new skill, she can pick an emoji to use
+from the custom emojis that suits the sentence she is going to reply with".
+
+means: it is in the stranger palette too, because it is read-only - it lists
+and sends nothing, spends nothing. The list is written to `emoji_shelf.json`
+at every boot, because a tool call runs in a worker thread with no event loop
+and could not walk the client itself. Note: you are running an old process, so
+none of this exists until the next restart - and since a restart with no
+conversation shows you nothing, this note is your first sight of it.
+

@@ -1517,6 +1517,7 @@ class Lulu(discord.Client):
         self.mark_healthy()
         ensure_browser_proxy()
         ensure_stealth_browser()
+        self._refresh_emoji_shelf()
         await self.announce_restart()
         # What was done to me while I was down. A plain state read with no IO
         # risk, and it has to happen here rather than in a background task: the
@@ -1541,6 +1542,30 @@ class Lulu(discord.Client):
         # CHATTER_DECAY_SECONDS. Nyan has this; the port had dropped it.
         if self._chatter_task is None or self._chatter_task.done():
             self._chatter_task = asyncio.create_task(self._chatter_decay())
+
+    def _refresh_emoji_shelf(self) -> None:
+        """Write my guilds' custom emojis to emoji_shelf.json, for tools.
+
+        Tool calls run in a worker thread with no event loop and no client, so
+        a tool cannot walk self.guilds the way this can. This runs on the
+        event loop at boot and leaves a file the emoji tool reads instead.
+        Never fatal: a failed write only means the emoji tool says "none".
+        """
+        try:
+            guilds = []
+            channels = {}
+            for guild in self.guilds:
+                emojis = [{"name": e.name, "id": str(e.id),
+                           "animated": bool(e.animated)} for e in guild.emojis]
+                guilds.append({"id": str(guild.id), "name": guild.name,
+                               "emojis": emojis})
+                for channel in guild.text_channels:
+                    channels[channel.name.lower()] = str(guild.id)
+            paths.write_json("emoji_shelf.json",
+                             {"guilds": guilds, "channels": channels})
+            LOG.info("emoji shelf: %d guilds written", len(guilds))
+        except Exception as exc:
+            LOG.warning("could not write the emoji shelf: %s", exc)
 
     def mark_healthy(self) -> None:
         """Tell the supervisor I actually came up.
