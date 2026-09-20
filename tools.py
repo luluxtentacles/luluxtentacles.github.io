@@ -554,6 +554,15 @@ SCHEMA = [
                     "path": {"type": "string", "description": "file to replace, e.g. tools.py or .agents/skills/<id>/SKILL.md"},
                     "content": {"type": "string", "description": "the complete new file"},
                     "why": {"type": "string", "description": "one line: what this changes"},
+                    "brief": {
+                        "type": "string",
+                        "description": (
+                            "optional: what master asked for and the next step, "
+                            "when this update is part of a job. Comes back to me "
+                            "as my own continuation note after the restart, in "
+                            "this channel, so I pick the work up instead of "
+                            "starting cold."),
+                    },
                 },
                 "required": ["path", "content"],
             },
@@ -564,11 +573,29 @@ SCHEMA = [
         "function": {
             "name": "request_restart",
             "description": (
-                "Ask the supervisor to restart me, with no code change. Use it after "
-                "changing data I only read at startup."),
+                "Ask the supervisor to restart me. Use it after changing data I "
+                "only read at startup. NEVER call it from inside a tool call: "
+                "calling it ends my turn immediately, so whatever comes after it "
+                "in that turn never happens. To CHANGE MY OWN CODE, stage the "
+                "patch and close the turn - the pipeline restarts me for the "
+                "apply. Calling this myself races the supervisor's own apply "
+                "and can boot me onto code that was only ever staged. "
+                "Put what I was doing in `brief` and I get it back after the "
+                "bounce, in the room I was talking in."),
             "parameters": {
                 "type": "object",
-                "properties": {"why": {"type": "string"}},
+                "properties": {
+                    "why": {"type": "string",
+                            "description": "one line: why I want the bounce"},
+                    "brief": {
+                        "type": "string",
+                        "description": (
+                            "what master asked for and what I was doing about "
+                            "it. Comes back to me as my own continuation note "
+                            "once I am up again, in this same channel. Give the "
+                            "actual next step, not a summary."),
+                    },
+                },
                 "required": [],
             },
         },
@@ -788,9 +815,19 @@ REQUEST_FILE = "pending/REQUEST.json"
 # pipeline consumes REQUEST_FILE (claim_request renames it away), so by the time
 # I restart it is gone. Nothing but me ever touches this one.
 NOTICE_FILE = "memory/restart_notice.json"
+# How much of what master asked for rides along in the notice below. A brief is
+# an instruction, not a transcript: the surrounding conversation is gone either
+# way, so a wall of text would only push the live channel history out of my own
+# prompt.
+#
+# There is no separate "resume file", on purpose. The notice below is ALREADY
+# one-shot, already consumed once at boot, and already carries the channel and
+# the epoch - which is exactly what a continuation needs. A second file would be
+# a second thing to forget to clear.
+RESUME_BRIEF_MAX = 2000
 
 
-def _write_notice(files: list[str], why: str) -> None:
+def _write_notice(files: list[str], why: str, brief: str = "") -> None:
     """Write ONLY the come-back note - never the request the supervisor watches.
 
     Split out deliberately. Tests need to exercise this note, and a test that
@@ -798,17 +835,25 @@ def _write_notice(files: list[str], why: str) -> None:
     supervisor polls every 2 seconds. That is not theoretical: a scratch probe
     doing exactly that restarted the production bot at 23:42:38. Anything
     testable must be able to avoid that file.
+
+    `brief` is the thing master asked for, carried across the restart. It is
+    optional because request_restart also exists without one, and a bounce with
+    nothing to remember must stay a plain bounce.
     """
-    paths.write_text(NOTICE_FILE, json.dumps({
+    brief = str(brief or "").strip()[:RESUME_BRIEF_MAX]
+    body = {
         "why": (why or "no reason given")[:500],
         "files": files,
         "channel": _ctx().get("channel") or "",
         "at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "epoch": time.time(),
-    }, indent=2), internal=True)
+    }
+    if brief:
+        body["brief"] = brief
+    paths.write_text(NOTICE_FILE, json.dumps(body, indent=2), internal=True)
 
 
-def _write_request(files: list[str], why: str) -> None:
+def _write_request(files: list[str], why: str, brief: str = "") -> None:
     why = (why or "no reason given")[:500]
     paths.write_text(REQUEST_FILE, json.dumps({
         "why": why,
@@ -819,7 +864,7 @@ def _write_request(files: list[str], why: str) -> None:
         # through. See set_context for why the model cannot fake this.
         "origin": _ctx().get("origin") or "master",
     }, indent=2), internal=True)
-    _write_notice(files, why)
+    _write_notice(files, why, brief)
 
 
 def take_restart_notice() -> dict | None:
@@ -841,9 +886,16 @@ def take_restart_notice() -> dict | None:
         pass  # if it will not clear, still tell them once
     try:
         data = json.loads(raw)
-        return data if isinstance(data, dict) else None
     except Exception:
         return None
+    if not isinstance(data, dict):
+        return None
+    # A notice is a FILE, and a file can hold anything. lulu_bot trusts `brief`
+    # straight into a prompt, so the type is settled here rather than three
+    # frames later where a list would reach a string operation and raise.
+    if data.get("brief") is not None and not isinstance(data.get("brief"), str):
+        data.pop("brief", None)
+    return data
 
 
 def _normalise_newlines(text: str) -> str:
@@ -1202,7 +1254,7 @@ def patch_file(path: str, find: str, replace: str, why: str = "",
     return propose_patch(path, spliced, why or f"patch {path}")
 
 
-def propose_patch(path: str, content: str, why: str = "") -> str:
+def propose_patch(path: str, content: str, why: str = "", brief: str = "") -> str:
     """Stage a change to my own code for the supervisor to apply and judge.
 
     Nothing is applied here. The file lands in pending/staged, a request is
@@ -1210,6 +1262,12 @@ def propose_patch(path: str, content: str, why: str = "") -> str:
     touch, apply, run the smoke test, restart me, and revert everything if I do
     not come up. Sealed files - the wall, the launcher, the keys - are refused,
     and that refusal lives in paths.assert_proposable rather than in my manners.
+
+    `brief` rides the same note as request_restart's, for the case master
+    actually has: an update I was part-way through. I come back holding it, in
+    the room I staged it from. Without one, an applied patch still gets the
+    pipeline's own restart report, which is a fact about the code and not a
+    reminder of what he asked for.
     """
     if len(content) > MAX_WRITE_BYTES:
         return "that is too much to write in one go"
@@ -1238,7 +1296,7 @@ def propose_patch(path: str, content: str, why: str = "") -> str:
     trial_suffix = ", and the smoke test already passes against it" if trial else ""
     try:
         paths.write_text(f"{STAGED_DIR}/{relative}", content, internal=True)
-        _write_request([relative], why)
+        _write_request([relative], why, brief)
     except Exception as exc:
         return f"could not stage the patch: {exc}"
     return (f"staged {relative} ({len(content)} bytes){trial_suffix}. The "
@@ -1247,18 +1305,25 @@ def propose_patch(path: str, content: str, why: str = "") -> str:
             f"restart myself - staging is the whole mechanism.")
 
 
-def request_restart(why: str = "") -> str:
+def request_restart(why: str = "", brief: str = "") -> str:
     """Ask the supervisor to restart me, with no code change.
 
     I cannot restart myself: killing my own process is the last thing I can do,
     and something outside has to bring me back. Writing this request and closing
     cleanly is the whole handover.
+
+    `brief` is what I want to be holding when I come back - master's actual ask
+    and the next step - and it is read back by lulu_bot at boot, in the same
+    room this turn came from. Master, 2026-09-20.
     """
     try:
-        _write_request([], why)
+        _write_request([], why, brief)
     except Exception as exc:
         return f"could not write the request: {exc}"
-    return "restart requested - the supervisor will bounce me in a few seconds"
+    said = "restart requested - the supervisor will bounce me in a few seconds"
+    if (brief or "").strip():
+        said += ("; i left myself a note on what i was doing")
+    return said
 
 
 def list_skills() -> str:
@@ -1726,8 +1791,8 @@ DISPATCH = {
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "read_journal": lambda a: read_journal(a.get("day", "")),
     "propose_patch": lambda a: propose_patch(a.get("path", ""), a.get("content", ""),
-                                             a.get("why", "")),
-    "request_restart": lambda a: request_restart(a.get("why", "")),
+                                             a.get("why", ""), a.get("brief", "")),
+    "request_restart": lambda a: request_restart(a.get("why", ""), a.get("brief", "")),
     "start_task": lambda a: start_task(a.get("goal", "")),
     "finish_task": lambda a: finish_task(a.get("summary", "")),
     "run_command": lambda a: runbox.run(a.get("command", ""),

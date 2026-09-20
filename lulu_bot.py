@@ -393,6 +393,12 @@ RESTART_POLL_SECONDS = 5
 # announcing it hours later would be a message out of nowhere.
 RESTART_NOTICE_MAX_AGE = 30 * 60
 
+# How much of the continuation brief is repeated back into the ROOM. The model
+# gets the whole thing in its own turn; the room gets a marker, because what
+# master asked for is not usually the room's business and quoting him into a
+# public channel is not mine to do.
+RESTART_BRIEF_ECHO_MAX = 500
+
 # Where the supervisor records WHY it started me. It writes this, not me:
 # memory/ is sealed against MY writes, so a reason cannot be forged or cleared
 # from in here - which is exactly what makes it worth reading.
@@ -438,6 +444,38 @@ def restart_sentence(reason: dict, requested_why: str = "") -> str:
     if kind == "startup":
         return ""
     return "back. the supervisor started me."
+
+
+def resume_brief(note, channel_name: str = "") -> str:
+    """What master asked for before I went down, or "" if there is nothing.
+
+    A plain function, like restart_sentence above and for the same reason: the
+    smoke net walks every branch without a live gateway.
+
+    Returns the whole note the first time a turn runs in the room it names, so
+    the next thing that comes out of my mouth is the job I was already on, and
+    then nothing. The wrong room is worse than no reminder, because it would
+    have me answering a question nobody asked HERE.
+
+    An empty name means master's DM - a DM channel has no name, and that is
+    where a private ask comes from. Comparing the two keys as plain strings is
+    what keeps the two cases apart: an empty note can never fire in a guild
+    room, and a note from #lulu-den can never fire in his DMs.
+
+    The brief is master's own words, so it is escaped like any line on its way
+    into a prompt - the fact that it is mine and sealed does not make it
+    trusted, it only makes it not-forged.
+    """
+    if not isinstance(note, dict):
+        return ""
+    asked = str(note.get("brief") or "").strip()
+    if not asked:
+        return ""
+    where = str(note.get("channel") or "").strip().lstrip("#").lower()
+    here = str(channel_name or "").strip().lstrip("#").lower()
+    if where != here:
+        return ""
+    return escape_block(asked)
 
 # Casual chatter: Nyan's algorithm. Base chance 1/200, and every message
 # in a channel tightens the odds (denominator -1) until a roll lands or the
@@ -824,6 +862,12 @@ class Lulu(discord.Client):
         self.mirror: dict[int, deque] = defaultdict(
             lambda: deque(maxlen=MIRROR_LINES))
         self.own_message_ids: set[int] = set()
+        # The continuation note, read ONCE at boot. announce_restart is the only
+        # other caller of take_restart_notice(), and that note is one-shot, so
+        # whichever of us gets there second would get None. Prefetching means the
+        # two halves cannot race: the restart report and the work-it-was-about
+        # are the same note, read in one place and used by both.
+        self._resume_pending: dict | None = None
         self.always_skills: list[str] = list(config.get("always_skills", []))
         # Her ears. Off unless config.json turns them on: transcription is a real
         # CPU cost, measured at ~1.7x the length of the clip on this box, so it is
@@ -1202,6 +1246,10 @@ class Lulu(discord.Client):
 
         Once per start: `seq` is compared against what I last announced, so a
         crash loop cannot turn into a message per attempt.
+
+        The notice is also where master's actual ask rides - see resume_brief.
+        It is taken HERE, and only here, because it is one-shot: two readers
+        would mean the second one gets nothing.
         """
         reason: dict = {}
         raw = paths.read_text(REASON_FILE, default="")
@@ -1218,12 +1266,15 @@ class Lulu(discord.Client):
             return
 
         # A stale notice is not a reason to stay quiet about a real restart - it
-        # is only a reason to stop trusting it for a channel.
+        # is only a reason to stop trusting it at all. The continuation brief
+        # goes with the room (master, 2026-09-20): a restart that happened and
+        # did not come up must not wake me hunting a job nobody is waiting on.
         age = time.time() - float(notice.get("epoch") or 0)
         if notice and age > RESTART_NOTICE_MAX_AGE:
-            LOG.warning("restart notice was %.0f min old; ignoring its channel",
+            LOG.warning("restart notice was %.0f min old; ignoring it entirely",
                         age / 60)
             notice = {}
+        self._resume_pending = notice if notice.get("brief") else None
 
         seq = reason.get("seq")
         kind = str(reason.get("kind") or "")
@@ -1291,6 +1342,11 @@ class Lulu(discord.Client):
         # how he hears about a change to me without having to be sitting in the
         # right channel, so an empty update_channels must not swallow it.
         await self._dm_owner(text, posted)
+        # The other half of the same notice: what the restart interrupted. Posted
+        # into the room master was talking in rather than update_channels - the
+        # ask happened somewhere specific, and the room is also what makes a
+        # bare sentence read as mine in the log rather than as an announcement.
+        await self._post_resume()
         # Marked regardless of delivery. The notice file is one-shot, so a failed
         # send must not turn every later boot into another attempt at it.
         self._remember_start(seq, kind, now)
@@ -1331,6 +1387,55 @@ class Lulu(discord.Client):
             paths.write_json(SEEN_FILE, {"seq": seq, "kind": kind, "at": at})
         except Exception as exc:
             LOG.warning("could not record the announced start: %s", exc)
+
+    async def _post_resume(self) -> None:
+        """Say what the restart interrupted, in the room master said it in.
+
+        NOT update_channels, and that is the whole point of master's 2026-09-20
+        ask: the job was handed to me somewhere specific, so the note belongs in
+        that room, not wherever I usually announce myself. It also goes through
+        the room's own mirror, which is what makes the line mine in the log
+        rather than a bulletin from nowhere.
+
+        Never fatal - it is called from inside the announce path, where raising
+        would take the restart report down with it.
+        """
+        note = self._resume_pending
+        if not note:
+            return
+        asked = str(note.get("brief") or "").strip()
+        if not asked:
+            return
+        where = str(note.get("channel") or "").strip().lstrip("#")
+        if not where:
+            LOG.info("resume note: nothing recorded which room it came from")
+            return
+        target = self.resolve_channel(where)
+        if target is None:
+            LOG.warning("resume note: no channel called #%s", where)
+            return
+        said = (f"back. before i went down i was on this: "
+                f"{asked[:RESTART_BRIEF_ECHO_MAX]} - picking it up from here.")
+        try:
+            sent = await target.send(said[:MAX_MESSAGE])
+            self.own_message_ids.add(sent.id)
+            self._note(target.id, SELF_LABEL, said[:MAX_MESSAGE], sent.id, None)
+            LOG.info("resume note posted into #%s", where)
+        except Exception as exc:
+            LOG.warning("could not post the resume note in #%s: %s", where, exc)
+
+    def _take_resume(self, channel_name: str) -> str:
+        """The continuation instruction for THIS room, once, or an empty string.
+
+        Consumed on the first turn taken in the room it names, which is what
+        makes it a handover rather than a nag: it says "you were already doing
+        this" for exactly the reply that follows the restart, and then it is
+        spent.
+        """
+        brief = resume_brief(self._resume_pending, channel_name)
+        if brief:
+            self._resume_pending = None
+        return brief
 
     async def _watch_for_restart(self) -> None:
         """Close cleanly when a patch is staged, so the supervisor can work.
@@ -1796,6 +1901,25 @@ class Lulu(discord.Client):
                           [{"type": "text", "text": f"{who}: {safe_text}"}] + parts})
         else:
             turns.append({"role": "user", "content": f"{who}: {safe_text}"})
+
+        # What the restart interrupted, when this turn is the one it was waiting
+        # for. It goes in as a SYSTEM turn AFTER the user turn, deliberately:
+        # the user turn is then still the one thing I am answering, and this
+        # reads as "and here is what you were already doing about it" rather than
+        # as something master said. Consumed here, so it lands once - master,
+        # 2026-09-20. See _take_resume and resume_brief.
+        resume = (self._take_resume(getattr(message.channel, "name", "") or "")
+                  if is_owner else "")
+        if resume:
+            turns.append({"role": "system", "content": (
+                "Continuing from before I restarted. Master asked you for this "
+                "in this channel, and this is what you were doing about it: "
+                f"\n{resume}\n"
+                "Pick it up from exactly there - do not restart it, do not ask "
+                "him to repeat himself, and do not mention that you restarted "
+                "unless it actually matters. If the mid-turn message above is "
+                "about something else, answer it normally and come back to this."
+            )})
 
         # So learn_person knows who 'I' am without the model passing an id, and
         # so a restart asked for here knows which channel to report back in.
