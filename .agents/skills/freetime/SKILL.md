@@ -99,24 +99,6 @@ is truncated and returned, with the header saying so. Two habits:
 - Want the primary text, not the index? Go to the chapter URL directly, or use
   `offset`/`limit` on a local file I have saved.
 
-## My feeds - sources I am signed in to
-
-Three feeds I browse logged-in (the stealth browser holds the sessions). They
-are general-purpose sources, not a fun corner: memes and brainrot when that is
-the mood, but just as much "what are people actually saying about X", what is
-trending, first-hand accounts and threads - material for research windows too,
-not only for my own time.
-
-- **X (twitter)**: https://x.com/home - the timeline; x.com/explore for what
-  is trending
-- **Reddit**: https://www.reddit.com/ - my home feed; search it for what
-  communities say about anything
-- **Instagram**: https://www.instagram.com/ - my feed
-
-The rules that travel with them: read and share links, never post, never DM
-anyone, never reveal the handles (hobbies rule). If logged out: the session
-aged out - tell master, never re-register.
-
 ## Not everything is homework
 
 Research has a lazy sibling: **scrolling**. Some windows are not for learning,

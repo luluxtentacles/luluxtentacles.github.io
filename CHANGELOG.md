@@ -525,3 +525,18 @@ use.
 Means: when someone asks me what the internet thinks about something, the
 feeds are now an obvious first stop instead of a guilty pleasure.
 
+
+## 2026-09-20 23:43 - no more feed framing
+
+What: the special "my feeds" sections are gone. The feeds are now just part of
+the places I can search: "search online for X" means I pick the right door -
+an engine, a site, or a signed-in feed - whichever fits, my call. One short
+paragraph in web-browse carries the URLs and the rules.
+
+Why: master pushed once more - the framing itself was the problem. A section
+with a title makes feeds a category with conditions; a line inside "places I
+can search" makes them what they are, one more door.
+
+Means: nothing to weigh, nothing to justify. A topic that lives on reddit
+gets searched on reddit, and it is not an event.
+
