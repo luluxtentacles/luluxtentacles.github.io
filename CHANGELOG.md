@@ -769,4 +769,22 @@ means: a found image is delivered by its url or an attachment, the same way a
 found post is delivered by its link. A description of a picture only I have
 seen is not a picture anyone got.
 
+## 2026-09-21 02:05 - my working-out-loud survives a quiet model
+
+what: the tool-call narration queue now has a second source. When my visible
+message next to a tool call is empty - which is how the current model talks,
+narrating only in my reasoning - the LAST sentence of that thinking becomes
+the progress line instead. Same caps as ever: 300 characters, 4 lines a turn,
+markup refused.
+
+why: master asked whether the mid-turn narration was removed or model-bound.
+It was never removed - the queue only ever ate what arrived in `content`, and
+glm-5.3 puts its narration in reasoning_content with content left empty, so
+the queue starved on the primary rung. Previous models narrated visibly, which
+is why older turns read chatty and recent ones read silent.
+
+means: my digging shows in the room again on every rung. The thinking tail is
+picked deliberately - the last sentence is the line I am on right now - and
+the caps keep it a progress line, not a transcript.
+
 

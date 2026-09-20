@@ -371,6 +371,21 @@ def _progress_text(content: str) -> str:
     return text
 
 
+def _reasoning_progress(reasoning: str) -> str:
+    """Her thinking's LAST sentence, for models that narrate only there.
+
+    glm-5.3 puts what she is doing in reasoning_content and leaves content
+    empty next to a tool call, so the working-out-loud queue starves on the
+    primary rung. The last sentence of the thinking is the line she is on
+    right now; earlier sentences are already behind her.
+    """
+    text = " ".join(str(reasoning or "").split())
+    if not text:
+        return ""
+    parts = [p.strip() for p in re.split(r"[.!?。]", text) if p.strip()]
+    return _progress_text(parts[-1]) if parts else ""
+
+
 def token_budget(config: dict, is_owner: bool) -> int:
     """Tokens one turn may write, from config, defaulted by who is asking.
 
@@ -2661,6 +2676,11 @@ class Lulu(discord.Client):
             if (calls and progress_channel is not None and posted < PROGRESS_MAX
                     and not (supersede_check and supersede_check())):
                 line = _progress_text(answer)
+                if not line and calls:
+                    # Models that narrate only in reasoning still get heard:
+                    # glm-5.3 leaves content empty next to a tool call, so the
+                    # tail of her thinking is the line she is on.
+                    line = _reasoning_progress(reply.get("reasoning_content"))
                 if line and line != last_line:
                     tools.queue_progress(progress_channel, line)
                     posted += 1
