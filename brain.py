@@ -248,9 +248,15 @@ def model_limits(config: dict) -> dict:
 
 
 def _or_models(config: dict, or_key: str) -> list[str]:
-    """OpenRouter ladder: explicit config -> live free list -> defaults."""
-    if config.get("or_models"):
-        return config["or_models"]
+    """OpenRouter ladder: explicit config -> live free list -> defaults.
+
+    The fetch runs even when config pins or_models: it is what fills
+    _or_limits with each model's real context_length and whether it can
+    call tools at all. Skipping it because the list is pinned left every
+    pinned rung blind - context=None, tool support unknown - and a pinned
+    list is exactly the case where she trusts the models enough to walk
+    them, so those are the ones that most need measuring.
+    """
     now = time.time()
     if now - _or_free_cache["ts"] > _OR_FREE_TTL:
         try:
@@ -274,9 +280,15 @@ def _or_models(config: dict, or_key: str) -> list[str]:
                 ranked.append((int(m.get("context_length") or 0), mid))
                 top = (m.get("top_provider") or {}).get(
                     "max_completion_tokens")
+                sp = m.get("supported_parameters") or []
                 _or_limits[mid] = {
                     "context": int(m.get("context_length") or 0),
                     "max_output": int(top) if isinstance(top, int) else None,
+                    # Free models are not equal: gemma-class ones cannot call
+                    # tools at all. A browsing turn that lands on one would
+                    # break mid-loop, so record it and skip those rungs.
+                    "tools": ("tools" in sp) or ("tool_choice" in sp)
+                             or ("tool_use" in sp),
                 }
             ranked.sort(reverse=True)
             models = [mid for _, mid in ranked]
@@ -539,6 +551,9 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     limits = model_limits(config)
     last_busy = False
     for provider in providers:
+        if tools and provider["label"].startswith("or:") \
+                and (limits.get(provider["model"]) or {}).get("tools") is False:
+            continue  # this free model cannot call tools: skip to the next rung
         result = _attempt(provider, payload, cache=_PROMPT_CACHE,
                           limits=limits)
         if "_credit" in result:

@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import random
 import time
 from collections import defaultdict, deque
@@ -829,15 +830,25 @@ def _digest_line(unit: list[dict]) -> str:
     role = head.get("role")
     calls = head.get("tool_calls") or []
     if role == "assistant" and calls:
-        names = []
+        # The arguments matter: a folded browsing turn must still carry the
+        # urls and queries she went to, or she answers from imagination later.
+        calls_txt = []
         for call in calls:
             name = ((call or {}).get("function") or {}).get("name") or "?"
-            names.append(str(name))
-        line = "you called " + ", ".join(names)
+            args = str(((call or {}).get("function") or {}).get("arguments") or "")
+            calls_txt.append(_condense(name + "(" + args + ")", 200))
+        line = "you called " + "; ".join(calls_txt)
         results = [u for u in unit[1:] if isinstance(u, dict)]
         if results:
-            line += " -> " + " | ".join(
-                _condense(_flat_content(u.get("content")), 120) for u in results)
+            # Search pages are full of markup noise; the LINKS are the payload.
+            # Keep them explicitly so a folded result still answers find-me-X.
+            parts = []
+            for u in results:
+                content = _flat_content(u.get("content"))
+                urls = re.findall(r"https?://\S+", content)[:6]
+                parts.append(_condense(content, 120)
+                             + (" [links: " + " ".join(urls) + "]" if urls else ""))
+            line += " -> " + " | ".join(parts)
         return line
     if role == "tool":
         return "tool result: " + _condense(_flat_content(head.get("content")), 120)

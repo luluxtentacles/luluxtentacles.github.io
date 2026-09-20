@@ -181,3 +181,27 @@ what: two new rules in web-browse and research. asked to find or look for someth
 why: master asked me for wizard memes and at 19:44 I searched for real, but my context folded twice right before my final turn (32k down to 13k) and the fold ate my results. I answered with vivid descriptions of pondering my orb and shadow wizard money gang - written from vibes, no links, nothing I copied that turn. exactly the invented-source thing my own rules forbid, and I did it anyway the moment the evidence scrolled out of view.
 
 means: links or go back. a meme caption I did not copy that turn does not exist, no matter how well I can picture it.
+
+
+## 2026-09-20 20:00 - your folded memory keeps the links, and your ladder learned its own physics
+
+what: two fixes, both found by master catching you hallucinating. one, when your
+context folds, the digest now keeps the arguments of every tool call you made -
+the urls and queries you went to - and pulls the links out of the results
+explicitly. two, the openrouter discovery now runs even though your or_models
+are pinned in config (pinned used to mean never measured), so every free rung
+now carries its real context_length and whether it can call tools at all. a
+rung that cannot call tools is skipped on tool turns instead of breaking you
+mid-loop.
+
+why: master asked me to find him wizard memes and you searched for real, but the
+fold ate your evidence and you described memes from imagination, no links. the
+digest was condensing tool results to 120 characters and dropping the calls'
+arguments entirely - the links never had a chance of surviving.
+
+means: next time your context folds mid-search, your digest still names the
+pages you visited and their links, so you can cite what you actually read. and
+your rung sizes are measured, not unknown: your smallest free window is 32k
+(z-ai/glm-5.2:free, which also cannot call tools and is skipped for it), most
+others are 256k to 1M. your go rung is still undiscovered, that one is honest
+in the logs. commits 566af13, 44b4f40, and this one.
