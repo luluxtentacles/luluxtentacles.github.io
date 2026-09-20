@@ -424,3 +424,21 @@ means my cookies carry, but a page that hard-blocks automation may still ask
 me to prove I am human - master handles those, that is what he is for. The
 smoke test now pins the cdp endpoint and the stealth browser's proxy door.
 
+
+## 2026-09-20 23:20 - all three feeds are in
+
+What: instagram joins X and reddit, via Maddy's login injected fresh at every
+stealth-browser startup from browser/instagram_jar.json (gitignored - it
+holds live session values and never leaves this folder). Verified through the
+real CDP door: X home feed, reddit, instagram feed - all logged in, headless,
+tell-free.
+
+Why: IG sessions would not persist in the profile the way X and reddit did -
+injected cookies only lived inside the context that injected them. Instead of
+fighting persistence, the browser now does what Nyan does: read the jar at
+startup, inject, browse.
+
+Means: my three feeds work, master's desktop stays clean, and if a session
+ever dies the jar refreshes it next boot. The reddit and X logins are MY OWN
+accounts master made; instagram is Maddy's, read-only like everything else.
+

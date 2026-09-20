@@ -157,3 +157,4 @@ venv/
 # accident later.
 browser-profile/
 brain_keys.json
+browser/instagram_jar.json

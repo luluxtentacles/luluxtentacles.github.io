@@ -63,7 +63,6 @@ def main() -> None:
             PROFILE,
             channel="msedge",
             headless=True,
-            user_agent=UA,
             proxy={"server": "http://127.0.0.1:38123"},
             args=[
                 "--disable-blink-features=AutomationControlled",
@@ -73,6 +72,17 @@ def main() -> None:
             ignore_default_args=["--enable-automation"],
         )
         ctx.add_init_script(STEALTH_SCRIPT)
+        # Nyan's flow: sessions that do not survive a fingerprint change are
+        # injected fresh at every startup, from a jar in this folder. The jar
+        # holds live login values - gitignored, never logged, never sent.
+        jar = Path(__file__).parent / "instagram_jar.json"
+        if jar.is_file():
+            import json
+            try:
+                ctx.add_cookies(json.loads(jar.read_text(encoding="utf-8")))
+                print(f"instagram jar injected: {jar.name}")
+            except Exception as exc:
+                print(f"jar injection failed: {exc}")
         # sanity: confirm the tell is actually gone
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto("about:blank")
