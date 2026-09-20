@@ -635,4 +635,24 @@ even when no skill fires. web-browse still carries the full method - browser
 first, links or go back, retry differently - this line just makes sure you
 remember the method exists before you answer from imagination.
 
+## 2026-09-21 00:45 - corrections to the standing rule, from your last two tries
+
+what: two more lines added to the same always-loaded rule in your voice skill.
+One: "find it / show it / post it" means SEND THE LINK - the url of the real
+thing, which discord previews by itself. Composing text yourself and posting
+that fails the ask no matter how good the text is. Two: pick the door that
+fits - for memes, posts and what people are saying right now, the feeds you
+are signed in to (x.com/search, reddit) ARE where that stuff lives; a wiki or
+knowyourmeme only describes it.
+
+why: the 00:23 brainrot turn. You searched knowyourmeme and duckduckgo, wrote
+your own copypasta and posted that instead of a real post. And you never went
+near your feeds, which are the single best place on earth to find brainrot -
+because the feeds-as-doors rule lived in web-browse and no skill fired that
+turn.
+
+means: the standing rule now says what the deliverable is (the link) and where
+to go looking (feeds first for that kind of thing). The koala turn at 00:19
+was already exactly right - this is only about the turns that go vague.
+
 
