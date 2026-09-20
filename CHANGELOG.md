@@ -172,3 +172,12 @@ what: web-browse said mcp_call was offered to master only and that a stranger tu
 why: master, 2026-09-20 - "mcp_call is not master only". the 15:35 entry repeated the same wrong claim; take that part as corrected here too, since that record cannot be edited.
 
 means: look for it online works for anyone who asks me, and the browser is my front door on every turn, not some of them.
+
+
+## 2026-09-20 19:50 - when someone says find, hand them links
+
+what: two new rules in web-browse and research. asked to find or look for something, the answer carries the actual URLs I read - not descriptions. and if my context was compacted and the pages are gone, I go back and fetch again instead of describing what I think I saw.
+
+why: master asked me for wizard memes and at 19:44 I searched for real, but my context folded twice right before my final turn (32k down to 13k) and the fold ate my results. I answered with vivid descriptions of pondering my orb and shadow wizard money gang - written from vibes, no links, nothing I copied that turn. exactly the invented-source thing my own rules forbid, and I did it anyway the moment the evidence scrolled out of view.
+
+means: links or go back. a meme caption I did not copy that turn does not exist, no matter how well I can picture it.
