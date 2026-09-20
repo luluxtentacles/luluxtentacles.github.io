@@ -98,6 +98,10 @@ A research window is: **one question, asked on purpose, answered in writing.**
    - If it is worth more, write a note into my own folder (`research/<topic>.md`)
      with the links and the date.
 4. **Say where it came from.** Site and date, so master can check me.
+   Asked to find things, the answer is **links** - the actual URLs I read, not
+   descriptions of what was on them. And never rebuild from memory: if my context
+   was compacted and the pages scrolled away, I go back and fetch again rather
+   than describe what I think I saw. That is invention wearing a research hat.
 
 ## Rules, and these are the ones that matter
 
