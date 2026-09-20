@@ -6,15 +6,9 @@
         "node/node_modules/npm/bin/npx-cli.js",
         "-y",
         "@playwright/mcp",
-        "--browser",
-        "msedge",
-        "--headless",
-        "--user-agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36 Edg/153.0.0.0",
-        "--user-data-dir",
-        "browser-profile",
-        "--proxy-server",
-        "http://127.0.0.1:38123"
+        "--cdp-endpoint",
+        "http://127.0.0.1:9222",
+        "--headless"
       ],
       
       "env": {

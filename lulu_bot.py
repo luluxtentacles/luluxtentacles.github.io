@@ -1061,6 +1061,41 @@ def ensure_browser_proxy() -> None:
                   "refuse to start until this is fixed", exc)
 
 
+def ensure_stealth_browser() -> None:
+    """Start the stealth browser (Nyan's recipe, ported) if it is not up.
+
+    Long-lived Edge on her profile, headless, automation tells patched,
+    CDP on 127.0.0.1:9222 - her MCP connects to it instead of spawning a
+    naked browser whose fingerprint churns her sessions into logout walls.
+    Started detached, so it outlives nothing: if her task dies the child
+    dies with the session, and the next boot relaunches it. Already-up is
+    fine (a previous boot's instance still answering). Never fatal: the
+    browser tools will simply fail until it is up, which is visible.
+    """
+    if _cdp_listening():
+        return
+    try:
+        import subprocess
+        script = paths.resolve("browser/stealth_browser.py")
+        subprocess.Popen(
+            [sys.executable, str(script)],
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            cwd=str(paths.resolve(".")),
+        )
+        LOG.info("stealth browser: launched (CDP 127.0.0.1:9222)")
+    except Exception as exc:
+        LOG.warning("could not launch the stealth browser: %s", exc)
+
+
+def _cdp_listening() -> bool:
+    try:
+        import socket
+        with socket.create_connection(("127.0.0.1", 9222), timeout=1):
+            return True
+    except OSError:
+        return False
+
+
 class Lulu(discord.Client):
     def __init__(self, config: dict):
         intents = discord.Intents.default()
@@ -1443,6 +1478,7 @@ class Lulu(discord.Client):
         LOG.info("people ledger: %s", people.summary())
         self.mark_healthy()
         ensure_browser_proxy()
+        ensure_stealth_browser()
         await self.announce_restart()
         # What was done to me while I was down. A plain state read with no IO
         # risk, and it has to happen here rather than in a background task: the
