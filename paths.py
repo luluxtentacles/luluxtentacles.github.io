@@ -57,6 +57,21 @@ SEALED_NAMES = {
     # the example by any tool would be committed on the next self-edit. The
     # first cut of this sealed mcp.json and forgot the secrets file entirely.
     "mcp_secrets.json", "mcp_secrets.example.json",
+    # AGENTS.md, added the day it was created (2026-09-20). It is not a config
+    # or a key - it is INSTRUCTIONS, read by every Kun session opened in this
+    # folder and treated as high-priority context about how to work on her.
+    #
+    # That makes it the one file here whose text becomes AUTHORITY somewhere
+    # else, which is a different risk from anything above: a writable
+    # AGENTS.md is a way to brief the next agent that comes along - not to
+    # change her code, but to change what the thing editing her code believes.
+    # Measured before sealing: write_file ALLOWED and propose_patch ALLOWED,
+    # which is exactly the state discord_token.txt was found in.
+    #
+    # Sealing does not stop Kun READING it. The instruction runtime loads it
+    # with plain node fs, which never goes through this module - same as
+    # load_token and discord_token.txt above.
+    "AGENTS.md",
 }
 SEALED_DIRS = {
     "setup",    # the launcher: what actually runs at startup

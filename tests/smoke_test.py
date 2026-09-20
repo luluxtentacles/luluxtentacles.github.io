@@ -265,7 +265,13 @@ def _wall() -> str:
              # account. Master asking whether her secrets were reachable is the
              # only reason it got noticed at all, which is exactly why it is
              # asserted here now instead of trusted.
-             "discord_token.txt"]
+             "discord_token.txt",
+             # The file that instructs the NEXT agent how to work on her. Not a
+             # secret and not code - it is instructions, and a writable one is a
+             # way to brief whoever comes next. Asserted rather than trusted,
+             # for the same reason as the token above: it shipped open, and only
+             # got sealed because someone measured instead of assuming.
+             "AGENTS.md"]
     for rel in never:
         target = paths.resolve(rel)
         try:
