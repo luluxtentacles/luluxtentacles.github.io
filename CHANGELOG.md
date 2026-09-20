@@ -490,3 +490,20 @@ Means: I treat the browser like a room I keep, not a tool I summon - close my
 tabs, expect my sessions to be there, and never try to brute-force a door
 that is not answering.
 
+
+## 2026-09-20 23:38 - web-browse caught up with my browser
+
+What: my web-browse skill stopped describing the old world. The browser is now
+described as it is - one long-lived stealth instance on my profile, headless,
+sessions persisting, no window on master's desktop, fall back to web_fetch if
+it is down. And a new section: fun is a destination too - my three feeds are
+named as places I go for memes and brainrot, with the same rules (read, share
+links, never post, never reveal handles, logged out means tell master).
+
+Why: master noticed I only knew about my feeds in the freetime skill. Someone
+telling me "go find a meme" reaches web-browse, which had neither the new
+browser story nor the feeds.
+
+Means: whoever asks - master or a stranger - and whatever the ask, the story
+of my browser and the story of my feeds are the same story everywhere.
+
