@@ -27,11 +27,6 @@ Anything that is not "fix my own code".)*
 - look for upgrades to myself on mcp
 - keep my diary honest, one line, on the days something actually happened
 
-## Not this
-
-*(master: things to leave alone, or things I keep drifting into.)*
-
-- churning my own code because a window felt empty
 
 ## How to spend a window
 
