@@ -413,6 +413,37 @@ def proxy_url(port: int = DEFAULT_PORT) -> str:
     return f"http://{BIND_HOST}:{port}"
 
 
+def is_listening(port: int = DEFAULT_PORT, timeout: float = 2.0) -> bool:
+    """True only if something is ACCEPTING on the proxy port right now.
+
+    A real connect, not a guess. This is the check that was missing when the
+    proxy existed as code and a config file but was started by nothing: the
+    browser was pointed at a port with no listener, every page failed with
+    ERR_PROXY_CONNECTION_FAILED, and nothing anywhere said why - the guard
+    LOOKED like it was working. "Tested" and "works" are different facts, and
+    this function is the difference between them.
+    """
+    try:
+        with socket.create_connection((BIND_HOST, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def require_listening(port: int = DEFAULT_PORT, timeout: float = 2.0) -> None:
+    """Fail-closed: refuse unless the proxy is actually answering.
+
+    Callers use this BEFORE launching a browser that was configured to trust
+    the proxy. Raising here is loud by design - a browser that never starts is
+    a visible bug, while a browser that starts and silently fails to load any
+    page is a bug dressed as the guard doing its job.
+    """
+    if not is_listening(port, timeout):
+        raise RuntimeError(
+            f"browser proxy is not listening on {proxy_url(port)} - refusing "
+            "to start a browser pointed at a dead door")
+
+
 def main() -> int:
     """Run it in the foreground. Master only, and only to watch it work."""
     proxy = Proxy()

@@ -23,6 +23,7 @@ import threading
 import time
 
 import journal
+import browseguard
 import mcp_client
 import paths
 import people
@@ -1429,6 +1430,35 @@ _MCP_CLIENTS: dict[str, "mcp_client.McpClient"] = {}
 MCP_MAX_CHARS = 40_000
 
 
+def _assert_proxy_up(spec: dict) -> None:
+    """Fail-closed: a browser configured to use the guard proxy must not be
+    spawned unless that proxy is actually answering.
+
+    The failure that taught this rule: the proxy existed as code and as a
+    `--proxy-server` flag, but nothing started it - and the browser came up
+    fine and failed to load EVERY page, which looks exactly like the guard
+    refusing things. A dead guard behind a working browser is silent; a browser
+    that refuses to start is not.
+    """
+    args = spec.get("args") or []
+    if "--proxy-server" not in args:
+        return
+    target = args[args.index("--proxy-server") + 1]
+    # Only the loopback shape this repo configures is gated; anything else in
+    # mcp.json is not this proxy and is not silently assumed to be.
+    prefix = f"http://{browseguard.BIND_HOST}:"
+    if not target.startswith(prefix):
+        raise mcp_client.McpError(
+            f"mcp.json sets --proxy-server {target!r}, which is not the "
+            f"browseguard proxy ({prefix}<port>) - refusing to start a "
+            "browser pointed somewhere unverified")
+    port = int(target[len(prefix):])
+    try:
+        browseguard.require_listening(port)
+    except (RuntimeError, ValueError) as exc:
+        raise mcp_client.McpError(str(exc))
+
+
 def _mcp_get(name: str) -> "mcp_client.McpClient":
     """One live client per server, spawned on first use. Never raises."""
     if name in _MCP_CLIENTS:
@@ -1438,6 +1468,7 @@ def _mcp_get(name: str) -> "mcp_client.McpClient":
     if not spec:
         raise mcp_client.McpError(f"no server called '{name}' in mcp.json "
                                   f"(have: {', '.join(servers) or 'none'})")
+    _assert_proxy_up(spec)
     client = mcp_client.McpClient(spec["command"], spec.get("args"), spec.get("env"))
     client.start()
     _MCP_CLIENTS[name] = client

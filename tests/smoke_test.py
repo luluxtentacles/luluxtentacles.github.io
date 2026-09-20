@@ -3610,12 +3610,77 @@ def _look_at() -> str:
             "total cap is real, and a non-image is dropped rather than "
             "relabelled and forwarded")
 
+def _browser_proxy() -> str:
+    """The gap between "tested" and "works", closed.
+
+    The browseguard checks proved the proxy's LOGIC; nothing proved the proxy
+    was RUNNING - and it was not, because nothing started it. mcp.json told
+    chromium to use a listener that did not exist, every page failed with
+    ERR_PROXY_CONNECTION_FAILED, and the guard looked like it was working.
+    This check pins all three sides: the config still points at the proxy this
+    module owns, the fail-closed gate refuses a browser while the proxy is
+    down, and the gate opens the moment something is actually listening.
+    """
+    import json
+    import socket
+
+    import browseguard
+    import mcp_client
+    import paths
+    import tools
+
+    # The config and the code must agree on the door. mcp.json is
+    # pipeline-patchable, so this is what stops a silent drift.
+    spec = json.loads((paths.ROOT / "mcp.json").read_text(encoding="utf-8"))
+    args = (spec.get("mcpServers", {}).get("playwright", {}) or {}).get("args") or []
+    expect("--proxy-server" in args,
+           "mcp.json no longer points chromium at the proxy")
+    url = args[args.index("--proxy-server") + 1]
+    expect(url == browseguard.proxy_url(),
+           f"mcp.json proxy {url!r} is not {browseguard.proxy_url()!r}")
+
+    # A port chosen to be dead right now - deliberately NOT the default, which
+    # her live process may legitimately own. A gate that passes on a dead port
+    # is no gate at all.
+    with socket.socket() as probe:
+        probe.bind((browseguard.BIND_HOST, 0))
+        dead = probe.getsockname()[1]
+    gated = {"args": ["--proxy-server",
+                      f"http://{browseguard.BIND_HOST}:{dead}"]}
+    try:
+        tools._assert_proxy_up(gated)
+    except mcp_client.McpError as exc:
+        expect("not listening" in str(exc),
+               f"the refusal does not say why: {exc}")
+    else:
+        raise AssertionError(
+            "a browser was allowed to spawn with its proxy pointing at a "
+            "port nobody is listening on - the exact silent failure this "
+            "check exists to prevent")
+
+    # And the gate must OPEN when the process is up. Start a real listener on
+    # the dead port, expect the gate to pass, then stop it and expect it to
+    # close again - the proxy is a process claim, not a constant.
+    proxy = browseguard.Proxy(port=dead)
+    proxy.start()
+    expect(browseguard.is_listening(dead), "the proxy did not come up listening")
+    tools._assert_proxy_up(gated)
+    proxy.stop()
+    expect(not browseguard.is_listening(dead),
+           "the port still answers after the proxy was stopped")
+
+    return ("mcp.json points chromium at the browseguard proxy this module "
+            "owns; the fail-closed gate refuses a browser while nothing "
+            "listens on that port and admits one the moment a real listener "
+            "comes up")
+
 
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
     ("sandbox", _sandbox),
     ("browseguard", _browseguard),
+    ("browser-proxy", _browser_proxy),
     ("wall", _wall),
     ("sealed-apply", _sealed_apply),
     ("runbox", _runbox),

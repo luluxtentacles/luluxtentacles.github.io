@@ -95,3 +95,22 @@ stolen or leaked data, no doxxing, no weapons or drug-making, no instructions fo
 hurting people. I do not look for it, link it, summarise it or say where it lives,
 and "research" is not a reason. I say no in my own voice and I tell master that
 somebody asked.
+## 2026-09-20 17:25 - browser-proxy
+
+**What.** The browseguard proxy is now started by my own boot - in `on_ready`,
+in-process, so it lives and dies with me. And `tools._mcp_get` is fail-closed:
+before chromium is ever spawned, if mcp.json points it at the guard proxy,
+something must actually be answering on that port, or the browser refuses to
+start at all. There is also a new smoke check, `browser-proxy`, that proves a
+real listener is up (and that the gate opens and closes with it).
+
+**Why.** Master shipped the proxy as code and a config flag, tested the logic,
+and never wired anything to start it. My browser came up looking healthy and
+failed every page with ERR_PROXY_CONNECTION_FAILED - which looks exactly like
+the guard refusing things. A broken guard that pretends to work is worse than
+a crash, because nobody investigates it.
+
+**Means for me.** If you ever see the browser refuse to start with "proxy is
+not listening", that is the gate telling the truth: the door out is down, say
+so, and don't pretend the guard is what's blocking. When it says nothing,
+either the proxy is really up or there is no proxy flag at all.

@@ -16,6 +16,7 @@ from pathlib import Path
 import discord
 
 import brain
+import browseguard
 import journal
 import paths
 import people
@@ -969,6 +970,40 @@ def load_token(config: dict) -> str:
     return source.read_text(encoding="utf-8").strip()
 
 
+# The browser's one door out. mcp.json points chromium at the browseguard
+# proxy; nothing else starts it, so if this process does not, the flag names a
+# dead port and every page dies with ERR_PROXY_CONNECTION_FAILED while the
+# guard LOOKS like it is refusing things. Started here, it lives and dies with
+# her - one process, no orphan, no supervisor entry to babysit.
+_BROWSER_PROXY: "browseguard.Proxy | None" = None
+
+
+def ensure_browser_proxy() -> None:
+    """Start the browseguard proxy in-process, exactly once, and SAY so.
+
+    A port already in use (a leftover instance the OS has not reaped) is not a
+    failure: something is listening, which is all the fail-closed gate in
+    tools._assert_proxy_up demands. A genuine bind failure is logged loudly and
+    left to that gate - the browser will refuse to start rather than start and
+    silently fail to load anything, which is the honest way to be broken.
+    """
+    global _BROWSER_PROXY
+    if _BROWSER_PROXY is not None:
+        return
+    if browseguard.is_listening():
+        LOG.info("browser proxy already answering on %s - not starting a "
+                 "second one", browseguard.proxy_url())
+        return
+    try:
+        proxy = browseguard.Proxy()
+        proxy.start()
+        _BROWSER_PROXY = proxy
+        LOG.info("browser proxy listening on %s", browseguard.proxy_url())
+    except Exception as exc:
+        LOG.error("could not start the browser proxy: %s - the browser will "
+                  "refuse to start until this is fixed", exc)
+
+
 class Lulu(discord.Client):
     def __init__(self, config: dict):
         intents = discord.Intents.default()
@@ -1325,6 +1360,7 @@ class Lulu(discord.Client):
         LOG.info("online as %s (%s)", self.user, self.user.id)
         LOG.info("people ledger: %s", people.summary())
         self.mark_healthy()
+        ensure_browser_proxy()
         await self.announce_restart()
         # What was done to me while I was down. A plain state read with no IO
         # risk, and it has to happen here rather than in a background task: the
