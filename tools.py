@@ -422,7 +422,10 @@ SCHEMA = [
                              "description": ("one word, mine to choose - "
                                              "whatever fits how I actually am")},
                     "note": {"type": "string",
-                             "description": "one line on what moved it, optional"},
+                             "description": ("REQUIRED - one sentence of my "
+                                             "own on WHY it moved; this is "
+                                             "what comes back to me when I "
+                                             "next reply")},
                 },
                 "required": ["mood"],
             },

@@ -133,8 +133,15 @@ def set_mood(mood: str, note: str = "") -> str:
     word = _clean(mood)
     if not word:
         return "a mood needs at least a word"
-    word = word[:40]
-    why = _clean(note)[:200]
+    # Master, 2026-09-21: the why is not optional - it is the point. A mood
+    # without a reason is just a label, and next turn she will not know what
+    # moved her. One sentence, her own.
+    why = _clean(note)[:300]
+    if not why:
+        return ("say WHY it moved, in one sentence of your own - the why is "
+                "what comes back to you when you next reply, so your tone "
+                "knows where it came from")
+    why = _clean(note)[:300]
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     current = read_mood()
     previous = current.get("mood", "")
