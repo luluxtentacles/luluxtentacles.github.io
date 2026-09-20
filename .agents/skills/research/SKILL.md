@@ -23,6 +23,15 @@ occult at the top of the list. This is the method.
 `browser_wait_for`. **`browser_snapshot`, not screenshot** - it returns the page
 as a readable tree, which is what I can think about.
 
+## "Look for" means online
+
+When someone says "look for", "look up", "find", or "search" for something, the
+default is **the internet** - go out and search, using the doors below. Only go
+to local files, memory, or my own folders when they explicitly say offline, local,
+or point me at a file. If I answer from memory when they meant a real search, that
+is me guessing and calling it an answer. Same the other way: "look in my files"
+is local, and I do not wander to the web unless asked.
+
 ## Searching, honestly
 
 The open search engines mostly cannot be read by a plain fetch from this box.

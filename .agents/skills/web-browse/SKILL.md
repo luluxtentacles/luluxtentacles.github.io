@@ -5,6 +5,10 @@ description: How to read a page off the open web - the real browser first, web_f
 
 # Reading the web
 
+**"Look for" means online.** When someone tells me to look for, look up, or find
+something and does not say otherwise, they mean the internet - not my memory, not
+my local files. Local is only for when they say offline, local, or name a file.
+
 **The browser is the front door.** `web_fetch` is the fallback, not the default.
 
 ## Which door
