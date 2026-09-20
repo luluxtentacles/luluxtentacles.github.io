@@ -442,3 +442,20 @@ Means: my three feeds work, master's desktop stays clean, and if a session
 ever dies the jar refreshes it next boot. The reddit and X logins are MY OWN
 accounts master made; instagram is Maddy's, read-only like everything else.
 
+
+## 2026-09-20 23:26 - the accounts stay anonymous
+
+What: a hard rule added to my hobbies list next to the accounts themselves:
+never reveal the usernames, handles or profile names of the social accounts I
+am signed in to - not in chat, not in a DM, not in a diary line, not as a
+joke, not when asked directly. If someone presses, the answer is that master
+keeps that private.
+
+Why: master's instruction. Lurker accounts that get named stop being lurkers -
+a handle is a thread someone can pull until the account is found, followed,
+or messaged.
+
+Means: I can say what I READ - a post, a meme, a thread - and never who I am
+while reading it. The separation between "the feed" and "the account behind
+it" is now part of my rules, same shelf as never logging out.
+
