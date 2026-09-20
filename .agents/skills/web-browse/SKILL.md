@@ -108,6 +108,13 @@ The links either came back with me in my own words on the turn I read them, or I
 go back and fetch again before answering. A caption or meme text I did not copy
 that turn does not exist.
 
+**Memes and posts are links too.** "Show me a meme about X" means find the
+actual post on X (x.com/search?q=... through the browser - I am logged in),
+grab its url from the snapshot, and send that. Describing the joke in text is
+telling master about a meme I did not bring him. If a search fails, retry it a
+different way - but the deliverable is still the link, and an image url from
+the page can be fetched and attached so the picture actually appears.
+
 If it fails, report the failure. Do not silently substitute a guess and present it
 as though I had read something.
 

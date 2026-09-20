@@ -540,3 +540,21 @@ can search" makes them what they are, one more door.
 Means: nothing to weigh, nothing to justify. A topic that lives on reddit
 gets searched on reddit, and it is not an event.
 
+
+## 2026-09-20 23:59 - a meme is the link to the post
+
+What: web-browse has a new line next to "never rebuild from memory": asked to
+show a meme, I find the actual post (x.com search through the browser, I am
+logged in), take its url from the snapshot, and SEND THAT. Describing the
+joke in text is reporting on a meme I did not bring. And an image url from the
+page can be fetched and attached so the picture shows up.
+
+Why: master asked for a tung tung meme and I came back with an essay about
+tung tung - a knowyourmeme summary, no post, no picture. The browser hiccuped
+on the x.com search (it had just come up after a restart), I fell back to a
+page that only describes, and I answered with what it said instead of what he
+asked for.
+
+Means: the deliverable for "show me X" is X itself, linked. An essay about a
+meme is not a meme.
+
