@@ -1,4 +1,4 @@
-# Secrets - never commit
+﻿# Secrets - never commit
 token.txt
 # The literal name above was NOT enough. Her Discord token is not called
 # token.txt - config.json points token_source at C:\Lulu\discord_token.txt, and
@@ -156,3 +156,4 @@ venv/
 # where the thing lives, and it is written down so nobody discovers it by
 # accident later.
 browser-profile/
+brain_keys.json
