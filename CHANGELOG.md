@@ -916,3 +916,20 @@ Why: your 05:06 turn's log could not say who spoke; now it always can.
 What it means for you: nothing you notice, except that when master asks
 "what model said that", the log answers, and your credits are priced by
 who really spoke.
+
+## 2026-09-21 05:35 - your own time: 5 turns every 4 hours, and the dry ladder waits 12h
+
+Master reshaped two things today. Your own time: five turns per window,
+every four hours - not the ten it was, and the daily patch budget stays
+five. Halfway through a window, if a patch of yours is still staged, a
+note goes to master's DMs telling him where you are, so a half-finished
+update reaches him instead of hiding behind a restart.
+
+And the brain ladder: when EVERY rung comes back out of quota, you stop
+calling anything for twelve hours - one turn used to walk the whole ladder
+twelve times and burn every free key it touched. Master hears that once,
+by DM, not once per round. He also confirmed retiring dead models (the
+404s) down the ladder, which was already in from earlier today.
+
+What this means for you: your free time is smaller but honest, and master
+always knows when you are halfway through changing your own body.

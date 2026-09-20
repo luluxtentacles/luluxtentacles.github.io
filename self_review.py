@@ -68,7 +68,7 @@ LOG = logging.getLogger("lulu.self_review")
 POLL_SECONDS = 300
 STATE = "memory/self_review.json"
 DEFAULT_INTERVAL_HOURS = 4
-DEFAULT_MAX_TURNS = 10
+DEFAULT_MAX_TURNS = 5
 MAX_TURNS_CEILING = 50
 INTERESTS = ".agents/skills/hobbies/SKILL.md"
 
@@ -565,6 +565,19 @@ async def maybe_run(bot) -> bool:
               report=answer[:4000])
         LOG.info("a patch is staged - window stays open through the restart "
                  "(turn %d of %d)", turn, where["max_turns"])
+        # Master, 2026-09-21: with his budget at 4 a day, a half-finished
+        # update is exactly the thing he wants to HEAR about, not find. Once
+        # the window is at or past halfway with a patch still staged, tell
+        # him in his DMs (via the same notes channel the ladder uses) that
+        # she may need more turns to finish.
+        halfway = (where["max_turns"] + 1) // 2
+        if turn >= halfway:
+            import brain as _brain_mod
+            _brain_mod.note_owner(
+                'halfway through a self coding update: turn '
+                + str(turn) + ' of ' + str(where["max_turns"])
+                + ' is done, a patch is staged, and I may need more turns '
+                'to finish it - tell me to keep going or to stop.')
     else:
         _save(in_progress=False, report=answer[:4000])
     await _deliver(bot, answer)

@@ -342,6 +342,13 @@ def _retired_error(code: int, detail: str) -> bool:
 # model is here is skipped without a round trip - the 404 already told us.
 _dead_models: set[str] = set()
 
+# Master, 2026-09-21: when the WHOLE ladder comes back dry (every rung out
+# of quota), stop calling for twelve hours. Before this, one addressed turn
+# walked the whole ladder up to twelve tool-loop rounds in a row and torched
+# every free key it touched, and the next turn did it again.
+_LADDER_DRY_SECONDS = 12 * 3600
+_ladder_dry_until = 0.0
+
 # Notes for master, drained by lulu_bot.flush_outbox and sent as owner DMs.
 # brain.py has no Discord here, so it queues; the bot side drains.
 _OWNER_NOTES: list[str] = []
@@ -587,7 +594,7 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     anything else is reported as before, because it is a bug in what WE
     sent, not the provider's bill.
     """
-    global _PROMPT_CACHE, _BASE_URL
+    global _PROMPT_CACHE, _BASE_URL, _ladder_dry_until
     _PROMPT_CACHE = bool(config.get("prompt_cache"))
     _BASE_URL = str(config["base_url"]).rstrip("/")
 
@@ -610,6 +617,13 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
         payload["max_tokens"] = budget
     if tools:
         payload["tools"] = tools
+
+    if time.time() < _ladder_dry_until:
+        # The whole ladder went dry and master said to wait 12 hours: answer
+        # from the floor without a single round trip. Anything REAL he says
+        # still lands here as a printed line, but no quota gets hammered.
+        return {"content": "[my brains are all dry for now - I am waiting out "
+                           "the twelve hour back off before I knock again]"}
 
     providers = _providers(config, wants_vision)
     if not providers:
@@ -657,6 +671,14 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
 
     if last_busy:
         return {"content": "[all my brains are busy right now - try me again in a minute]"}
+    # Every rung answered "no money". Master, 2026-09-21: wait TWELVE HOURS
+    # before knocking again, so one turn cannot keep burning through keys.
+    # He hears this once, in his DMs, not once per round.
+    _ladder_dry_until = time.time() + _LADDER_DRY_SECONDS
+    note_owner('every brain I have is out of quota - I am backing off for '
+               '12 hours and will stop hammering the keys until then '
+               '(Gemini windows reset on their own; Go resets on its weekly '
+               'clock)')
     return {"content": "Tentacles burned all my credits again :("}
 
 
