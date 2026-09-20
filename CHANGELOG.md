@@ -144,3 +144,13 @@ why: master said the compacting should auto figure out the limit for the free mo
 
 means: the fold point is honest on every rung. Public turns fold to 32k today because that is the smallest free-model window; the moment a bigger free model tops the list it rises by itself. Discovery failure degrades to the old place-based caps instead of folding everything to zero.
 
+
+
+## 2026-09-20 19:50 - busy brains stop being loud
+
+what: a 503 high-demand (or any overloaded) rung no longer prints its raw provider JSON. The ladder now descends quietly on busy signals the same way it does on credit errors; only when EVERY rung is busy does she say one short line, and a 4xx that is neither money nor demand still reports loudly because it is our bug.
+
+why: master saw her print a Google 503 body mid-turn instead of just asking the next brain.
+
+means: high demand costs you a slightly different model flavour, not an error message.
+

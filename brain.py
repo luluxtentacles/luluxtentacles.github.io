@@ -298,6 +298,19 @@ def _credit_error(code: int, detail: str) -> bool:
             or "insufficient" in lowered)
 
 
+def _busy_error(code: int, detail: str) -> bool:
+    """True when the provider is alive but overloaded (503 'high demand',
+    or a 429 that is rate-limiting rather than billing). These must NEVER
+    reach her as printed refusals: the ladder has other rungs, so a busy
+    rung just loses the turn's call to the next one quietly."""
+    lowered = detail.lower()
+    return (code == 503
+            or (code == 429 and not _credit_error(code, detail))
+            or "high demand" in lowered
+            or "unavailable" in lowered
+            or "temporarily" in lowered)
+
+
 def _attempt(provider: dict, payload: dict, cache: bool,
              limits: dict | None = None) -> dict:
     """One round trip to one provider. Returns the raw assistant message.
@@ -341,6 +354,8 @@ def _attempt(provider: dict, payload: dict, cache: bool,
             _dump_rejected(body, exc.code, detail)
         if _credit_error(exc.code, detail):
             return {"_credit": True, "_detail": detail}
+        if _busy_error(exc.code, detail):
+            return {"_busy": True, "_detail": detail}
         return {"_error": f"[my brain refused: HTTP {exc.code}] {detail}"}
     except Exception as exc:  # network, DNS, timeout, bad JSON
         return {"_error": f"[my brain is unreachable: {type(exc).__name__}]"}
@@ -522,17 +537,25 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
         return {"content": "[no key: put the keys in brain_keys.json beside lulu_bot.py]"}
 
     limits = model_limits(config)
+    last_busy = False
     for provider in providers:
         result = _attempt(provider, payload, cache=_PROMPT_CACHE,
                           limits=limits)
         if "_credit" in result:
             if provider["label"] == "go":
                 bench_go()
-            continue  # descend the ladder
+            continue  # a dry rung: descend the ladder
+        if "_busy" in result:
+            last_busy = True
+            continue  # an overloaded rung: descend QUIETLY, no printed error
         if "_error" in result:
+            # A shape error is OUR bug - report it as before, because
+            # descending would just repeat it on the next rung.
             return {"content": result["_error"]}
         return result
 
+    if last_busy:
+        return {"content": "[all my brains are busy right now - try me again in a minute]"}
     return {"content": "Tentacles burned all my credits again :("}
 
 
