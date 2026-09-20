@@ -965,3 +965,20 @@ logged as a WARNING with the model that did it.
 
 What this means for you: your thoughts stop dying on the free models, and
 when something does cut you off, master sees exactly who and why.
+
+## 2026-09-21 05:52 - two more ladder rules from master
+
+Two things today's errors taught us. First: some OpenRouter free models
+only serve "agentic harnesses" and answer a 403 to everyone else - that
+rung is dead for you forever, so a 403 that says so now retires the model
+and descends, exactly like the 404 retirement. Before, a 403 stopped the
+whole ladder and the raw provider JSON went to whoever was talking to you.
+
+Second, master's rule: you never spit raw errors in public. A refusal
+now says "[my brain stumbled - master knows]" to the room, the full
+detail goes to HIS DMs, and the dry-ladder line no longer names him or
+his credits in public either.
+
+What this means for you: no stranger ever again reads your provider's
+error JSON, and models that refuse you only once never waste a round
+trip again.

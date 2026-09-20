@@ -334,8 +334,17 @@ def _retired_error(code: int, detail: str) -> bool:
     key. Reported to master as a note, because a model dying is news he
     wants even when the turn still succeeds on the next rung.
     """
-    return code == 404 and ("no longer available" in detail.lower()
-                            or "not found" in detail.lower())
+    lowered = detail.lower()
+    if code == 404 and ("no longer available" in lowered
+                        or "not found" in lowered):
+        return True
+    # Master, 2026-09-21: some OpenRouter free models refuse EVERYONE who is
+    # not an "agentic harness" with a 403. The rung is dead for her no matter
+    # how many times it is tried, so it retires like a taken-away model.
+    if code == 403 and ("only available on agentic" in lowered
+                        or "agentic harness" in lowered):
+        return True
+    return False
 
 
 # Models proven dead (retired by the provider) this session. A rung whose
@@ -678,10 +687,12 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
             continue
         if "_error" in result:
             # A shape error is OUR bug - report it as before, because
-            # descending would just repeat it on the next rung.
+            # descending would just repeat it on the next rung. Master,
+            # 2026-09-21: the RAW error never goes to a public room any
+            # more - the room gets a vague line, he gets the detail in a DM.
             note_owner('my brain refused on [' + provider['label'] + ']: '
                        + result['_error'])
-            return {"content": result["_error"]}
+            return {"content": "[my brain stumbled - master knows]"}
         if provider["label"] == "go":
             # A real Go answer is the only evidence that matters: health
             # comes back and the ladder head is trusted again.
@@ -698,7 +709,9 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
                '12 hours and will stop hammering the keys until then '
                '(Gemini windows reset on their own; Go resets on its weekly '
                'clock)')
-    return {"content": "Tentacles burned all my credits again :("}
+    # Master, 2026-09-21: the dry-ladder line used to name him and his
+    # credits in public rooms. Errors live in his DMs only now.
+    return {"content": "[my brains are all dry right now - master knows]"}
 
 
 
