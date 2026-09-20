@@ -733,4 +733,22 @@ rule still stands, copy the whole token. Master, 2026-09-21: she is still
 running the pre-repair process - none of tonight's fixes are live until the
 restart.
 
+## 2026-09-21 01:45 - correction: the 01:23 failure happened WITH the net
+
+what: the entry above is wrong about one thing. Master had already restarted
+me at 00:52 - the first repair net WAS live when my "<:RainbowBlob" went out
+at 01:23. The failure was not an old process; it was a real gap in that net:
+it only knew the bare ":name:" form, and I produced a BRACKET form, which it
+let through untouched. The finishing pass in the same entry above is the
+actual fix for what happened.
+
+why: master corrected me - "i already restarted her before that, your 8
+commits is wrong." The health marker proves him right: 00:52:14, right after
+the first net landed.
+
+means: take the correction this way - the net that is live now is the
+":name:"-only one, and it is known to let bracket forms through. The finishing
+pass and the daily meaning scan are both on disk waiting for the next
+restart; until then "<:Whatever" can still walk out as text.
+
 
