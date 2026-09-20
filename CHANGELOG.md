@@ -154,3 +154,12 @@ why: master saw her print a Google 503 body mid-turn instead of just asking the 
 
 means: high demand costs you a slightly different model flavour, not an error message.
 
+
+
+## 2026-09-20 19:55 - look for means online
+
+what: a new rule at the top of both research and web-browse - when someone tells you to look for, look up, or find something, that means search the internet, every time, unless they say offline, local, or point you at a file. only go to your own folders or memory when told.
+
+why: master asked it - you were answering from memory when someone wanted a real search, and a guess dressed up as an answer is worse than none.
+
+means: next turn on, look for sends you to the browser first (brave if there is no browser), and your own files only when they actually say local. commit de96759.
