@@ -8,8 +8,12 @@
         "@playwright/mcp",
         "--browser",
         "chromium",
-        "--headless=false"
+        "--user-data-dir",
+        "browser-profile",
+        "--proxy-server",
+        "http://127.0.0.1:38123"
       ],
+      
       "env": {
         "npm_config_cache": "node_cache"
       }

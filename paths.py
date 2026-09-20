@@ -149,6 +149,13 @@ PROPOSABLE_NAMES = {
     # right tier rather than sealed: she may propose a new verb, and if it is a
     # package runner the smoke test's banned-binary check refuses it.
     "runbox.py",
+    # The browser's one door out (2026-09-20). Same tier as runbox.py and for a
+    # related reason: it is the file that DECIDES what the browser may reach, and
+    # a bare write_file able to edit it would make the address rule a suggestion.
+    # It is the application-layer half of a boundary the OS refuses to provide -
+    # Windows Firewall can neither filter NOR declare loopback - so this file is
+    # the only thing standing between a page and 127.0.0.1.
+    "browseguard.py",
 }
 
 

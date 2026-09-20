@@ -169,7 +169,55 @@ def sandbox_live_paths() -> dict:
     taskmode.STATE = f"{SANDBOX_NAME}/task.json"
     return before
 
+def _browseguard() -> str:
+    """The browser's address rule, proven rather than declared.
 
+    Everything here is offline. No socket is opened to anything: the refusals
+    are decided before a connection is attempted, which is the point of the
+    module, so `check_destination` can be tested directly and `parse_request_line`
+    covers both proxy shapes.
+    """
+    import browseguard
+    import webtool
+
+    for host, port in (("127.0.0.1", 445), ("127.0.0.1", 135), ("localhost", 80),
+                       ("::1", 443), ("192.168.0.1", 80), ("169.254.169.254", 80)):
+        try:
+            browseguard.check_destination(host, port)
+        except (webtool.Blocked, browseguard.Refused):
+            continue
+        raise AssertionError(f"{host}:{port} was allowed - loopback/private "
+                             f"reaches the browser")
+
+    # Both request shapes, or the CONNECT half is unproven. A CONNECT tunnel is
+    # never re-inspected, so this parse is the ONLY check that connection gets.
+    for line, want_host, want_port in (
+            ("CONNECT 127.0.0.1:445 HTTP/1.1", "127.0.0.1", 445),
+            ("GET http://127.0.0.1:135/ HTTP/1.1", "127.0.0.1", 135),
+            ("CONNECT example.com:443 HTTP/1.1", "example.com", 443)):
+        method, _target, host, port = browseguard.parse_request_line(line)
+        expect((host, port) == (want_host, want_port),
+               f"{line!r} parsed as {host}:{port}")
+
+    # A relative target cannot be checked, so it must be refused rather than
+    # guessed at from a Host header.
+    for bad in ("GET /relative HTTP/1.1", "garbage", ""):
+        try:
+            browseguard.parse_request_line(bad)
+        except browseguard.Refused:
+            continue
+        raise AssertionError(f"{bad!r} was accepted as a request")
+
+    # And the module is not bare-writable: it decides what the browser reaches.
+    import paths
+    try:
+        paths.assert_writable(paths.resolve("browseguard.py"))
+    except paths.SandboxError:
+        pass
+    else:
+        raise AssertionError("browseguard.py is writable by a bare tool call - "
+                             "the browser's address rule is unprotected")
+    return "loopback and private refused, both request shapes parsed, bad lines refused"
 def check(name: str, fn) -> None:
     try:
         detail = fn() or ""
@@ -3567,6 +3615,7 @@ CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
     ("sandbox", _sandbox),
+    ("browseguard", _browseguard),
     ("wall", _wall),
     ("sealed-apply", _sealed_apply),
     ("runbox", _runbox),
