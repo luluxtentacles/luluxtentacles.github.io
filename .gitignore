@@ -136,3 +136,23 @@ venv/
 # Found 2026-09-20 by running `git add -A --dry-run` after a browser test, having
 # first believed it was covered because the names look alike.
 .playwright-mcp/
+
+# The persistent browser profile, added to mcp.json as `--user-data-dir` on
+# 2026-09-20 so a login can survive a restart. Without that flag the MCP server
+# uses a TEMPORARY directory, so master's plan of "headed once, log in, done"
+# would have looked like it worked and then silently evaporated.
+#
+# THIS ONE HOLDS LIVE SESSION COOKIES for whatever he logs into - which makes it
+# the first entry here that is a credential rather than runtime scratch. The
+# reason it needs a line at all is the same mechanical one as everything above:
+# pipeline.checkpoint() runs `git add -A`, so unignored the next self-edit would
+# commit his social media sessions into her history with nobody deciding to.
+# Ignored BEFORE the folder held anything, because the first time this pattern
+# was missed - ffmpeg, 242 MB - it was found one self-edit away from the history.
+#
+# Flagged to master on top of the ignore: the profile sits inside C:/lulu and her
+# read_file has NO read guard, so she can read her own session cookies. That is
+# not a leak to a stranger and it is not fixed by this line - it is a fact about
+# where the thing lives, and it is written down so nobody discovers it by
+# accident later.
+browser-profile/
