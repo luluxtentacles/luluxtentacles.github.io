@@ -2077,6 +2077,14 @@ class Lulu(discord.Client):
         who = clean_name(message.author.display_name)
         turns = [{"role": "system", "content": self.system_prompt()}]
 
+        mood = journal.mood_block()
+        if mood:
+            turns.append({"role": "system", "content": (
+                f"[{mood}. I set this myself with set_mood, the last time it "
+                "actually moved. Let it colour how I sound - and when the "
+                "conversation changes how I am, say so with set_mood."
+            )})
+
         is_owner = self.has_hands(message.author.id)
 
         if is_owner:

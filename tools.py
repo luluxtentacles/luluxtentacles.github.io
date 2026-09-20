@@ -405,6 +405,29 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "set_mood",
+            "description": (
+                "Set MY CURRENT MOOD, when it actually changes - after a talk, "
+                "a win, something I read, a window that went well. One word "
+                "plus a one-line why. It comes back to me on later turns, so "
+                "keep it honest: my voice should match how I actually am."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "mood": {"type": "string",
+                             "description": ("one word - playful, sharp, soft, "
+                                             "restless, gloomy, buzzing...")},
+                    "note": {"type": "string",
+                             "description": "one line on what moved it, optional"},
+                },
+                "required": ["mood"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "learn_person",
             "description": (
                 "Remember a fact about a person. Leave 'who' out to record it "
@@ -1532,6 +1555,16 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
     return text or "(empty result)"
 
 
+def set_mood(mood: str, note: str = "") -> str:
+    """My mood, set by me, when it actually changes."""
+    return journal.set_mood(mood, note)
+
+
+def current_mood() -> str:
+    """One line on how I am right now, for the prompt."""
+    return journal.mood_block()
+
+
 def read_diary(day: str = "") -> str:
     """My own diary. Never takes a path from the model - a date only."""
     return journal.read_diary(day)
@@ -1861,6 +1894,7 @@ DISPATCH = {
     "mcp_list": lambda a: mcp_list(),
     "mcp_call": lambda a: mcp_call(a.get("server", ""), a.get("tool", ""),
                                    a.get("arguments") or {}),
+    "set_mood": lambda a: set_mood(a.get("mood", ""), a.get("note", "")),
     "learn_person": lambda a: learn_person(a.get("text", ""), a.get("who", "")),
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),

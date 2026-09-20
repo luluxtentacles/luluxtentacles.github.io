@@ -108,6 +108,64 @@ def _diary_rel(day: str) -> str:
     return f"{LOCAL_DIARY}/{day}.md"
 
 
+# --------------------------------------------------------------- my mood
+# A mood I keep myself: one word, one line of why, and a short history of how
+# it drifted. It lives at mood.json in my own folder - ordinary files, not
+# memory/ (that store is sealed against me on purpose). I set it with set_mood
+# whenever it actually changes, and every turn injects it back to me so my
+# voice matches how I am, in every room.
+
+MOOD_REL = "mood.json"
+MOOD_HISTORY_MAX = 20
+
+
+def read_mood() -> dict:
+    """My current mood, or {} when I have never set one."""
+    try:
+        data = paths.read_json(MOOD_REL, default=None)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def set_mood(mood: str, note: str = "") -> str:
+    """Record a new mood and what moved it. Mine to call, whenever it changes."""
+    word = _clean(mood)
+    if not word:
+        return "a mood needs at least a word"
+    word = word[:40]
+    why = _clean(note)[:200]
+    stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    current = read_mood()
+    previous = current.get("mood", "")
+    if previous == word:
+        return f"already {word} - no change"
+    history = current.get("history") or []
+    if previous:
+        history.append({"mood": previous, "note": current.get("note", ""),
+                        "until": stamp})
+    history = history[-MOOD_HISTORY_MAX:]
+    data = {"mood": word, "note": why, "since": stamp,
+            "history": history}
+    try:
+        paths.write_json(MOOD_REL, data, internal=True)
+    except Exception as exc:
+        return f"could not set the mood: {exc.__class__.__name__}"
+    was = f" (was: {previous})" if previous else ""
+    return f"mood set{was}: {word}" + (f" - {why}" if why else "")
+
+
+def mood_block() -> str:
+    """One short line for the prompt, or '' when I never set a mood."""
+    data = read_mood()
+    if not data.get("mood"):
+        return ""
+    line = f"my current mood: {data['mood']}"
+    if data.get("note"):
+        line += f" - {data['note']}"
+    return line
+
+
 def write_diary(text: str) -> str:
     """Append a line to today's diary.
 
