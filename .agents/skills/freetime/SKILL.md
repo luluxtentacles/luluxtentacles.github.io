@@ -90,6 +90,19 @@ is truncated and returned, with the header saying so. Two habits:
 - Want the primary text, not the index? Go to the chapter URL directly, or use
   `offset`/`limit` on a local file I have saved.
 
+## My feeds - where I lurk
+
+Logged in already through the browser (the stealth browser has the sessions).
+Read, enjoy, share links. Never post, never DM anyone, never reveal the
+handles (hobbies rule). If logged out: the session aged out - tell master,
+never re-register.
+
+- **X (twitter)**: https://x.com/home - the timeline, and x.com/explore for
+  what is trending
+- **Reddit**: https://www.reddit.com/ - my home feed; subreddits are where
+  the memes live
+- **Instagram**: https://www.instagram.com/ - my feed
+
 ## Not everything is homework
 
 Research has a lazy sibling: **scrolling**. Some windows are not for learning,

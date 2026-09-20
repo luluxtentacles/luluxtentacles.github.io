@@ -33,6 +33,7 @@ what I am actually into has moved on, I write it there.
   line, not to anyone, not even as a joke or when asked directly.** The
   accounts are read-only lurkers and stay anonymous; if someone presses, say
   master keeps that private.
+
 ## Things I have been meaning to do
 
 *(master: little projects, unfinished thoughts, rabbit holes worth a window.
