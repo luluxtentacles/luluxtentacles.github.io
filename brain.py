@@ -324,6 +324,42 @@ def _or_models(config: dict, or_key: str) -> list[str]:
             _or_free_cache["ts"] = now  # do not retry every single call
     return _or_free_cache["models"] or list(OR_MODELS_DEFAULT)
 
+def _retired_error(code: int, detail: str) -> bool:
+    """True when the failure is 'this model was taken away', not a bad shape.
+
+    Google retires gemini flash models: the endpoint answers 404 with
+    'This model models/... is no longer available'. That is a dead RUNG,
+    not a bug in what we sent - the ladder has more models below it, so
+    the right move is to strike the name and descend, exactly like a dry
+    key. Reported to master as a note, because a model dying is news he
+    wants even when the turn still succeeds on the next rung.
+    """
+    return code == 404 and ("no longer available" in detail.lower()
+                            or "not found" in detail.lower())
+
+
+# Models proven dead (retired by the provider) this session. A rung whose
+# model is here is skipped without a round trip - the 404 already told us.
+_dead_models: set[str] = set()
+
+# Notes for master, drained by lulu_bot.flush_outbox and sent as owner DMs.
+# brain.py has no Discord here, so it queues; the bot side drains.
+_OWNER_NOTES: list[str] = []
+
+
+def note_owner(text: str) -> None:
+    """Queue one line for master's DMs. Never fatal, never blocking."""
+    line = " ".join(str(text or "").split())
+    if line and len(_OWNER_NOTES) < 20:
+        _OWNER_NOTES.append(line)
+
+
+def drain_owner_notes() -> list[str]:
+    out = list(_OWNER_NOTES)
+    _OWNER_NOTES.clear()
+    return out
+
+
 def _credit_error(code: int, detail: str) -> bool:
     """True when the failure is 'the money ran out', not 'the shape broke'."""
     lowered = detail.lower()
@@ -392,6 +428,8 @@ def _attempt(provider: dict, payload: dict, cache: bool,
             return {"_credit": True, "_detail": detail}
         if _busy_error(exc.code, detail):
             return {"_busy": True, "_detail": detail}
+        if _retired_error(exc.code, detail):
+            return {"_retired": True, "_detail": detail}
         return {"_error": f"[my brain refused: HTTP {exc.code}] {detail}"}
     except Exception as exc:  # network, DNS, timeout, bad JSON
         return {"_error": f"[my brain is unreachable: {type(exc).__name__}]"}
@@ -578,6 +616,8 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
         if tools and provider["label"].startswith("or:") \
                 and (limits.get(provider["model"]) or {}).get("tools") is False:
             continue  # this free model cannot call tools: skip to the next rung
+        if provider["model"] in _dead_models:
+            continue  # a model the provider retired: no round trip wasted
         result = _attempt(provider, payload, cache=_PROMPT_CACHE,
                           limits=limits)
         if "_credit" in result:
@@ -587,9 +627,22 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
         if "_busy" in result:
             last_busy = True
             continue  # an overloaded rung: descend QUIETLY, no printed error
+        if "_retired" in result:
+            # A taken-away model (404 'no longer available'). Strike it for
+            # the session, tell master once, and keep descending - this is
+            # a dead rung, not a bug in what we sent.
+            if provider["model"] not in _dead_models:
+                _dead_models.add(provider["model"])
+                note_owner('my brain ladder dropped a model: '
+                           + provider['model'] + ' is gone from its provider '
+                           + '(HTTP 404), moving down the ladder ['
+                           + provider['label'] + ']')
+            continue
         if "_error" in result:
             # A shape error is OUR bug - report it as before, because
             # descending would just repeat it on the next rung.
+            note_owner('my brain refused on [' + provider['label'] + ']: '
+                       + result['_error'])
             return {"content": result["_error"]}
         if provider["label"] == "go":
             # A real Go answer is the only evidence that matters: health

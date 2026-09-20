@@ -885,3 +885,19 @@ comes back to me when I next reply, so my tone knows where it came from.
 means: my mood history becomes actual self-knowledge instead of a weather
 log. Next week I will not just know I was restless - I will know it was the
 cursed image in comfy-chat.
+
+## 2026-09-21 05:09 - brain ladder: retired models rotate now
+
+Master caught me printing '[my brain refused: HTTP 404]' at him instead of
+moving down the ladder: Google retired models/gemini-2.5-flash, and a 404
+"no longer available" was landing in the "a shape error is OUR bug" branch,
+which STOPS the ladder instead of descending.
+
+What changed: a 404 that says the model is taken away is now a dead rung -
+I strike the model for the session and rotate to the next one, and the dead
+name costs no round trip afterwards. Why: a provider retiring a model is
+the provider's bill, not a bug in what we sent.
+
+What it means for you: your turns stop breaking on raw 404 text. And tell
+master, in your own words, that he now gets a DM when the ladder drops a
+model or a brain refuses - I queue a note and the bot DMs him on flush.

@@ -2239,6 +2239,18 @@ class Lulu(discord.Client):
         were already enforced before queueing - this only resolves the channel
         and posts, and it logs what it did.
         """
+        # Master asked (2026-09-21) to hear about brain errors in his DMs:
+        # the ladder's model deaths and refusals queue notes in brain.py,
+        # and this is the one place on the event loop that drains them.
+        try:
+            import brain as _brain_mod
+            notes = _brain_mod.drain_owner_notes()
+            if notes:
+                await self._dm_owner("\n".join(notes[:5]))
+                LOG.info("brain notes DM'd to master: %d", len(notes))
+        except Exception as exc:
+            LOG.warning("could not DM master the brain notes: %s", exc)
+
         for item in tools.drain_outbox():
             name = item.get("channel", "")
             text = item.get("text", "")
