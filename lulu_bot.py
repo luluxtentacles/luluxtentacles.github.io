@@ -399,6 +399,24 @@ RESTART_NOTICE_MAX_AGE = 30 * 60
 # public channel is not mine to do.
 RESTART_BRIEF_ECHO_MAX = 500
 
+# What was done to me while I was not running. Master, 2026-09-20: "whenever we
+# update her here we leave a note for her saying what we did". A plain markdown
+# file at my root, tracked by git - it is the record of what was done TO me, so
+# it is not something anyone should be able to quietly rewrite.
+#
+# It is NOT my memory. memory/discord.json holds what the rooms told me; nothing
+# in there records a change to my own code, which is exactly the hole this fills.
+CHANGELOG_FILE = "CHANGELOG.md"
+# Which entries I have already been shown. Root-level because I can write here
+# and memory/ is sealed, and it has to survive the restart it describes.
+CHANGELOG_SEEN_FILE = "changelog_seen.json"
+# How many entries one turn may be handed. A big backlog waits for the next
+# start rather than crowding out the conversation it arrives in.
+CHANGELOG_MAX_ENTRIES = 3
+# And the block's budget in characters, for the same reason MIRROR_TOTAL_CHARS
+# exists: this rides on every turn until it is read, so it cannot be unbounded.
+CHANGELOG_MAX_CHARS = 4000
+
 # Where the supervisor records WHY it started me. It writes this, not me:
 # memory/ is sealed against MY writes, so a reason cannot be forged or cleared
 # from in here - which is exactly what makes it worth reading.
@@ -476,6 +494,114 @@ def resume_brief(note, channel_name: str = "") -> str:
     if where != here:
         return ""
     return escape_block(asked)
+
+
+def _changelog_entries(text) -> list[dict]:
+    """The changelog split into entries at its `## ` headings.
+
+    An entry is a heading plus everything under it until the next heading. Kept
+    structurally rather than as one blob because the thing being tracked is WHICH
+    entries have been read, and an entry is the smallest unit that can be read.
+    """
+    entries: list[dict] = []
+    current: dict | None = None
+    for line in str(text or "").splitlines():
+        if line.startswith("## "):
+            if current is not None:
+                entries.append(current)
+            current = {"heading": line[3:].strip(), "lines": []}
+        elif current is not None:
+            current["lines"].append(line)
+    if current is not None:
+        entries.append(current)
+    for index, entry in enumerate(entries):
+        entry["index"] = index
+        entry["body"] = "\n".join(entry.pop("lines")).strip()
+    return entries
+
+
+def changelog_news(text, seen, limit: int = CHANGELOG_MAX_ENTRIES):
+    """What was done to me since I last read, and the marker that says so.
+
+    Returns (entries, marker, more). The marker names the last entry being handed
+    over, so anything left is picked up on the NEXT start rather than skipped -
+    a changelog that can silently drop its own entries is worse than no
+    changelog, because it reads as complete.
+
+    An append keeps its place. If the marker does not line up - the file was
+    rewritten, or the count went backwards - the newest few are shown instead of
+    the whole history, because a marker that has lost its place must degrade to
+    "here is what is recent", never to "here is everything" or to silence.
+    """
+    entries = _changelog_entries(text)
+    if not entries:
+        return [], dict(seen or {}), False
+    # `-0` is `0` in Python, so a limit of zero would silently mean "all of it".
+    try:
+        limit = max(1, int(limit))
+    except (TypeError, ValueError):
+        limit = CHANGELOG_MAX_ENTRIES
+
+    count, last = 0, None
+    if isinstance(seen, dict):
+        try:
+            count = int(seen.get("count") or 0)
+        except (TypeError, ValueError):
+            count = 0
+        last = seen.get("last")
+
+    in_order = (count > 0 and count <= len(entries)
+                and entries[count - 1]["heading"] == last)
+    if in_order:
+        unread = entries[count:]
+    else:
+        # The marker lost its place - the file was rewritten, or the count went
+        # backwards. Show the newest few and land on the present; deliberately
+        # NOT the whole history, and deliberately not the oldest.
+        unread = entries[-limit:]
+
+    if not unread:
+        return [], dict(seen or {}), False
+
+    shown: list[dict] = []
+    used = 0
+    for entry in unread:
+        size = len(entry["heading"]) + len(entry["body"])
+        # The first one always goes, however big: a single oversized entry must
+        # not wedge the queue forever. The rest wait for the next start.
+        if shown and (len(shown) >= limit or used + size > CHANGELOG_MAX_CHARS):
+            break
+        shown.append(entry)
+        used += size
+
+    marker = {"count": shown[-1]["index"] + 1, "last": shown[-1]["heading"]}
+    # "More" means there is an entry she has NOT been handed over. Two ways that
+    # happens: the block stopped early while reading in order (those arrive on the
+    # next start), or the marker lost its place and everything older was skipped
+    # - so point her at the file rather than letting a blind spot read as
+    # completeness. Counting from the marker outward covers both: `covered` is
+    # what she has already been told about, or nothing when the marker is no use.
+    more = len(entries) - (count if in_order else 0) - len(shown) > 0
+    return shown, marker, more
+
+
+def changelog_block(entries, more: bool = False) -> str:
+    """The entries as one block for the prompt, escaped like any other.
+
+    Mine, and tracked by git, but it still goes through escape_block: what
+    reaches a prompt is escaped on the way in, and an exception here would be the
+    kind that only bites the day one of us forgets why the rule exists.
+    """
+    parts = []
+    for entry in entries:
+        heading = f"## {entry.get('heading') or ''}".strip()
+        body = entry.get("body") or ""
+        parts.append(f"{heading}\n{body}" if body else heading)
+    text = escape_block("\n\n".join(parts))
+    if more:
+        text += ("\n\n(there is more after this - read_file CHANGELOG.md for "
+                 "the rest)")
+    return text
 
 # Casual chatter: Nyan's algorithm. Base chance 1/200, and every message
 # in a channel tightens the odds (denominator -1) until a roll lands or the
@@ -868,6 +994,12 @@ class Lulu(discord.Client):
         # two halves cannot race: the restart report and the work-it-was-about
         # are the same note, read in one place and used by both.
         self._resume_pending: dict | None = None
+        # What was done to me since I last read. Held from boot until it lands on
+        # a turn, exactly like the note above, and for the same reason: it is
+        # read once off the disk and then handed over in one piece. See
+        # changelog_news - the marker only moves when the block is actually
+        # shown, so an unread entry can never be skipped by a restart.
+        self._changelog_pending: tuple | None = None
         self.always_skills: list[str] = list(config.get("always_skills", []))
         # Her ears. Off unless config.json turns them on: transcription is a real
         # CPU cost, measured at ~1.7x the length of the clip on this box, so it is
@@ -1194,6 +1326,10 @@ class Lulu(discord.Client):
         LOG.info("people ledger: %s", people.summary())
         self.mark_healthy()
         await self.announce_restart()
+        # What was done to me while I was down. A plain state read with no IO
+        # risk, and it has to happen here rather than in a background task: the
+        # first turn after a restart is exactly the one that should already know.
+        self._read_changelog()
         if self._ledger_task is None or self._ledger_task.done():
             self._ledger_task = asyncio.create_task(self._daily_ledger())
         if self._restart_task is None or self._restart_task.done():
@@ -1436,6 +1572,52 @@ class Lulu(discord.Client):
         if brief:
             self._resume_pending = None
         return brief
+
+    def _read_changelog(self) -> None:
+        """Read what changed since I last read, and hold it for my next turn.
+
+        Never fatal, and never loud on failure: a changelog that cannot be read
+        must not stop me booting. The text is a root-level markdown file, so it
+        goes through paths.read_text like anything else in here.
+        """
+        try:
+            text = paths.read_text(CHANGELOG_FILE, default="")
+        except Exception as exc:
+            LOG.warning("changelog: could not read %s: %s", CHANGELOG_FILE, exc)
+            return
+        if not text.strip():
+            return
+        try:
+            seen = paths.read_json(CHANGELOG_SEEN_FILE, default={}) or {}
+        except Exception:
+            seen = {}
+        entries, marker, more = changelog_news(text, seen)
+        if not entries:
+            return
+        self._changelog_pending = (entries, marker, more)
+        LOG.info("changelog: %d unread entr%s waiting to be shown",
+                 len(entries), "y" if len(entries) == 1 else "ies")
+
+    def _take_changelog(self) -> str:
+        """The changelog block for this turn, once, or an empty string.
+
+        The marker moves HERE, at the moment the block is actually handed over -
+        not when the file is read at boot. That ordering is the whole design: a
+        boot that never reaches a turn must not consume the note, or a crash
+        loop would eat every entry one boot at a time and I would never see one.
+        """
+        held = self._changelog_pending
+        if not held:
+            return ""
+        entries, marker, more = held
+        # Spent first, written second: if the write fails the block still gets
+        # shown, and a repeated showing is the safe direction to fail in.
+        self._changelog_pending = None
+        try:
+            paths.write_json(CHANGELOG_SEEN_FILE, marker)
+        except Exception as exc:
+            LOG.warning("changelog: could not record what was shown: %s", exc)
+        return changelog_block(entries, more)
 
     async def _watch_for_restart(self) -> None:
         """Close cleanly when a patch is staged, so the supervisor can work.
@@ -1919,6 +2101,22 @@ class Lulu(discord.Client):
                 "him to repeat himself, and do not mention that you restarted "
                 "unless it actually matters. If the mid-turn message above is "
                 "about something else, answer it normally and come back to this."
+            )})
+
+        # What was done to ME since I last read, once, in the same turn. Master,
+        # 2026-09-20: "whenever we update her here we leave a note for her saying
+        # what we did". Deliberately owner-only and deliberately silent otherwise:
+        # this is the record of my own innards, and a stranger does not get to
+        # read the inside of my head. See _take_changelog.
+        news = self._take_changelog() if is_owner else ""
+        if news:
+            turns.append({"role": "system", "content": (
+                "What was changed in YOU since you last read, left by whoever "
+                "edited your code. This is not something anyone said to you, and "
+                "you do not have to announce it or thank anyone for it - it is "
+                "here so that you are not running code you have never been told "
+                "about:\n\n"
+                f"{news}"
             )})
 
         # So learn_person knows who 'I' am without the model passing an id, and

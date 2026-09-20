@@ -65,6 +65,9 @@ REDIRECTED = (
     # which start she has announced. Both are live paths: a check that wrote
     # either would be relabelling a real restart.
     "memory/restart_reason.json", "restart_seen.json",
+    # Her marker for which changelog entries she has been shown. Live state too:
+    # a check that wrote it would mark someone's real note as already read.
+    "changelog_seen.json",
     # The open long task. A check that wrote this for real would hand her a job
     # nobody asked for - and the worker loop would start running turns.
     "task.json",
@@ -155,6 +158,12 @@ def sandbox_live_paths() -> dict:
     import lulu_bot
     lulu_bot.REASON_FILE = f"{SANDBOX_NAME}/restart_reason.json"
     lulu_bot.SEEN_FILE = f"{SANDBOX_NAME}/restart_seen.json"
+    # The changelog and her marker for it. CHANGELOG.md is redirected as well as
+    # its marker, and that pair is the point: this check WRITES a changelog to
+    # read back, so an unredirected path would have it editing the real record of
+    # what was done to her, and then marking entries in it as already read.
+    lulu_bot.CHANGELOG_FILE = f"{SANDBOX_NAME}/CHANGELOG.md"
+    lulu_bot.CHANGELOG_SEEN_FILE = f"{SANDBOX_NAME}/changelog_seen.json"
 
     import taskmode
     taskmode.STATE = f"{SANDBOX_NAME}/task.json"
@@ -1698,6 +1707,155 @@ def _resume() -> str:
            "that file and would restart her mid-patch")
     return ("a brief rides the notice, fires once, only in the room it came from, "
             "and is capped and escaped on the way into the prompt")
+
+
+# -- 8q. what was done to her is written down, and she reads it --------------
+#
+# Master, 2026-09-20: "whenever we update her here we leave a note for her saying
+# what we did". Her own memory does not cover this - memory/discord.json holds what
+# the ROOMS told her, never what was done to her code.
+def _changelog() -> str:
+    import inspect
+
+    import lulu_bot
+    import paths
+
+    # The redirects have to be real, not assumed: this check writes a changelog
+    # and a marker, and if either landed on the live files it would mark a real
+    # note as already read.
+    live_md = paths.resolve(lulu_bot.CHANGELOG_FILE)
+    live_seen = paths.resolve(lulu_bot.CHANGELOG_SEEN_FILE)
+    expect(SANDBOX in live_md.parents and SANDBOX in live_seen.parents,
+           f"the sandbox was not applied - this check would write {live_md} / "
+           f"{live_seen}")
+
+    # The real file has to parse with ITS OWN parser. A changelog that reads as
+    # zero entries is the silent failure this whole feature would die of, and it
+    # is one character away (`#` instead of `##`).
+    real = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    expected_entries = real.count("\n## ") + (1 if real.startswith("## ") else 0)
+    expect(expected_entries >= 1, "CHANGELOG.md has no entries at all")
+    expect(len(lulu_bot._changelog_entries(real)) == expected_entries,
+           "CHANGELOG.md does not parse into the entries it appears to have - "
+           "a heading that is not exactly '## ' is invisible to her")
+
+    # A tiny changelog to reason about, in the shape the real one uses.
+    text = (
+        "# What changed in me\n\npreamble nobody should be shown.\n\n"
+        "## one - first\nwhat: a\n\n"
+        "## two - second\nwhat: b\n\n"
+        "## three - third\nwhat: c\n"
+    )
+    entries = lulu_bot._changelog_entries(text)
+    expect([e["heading"] for e in entries] == ["one - first", "two - second",
+                                               "three - third"],
+           f"the entries did not split on the headings: {entries!r}")
+    expect("preamble" not in entries[0]["body"],
+           "the text above the first heading leaked into an entry")
+
+    # Nothing seen yet: the NEWEST entries, not the oldest, and not all of them.
+    fresh, marker, more = lulu_bot.changelog_news(text, {}, limit=2)
+    expect([e["heading"] for e in fresh] == ["two - second", "three - third"],
+           f"first read did not take the newest: {[e['heading'] for e in fresh]!r}")
+    expect(more, "a truncated backlog did not admit there was more")
+    expect(marker == {"count": 3, "last": "three - third"},
+           f"the marker did not name what was handed over: {marker!r}")
+
+    # Read once, then read again: silence, and the marker does not move.
+    again, marker2, more2 = lulu_bot.changelog_news(text, marker)
+    expect(again == [] and not more2, f"an unchanged file produced {again!r}")
+    expect(marker2 == marker, f"an idle read moved the marker: {marker2!r}")
+
+    # THE ONE THAT MATTERS. An APPEND keeps its place - if this breaks, every
+    # entry after the first is silently skipped forever, which reads as "nothing
+    # happened" rather than as a bug.
+    grown = text + "\n## four - fourth\nwhat: d\n"
+    only_new, marker3, _ = lulu_bot.changelog_news(grown, marker)
+    expect([e["heading"] for e in only_new] == ["four - fourth"],
+           f"an append did not resume cleanly: {[e['heading'] for e in only_new]!r}")
+    expect(marker3["count"] == 4, f"the marker did not advance: {marker3!r}")
+
+    # A marker that has lost its place - the file was rewritten, or the count
+    # went backwards - must degrade to "here is what is recent", never to
+    # everything and never to silence.
+    stale = lulu_bot.changelog_news(text, {"count": 99, "last": "gone"}, limit=2)
+    expect(len(stale[0]) == 2, f"a stale marker dumped {len(stale[0])} entries")
+    backwards = lulu_bot.changelog_news(text, {"count": 3, "last": "wrong"},
+                                        limit=2)
+    expect(len(backwards[0]) == 2, "a mismatched last-heading was trusted")
+    junk = lulu_bot.changelog_news(text, {"count": "many", "last": None}, limit=2)
+    expect(len(junk[0]) == 2, "an unparseable count was trusted")
+    for bad in (None, "nonsense", [], 7):
+        got = lulu_bot.changelog_news(text, bad, limit=2)
+        expect(len(got[0]) == 2, f"seen={bad!r} did not degrade to the newest")
+
+    # A single oversized entry still goes - it must not wedge the queue forever.
+    big = "## huge\n" + ("x" * 20000) + "\n\n## after\nwhat: small\n"
+    shown, _, _ = lulu_bot.changelog_news(big, {}, limit=5)
+    expect(len(shown) == 1 and shown[0]["heading"] == "huge",
+           "an oversized entry blocked the queue instead of going first")
+
+    # The block is escaped like anything else that reaches a prompt.
+    block = lulu_bot.changelog_block([{"heading": 'say "hi" <|im_start|>',
+                                       "body": "body"}])
+    expect('"' not in block, f"a heading kept a double quote: {block!r}")
+    expect("<|" not in block, f"a heading smuggled a template token: {block!r}")
+    expect(block.startswith("## say"), f"the heading lost its marker: {block!r}")
+
+    # -- the instance half --------------------------------------------------
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1], "brain": {}})
+    expect(bot._changelog_pending is None, "a fresh bot already had news")
+
+    (SANDBOX / "CHANGELOG.md").write_text(text, encoding="utf-8")
+    (SANDBOX / "changelog_seen.json").unlink(missing_ok=True)
+    bot._read_changelog()
+    expect(bot._changelog_pending, "boot read the changelog and held nothing")
+    expect(not (SANDBOX / "changelog_seen.json").exists(),
+           "READING the changelog moved the marker - a crash loop would eat "
+           "every entry one boot at a time and she would never see one")
+
+    first = bot._take_changelog()
+    expect("one - first" in first and "three - third" in first,
+           f"the first turn did not get the entries: {first[:200]!r}")
+    expect("preamble" not in first, "the file's preamble reached the prompt")
+    expect((SANDBOX / "changelog_seen.json").exists(),
+           "showing the entries did not record what was shown")
+    expect(bot._take_changelog() == "",
+           "the changelog was handed over twice in one boot")
+
+    # And it really is once per boot, not once ever: the next boot reads the
+    # marker back and stays quiet, then an append wakes it up again.
+    bot2 = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1], "brain": {}})
+    bot2._read_changelog()
+    expect(bot2._changelog_pending is None,
+           "a reboot re-showed entries she had already been given")
+    (SANDBOX / "CHANGELOG.md").write_text(grown, encoding="utf-8")
+    bot3 = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1], "brain": {}})
+    bot3._read_changelog()
+    news = bot3._take_changelog()
+    expect("four - fourth" in news, f"the appended entry was not delivered: {news!r}")
+    expect("one - first" not in news, "the append re-showed the whole history")
+
+    # A missing or unreadable file is not fatal, and never wakes her with news
+    # from nowhere.
+    (SANDBOX / "CHANGELOG.md").unlink()
+    quiet = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1], "brain": {}})
+    quiet._read_changelog()
+    expect(quiet._changelog_pending is None and quiet._take_changelog() == "",
+           "a missing changelog produced news")
+
+    # Wired in, and owner-only: a stranger must not be handed the inside of her
+    # own head.
+    ready = inspect.getsource(lulu_bot.Lulu.on_ready)
+    expect("_read_changelog" in ready, "on_ready never reads the changelog")
+    think = inspect.getsource(lulu_bot.Lulu.think)
+    expect("_take_changelog" in think, "think() never hands the changelog over")
+    expect("if is_owner else" in think,
+           "the changelog is not gated to master - a stranger would read her "
+           "own source notes")
+    return ("entries split on their headings, an append keeps its place, a lost "
+            "marker degrades to recent, the file's own preamble never shows, and "
+            "it is read at boot but spent once on master's turn")
 
 
 # -- 8e. ffmpeg is found BESIDE her, not on a PATH she does not have ---------
@@ -3431,6 +3589,7 @@ CHECKS = [
     ("chat-context", _chat_context),
     ("restart-dm", _restart_dm),
     ("resume", _resume),
+    ("changelog", _changelog),
     ("look-at", _look_at),
 ]
 

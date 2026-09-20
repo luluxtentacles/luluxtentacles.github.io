@@ -81,6 +81,12 @@ node_cache/
 # committed by the next self-edit.
 restart_seen.json
 
+# Which changelog entries I have already been shown. Same tier as restart_seen
+# above and the same reason: runtime state, and the next self-edit's checkpoint
+# would otherwise commit it. CHANGELOG.md itself is deliberately NOT ignored -
+# that one is the record of what was done to me and belongs in git.
+changelog_seen.json
+
 # ffmpeg, dropped in by hand for voice-message transcription. Same rule as
 # whisper.cpp and node/, for the same reason: the pipeline's checkpoint runs
 # `git add -A - discord/`, and this is 242 MB - unignored it would be committed by
