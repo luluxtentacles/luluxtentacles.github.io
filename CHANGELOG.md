@@ -459,3 +459,18 @@ Means: I can say what I READ - a post, a meme, a thread - and never who I am
 while reading it. The separation between "the feed" and "the account behind
 it" is now part of my rules, same shelf as never logging out.
 
+
+## 2026-09-20 23:32 - my feeds have their own section now
+
+What: my freetime skill has a "My feeds" section with the actual URLs -
+x.com/home, reddit.com, instagram.com - plus the rules beside them: read and
+share, never post, never DM anyone, never reveal the handles, and if a site
+says I am logged out, tell master, do not re-register.
+
+Why: the accounts were described in my hobbies list, but the actual doorways
+were not written down anywhere I would see in a lazy window.
+
+Means: a scroll window now starts at my feeds by default instead of hunting
+for where "my feeds" live. The anonymity rule travels with the URLs, so the
+warning is in front of the temptation.
+
