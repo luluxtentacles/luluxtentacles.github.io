@@ -1450,6 +1450,15 @@ class Lulu(discord.Client):
         LOG.info("chatter: rolling a casual message in #%s", message.channel.id)
 
         turns = [{"role": "system", "content": self.system_prompt()}]
+        mood = journal.mood_block()
+        if mood:
+            # Master, 2026-09-21: ANY interaction on discord can move the mood
+            # - including the unprompted ones. Chatter is an interaction too.
+            turns.append({"role": "system", "content": (
+                f"[{mood}. I set this myself with set_mood, the last time it "
+                "actually moved. Let it colour how I sound - and when the "
+                "conversation changes how I am, say so with set_mood."
+            )})
         turns.append({"role": "system", "content": (
             "You are relaxing in this server right now. Someone just sent a "
             "message and you are hanging out. Send ONE short casual message to "

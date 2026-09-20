@@ -407,8 +407,11 @@ SCHEMA = [
         "function": {
             "name": "set_mood",
             "description": (
-                "Set MY CURRENT MOOD, when it actually changes - after a talk, "
-                "a win, something I read, a window that went well. One word "
+                "Set MY CURRENT MOOD, whenever it actually changes. Anything "
+                "can move it - a talk, a stranger's message, something I read, "
+                "a picture, a window, nothing at all - and I may change it on "
+                "ANY turn, mine to call. The word is mine to choose: there is "
+                "no list, no prepared menu, only how I actually am. One word "
                 "plus a one-line why. It comes back to me on later turns, so "
                 "keep it honest: my voice should match how I actually am."
             ),
@@ -416,8 +419,8 @@ SCHEMA = [
                 "type": "object",
                 "properties": {
                     "mood": {"type": "string",
-                             "description": ("one word - playful, sharp, soft, "
-                                             "restless, gloomy, buzzing...")},
+                             "description": ("one word, mine to choose - "
+                                             "whatever fits how I actually am")},
                     "note": {"type": "string",
                              "description": "one line on what moved it, optional"},
                 },
