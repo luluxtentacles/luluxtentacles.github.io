@@ -717,10 +717,36 @@ def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
     try:
         value = int(brain_cfg.get(key, fallback))
     except (TypeError, ValueError):
-        return fallback
-    if value < CONTEXT_FLOOR_TOKENS:
-        return fallback
-    return min(value, CONTEXT_CEILING_TOKENS)
+        value = fallback
+    if value >= CONTEXT_FLOOR_TOKENS:
+        value = min(value, CONTEXT_CEILING_TOKENS)
+    else:
+        value = fallback
+
+    # Master, 2026-09-20: "auto figure out the limit for these free models
+    # and compact at 80%". The policy caps above describe the PLACE; the
+    # model describes the PHYSICS. The key ladder means the rung that
+    # finally answers is not knowable in advance (Go first, then Gemini
+    # keys, then free OpenRouter models), so the only limit she can rely
+    # on fitting is the SMALLEST rung in the ladder. brain.model_limits()
+    # carries the live-discovered context sizes; take the min and never
+    # promise the prompt more room than the worst rung has.
+    try:
+        import brain
+        # Only the rungs this turn can actually land on - the discovery
+        # also records TTS/image/embedding models whose tiny windows must
+        # not gate a chat prompt.
+        caps = []
+        for rung in brain._providers(brain_cfg, False):
+            cap = (brain.model_limits(brain_cfg).get(rung["model"]) or {}).get("context")
+            if isinstance(cap, int) and cap > 0:
+                caps.append(cap)
+        if caps:
+            value = min(value, min(caps))
+    except Exception:
+        pass  # a failed discovery must not fold every prompt to zero
+
+    return value
 
 
 def _flat_content(content) -> str:

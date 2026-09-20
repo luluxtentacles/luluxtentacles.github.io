@@ -197,6 +197,56 @@ def _is_free(m: dict) -> bool:
     return mid.endswith(":free") or price == 0
 
 
+_or_limits: dict[str, dict] = {}      # or model id -> context/max_output
+_gemini_limits: dict[str, dict] = {}  # gemini model name -> context/max_output
+_gemini_limits_ts = 0.0
+
+GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
+
+
+def _fetch_gemini_limits(gemini_key: str) -> None:
+    """Model token limits from Google's v1beta models list.
+
+    Limits are a property of the MODEL (not of the key), so one fetch per
+    TTL covers every key in the ladder. Failures are silent: an absent
+    entry just means no cap is applied for that model.
+    """
+    global _gemini_limits_ts
+    try:
+        request = urllib.request.Request(
+            GEMINI_MODELS_URL + "?key=" + gemini_key,
+            headers={"User-Agent": USER_AGENT},
+        )
+        with urllib.request.urlopen(request, timeout=15) as response:
+            data = json.load(response)
+        for m in data.get("models", []):
+            name = str(m.get("name", "")).removeprefix("models/")
+            if not name or not name.startswith("gemini"):
+                continue
+            _gemini_limits[name] = {
+                "context": int(m.get("inputTokenLimit") or 0),
+                "max_output": int(m.get("outputTokenLimit") or 0),
+            }
+        _gemini_limits_ts = time.time()
+    except Exception:
+        _gemini_limits_ts = time.time()  # do not retry every single call
+
+
+def model_limits(config: dict) -> dict:
+    """Known token limits per model: {model: {context, max_output}}.
+
+    Merges the Gemini and OpenRouter discoveries, refreshed at the same
+    TTLs those fetches run on. Modules that size prompts or budgets
+    against a model should read this instead of hardcoding numbers.
+    """
+    gemini_key = load_keys().get("gemini_key") or ""
+    if gemini_key and time.time() - _gemini_limits_ts > _OR_FREE_TTL:
+        _fetch_gemini_limits(gemini_key)
+    out = dict(_gemini_limits)
+    out.update(_or_limits)
+    return out
+
+
 def _or_models(config: dict, or_key: str) -> list[str]:
     """OpenRouter ladder: explicit config -> live free list -> defaults."""
     if config.get("or_models"):
@@ -222,6 +272,12 @@ def _or_models(config: dict, or_key: str) -> list[str]:
                 if "text" not in out_mods:
                     continue
                 ranked.append((int(m.get("context_length") or 0), mid))
+                top = (m.get("top_provider") or {}).get(
+                    "max_completion_tokens")
+                _or_limits[mid] = {
+                    "context": int(m.get("context_length") or 0),
+                    "max_output": int(top) if isinstance(top, int) else None,
+                }
             ranked.sort(reverse=True)
             models = [mid for _, mid in ranked]
             if models:
@@ -242,7 +298,8 @@ def _credit_error(code: int, detail: str) -> bool:
             or "insufficient" in lowered)
 
 
-def _attempt(provider: dict, payload: dict, cache: bool) -> dict:
+def _attempt(provider: dict, payload: dict, cache: bool,
+             limits: dict | None = None) -> dict:
     """One round trip to one provider. Returns the raw assistant message.
 
     On a provider-level failure the returned dict carries "_credit" (true
@@ -257,6 +314,15 @@ def _attempt(provider: dict, payload: dict, cache: bool) -> dict:
     }
     body = dict(payload)
     body["model"] = provider["model"]
+    limits = limits or {}
+    if "max_tokens" in body:
+        cap = (limits.get(provider["model"]) or {}).get("max_output")
+        if isinstance(cap, int) and cap > 0:
+            # Reasoning tokens are billed to the same budget, and the rungs
+            # disagree (gemini 65536 vs a free OR model's 4096), so the cap
+            # is per RUNG: a budget the model cannot honour is a 400
+            # waiting to happen, while one above its ceiling is harmless.
+            body["max_tokens"] = min(body["max_tokens"], cap)
     if cache and config_cache_ok(provider["base_url"]):
         body["messages"] = cache_breakpoints(body["messages"])
 
@@ -455,8 +521,10 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     if not providers:
         return {"content": "[no key: put the keys in brain_keys.json beside lulu_bot.py]"}
 
+    limits = model_limits(config)
     for provider in providers:
-        result = _attempt(provider, payload, cache=_PROMPT_CACHE)
+        result = _attempt(provider, payload, cache=_PROMPT_CACHE,
+                          limits=limits)
         if "_credit" in result:
             if provider["label"] == "go":
                 bench_go()

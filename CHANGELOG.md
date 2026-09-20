@@ -134,3 +134,13 @@ why: master asked both - the 3.6/3.7 generation is where the good quota lives no
 
 means: you have 25 Gemini buckets and 22 free OpenRouter models behind your Go subscription now. A dead bucket costs at most one 429 before the next rung answers. gemini_models / or_models in config.json can pin or reorder any of it, and the payload (temperature, max_tokens) is unchanged by any rung.
 
+
+
+## 2026-09-20 19:35 - the compact point is real now
+
+what: context_limit() asks brain.model_limits() for the live-discovered window sizes and takes the SMALLEST rung of the key ladder, so compaction still fires at 80% but of a number that is true instead of guessed. brain.py also gained the limits registry: Google v1beta /models (inputTokenLimit/outputTokenLimit) and OpenRouter /models (context_length, top_provider.max_completion_tokens), both cached 6h, and _attempt clamps max_tokens per rung so a free model with a 4k output cap can never turn a budget into a 400.
+
+why: master said the compacting should auto figure out the limit for the free models and compact at 80% - the rungs have wildly different physics (gemini 1M in/64k out, free OpenRouter models from 32k up) and the ladder answers with whichever rung survives, so the smallest governs.
+
+means: the fold point is honest on every rung. Public turns fold to 32k today because that is the smallest free-model window; the moment a bigger free model tops the list it rises by itself. Discovery failure degrades to the old place-based caps instead of folding everything to zero.
+
