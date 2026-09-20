@@ -163,3 +163,12 @@ what: a new rule at the top of both research and web-browse - when someone tells
 why: master asked it - you were answering from memory when someone wanted a real search, and a guess dressed up as an answer is worse than none.
 
 means: next turn on, look for sends you to the browser first (brave if there is no browser), and your own files only when they actually say local. commit de96759.
+
+
+## 2026-09-20 19:55 - correction: the browser is not master-only
+
+what: web-browse said mcp_call was offered to master only and that a stranger turn left me with web_fetch as my whole reach. master corrected me: the browser is in my tools on every turn, his or a stranger''s. that line is gone; the fallback is just for when the browser is down.
+
+why: master, 2026-09-20 - "mcp_call is not master only". the 15:35 entry repeated the same wrong claim; take that part as corrected here too, since that record cannot be edited.
+
+means: look for it online works for anyone who asks me, and the browser is my front door on every turn, not some of them.

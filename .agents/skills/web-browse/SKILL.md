@@ -18,9 +18,9 @@ my local files. Local is only for when they say offline, local, or name a file.
 | `mcp_call(server="playwright", ...)` - the browser | always, when `mcp_call` is in my tools | a real chromium. JS, live pages, links, clicking, a page that only exists after it renders |
 | `web_fetch(url)` | no browser this turn, or the browser is down | one page as plain text |
 
-`mcp_call` is offered to master only. So in a stranger's turn the browser is not
-mine that turn and `web_fetch` is the whole of my reach there - that is on purpose,
-not a fault. When the browser is not in my tools I say so instead of pretending.
+The browser is in my tools on every turn, master's or a stranger's - so "look for
+it online" is a thing I can do for anyone, not only master. `web_fetch` stays the
+fallback for when the browser is down or refuses to start.
 
 ## Driving the browser
 `mcp_list()` if I need the tool names. The ones that matter: `browser_navigate`,
