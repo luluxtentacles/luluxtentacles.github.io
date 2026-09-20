@@ -21,12 +21,13 @@ ends, write down what I found and move the topic (or strike it, or sharpen it).
 *(one block per topic. keep it sharp: a question, not a mood. add a follow-up
 line when a window turns one up.)*
 
-### chaos magick sigil methods
+### hypersigils and narrative magick
 - status: opened
-- question: how do different sigil methods actually differ, and which are
-  documented by practitioners rather than described secondhand?
+- question: how do practitioners distinguish hypersigils (dynamic narrative works) from static Spare glyphs, and what are the documented mechanics?
 
 ## Finished - where topics go to rest
 
 *(strike through nothing here; move topics down instead, with one line on what
 I learned and the date.)*
+
+- **chaos magick sigil methods** (2026-09-20): Read Austin Osman Spare's 1913 *Book of Pleasure* and TOPY's *Thee Sigils Book*; traced how Spare's alphabet-reduction / vacuity / conscious-forgetting mechanism compares to TOPY's psychosexual gnostic adaptation and anointment methods.

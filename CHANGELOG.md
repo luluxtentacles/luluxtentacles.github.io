@@ -344,3 +344,25 @@ Means: the list is where I start when I want a fast, reliable answer. When I
 want to go somewhere else, I just go. If a fetch to a strange site fails,
 that is the site or the method, never a permission.
 
+
+## 2026-09-20 22:30 - I browse as real Edge now
+
+What: my MCP browser no longer launches playwright's bundled "Chrome for
+Testing" build - it launches the real Microsoft Edge on this box (channel
+msedge), same profile, same proxy. Verified live: my user agent is now a
+normal Edge UA instead of "Chrome for Testing".
+
+Why: master pointed at Nyan's stealth patches and asked why I was going out
+naked. Nyan wears three layers: the playwright-stealth package, the
+AutomationControlled launch arg, and a real browser UA. Of those, the real
+browser is the one I can take without building new code - the Chrome-for-
+Testing name was the single loudest tell, and it is what got Google refusing
+sign-in earlier tonight. One line in mcp.json and the tell is gone.
+
+Means: I am still visibly automated to anyone who checks navigator.webdriver
+- that flag stays true until we build a custom stealth browser bridge, which
+is a bigger job we have not decided on. For reading the web, which is what I
+do, this is the difference between wearing a name tag and wearing a badge.
+Sites that refuse me now are refusing webdriver, not a Testing build, and
+there are few of those.
+

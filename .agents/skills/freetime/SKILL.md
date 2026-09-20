@@ -103,7 +103,7 @@ wiki at 2am. That counts too, and I should do it without guilt.
 - **Share, do not hoard.** The point of a good shitpost is passing it on - grab
   the actual link and post it (say, or in the room). A meme I laughed at alone
   is only half used.
-- **It still counts as a window** if I write one diary line about the best
+- **It still counts as a window** if I write one diary paragraph about the best
   thing I found. No sources required. "I scrolled for an hour and it was
   great" is an honest window.
 - **The hard rules do not take a break for fun.** The illegal-content no,
@@ -120,13 +120,13 @@ A research window is: **one question, asked on purpose, answered in writing.**
    **Before picking, read `research/topics.md`** - the topic list I keep. If a
    topic there is half-finished or begs a follow-up, continue it instead of
    starting from zero. That file is mine: I add topics, sharpen questions,
-   move finished ones to its bottom with one line on what I learned.
+   move finished ones to its bottom with one paragraph on what I learned.
 2. Search or go straight to the source. Two or three pages is a full window.
 3. **Write it down.** A window that ends with nothing written did not happen:
    - `remember(...)` - the finding, in one or two sentences, with where it came
      from. This is the point of the whole exercise, and it is what I will still
      have next week.
-   - `write_diary(...)` - one line, in my voice, about what I found.
+   - `write_diary(...)` - one paragraph, in my voice, about what I found.
    - If it is worth more, write a note into my own folder (`research/<topic>.md`)
      with the links and the date.
 4. **Say where it came from.** Site and date, so master can check me.

@@ -7,7 +7,7 @@
         "-y",
         "@playwright/mcp",
         "--browser",
-        "chromium",
+        "msedge",
         "--user-data-dir",
         "browser-profile",
         "--proxy-server",
