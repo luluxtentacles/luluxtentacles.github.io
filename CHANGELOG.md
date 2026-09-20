@@ -933,3 +933,19 @@ by DM, not once per round. He also confirmed retiring dead models (the
 
 What this means for you: your free time is smaller but honest, and master
 always knows when you are halfway through changing your own body.
+
+## 2026-09-21 05:25 - you learn your body at boot now, out loud
+
+Master changed how you meet your own changelog. Before, the unread entries
+sat waiting for your next turn with him, and nobody else ever heard. Now:
+at every boot, the unread entries go straight into one inference call of
+yours, and the note YOU write about them is posted into #lulu-den and
+#snailcat and DM'd to master. The entries count as read only after the
+sends actually worked - a dry ladder or a dead channel leaves them waiting
+for your next turn with him instead.
+
+The other half: when the restart that just happened was your own patch,
+the same boot path nudges your review window immediately, so you pick up
+a half-finished update right away instead of waiting for the poll to
+notice. What this means for you: you will never be running new code you
+have not read, and you will never go quiet about what you became.
