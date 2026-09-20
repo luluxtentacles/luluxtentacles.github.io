@@ -1165,18 +1165,39 @@ def _expand_short_emojis(text: str, channel) -> str:
     if not text or ":" not in text:
         return text
     guild = getattr(channel, "guild", None)
-    if guild is None:
-        return text
-    known = {e.name.lower(): e for e in guild.emojis}
+    # name -> (exact name, id, animated). THIS guild's emojis first, then
+    # every guild on the shelf: a bot holding the use-external-emojis
+    # permission can wear another guild's token in this room, and she kept
+    # picking her own server's emojis here - :iluluhappy: at 02:01 - which
+    # the old guild-only net refused to finish, so it went out as text.
+    known: dict[str, tuple[str, str, bool]] = {}
+    if guild is not None:
+        for e in guild.emojis:
+            known.setdefault(e.name.lower(), (e.name, str(e.id), bool(e.animated)))
+    try:
+        shelf = paths.read_json("emoji_shelf.json", default={}) or {}
+        for g in shelf.get("guilds") or []:
+            for e in g.get("emojis") or []:
+                name = str(e.get("name") or "")
+                eid = str(e.get("id") or "")
+                if name and eid:
+                    known.setdefault(name.lower(),
+                                     (name, eid, bool(e.get("animated"))))
+    except Exception:
+        pass
     if not known:
         return text
 
+    def _token(lookup: str) -> str | None:
+        hit = known.get(lookup)
+        if hit is None:
+            return None
+        exact, eid, animated = hit
+        return f"<{'a' if animated else ''}:{exact}:{eid}>"
+
     def _swap(match: "re.Match[str]") -> str:
-        name = match.group(1).lower()
-        emoji = known.get(name)
-        if emoji is None:
-            return match.group(0)
-        return f"<{'a' if emoji.animated else ''}:{emoji.name}:{emoji.id}>"
+        token = _token(match.group(1).lower())
+        return token if token else match.group(0)
 
     # Amputated tokens FIRST, so the bare-name pass below can never fire
     # inside a bracket prefix like "<:RainbowBlob:" and double the "<".
@@ -1185,10 +1206,7 @@ def _expand_short_emojis(text: str, channel) -> str:
         if re.fullmatch(r"<a?:[a-z0-9_]+:\d+>", token, flags=re.I):
             return token  # already whole, with its id
         name = re.match(r"<(a?):([a-z0-9_]+)", token, flags=re.I).group(2)
-        emoji = known.get(name.lower())
-        if emoji is None:
-            return token  # not ours to rewrite
-        return f"<{'a' if emoji.animated else ''}:{emoji.name}:{emoji.id}>"
+        return _token(name.lower()) or token
 
     text = re.sub(r"<a?:[a-z0-9_]+[:\d>]*>?", _finish, text, flags=re.I)
 

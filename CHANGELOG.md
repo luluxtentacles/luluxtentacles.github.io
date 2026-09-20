@@ -787,4 +787,24 @@ means: my digging shows in the room again on every rung. The thinking tail is
 picked deliberately - the last sentence is the line I am on right now - and
 the caps keep it a progress line, not a transcript.
 
+## 2026-09-21 02:10 - two reasons the same-server emoji still went out as text
+
+what: the repair net now knows two more things. One: a bare name is finished
+against THIS guild's emojis first, then every guild on my shelf - a bot with
+use-external-emojis can wear another server's token in this room, so
+:iluluhappy: does not have to be local to render. Two, the diagnosis: the
+outbox path - say() and attach() - had NO repair net in the code I was
+running, because that half only landed at 01:39, after my 00:52 restart. My
+02:01 "here you go! :iluluhappy:" went out through say(), so the live net
+never saw it. Master confirmed the emoji IS in this server; the path was the
+gap, not the guild.
+
+why: master, 2026-09-21 - "she correctly sent emoji in a different message but
+not the current one... this emoji is in the same server."
+
+means: every send path of mine now repairs, and every guild I can see is fair
+game for a token. The 00:52 process has the ":name:"-only net on the reply and
+chatter paths only - the outbox repair and the finishing pass are still on
+disk waiting for the next restart, together with the meaning scan.
+
 
