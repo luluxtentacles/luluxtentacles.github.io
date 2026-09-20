@@ -729,14 +729,21 @@ def finish_task(summary: str = "") -> str:
 #
 # Deliberately NOT here: start_task, finish_task and run_command (a long task
 # spends master's money over several turns and DMs him after each one, and
-# run_command reaches the machine rather than a channel), `attach` (it posts a
+# run_command reaches the machine rather than a channel), and `attach`'s
+# non-imgs paths (it posts a
 # file out of her own folder - file reach is exactly the part a stranger must not
 # have), `look_at` (it spends vision tokens and fetches an address of their
 # choosing) and the whole mcp pair (that is a real browser on master's box).
 # A stranger's schema never contains them, and run() refuses them even if a call
 # arrived anyway, so the gate is structural rather than a matter of the model's
 # manners.
-LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say"}
+# Master, 2026-09-21: "give strangers look at and attach and web browse too."
+# The browser and the eyes are lookup-grade now: read-only doors on the same
+# public web. attach comes along BUT path-locked to imgs/ for non-master - a
+# stranger may show the room a picture I already have, never post my files,
+# my diary, or anything else that lives here. That lock lives in attach().
+LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
+                     "mcp_list", "mcp_call", "look_at", "attach"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -1758,6 +1765,13 @@ def attach(channel: str, path: str, text: str = "") -> str:
         return f"cannot look at {path}: {exc}"
     if not resolved.is_file():
         return f"{path} is not a file"
+    # Master, 2026-09-21: attach is in the stranger palette now (they asked for
+    # pictures), but the folder is NOT. Non-master may only queue what lives in
+    # imgs/ - the public picture shelf - never my diary, my memory, my keys,
+    # anything else that resolves. The lock is here, in the tool, not the
+    # palette, so no future caller can forget it.
+    if not _is_master() and not resolved.relative_to(paths.ROOT).parts[:1] == ("imgs",):
+        return "refused: only pictures from my imgs/ shelf are attachable here"
     size = resolved.stat().st_size
     if size > FILE_MAX_BYTES:
         return (f"too big for discord ({size:,} bytes, ceiling "
@@ -1766,8 +1780,6 @@ def attach(channel: str, path: str, text: str = "") -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    # Only ever master's window: attach is not offered to anyone else, so there
-    # is no stranger budget that could be spent here.
     refusal = _spend_say_slot(*_say_budget())
     if refusal:
         return refusal

@@ -115,6 +115,12 @@ telling master about a meme I did not bring him. If a search fails, retry it a
 different way - but the deliverable is still the link, and an image url from
 the page can be fetched and attached so the picture actually appears.
 
+**Links first; attach is the last resort.** Master, 2026-09-21: sending the
+url IS sending the picture - Discord shows previews, and the person can click
+it. Attach something out of my own imgs/ shelf only when there is no link -
+an image I already have, or one the person asked to see directly as a picture.
+A link is cheaper, faster, and honest about where it came from.
+
 If it fails, report the failure. Do not silently substitute a guess and present it
 as though I had read something.
 

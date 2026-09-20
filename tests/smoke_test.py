@@ -2670,12 +2670,37 @@ def _say_guard() -> str:
         expect(len(queued) == 4, f"drain returned {len(queued)}, expected 4")
         expect(not tools._OUTBOX, "drain did not empty the outbox")
 
-        # 8. the fences that did NOT move. `attach` is the one that matters -
-        # file reach stayed master's when speech was opened up - and the mcp pair
-        # had no assertion here at all, so it gets one now.
-        for name in ("attach", "mcp_call", "mcp_list", "look_at", "run_command"):
+        # 8. the fences that moved and the ones that did not. Master opened
+        # attach/look_at/the browser pair to strangers (2026-09-21), so the new
+        # contract is: they ARE offered, attach is path-locked to imgs/ for
+        # non-master, and the truly dangerous doors stay shut.
+        for name in ("attach", "mcp_call", "mcp_list", "look_at"):
+            expect(name in tools.LOOKUP_TOOL_NAMES,
+                   f"{name} was not offered to strangers - master opened it")
+        for name in ("run_command", "write_file", "patch_file", "write_diary",
+                     "learn_person", "start_task"):
             expect(name not in tools.LOOKUP_TOOL_NAMES,
                    f"{name} is offered to people who are not master")
+        # the attach lock is in the tool, not the palette: a non-master path
+        # outside imgs/ must be refused even with the palette open
+        tools.set_context("stranger-probe", master=False)
+        got = tools.run("attach", {"channel": "probe", "path": "CHANGELOG.md"},
+                        allowed=tools.LOOKUP_TOOL_NAMES)
+        expect(got.startswith("refused:"),
+               f"a stranger attached a non-imgs file: {got}")
+        # and a picture from the shelf passes the lock (the rate limit may
+        # refuse later in the same call - the LOCK is what this pins, so
+        # anything that is not the lock refusal is the lock working)
+        got = tools.run("attach", {"channel": "probe", "path": "imgs/manoel.jpg"},
+                        allowed=tools.LOOKUP_TOOL_NAMES)
+        expect(got.startswith("queued") or "spoken up as often" in got,
+               f"a stranger could not attach from imgs/: {got}")
+        # run() verifies the tool sees the caller: master bypasses the lock
+        tools.set_context("1", master=True)
+        got = tools.run("attach", {"channel": "probe", "path": "CHANGELOG.md"},
+                        allowed=None)
+        expect(got.startswith("queued") or "spoken up as often" in got,
+               f"master could not attach his own file: {got}")
     finally:
         tools.set_context(None)
         tools._OUTBOX.clear()
@@ -3552,12 +3577,10 @@ def _look_at() -> str:
     import vision
     import webtool
 
-    # 1. strangers cannot reach it - it spends vision tokens and picks an address
-    expect("look_at" not in tools.LOOKUP_TOOL_NAMES,
-           "look_at is offered to people who are not master")
-    out = tools.run("look_at", {"url": "https://example.invalid/x.png"},
-                    allowed=tools.LOOKUP_TOOL_NAMES)
-    expect(out.startswith("refused:"), f"a stranger could fetch an image: {out}")
+    # 1. it is in the stranger palette now (master, 2026-09-21) - the address
+    # guard and the brain gate are what protect it, not the palette
+    expect("look_at" in tools.LOOKUP_TOOL_NAMES,
+           "look_at was not offered to strangers - master opened it")
 
     # 2. registered in both halves, or the schema and what runs have drifted
     names = {t["function"]["name"] for t in tools.SCHEMA}
@@ -3628,7 +3651,8 @@ def _look_at() -> str:
             ("gif", b"GIF89a", "image/gif"),
             ("webp", b"RIFF\x00\x00\x00\x00WEBPVP8 ", "image/webp")):
         expect(vision.sniff(body) == want, f"sniff missed {label}")
-    return ("owner-only, reuses webtool's address guard (file:// and loopback "
+    return ("open to strangers per master's 2026-09-21 rule, reuses webtool's "
+            "address guard (file:// and loopback "
             "refused), stops before fetching with no brain, the per-message "
             "total cap is real, and a non-image is dropped rather than "
             "relabelled and forwarded")

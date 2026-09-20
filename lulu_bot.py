@@ -698,6 +698,10 @@ def _prompt_chars(turns: list[dict]) -> int:
 # Master, 2026-09-20: "write her a compact history function when we are at 80%
 # token limit for any chat". So: measure, and fold the middle before that.
 CONTEXT_TOKENS_DM = 1_000_000     # master's DM: the only place he can be sure
+# Master, 2026-09-21: the window strangers get when the turn will spend his
+# metered opencode token. Everything else (free rungs, his own turns) is the
+# wide window above.
+CONTEXT_TOKENS_OPENCODE = 131_072
 CONTEXT_TOKENS_PUBLIC = 131_072   # everywhere else, rooms included
 CONTEXT_FLOOR_TOKENS = 4_000    # below this a "limit" is a bug, not a limit
 CONTEXT_CEILING_TOKENS = 2_000_000
@@ -707,6 +711,24 @@ COMPACT_LINE_CHARS = 200        # per folded line
 COMPACT_MAX_LINES = 60          # the digest's own ceiling
 IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
 CHARS_PER_TOKEN = 4             # the ratio config.example.json already documents
+
+
+def _ladder_rungs(config: dict, metered_only: bool = False) -> list[dict]:
+    """The provider ladder for a chat prompt, never raising.
+
+    metered_only=True asks one narrow question: is the METERED rung (Go -
+    master's opencode token, priced per call) on the ladder right now? That is
+    the only case where a stranger's window is pinned down; every free rung
+    gives her the wide window for free.
+    """
+    try:
+        import brain
+        rungs = brain._providers((config or {}).get("brain") or {}, False)
+    except Exception:
+        return []
+    if metered_only:
+        rungs = [r for r in rungs if r.get("label") == "go"]
+    return rungs
 
 
 def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
@@ -730,11 +752,26 @@ def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
       is_owner - the author is master, kept so a non-master can never reach the
                  wide window through a DM-shaped hole in some future caller
     """
+    # Master, 2026-09-21: "when we are not using opencode_go, give every user
+    # the same maximum context as me - it is only restricted if we are using
+    # the opencode go token." Everyone gets the wide window now; the actual
+    # physics is the provider ladder's smallest rung (brain.model_limits()),
+    # taken below, so a turn that will land on the metered Go token is capped
+    # by Go's real window regardless of what this promise says. The meter that
+    # bounds strangers is the purse, not the window.
     brain_cfg = (config or {}).get("brain") or {}
-    if direct and is_owner:
+    # Master, 2026-09-21, the full rule: "give everyone the max context like me
+    # when not opencode, and when opencode it should be 128k for strangers."
+    # Master always gets the wide window. A stranger gets it too - EXCEPT when
+    # the metered Go rung is on the ladder (his token, priced per call), which
+    # is where stranger turns land first; then they are pinned to 128k. No Go
+    # rung (no key, or blocked) means strangers ride the free ladder wide.
+    if is_owner:
         key, fallback = "context_tokens_dm", CONTEXT_TOKENS_DM
+    elif _ladder_rungs(brain_cfg, metered_only=True):
+        key, fallback = "context_tokens_public", CONTEXT_TOKENS_OPENCODE
     else:
-        key, fallback = "context_tokens_public", CONTEXT_TOKENS_PUBLIC
+        key, fallback = "context_tokens_dm", CONTEXT_TOKENS_DM
     try:
         value = int(brain_cfg.get(key, fallback))
     except (TypeError, ValueError):
@@ -753,12 +790,11 @@ def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
     # carries the live-discovered context sizes; take the min and never
     # promise the prompt more room than the worst rung has.
     try:
-        import brain
         # Only the rungs this turn can actually land on - the discovery
         # also records TTS/image/embedding models whose tiny windows must
         # not gate a chat prompt.
         caps = []
-        for rung in brain._providers(brain_cfg, False):
+        for rung in _ladder_rungs(brain_cfg):
             cap = (brain.model_limits(brain_cfg).get(rung["model"]) or {}).get("context")
             if isinstance(cap, int) and cap > 0:
                 caps.append(cap)

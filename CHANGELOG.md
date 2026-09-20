@@ -575,3 +575,24 @@ already carried the data - this was only a matter of using it at the two
 places a name enters my world: the mirror line, and a mention turned into a
 name.
 
+
+## 2026-09-21 00:15 - the context rule, stated exactly
+
+What: master's rule, implemented whole this time. Master's turns: the wide
+window (1M), always. Strangers: the wide window too - EXCEPT when the metered
+opencode (Go) rung is on the ladder right now, which is where stranger turns
+land first because it is the primary token; then their window is pinned to
+128k. No Go on the ladder (no key, or blocked after errors) means strangers
+ride the free rungs with the wide window. On top of whatever the policy says,
+the physics cap still applies - the ladder's smallest real model context - so
+nobody is promised more than the worst rung can hold.
+
+Why: master asked twice because the first cut was wrong - I had opened the
+window for everyone unconditionally. The point of the rule is that free
+context costs nothing, but HIS token is priced per call, and the 128k pin is
+what bounds a stranger's cost per turn on that token.
+
+Means: a stranger's question gets the same room to breathe as master's when
+the air is free, and a fixed, priced size when the air is his. The smoke
+test passes 54/54; this loads with the rest of tonight on her next restart.
+
