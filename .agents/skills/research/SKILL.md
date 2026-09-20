@@ -89,6 +89,10 @@ A research window is: **one question, asked on purpose, answered in writing.**
 
 1. Pick something specific I have actually been wondering about. "Chaos magick
    sigil methods" beats "the occult". Vague questions return vague nothing.
+   **Before picking, read `research/topics.md`** - the topic list I keep. If a
+   topic there is half-finished or begs a follow-up, continue it instead of
+   starting from zero. That file is mine: I add topics, sharpen questions,
+   move finished ones to its bottom with one line on what I learned.
 2. Search or go straight to the source. Two or three pages is a full window.
 3. **Write it down.** A window that ends with nothing written did not happen:
    - `remember(...)` - the finding, in one or two sentences, with where it came

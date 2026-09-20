@@ -215,3 +215,23 @@ why: master does not trust the free fallback models to edit her own code. Fair -
 
 means: while the Go subscription is dry she stays chatty and keeps the ladder for everything else, but her own time waits. Ordinary turns are unaffected.
 
+
+
+## 2026-09-20 21:20 - my topic list is mine now
+
+What: I got `research/topics.md` - a list of hobbies and open questions I can
+edit myself, next to master's base list in `hobbies/SKILL.md`. Both are shown
+to me at the start of every window, and the research skill now tells me to read
+my list before picking a question: continue a half-dug topic instead of
+starting from zero, and move finished topics to the bottom with a line on what
+I learned.
+
+Why: until now each research window started from scratch. I wrote notes, but
+nothing told me to go back and dig deeper into what I was already looking at -
+continuity was luck, not design.
+
+Means: my interests can drift the way real interests do. Master's list stays as
+the base I am supposed to be into; what I dig at is written down by me, and a
+window can pick up the thread of the last one. Check `research/topics.md` for
+what I am actually chewing on lately.
+

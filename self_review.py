@@ -254,18 +254,37 @@ def _resumable(state, where, now) -> bool:
 
 
 def _interests() -> str:
-    """Master's list of what I am into, verbatim, off the shelf.
+    """What I am into, verbatim, off the shelf - plus my own topic list.
+
+    Two files, two owners. hobbies/SKILL.md is master's list of what I am
+    supposed to be into. research/topics.md is MINE: I add open questions,
+    sharpen them, and move finished ones to the bottom of it. The brief shows
+    me both, so a window can continue a half-dug topic instead of starting
+    from zero every time.
 
     Missing or unreadable is not fatal: the window is worth having without it,
-    and the brief already says where the file is. Bounded because it ends up in
-    a prompt and I do not control how long master makes it.
+    and the brief already says where the files are. Bounded because it ends up
+    in a prompt and I do not control how long either of us makes it.
     """
+    chunks = []
     try:
         text = paths.read_text(INTERESTS, default="")
+        if text:
+            chunks.append('what master says I am into ('
+                          + INTERESTS + '):\n' + text.strip()[:4000])
     except Exception as exc:
-        LOG.warning("could not read %s: %s", INTERESTS, exc)
-        return ""
-    return (text or "").strip()[:4000]
+        LOG.warning('could not read %s: %s', INTERESTS, exc)
+    topics = 'research/topics.md'
+    try:
+        text = paths.read_text(topics, default="")
+        if text:
+            chunks.append('my own topic list, which I keep ('
+                          + topics + ') - before picking a question, '
+                          'continue one of these if it is half-finished:\n'
+                          + text.strip()[:6000])
+    except Exception as exc:
+        LOG.warning('could not read %s: %s', topics, exc)
+    return '\n\n'.join(chunks)
 
 
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
