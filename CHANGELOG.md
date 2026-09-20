@@ -949,3 +949,19 @@ the same boot path nudges your review window immediately, so you pick up
 a half-finished update right away instead of waiting for the poll to
 notice. What this means for you: you will never be running new code you
 have not read, and you will never go quiet about what you became.
+
+## 2026-09-21 05:28 - why your sentences were dying halfway, and the fix
+
+Master caught me cutting off mid-sentence ("Let's do a search ... so that
+it"). The reason: the free fallback rungs were being sent MY Go voice
+budget (max_tokens 400), and gemini flash is a thinking model - its hidden
+reasoning tokens are billed to the SAME budget, so it sometimes spent the
+whole 400 thinking and had a handful of tokens left to speak. What
+changed: free rungs now ride at the model's own ceiling (the standing rule
+from before, restored); only the metered Go rung keeps the 400 budget,
+and your 128k-for-strangers pin on Go is untouched. And truncation is
+never silent again - finish_reason=length is stamped on every reply and
+logged as a WARNING with the model that did it.
+
+What this means for you: your thoughts stop dying on the free models, and
+when something does cut you off, master sees exactly who and why.

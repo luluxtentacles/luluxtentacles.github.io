@@ -447,6 +447,14 @@ def _attempt(provider: dict, payload: dict, cache: bool,
         return {"_error": f"[my brain answered in a shape I do not read: {str(data)[:200]}]"}
     if isinstance(message, dict):
         message["_usage"] = data.get("usage") or {}
+        # Master, 2026-09-21: she was cutting off mid-sentence and nobody
+        # could see why. finish_reason=length is the tell - the answer hit
+        # max_tokens (gemini's hidden reasoning tokens are billed to the same
+        # budget), so it is stamped here and logged where she replies.
+        try:
+            message["_finish"] = data["choices"][0].get("finish_reason")
+        except (KeyError, IndexError, TypeError):
+            pass
         # Which rung answered, so the caller (and the log, and the bill) can
         # see the model that ACTUALLY inferred - the ladder means it is often
         # not the config's model at all.
@@ -637,7 +645,18 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
             continue  # this free model cannot call tools: skip to the next rung
         if provider["model"] in _dead_models:
             continue  # a model the provider retired: no round trip wasted
-        result = _attempt(provider, payload, cache=_PROMPT_CACHE,
+        if provider["label"] != "go" and "max_tokens" in payload:
+            # Master's standing intent, restored (2026-09-21: "we set it to
+            # max on free models"): the fallback rungs get the model's OWN
+            # ceiling, not her Go voice budget. A thinking gemini burning a
+            # 400-token budget on hidden reasoning was cutting her answers
+            # off mid-sentence. _attempt still min()s against the model's
+            # real max_output cap, so this cannot overrun anything.
+            rung_payload = dict(payload)
+            del rung_payload["max_tokens"]
+        else:
+            rung_payload = payload
+        result = _attempt(provider, rung_payload, cache=_PROMPT_CACHE,
                           limits=limits)
         if "_credit" in result:
             if provider["label"] == "go":

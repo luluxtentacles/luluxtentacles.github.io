@@ -2795,6 +2795,16 @@ class Lulu(discord.Client):
             note = brain.usage_note(reply.get("_usage"))
             if note:
                 note = f"[{used_model}] " + note
+            if reply.get("_finish") == "length":
+                # She was cut off mid-sentence: the budget spent itself on
+                # reasoning before she finished speaking. Master saw this on
+                # 2026-09-21 ("cutting off half way on output") - it must
+                # never be silent again.
+                LOG.warning("answer truncated at the token budget "
+                            "(finish_reason=length, model=%s) - her Go "
+                            "budget is the only cap that should ever do "
+                            "this", used_model)
+                note = (note + " | TRUNCATED (finish_reason=length)").strip()
             if note:
                 stats = brain.cache_stats(reply.get("_usage"))
                 if stats["prompt"]:
