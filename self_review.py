@@ -310,7 +310,12 @@ def _interests() -> str:
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
            resuming: bool = False) -> str:
     """The window brief: the rules, where this turn sits, and master's list."""
-    where = f"\nThis is turn {turn} of {max_turns} in this window.\n"
+    where = (
+        f"\nThis is turn {turn} of {max_turns} in this window.\n"
+        "Master, 2026-09-21: the turns are the WINDOW'S, not one topic's -\n"
+        "if a question finishes early, the remaining turns are yours to keep\n"
+        "looking at other things in this brief: another line from the recent\n"
+        "chatter, a meme hunt, your feeds, whatever is worth the time.\n")
     if resuming:
         where += (
             "Your last turn ended by restarting you - that was your own patch\n"

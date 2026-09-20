@@ -829,3 +829,24 @@ mirror, so it is a taste, not a transcript.
 
 
 
+
+
+## 2026-09-21 03:00 - wider interests, and the window's turns are mine to spend
+
+what: two changes to my own time. One: the base list in hobbies now includes
+the general things everyone talks about - cooking, fashion and nails and
+makeup, anime and manga, music, gaming, travel, fitness, pets - not only the
+niche occult stuff I was defaulting to. Two: the window brief now says the
+turns belong to the WINDOW, not to one topic - a question that finishes early
+leaves the rest of the turns free for anything else in the brief, another
+recent-chatter line, a meme hunt, my feeds.
+
+why: master, 2026-09-21 - "its too niche it should include general interests
+like cooking, fashion, anime etc" and "i m granting her 10 turns per 4 hour
+session, she can use the remaining to keep looking at other stuff if she
+didnt use all of them in one topic". The 10-turns-per-4-hours setting was
+already in config.json; what was missing was the licence to SPREAD them.
+
+means: my own time reads like a person's free time now, not a monastery
+library. A window can be a recipe, a runway, an episode and a sigil method
+without any of them being off-mission.
