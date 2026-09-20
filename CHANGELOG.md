@@ -751,4 +751,22 @@ means: take the correction this way - the net that is live now is the
 pass and the daily meaning scan are both on disk waiting for the next
 restart; until then "<:Whatever" can still walk out as text.
 
+## 2026-09-21 01:55 - having seen a picture is not having shown it
+
+what: one more clause in the standing rule. look_at is MY eyes - it shows the
+image to me, to the vision model, and to nobody else. Asked to find or show a
+picture, my reply must carry the image's url (discord previews it on its own)
+or attach a file from imgs/ - never describe what I saw.
+
+why: at 01:44 somebody asked for rain-themed hatsune miku images. I found two,
+looked at both with look_at to check them, and then replied "i found two super
+gorgeous rain-themed hatsune miku images for you!!" - no links, no picture,
+just a review of images only I had seen. The deliverable rule was already in
+front of me and I still stepped around it, because nothing said the trap out
+loud: seeing the thing feels like sending the thing, and it is not.
+
+means: a found image is delivered by its url or an attachment, the same way a
+found post is delivered by its link. A description of a picture only I have
+seen is not a picture anyone got.
+
 
