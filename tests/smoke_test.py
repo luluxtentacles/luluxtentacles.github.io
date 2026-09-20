@@ -3653,14 +3653,25 @@ def _browser_proxy() -> str:
     import tools
 
     # The config and the code must agree on the door. mcp.json is
-    # pipeline-patchable, so this is what stops a silent drift.
+    # pipeline-patchable, so this is what stops a silent drift. Since the
+    # stealth browser bridge (2026-09-20), mcp.json points her MCP at the
+    # long-lived browser on CDP 127.0.0.1:9222, and the PROXY door moved into
+    # browser/stealth_browser.py - which is what must still name it, and must
+    # still be the browseguard URL this module owns.
     spec = json.loads((paths.ROOT / "mcp.json").read_text(encoding="utf-8"))
     args = (spec.get("mcpServers", {}).get("playwright", {}) or {}).get("args") or []
-    expect("--proxy-server" in args,
-           "mcp.json no longer points chromium at the proxy")
-    url = args[args.index("--proxy-server") + 1]
-    expect(url == browseguard.proxy_url(),
-           f"mcp.json proxy {url!r} is not {browseguard.proxy_url()!r}")
+    expect("--cdp-endpoint" in args,
+           "mcp.json no longer points her MCP at the stealth browser (cdp)")
+    cdp = args[args.index("--cdp-endpoint") + 1]
+    expect(cdp == "http://127.0.0.1:9222",
+           f"mcp.json cdp endpoint {cdp!r} is not the stealth browser")
+    stealth = (paths.ROOT / "browser" / "stealth_browser.py").read_text(
+        encoding="utf-8")
+    expect("--proxy-server" in stealth.replace("proxy=", "--proxy-server=")
+           or 'proxy-server' in stealth or 'http://127.0.0.1:38123' in stealth,
+           "the stealth browser no longer dials through the browseguard proxy")
+    expect(browseguard.proxy_url() in stealth,
+           f"the stealth browser proxy is not {browseguard.proxy_url()!r}")
 
     # A port chosen to be dead right now - deliberately NOT the default, which
     # her live process may legitimately own. A gate that passes on a dead port

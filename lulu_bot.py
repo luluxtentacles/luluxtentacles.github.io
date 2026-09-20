@@ -1076,6 +1076,7 @@ def ensure_stealth_browser() -> None:
         return
     try:
         import subprocess
+        import sys
         script = paths.resolve("browser/stealth_browser.py")
         subprocess.Popen(
             [sys.executable, str(script)],
