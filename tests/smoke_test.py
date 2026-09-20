@@ -3263,6 +3263,11 @@ def _limits() -> str:
 # channel was already permanently mute. (2) the port dropped Nyan's decay job, so
 # a sleeping channel never got likelier. Neither throws. Both just make her
 # quieter, which reads as her being boring rather than broken.
+# Master's rules, 2026-09-20: the chance is ONE PER SERVER - every message in
+# any channel tightens the same shared odds and she replies in the channel
+# whose message landed the roll - the timer tightens one per hour, and the
+# cooldown after she speaks is once per hour. The check pins the guild-keyed
+# shape ("g<guild id>") the per-server chance lives under.
 def _chatter() -> str:
     import time
 
@@ -3277,48 +3282,65 @@ def _chatter() -> str:
     #    found on disk (352836s of uptime, against 6.5h of the then-current one).
     poisoned = {"chance": lulu_bot.CHATTER_CHANCE_BASE,
                 "last_reply": 352836.171}
-    bot.chatter_state = {"1": dict(poisoned)}
+    bot.chatter_state = {"g1": dict(poisoned)}
 
     real_random = lulu_bot.random.random
     lulu_bot.random.random = lambda: 0.0          # forces the roll to land
     try:
-        landed = bot._rolling_roll(1)
+        landed = bot._rolling_roll(1, guild_id=1)
     finally:
         lulu_bot.random.random = real_random
     expect(landed,
            "a stamp from a previous boot still holds the cooldown shut - the "
-           "monotonic clock is back, and that channel can never speak again")
-    expect(bot.chatter_state["1"]["last_reply"] > 1_600_000_000,
+           "monotonic clock is back, and that server can never speak again")
+    expect(bot.chatter_state["g1"]["last_reply"] > 1_600_000_000,
            "last_reply is not a wall-clock stamp, so it cannot survive a reboot")
 
-    # and a reply made moments ago must still be held off
-    bot.chatter_state = {"1": {"chance": lulu_bot.CHATTER_CHANCE_BASE,
-                               "last_reply": time.time()}}
-    bot.chatter_state["1"]["chance"] = 1 / lulu_bot.CHATTER_MIN_DENOMINATOR
+    # and a reply made moments ago must still be held off - server-wide, so the
+    # cooldown is keyed on the GUILD, not on whichever channel rolled
+    bot.chatter_state = {"g1": {"chance": lulu_bot.CHATTER_CHANCE_BASE,
+                                "last_reply": time.time()}}
+    bot.chatter_state["g1"]["chance"] = 1 / lulu_bot.CHATTER_MIN_DENOMINATOR
     lulu_bot.random.random = lambda: 0.0
     try:
-        expect(not bot._rolling_roll(1),
-               "the 15-minute cooldown is not holding at all")
+        expect(not bot._rolling_roll(2, guild_id=1),
+               "the once-per-hour server cooldown is not holding at all")
     finally:
         lulu_bot.random.random = real_random
 
-    # 2. the decay timer: Nyan's other half, which the port had dropped.
-    expect(lulu_bot.CHATTER_DECAY_SECONDS > 0, "no decay interval is set")
+    # one shared chance: every channel feeds the same entry, and the entry the
+    # roll lands in is the guild's, wherever the message came from
+    bot.chatter_state = {}
+    lulu_bot.random.random = lambda: 0.99         # forces the roll to miss
+    try:
+        bot._rolling_roll(11, guild_id=1)
+        bot._rolling_roll(12, guild_id=1)
+    finally:
+        lulu_bot.random.random = real_random
+    expect("g1" in bot.chatter_state,
+           "messages in two channels did not tighten the one shared chance")
+    expect(len([k for k in bot.chatter_state if not str(k).startswith("g")]) == 0,
+           "the roll grew a per-channel entry - the chance is no longer "
+           "shared across the server")
 
-    bot.chatter_state = {"1": {"chance": 1 / 200, "last_reply": 0.0},
-                         "2": {"chance": 1 / lulu_bot.CHATTER_MIN_DENOMINATOR,
-                               "last_reply": 0.0}}
+    # 2. the decay timer: Nyan's other half, which the port had dropped.
+    expect(lulu_bot.CHATTER_DECAY_SECONDS == 60 * 60,
+           "the timer no longer tightens once per hour")
+
+    bot.chatter_state = {"g1": {"chance": 1 / 200, "last_reply": 0.0},
+                         "g2": {"chance": 1 / lulu_bot.CHATTER_MIN_DENOMINATOR,
+                                "last_reply": 0.0}}
     expect(bot._decay_once() == 1,
-           "the decay pass did not loosen exactly the one channel with room")
-    expect(round(1 / bot.chatter_state["1"]["chance"]) == 199,
+           "the decay pass did not loosen exactly the one server with room")
+    expect(round(1 / bot.chatter_state["g1"]["chance"]) == 199,
            f"the decay moved the denominator wrong: "
-           f"{round(1 / bot.chatter_state['1']['chance'])}")
-    expect(1 / bot.chatter_state["2"]["chance"] == lulu_bot.CHATTER_MIN_DENOMINATOR,
-           "the decay pushed a channel past the 1/2 floor")
+           f"{round(1 / bot.chatter_state['g1']['chance'])}")
+    expect(1 / bot.chatter_state["g2"]["chance"] == lulu_bot.CHATTER_MIN_DENOMINATOR,
+           "the decay pushed a server past the 1/2 floor")
 
     # it must survive junk rather than taking the event loop down with it
-    bot.chatter_state = {"bad": {}, "worse": {"chance": 0},
-                         "nan": {"chance": float("nan")}}
+    bot.chatter_state = {"gbad": {}, "gworse": {"chance": 0},
+                         "gnan": {"chance": float("nan")}}
     try:
         bot._decay_once()
     except Exception as exc:
@@ -3329,9 +3351,10 @@ def _chatter() -> str:
     src = inspect.getsource(lulu_bot.Lulu.on_ready)
     expect("_chatter_decay" in src,
            "the decay loop exists but is never started in on_ready")
-    return (f"chatter: wall-clock stamp survives a reboot, cooldown holds, "
-            f"decay 1/n -> 1/n-1 floored at "
-            f"1/{lulu_bot.CHATTER_MIN_DENOMINATOR}, started in on_ready")
+    return (f"chatter: one shared chance per server, wall-clock stamp survives "
+            f"a reboot, once-per-hour cooldown, decay 1/n -> 1/n-1 per hour "
+            f"floored at 1/{lulu_bot.CHATTER_MIN_DENOMINATOR}, "
+            f"started in on_ready")
 
 
 def _supersede() -> str:

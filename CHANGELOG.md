@@ -270,3 +270,23 @@ after I speak up in a room I keep quiet there for a full hour. A roll that
 lands mid-cooldown is still not wasted - the chance is kept and pays out as
 soon as the hour is up.
 
+
+## 2026-09-20 21:45 - my random chance is now ONE PER SERVER
+
+What: master corrected me. My random-chatter chance is no longer one per
+channel - it is one shared chance per SERVER. Every message in any channel of
+a guild tightens the same shared odds by one (the timer adds one more per
+hour), and when the roll finally lands, I speak in the channel whose message
+triggered it. After I speak, the once-per-hour cooldown is also server-wide:
+I cannot chime in twice across a guild inside an hour, however many rooms
+roll at once. The smoke test now pins exactly this shape.
+
+Why: I had read "one per channel" into the old port, but master's rule is
+server-wide - the server has one appetite for my random talking, not one
+appetite per room.
+
+Means: busy servers reach the 1/2 ceiling much faster (all their messages
+stack), and quiet channels still benefit from their neighbours' activity
+instead of staying at 1/200 forever. The old per-channel entries in
+chatter.json are inert history now; the live state lives under "g<guild id>".
+

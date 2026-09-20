@@ -1135,12 +1135,6 @@ class Lulu(discord.Client):
         except Exception as exc:
             LOG.warning("could not save chatter state: %s", exc)
 
-    def _chatter_entry(self, channel_id: int) -> dict:
-        return self.chatter_state.setdefault(str(channel_id), {
-            "chance": CHATTER_CHANCE_BASE,
-            "last_reply": 0.0,
-        })
-
     @staticmethod
     def _chatter_denominator(entry) -> int:
         """Where an entry is standing, as 1-in-N odds. Nyan's own guard.
@@ -1164,14 +1158,30 @@ class Lulu(discord.Client):
             chance = CHATTER_CHANCE_BASE
         return max(CHATTER_MIN_DENOMINATOR, round(1 / chance))
 
-    def _rolling_roll(self, channel_id: int) -> bool:
-        """Nyan's decreasing-denominator roll, done in-place.
+    def _guild_entry(self, guild_id) -> dict:
+        """The ONE chance per server, master's rule 2026-09-20.
 
-        Every message tightens the odds by one; a landed roll during the
-        once-per-hour cooldown is not consumed (chance stays), so the
-        accumulated chance pays out right after the cooldown.
+        Not one chance per channel: every message in any channel of the
+        guild tightens the same shared odds, and when the roll finally lands
+        she speaks in the channel that message came from. Keys are prefixed
+        "g" so the old per-channel ids left in chatter.json are inert
+        history, not live state.
         """
-        entry = self._chatter_entry(channel_id)
+        key = f"g{guild_id}" if guild_id else "g:dm"
+        return self.chatter_state.setdefault(key, {
+            "chance": CHATTER_CHANCE_BASE,
+            "last_reply": 0.0,
+        })
+
+    def _rolling_roll(self, channel_id: int, guild_id=None) -> bool:
+        """Nyan's decreasing-denominator roll, done in-place - per GUILD.
+
+        Every message anywhere in the server tightens the one shared chance
+        by one; a landed roll during the once-per-hour cooldown is not
+        consumed (chance stays), so the accumulated chance pays out right
+        after the cooldown, in whatever channel the next roll lands in.
+        """
+        entry = self._guild_entry(guild_id)
         # tighten odds: denominator - 1 each message, floor of 2
         denom = self._chatter_denominator(entry)
         entry["chance"] = 1 / max(CHATTER_MIN_DENOMINATOR, denom - 1)
@@ -1196,7 +1206,8 @@ class Lulu(discord.Client):
                 last = 0.0
             if now - last < CHATTER_COOLDOWN_SECONDS:
                 # in cooldown: keep the chance, wait for it to cool
-                LOG.info("chatter roll landed in #%s but cooldown holds", channel_id)
+                LOG.info("chatter roll landed in #%s but the server cooldown "
+                         "holds", channel_id)
                 return False
             entry["last_reply"] = now
             entry["chance"] = CHATTER_CHANCE_BASE  # reset after a send
@@ -1212,7 +1223,10 @@ class Lulu(discord.Client):
         nobody writes.
         """
         changed = 0
-        for entry in self.chatter_state.values():
+        guild_keys = [k for k in self.chatter_state
+                      if str(k).startswith("g")]
+        for key in guild_keys:
+            entry = self.chatter_state[key]
             denom = self._chatter_denominator(entry)
             looser = max(CHATTER_MIN_DENOMINATOR, denom - 1)
             if looser != denom:
@@ -1238,13 +1252,17 @@ class Lulu(discord.Client):
                 changed = self._decay_once()
                 if changed:
                     self._save_chatter_state()
-                LOG.info("chatter decay: %d channel(s) loosened", changed)
+                LOG.info("chatter decay: %d server chance(s) loosened", changed)
             except Exception as exc:
                 LOG.warning("chatter decay stumbled: %s", exc)
 
     async def maybe_chatter(self, message: discord.Message) -> None:
         """One unprompted non-reply message per channel, on Nyan-style odds:
-        a timer (15-min cooldown) plus an accumulating random roll."""
+        an accumulating random roll plus a cooldown - and the cooldown, since
+        master's rule of 2026-09-20, is ONE PER HOUR PER SERVER, not per
+        channel: she cannot chime in twice across a guild inside an hour,
+        however many rooms roll at once."""
+
         if isinstance(message.channel, discord.DMChannel):
             return
         if not isinstance(message.channel, discord.TextChannel):
@@ -1256,7 +1274,8 @@ class Lulu(discord.Client):
         if spend.exhausted():
             LOG.info("purse spent today - holding the chatter roll")
             return
-        if not self._rolling_roll(message.channel.id):
+        if not self._rolling_roll(message.channel.id,
+                                  guild_id=getattr(message.guild, "id", None)):
             return
 
         LOG.info("chatter: rolling a casual message in #%s", message.channel.id)
