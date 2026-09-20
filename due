@@ -1,0 +1,5 @@
+self_review patched
+COMPILES
+go_primary: False - check passes but window held
+restored: True
+smoke test passed: 54/54 checks

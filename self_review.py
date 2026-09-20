@@ -439,6 +439,20 @@ async def maybe_run(bot) -> bool:
     if not due(config):
         return False
 
+    # Master, 2026-09-20: "stop lulu self upgrade when she's not using
+    # the opencode model - i dont trust the free models to do a good
+    # job." A window that edits her code or runs research is the one
+    # place quality is not negotiable, so it only opens while the
+    # ladder's head is the OpenCode Go model AND that head is healthy
+    # (brain tracks the last credit failure persistently - a lapsed
+    # cooldown is not evidence). The window is not cancelled: it is
+    # owed later, the next time this check passes with the interval
+    # elapsed.
+    import brain as _brain
+    if not _brain.go_primary(config):
+        LOG.info("self-review held: the ladder is not on the OpenCode model (fallback active); window owed but not opened")
+        return False
+
     owner = _owner_id(bot)
     if owner is None:
         LOG.warning("self-review is enabled but there is no owner id; skipping")

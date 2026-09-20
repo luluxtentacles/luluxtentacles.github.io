@@ -87,6 +87,7 @@ OR_MODELS_DEFAULT = [
 
 _GO_COOLDOWN_SECONDS = 15 * 60
 _go_blocked_until = 0.0
+_go_healthy = True
 
 
 def load_keys() -> dict:
@@ -105,10 +106,33 @@ def load_keys() -> dict:
     return _keys_cache["keys"]
 
 
+def global_set(name: str, value) -> None:
+    """Module-global writer for the ladder loop (which cannot rebind a
+    module global it is iterating inside - it can, but this is clearer)."""
+    globals()[name] = value
+
+
 def bench_go() -> None:
     """Bench the Go endpoint for the cooldown after a quota/auth failure."""
     global _go_blocked_until
     _go_blocked_until = time.time() + _GO_COOLDOWN_SECONDS
+    # Master, 2026-09-20: self-review windows must never run on the free
+    # fallbacks - he does not trust them to edit her code. The bench alone
+    # lapses after 15 quiet minutes, which is NOT evidence that Go has
+    # credit again, so health is tracked separately: False here, and back
+    # to True only when a Go call actually succeeds.
+    global _go_healthy
+    _go_healthy = False
+
+
+def go_primary(config: dict) -> bool:
+    """True when the ladder's head is the OpenCode Go rung AND it is
+    demonstrably healthy (keyed, and the last Go call was not a credit
+    failure). The 4-hour self-review/research window runs only while this
+    is true - see self_review.maybe_run."""
+    keys = load_keys()
+    go_key = config.get("api_key") or keys.get("open_code_key") or ""
+    return bool(go_key) and _go_healthy
 
 
 def _providers(config: dict, wants_vision: bool) -> list[dict]:
@@ -567,6 +591,10 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
             # A shape error is OUR bug - report it as before, because
             # descending would just repeat it on the next rung.
             return {"content": result["_error"]}
+        if provider["label"] == "go":
+            # A real Go answer is the only evidence that matters: health
+            # comes back and the ladder head is trusted again.
+            global_set("_go_healthy", True)
         return result
 
     if last_busy:

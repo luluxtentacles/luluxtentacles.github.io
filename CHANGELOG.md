@@ -205,3 +205,13 @@ your rung sizes are measured, not unknown: your smallest free window is 32k
 (z-ai/glm-5.2:free, which also cannot call tools and is skipped for it), most
 others are 256k to 1M. your go rung is still undiscovered, that one is honest
 in the logs. commits 566af13, 44b4f40, and this one.
+
+
+## 2026-09-20 20:25 - her own time only runs on the real model
+
+what: the 4-hour self-review window (self upgrade + research) no longer opens unless the ladder head is the OpenCode Go model AND Go is healthy - brain.py now tracks go_primary() persistently: a credit failure flips it off and ONLY a real Go answer flips it back, because a lapsed 15-minute bench is not evidence of credit. When held, the window is not cancelled, just owed - it opens on the next check with Go healthy.
+
+why: master does not trust the free fallback models to edit her own code. Fair - the free tier is fine for chat and pictures, not for patches that get her restarted.
+
+means: while the Go subscription is dry she stays chatty and keeps the ladder for everything else, but her own time waits. Ordinary turns are unaffected.
+
