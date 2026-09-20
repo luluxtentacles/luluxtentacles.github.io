@@ -63,6 +63,7 @@ def main() -> None:
             PROFILE,
             channel="msedge",
             headless=True,
+            user_agent=UA,
             proxy={"server": "http://127.0.0.1:38123"},
             args=[
                 "--disable-blink-features=AutomationControlled",
