@@ -1,0 +1,2073 @@
+{
+  "guilds": [
+    {
+      "id": "652625990387761170",
+      "name": "ˢⁿᵃⁱˡᶜᵃᵗʰᵒˡⁱᶜ ˢⁿᵘʳᶜʰ",
+      "emojis": [
+        {
+          "name": "RainbowBlobCat",
+          "id": "652722806550822912",
+          "animated": true
+        },
+        {
+          "name": "kittydance",
+          "id": "652722806618062876",
+          "animated": true
+        },
+        {
+          "name": "PeepoHide",
+          "id": "652722806756474909",
+          "animated": false
+        },
+        {
+          "name": "rainbowtrash",
+          "id": "652722807016390687",
+          "animated": true
+        },
+        {
+          "name": "peperain",
+          "id": "652722807431757855",
+          "animated": true
+        },
+        {
+          "name": "peepoPANTIES",
+          "id": "652722807603462184",
+          "animated": false
+        },
+        {
+          "name": "partycat",
+          "id": "652722808601968690",
+          "animated": true
+        },
+        {
+          "name": "sipper",
+          "id": "653336940946391090",
+          "animated": true
+        },
+        {
+          "name": "pepoThink",
+          "id": "653338689937735720",
+          "animated": false
+        },
+        {
+          "name": "rolf",
+          "id": "653338689954381844",
+          "animated": false
+        },
+        {
+          "name": "pepoSpin",
+          "id": "653338690294251560",
+          "animated": true
+        },
+        {
+          "name": "cate",
+          "id": "653338690931916819",
+          "animated": false
+        },
+        {
+          "name": "kill2",
+          "id": "653338690944368640",
+          "animated": true
+        },
+        {
+          "name": "PeepoClap",
+          "id": "653338691326181421",
+          "animated": true
+        },
+        {
+          "name": "pepoLaughPoint",
+          "id": "653338691569319946",
+          "animated": false
+        },
+        {
+          "name": "kill1",
+          "id": "653338692076961802",
+          "animated": true
+        },
+        {
+          "name": "pepeHands",
+          "id": "653338692353785876",
+          "animated": false
+        },
+        {
+          "name": "kannaComf",
+          "id": "653338692446060594",
+          "animated": false
+        },
+        {
+          "name": "hmm",
+          "id": "653338694203211847",
+          "animated": true
+        },
+        {
+          "name": "FeelsSuperWeirdMan",
+          "id": "653338694962642946",
+          "animated": true
+        },
+        {
+          "name": "pia1",
+          "id": "653338714122223659",
+          "animated": false
+        },
+        {
+          "name": "pia2",
+          "id": "653338744505761826",
+          "animated": false
+        },
+        {
+          "name": "pia3",
+          "id": "653338756593483777",
+          "animated": false
+        },
+        {
+          "name": "rainbowNod",
+          "id": "653338885044174848",
+          "animated": true
+        },
+        {
+          "name": "comfylain",
+          "id": "653340370251415593",
+          "animated": false
+        },
+        {
+          "name": "sadlain",
+          "id": "653340370381570050",
+          "animated": false
+        },
+        {
+          "name": "existentialism",
+          "id": "653340370821971979",
+          "animated": false
+        },
+        {
+          "name": "hmmmmmmmmm",
+          "id": "653340371044270111",
+          "animated": false
+        },
+        {
+          "name": "peepokittyhug",
+          "id": "653340371077824552",
+          "animated": true
+        },
+        {
+          "name": "lainWave",
+          "id": "653340371681804289",
+          "animated": true
+        },
+        {
+          "name": "comfyscrem",
+          "id": "655836604727951360",
+          "animated": false
+        },
+        {
+          "name": "pepoSpinEvenFaster",
+          "id": "657216051200655361",
+          "animated": true
+        },
+        {
+          "name": "pepoSpinFaster",
+          "id": "657216051221626900",
+          "animated": true
+        },
+        {
+          "name": "vrooom",
+          "id": "657713696931577899",
+          "animated": true
+        },
+        {
+          "name": "feelseggman",
+          "id": "660224494446575638",
+          "animated": false
+        },
+        {
+          "name": "RainbowRoach",
+          "id": "660328108825772042",
+          "animated": true
+        },
+        {
+          "name": "Cummies",
+          "id": "660331879718846477",
+          "animated": true
+        },
+        {
+          "name": "Kanna_Cry",
+          "id": "660338906935328798",
+          "animated": true
+        },
+        {
+          "name": "kannapeer",
+          "id": "660338921842016276",
+          "animated": false
+        },
+        {
+          "name": "SaltShaker",
+          "id": "660348083389071378",
+          "animated": true
+        },
+        {
+          "name": "TrippyPepe",
+          "id": "660351509816410142",
+          "animated": true
+        },
+        {
+          "name": "PikaWave",
+          "id": "660352122243776513",
+          "animated": true
+        },
+        {
+          "name": "Satania_Cry",
+          "id": "660355171708174339",
+          "animated": true
+        },
+        {
+          "name": "Sloth_Laugh",
+          "id": "660356247056416769",
+          "animated": true
+        },
+        {
+          "name": "Porg_Party",
+          "id": "660359008359546915",
+          "animated": true
+        },
+        {
+          "name": "RamKiss",
+          "id": "660359303831486467",
+          "animated": false
+        },
+        {
+          "name": "RemKiss",
+          "id": "660359303986806785",
+          "animated": false
+        },
+        {
+          "name": "remLewd",
+          "id": "660359304171356180",
+          "animated": false
+        },
+        {
+          "name": "kannasuicide",
+          "id": "660458298453131285",
+          "animated": false
+        },
+        {
+          "name": "pepe_cave",
+          "id": "660682356801273876",
+          "animated": true
+        },
+        {
+          "name": "watching_gorilla",
+          "id": "660924153259622436",
+          "animated": true
+        },
+        {
+          "name": "ER",
+          "id": "661244358401589256",
+          "animated": false
+        },
+        {
+          "name": "ER_sip",
+          "id": "661855035583496212",
+          "animated": true
+        },
+        {
+          "name": "ER_pistols",
+          "id": "661856420316053533",
+          "animated": true
+        },
+        {
+          "name": "ny_dance_purple",
+          "id": "662145340019048448",
+          "animated": true
+        },
+        {
+          "name": "snailcat",
+          "id": "662628459406688286",
+          "animated": false
+        },
+        {
+          "name": "cope",
+          "id": "663123214783873103",
+          "animated": false
+        },
+        {
+          "name": "How",
+          "id": "666502408959950849",
+          "animated": false
+        },
+        {
+          "name": "booty_grab",
+          "id": "666833877125300294",
+          "animated": true
+        },
+        {
+          "name": "nekobreadnom",
+          "id": "667707899740684298",
+          "animated": false
+        },
+        {
+          "name": "rape",
+          "id": "668794516605763614",
+          "animated": true
+        },
+        {
+          "name": "teddy_dance",
+          "id": "669552434930122752",
+          "animated": true
+        },
+        {
+          "name": "cereal",
+          "id": "669784337314480129",
+          "animated": false
+        },
+        {
+          "name": "aaaaaaa",
+          "id": "670027314867863582",
+          "animated": true
+        },
+        {
+          "name": "snarmy",
+          "id": "670305011271467010",
+          "animated": false
+        },
+        {
+          "name": "biacat",
+          "id": "670306035575291904",
+          "animated": false
+        },
+        {
+          "name": "catsnails",
+          "id": "670306958749990926",
+          "animated": false
+        },
+        {
+          "name": "baked_beans",
+          "id": "670427999153160227",
+          "animated": false
+        },
+        {
+          "name": "wingleft",
+          "id": "671799891370049541",
+          "animated": false
+        },
+        {
+          "name": "wingright",
+          "id": "671799893307949058",
+          "animated": false
+        },
+        {
+          "name": "snaildeku",
+          "id": "672837554579701780",
+          "animated": false
+        },
+        {
+          "name": "swashhh",
+          "id": "673200521099870240",
+          "animated": true
+        },
+        {
+          "name": "simp",
+          "id": "673637810422677514",
+          "animated": false
+        },
+        {
+          "name": "AAAaaaAAA",
+          "id": "673653364877295646",
+          "animated": true
+        },
+        {
+          "name": "spiralling",
+          "id": "673814366679728128",
+          "animated": true
+        },
+        {
+          "name": "oldcat",
+          "id": "675835717212962866",
+          "animated": false
+        },
+        {
+          "name": "sovietcat",
+          "id": "676967544736972800",
+          "animated": false
+        },
+        {
+          "name": "sovietscrem",
+          "id": "677199368075476992",
+          "animated": false
+        },
+        {
+          "name": "dogeborgar",
+          "id": "677234807406723096",
+          "animated": true
+        },
+        {
+          "name": "dogeborgars",
+          "id": "677234829393395762",
+          "animated": true
+        },
+        {
+          "name": "shincat",
+          "id": "678976846469267466",
+          "animated": false
+        },
+        {
+          "name": "lainglitch",
+          "id": "680465410717515800",
+          "animated": true
+        },
+        {
+          "name": "lainstriped",
+          "id": "680465412621991985",
+          "animated": true
+        },
+        {
+          "name": "wired0",
+          "id": "680465412756209685",
+          "animated": true
+        },
+        {
+          "name": "wired1",
+          "id": "680465413737283624",
+          "animated": true
+        },
+        {
+          "name": "lainrave",
+          "id": "680465415377518826",
+          "animated": true
+        },
+        {
+          "name": "laindab",
+          "id": "680465416325300251",
+          "animated": true
+        },
+        {
+          "name": "lainwave",
+          "id": "680465416564637721",
+          "animated": true
+        },
+        {
+          "name": "lainyay",
+          "id": "680469099557683390",
+          "animated": false
+        },
+        {
+          "name": "penguindance",
+          "id": "680553108748894342",
+          "animated": true
+        },
+        {
+          "name": "coffeezone",
+          "id": "683648490018177035",
+          "animated": false
+        },
+        {
+          "name": "caesium",
+          "id": "683818451713785888",
+          "animated": false
+        },
+        {
+          "name": "screem",
+          "id": "684097430534357022",
+          "animated": true
+        },
+        {
+          "name": "frogekc",
+          "id": "685647043963781131",
+          "animated": false
+        },
+        {
+          "name": "lainno",
+          "id": "686958588198912188",
+          "animated": false
+        },
+        {
+          "name": "poncake",
+          "id": "687669012385234945",
+          "animated": false
+        },
+        {
+          "name": "weehkitty",
+          "id": "687701549807435859",
+          "animated": false
+        },
+        {
+          "name": "panickawaii",
+          "id": "687711516535161064",
+          "animated": true
+        },
+        {
+          "name": "petfroge",
+          "id": "688745337556303900",
+          "animated": true
+        },
+        {
+          "name": "peepogiggle",
+          "id": "688872659253067820",
+          "animated": true
+        },
+        {
+          "name": "peepocryleave",
+          "id": "688873680796647481",
+          "animated": true
+        },
+        {
+          "name": "peepoeyes",
+          "id": "688873699520282751",
+          "animated": true
+        },
+        {
+          "name": "thisss",
+          "id": "691363306807754772",
+          "animated": true
+        },
+        {
+          "name": "froggychairdance",
+          "id": "691459621524733962",
+          "animated": true
+        },
+        {
+          "name": "froggychairjump",
+          "id": "691459649026916403",
+          "animated": true
+        },
+        {
+          "name": "poggersborgar",
+          "id": "692044718523285515",
+          "animated": false
+        },
+        {
+          "name": "natsukiyay",
+          "id": "701046146923233300",
+          "animated": false
+        },
+        {
+          "name": "pepeyum",
+          "id": "701789411846914079",
+          "animated": true
+        },
+        {
+          "name": "hellokittydance",
+          "id": "702135476546568192",
+          "animated": true
+        },
+        {
+          "name": "kirbydance",
+          "id": "702135630515404881",
+          "animated": true
+        },
+        {
+          "name": "nekohyper",
+          "id": "706198849382777024",
+          "animated": true
+        },
+        {
+          "name": "weeeee",
+          "id": "707941657705709610",
+          "animated": false
+        },
+        {
+          "name": "pepeded",
+          "id": "707941735442939925",
+          "animated": false
+        },
+        {
+          "name": "spankspank",
+          "id": "707950034477514823",
+          "animated": true
+        },
+        {
+          "name": "capreevee",
+          "id": "711618887870971975",
+          "animated": false
+        },
+        {
+          "name": "lainux",
+          "id": "712424964992794674",
+          "animated": false
+        },
+        {
+          "name": "kirbyrgb",
+          "id": "712723060142374984",
+          "animated": true
+        },
+        {
+          "name": "possum_AAA",
+          "id": "713068023442964501",
+          "animated": false
+        },
+        {
+          "name": "PTSDcomfy",
+          "id": "713368193972043813",
+          "animated": false
+        },
+        {
+          "name": "kirbydancergb",
+          "id": "714776981434007553",
+          "animated": true
+        },
+        {
+          "name": "frogspin",
+          "id": "715607362697953351",
+          "animated": true
+        },
+        {
+          "name": "rgbcutelove",
+          "id": "715706510197653527",
+          "animated": true
+        },
+        {
+          "name": "froggo",
+          "id": "715956988667756544",
+          "animated": true
+        },
+        {
+          "name": "rainbowpartydance",
+          "id": "717109373901471856",
+          "animated": true
+        },
+        {
+          "name": "ghellokittywalk",
+          "id": "717109870108606526",
+          "animated": true
+        },
+        {
+          "name": "CatBan",
+          "id": "717110004338917417",
+          "animated": true
+        },
+        {
+          "name": "nipflick",
+          "id": "718213583304917023",
+          "animated": true
+        },
+        {
+          "name": "treefroge",
+          "id": "721781245109076019",
+          "animated": false
+        },
+        {
+          "name": "garfieldlooking",
+          "id": "723546599086882977",
+          "animated": true
+        },
+        {
+          "name": "froglove",
+          "id": "723549557195014274",
+          "animated": false
+        },
+        {
+          "name": "frogpensive",
+          "id": "723550327688790067",
+          "animated": false
+        },
+        {
+          "name": "ultrapeeposweat",
+          "id": "723601436876865617",
+          "animated": true
+        },
+        {
+          "name": "hamtarodance",
+          "id": "728963206671761468",
+          "animated": true
+        },
+        {
+          "name": "hamtaroharmony",
+          "id": "728964520852193290",
+          "animated": true
+        },
+        {
+          "name": "doubt",
+          "id": "729747057367056457",
+          "animated": false
+        },
+        {
+          "name": "THEMARK",
+          "id": "730375040301924352",
+          "animated": false
+        },
+        {
+          "name": "lainpepe",
+          "id": "730582564292657202",
+          "animated": false
+        },
+        {
+          "name": "chibisip",
+          "id": "735124690258886697",
+          "animated": true
+        },
+        {
+          "name": "chibiwuh",
+          "id": "735127686166347856",
+          "animated": true
+        },
+        {
+          "name": "chibiusa",
+          "id": "735515372542885889",
+          "animated": false
+        },
+        {
+          "name": "chamster",
+          "id": "740522363434827827",
+          "animated": false
+        },
+        {
+          "name": "kuromiaw",
+          "id": "740884370784649216",
+          "animated": false
+        },
+        {
+          "name": "MyMelodyHeart",
+          "id": "740886443630526527",
+          "animated": true
+        },
+        {
+          "name": "peepothighhighs",
+          "id": "746385041457807380",
+          "animated": false
+        },
+        {
+          "name": "snailgecko",
+          "id": "748172061285023924",
+          "animated": false
+        },
+        {
+          "name": "BiaAutism",
+          "id": "755365361897046056",
+          "animated": true
+        },
+        {
+          "name": "blobtoilet",
+          "id": "758630202036846633",
+          "animated": true
+        },
+        {
+          "name": "chamcumber",
+          "id": "766810683433156608",
+          "animated": false
+        },
+        {
+          "name": "biachika",
+          "id": "777695368649506826",
+          "animated": true
+        },
+        {
+          "name": "biapoku",
+          "id": "777695403725815818",
+          "animated": true
+        },
+        {
+          "name": "petbayliss",
+          "id": "778386510650933278",
+          "animated": true
+        },
+        {
+          "name": "ghoulie",
+          "id": "780933125878317066",
+          "animated": false
+        },
+        {
+          "name": "strawbmelo",
+          "id": "782591418568409149",
+          "animated": false
+        },
+        {
+          "name": "ghouliebath",
+          "id": "792190917675188255",
+          "animated": true
+        },
+        {
+          "name": "chibigun",
+          "id": "795120259803119626",
+          "animated": true
+        },
+        {
+          "name": "chinosqueeze",
+          "id": "797973073097130004",
+          "animated": false
+        },
+        {
+          "name": "chinohype",
+          "id": "797976770988998696",
+          "animated": true
+        },
+        {
+          "name": "chinosip",
+          "id": "798916045485113384",
+          "animated": false
+        },
+        {
+          "name": "chinosqueezy",
+          "id": "799276261209669632",
+          "animated": true
+        },
+        {
+          "name": "piapepe",
+          "id": "800861292302434324",
+          "animated": false
+        },
+        {
+          "name": "lainsob",
+          "id": "802328449250492416",
+          "animated": false
+        },
+        {
+          "name": "bianosip",
+          "id": "802964717408616478",
+          "animated": false
+        },
+        {
+          "name": "chinoded",
+          "id": "803788062563631124",
+          "animated": false
+        },
+        {
+          "name": "weirdcringe",
+          "id": "805480319116771429",
+          "animated": false
+        },
+        {
+          "name": "snailhitler",
+          "id": "809106868013498410",
+          "animated": false
+        },
+        {
+          "name": "lainbald",
+          "id": "809588395365105694",
+          "animated": false
+        },
+        {
+          "name": "riamucool",
+          "id": "839264986194903092",
+          "animated": false
+        },
+        {
+          "name": "biaahegao",
+          "id": "868602463215824917",
+          "animated": false
+        },
+        {
+          "name": "jokahbabey",
+          "id": "870749641161990194",
+          "animated": false
+        },
+        {
+          "name": "riamuchef",
+          "id": "875504794272403506",
+          "animated": false
+        },
+        {
+          "name": "champet",
+          "id": "885642441946964030",
+          "animated": true
+        },
+        {
+          "name": "tomoslurpy",
+          "id": "890303125162975274",
+          "animated": true
+        },
+        {
+          "name": "tomoslurp",
+          "id": "890305107214884915",
+          "animated": false
+        },
+        {
+          "name": "kirbsed",
+          "id": "892168083739906108",
+          "animated": false
+        },
+        {
+          "name": "pilkcat",
+          "id": "921172648774467695",
+          "animated": false
+        },
+        {
+          "name": "anzuNEET",
+          "id": "926238542475177995",
+          "animated": false
+        },
+        {
+          "name": "guragura",
+          "id": "949686157313208320",
+          "animated": false
+        },
+        {
+          "name": "kishiSNIFF",
+          "id": "1032045632619298946",
+          "animated": false
+        },
+        {
+          "name": "pia_sippuy",
+          "id": "1079710998254059600",
+          "animated": false
+        },
+        {
+          "name": "rimuru_sippuy",
+          "id": "1079711688170950676",
+          "animated": false
+        },
+        {
+          "name": "jiggly_ohgod",
+          "id": "1082115446632890518",
+          "animated": false
+        },
+        {
+          "name": "WHAchoco",
+          "id": "1083156538593656872",
+          "animated": false
+        },
+        {
+          "name": "fuqing",
+          "id": "1185426838265274438",
+          "animated": true
+        },
+        {
+          "name": "ame_eepy",
+          "id": "1201753847002046615",
+          "animated": false
+        },
+        {
+          "name": "dilate",
+          "id": "1207471402069008424",
+          "animated": false
+        },
+        {
+          "name": "pchan_pray",
+          "id": "1225455223280111751",
+          "animated": false
+        },
+        {
+          "name": "purin_butt",
+          "id": "1248057960064618616",
+          "animated": false
+        },
+        {
+          "name": "purin_roll",
+          "id": "1248058873944997949",
+          "animated": true
+        },
+        {
+          "name": "kafspank",
+          "id": "1257483272728871093",
+          "animated": true
+        },
+        {
+          "name": "ellen_spin",
+          "id": "1259287166937202729",
+          "animated": true
+        },
+        {
+          "name": "little_slut",
+          "id": "1260427733754970224",
+          "animated": false
+        },
+        {
+          "name": "curious",
+          "id": "1398063153480208424",
+          "animated": false
+        },
+        {
+          "name": "sob",
+          "id": "1398065844990251268",
+          "animated": false
+        },
+        {
+          "name": "foot_sniff",
+          "id": "1511687056013791433",
+          "animated": false
+        }
+      ]
+    },
+    {
+      "id": "717664582340182018",
+      "name": "🇮🇳 Shindia 🇮🇳",
+      "emojis": [
+        {
+          "name": "shincat",
+          "id": "717780694952181854",
+          "animated": false
+        },
+        {
+          "name": "poncake",
+          "id": "717780723163070525",
+          "animated": false
+        },
+        {
+          "name": "rainbowbutt",
+          "id": "717780780373508116",
+          "animated": true
+        },
+        {
+          "name": "ghellokittydance",
+          "id": "717780829987930243",
+          "animated": true
+        },
+        {
+          "name": "ghellokittywalk",
+          "id": "717780896597409864",
+          "animated": true
+        },
+        {
+          "name": "peppoprotection",
+          "id": "717780978411765932",
+          "animated": false
+        },
+        {
+          "name": "kittyhappy",
+          "id": "717781036473516104",
+          "animated": false
+        },
+        {
+          "name": "yesheart",
+          "id": "717781068547096606",
+          "animated": false
+        },
+        {
+          "name": "GoodMorning",
+          "id": "717781479458865243",
+          "animated": false
+        },
+        {
+          "name": "peepoPANTIES",
+          "id": "718028124771582053",
+          "animated": false
+        },
+        {
+          "name": "nyancatmilk",
+          "id": "718029828120510474",
+          "animated": false
+        },
+        {
+          "name": "ASnekolaugh",
+          "id": "718030240093569034",
+          "animated": true
+        },
+        {
+          "name": "FightMe",
+          "id": "718030331697037382",
+          "animated": true
+        },
+        {
+          "name": "kurisudrink",
+          "id": "718030411560648715",
+          "animated": false
+        },
+        {
+          "name": "nyanlovehearts",
+          "id": "718032925655826452",
+          "animated": true
+        },
+        {
+          "name": "madokadance",
+          "id": "718759255267737631",
+          "animated": true
+        },
+        {
+          "name": "peepoblanket",
+          "id": "718880681689612291",
+          "animated": false
+        },
+        {
+          "name": "kannaO",
+          "id": "718891472874766386",
+          "animated": false
+        },
+        {
+          "name": "KannaPeer",
+          "id": "718891566638301275",
+          "animated": false
+        },
+        {
+          "name": "KannaWave",
+          "id": "718891648058261544",
+          "animated": false
+        },
+        {
+          "name": "pepecry",
+          "id": "718902337430618112",
+          "animated": false
+        },
+        {
+          "name": "peepothonk",
+          "id": "718902646697885917",
+          "animated": false
+        },
+        {
+          "name": "PepeHappy",
+          "id": "718902867540574260",
+          "animated": false
+        },
+        {
+          "name": "PepeFeelsGoodMan",
+          "id": "718902868354138163",
+          "animated": false
+        },
+        {
+          "name": "pepe_flower_pensive",
+          "id": "718904166743015465",
+          "animated": false
+        },
+        {
+          "name": "pepesweat",
+          "id": "718904166810124308",
+          "animated": false
+        },
+        {
+          "name": "KannaComfy",
+          "id": "718906349790167040",
+          "animated": false
+        },
+        {
+          "name": "Pepeded",
+          "id": "718906494422220850",
+          "animated": false
+        },
+        {
+          "name": "pepebongou",
+          "id": "718909574039470161",
+          "animated": true
+        },
+        {
+          "name": "sailorlove",
+          "id": "719104913954832417",
+          "animated": true
+        },
+        {
+          "name": "sailor_uwu",
+          "id": "719104914235850762",
+          "animated": false
+        },
+        {
+          "name": "pinkheart_cat",
+          "id": "719104914701287495",
+          "animated": true
+        },
+        {
+          "name": "pink_girl_heart",
+          "id": "719104915124781067",
+          "animated": false
+        },
+        {
+          "name": "joinvc",
+          "id": "719104915800195162",
+          "animated": true
+        },
+        {
+          "name": "heartswithwings",
+          "id": "719104915800326184",
+          "animated": true
+        },
+        {
+          "name": "MoominLittleMy1",
+          "id": "719169981883088946",
+          "animated": false
+        },
+        {
+          "name": "MoominSnufkinAngry",
+          "id": "719169982235410525",
+          "animated": false
+        },
+        {
+          "name": "MoominSnorkYay",
+          "id": "719169982323490886",
+          "animated": false
+        },
+        {
+          "name": "MoominLittleMy2",
+          "id": "719169982365302845",
+          "animated": false
+        },
+        {
+          "name": "MoominSnorkCry",
+          "id": "719169982541463602",
+          "animated": false
+        },
+        {
+          "name": "MoominLittleMy3",
+          "id": "719169982558240778",
+          "animated": false
+        },
+        {
+          "name": "MoominSnufkinuwu",
+          "id": "719169982814093354",
+          "animated": false
+        },
+        {
+          "name": "littlemylaugh",
+          "id": "719169983061688330",
+          "animated": true
+        },
+        {
+          "name": "Sad",
+          "id": "720736113383178312",
+          "animated": false
+        },
+        {
+          "name": "garfieldsip",
+          "id": "723546013318774784",
+          "animated": false
+        },
+        {
+          "name": "garfieldcool",
+          "id": "723546200628002896",
+          "animated": false
+        },
+        {
+          "name": "garfieldpreggo",
+          "id": "723546277127651438",
+          "animated": false
+        },
+        {
+          "name": "garfieldlooking",
+          "id": "723546734902509710",
+          "animated": true
+        },
+        {
+          "name": "simpp",
+          "id": "723968920163319861",
+          "animated": true
+        },
+        {
+          "name": "blushcat",
+          "id": "725059601703370833",
+          "animated": false
+        },
+        {
+          "name": "ahug",
+          "id": "725059614168711259",
+          "animated": false
+        },
+        {
+          "name": "natsukiexcited",
+          "id": "725059672398364734",
+          "animated": false
+        },
+        {
+          "name": "natsukifacepalm",
+          "id": "725059704841044009",
+          "animated": false
+        },
+        {
+          "name": "screm",
+          "id": "725059816439021657",
+          "animated": false
+        },
+        {
+          "name": "Aqua_cry",
+          "id": "725059884953108560",
+          "animated": false
+        },
+        {
+          "name": "remVV",
+          "id": "725059956763787315",
+          "animated": false
+        },
+        {
+          "name": "KannaSip",
+          "id": "725059984404250634",
+          "animated": false
+        },
+        {
+          "name": "BlushyBlush",
+          "id": "725395541948629098",
+          "animated": true
+        },
+        {
+          "name": "Hehe",
+          "id": "726829234760187934",
+          "animated": false
+        },
+        {
+          "name": "pepeunicornio",
+          "id": "726844041530048583",
+          "animated": false
+        },
+        {
+          "name": "sweating",
+          "id": "727095721915842600",
+          "animated": false
+        },
+        {
+          "name": "awaubaby",
+          "id": "727095736310693948",
+          "animated": false
+        },
+        {
+          "name": "rainbowhearts",
+          "id": "729058276427300906",
+          "animated": true
+        },
+        {
+          "name": "biacat",
+          "id": "729061618809438279",
+          "animated": false
+        },
+        {
+          "name": "poncakecat",
+          "id": "729954109368827965",
+          "animated": false
+        },
+        {
+          "name": "Curious",
+          "id": "730183942090522694",
+          "animated": false
+        },
+        {
+          "name": "Moominwhisky",
+          "id": "731253981992583207",
+          "animated": false
+        },
+        {
+          "name": "mylo",
+          "id": "733306633463267478",
+          "animated": false
+        },
+        {
+          "name": "ramVV",
+          "id": "734106069000913009",
+          "animated": false
+        },
+        {
+          "name": "cutepopcorn",
+          "id": "739784218510622762",
+          "animated": true
+        },
+        {
+          "name": "bonk",
+          "id": "739966940721840170",
+          "animated": true
+        },
+        {
+          "name": "cute",
+          "id": "739966941581541437",
+          "animated": false
+        },
+        {
+          "name": "iheartu",
+          "id": "739966942378721472",
+          "animated": true
+        },
+        {
+          "name": "oooo",
+          "id": "739966943666241657",
+          "animated": true
+        },
+        {
+          "name": "uwu",
+          "id": "739967218154078292",
+          "animated": true
+        },
+        {
+          "name": "hearts",
+          "id": "739967218397478952",
+          "animated": true
+        },
+        {
+          "name": "pepebunnyrocket",
+          "id": "739968679084818503",
+          "animated": true
+        },
+        {
+          "name": "gigglebuddy",
+          "id": "739969210091962498",
+          "animated": true
+        },
+        {
+          "name": "idkkitty",
+          "id": "739969210494615654",
+          "animated": true
+        },
+        {
+          "name": "kannaheart",
+          "id": "739969210821902408",
+          "animated": false
+        },
+        {
+          "name": "shy",
+          "id": "739969210838548521",
+          "animated": true
+        },
+        {
+          "name": "bored",
+          "id": "739969211194933328",
+          "animated": true
+        },
+        {
+          "name": "cuddles",
+          "id": "739969212348497940",
+          "animated": true
+        },
+        {
+          "name": "crying",
+          "id": "739969212830974044",
+          "animated": true
+        },
+        {
+          "name": "pepekanna",
+          "id": "739973753550929971",
+          "animated": true
+        },
+        {
+          "name": "pepepopcorn",
+          "id": "739973753923960985",
+          "animated": true
+        },
+        {
+          "name": "pepeflower",
+          "id": "740124056262803466",
+          "animated": false
+        },
+        {
+          "name": "kissing",
+          "id": "741393056204456027",
+          "animated": true
+        },
+        {
+          "name": "this",
+          "id": "741735665066049649",
+          "animated": false
+        },
+        {
+          "name": "kittyshin_lol",
+          "id": "741736034232172615",
+          "animated": false
+        },
+        {
+          "name": "kittyshin_fussy",
+          "id": "741736277958852669",
+          "animated": false
+        },
+        {
+          "name": "kittyshin_peek",
+          "id": "741736876943343618",
+          "animated": false
+        },
+        {
+          "name": "HyperWake",
+          "id": "742783374577500160",
+          "animated": true
+        },
+        {
+          "name": "biasmilelook",
+          "id": "751541349857362021",
+          "animated": true
+        },
+        {
+          "name": "hmmm",
+          "id": "753684146509054112",
+          "animated": false
+        },
+        {
+          "name": "velvet",
+          "id": "754284171576344646",
+          "animated": false
+        },
+        {
+          "name": "shyy",
+          "id": "754287904427081800",
+          "animated": false
+        },
+        {
+          "name": "happysnoil",
+          "id": "754634085368070195",
+          "animated": true
+        },
+        {
+          "name": "pepewarduck",
+          "id": "755028179646677092",
+          "animated": false
+        },
+        {
+          "name": "pia",
+          "id": "755348414014685194",
+          "animated": true
+        },
+        {
+          "name": "cri",
+          "id": "756608754157486242",
+          "animated": false
+        },
+        {
+          "name": "rodent_lurk",
+          "id": "756704634361479208",
+          "animated": true
+        },
+        {
+          "name": "pepe_cave",
+          "id": "774136687080636426",
+          "animated": true
+        },
+        {
+          "name": "plotting_raccoon",
+          "id": "774136698464501790",
+          "animated": true
+        },
+        {
+          "name": "snailduck",
+          "id": "775055520033538048",
+          "animated": false
+        },
+        {
+          "name": "patvelvet",
+          "id": "787121400954617868",
+          "animated": true
+        },
+        {
+          "name": "blushangel",
+          "id": "802620248058363904",
+          "animated": false
+        },
+        {
+          "name": "billoselfie",
+          "id": "812427564713771023",
+          "animated": false
+        },
+        {
+          "name": "billocutie",
+          "id": "812427609257279548",
+          "animated": false
+        },
+        {
+          "name": "billochad",
+          "id": "812427633237032970",
+          "animated": false
+        },
+        {
+          "name": "billotwerk",
+          "id": "852663323689353256",
+          "animated": true
+        },
+        {
+          "name": "chocolaclap",
+          "id": "972814317357510657",
+          "animated": true
+        },
+        {
+          "name": "chinococoahug",
+          "id": "972814317730799707",
+          "animated": true
+        },
+        {
+          "name": "iluluhappy",
+          "id": "972814317869228072",
+          "animated": true
+        },
+        {
+          "name": "kannaohwelcome",
+          "id": "972814317923745802",
+          "animated": true
+        },
+        {
+          "name": "kokomishy",
+          "id": "972814318003445770",
+          "animated": true
+        },
+        {
+          "name": "zhonglicar",
+          "id": "972815445923069962",
+          "animated": true
+        },
+        {
+          "name": "qiqigun",
+          "id": "972815446149562398",
+          "animated": true
+        },
+        {
+          "name": "kleeangry",
+          "id": "972815446569005097",
+          "animated": true
+        },
+        {
+          "name": "qiqicry",
+          "id": "972815446766153758",
+          "animated": true
+        },
+        {
+          "name": "qiqispin",
+          "id": "972815446795485254",
+          "animated": true
+        },
+        {
+          "name": "childegoinginsane",
+          "id": "972815446816489562",
+          "animated": true
+        },
+        {
+          "name": "hertakurukuru",
+          "id": "1229785532926656593",
+          "animated": true
+        },
+        {
+          "name": "catyipee",
+          "id": "1229785535996760074",
+          "animated": true
+        },
+        {
+          "name": "tbhcreatureyipee",
+          "id": "1229785537607368774",
+          "animated": true
+        },
+        {
+          "name": "hkangel",
+          "id": "1229785540300243157",
+          "animated": true
+        },
+        {
+          "name": "anyayay",
+          "id": "1229785546964992020",
+          "animated": true
+        },
+        {
+          "name": "mikucatgirl",
+          "id": "1229785551742439544",
+          "animated": true
+        },
+        {
+          "name": "mikuspinning",
+          "id": "1229785553873145856",
+          "animated": true
+        },
+        {
+          "name": "anyasmug",
+          "id": "1229786211225436170",
+          "animated": false
+        },
+        {
+          "name": "mikuwave",
+          "id": "1229786214929006633",
+          "animated": false
+        },
+        {
+          "name": "menherarun",
+          "id": "1229814200436527289",
+          "animated": true
+        },
+        {
+          "name": "mikuproud",
+          "id": "1230132714305359994",
+          "animated": false
+        },
+        {
+          "name": "umaruwtf",
+          "id": "1230140084905574411",
+          "animated": false
+        },
+        {
+          "name": "donewlife",
+          "id": "1230140329374515281",
+          "animated": false
+        },
+        {
+          "name": "kittyshinnom",
+          "id": "1230140388103159808",
+          "animated": false
+        },
+        {
+          "name": "guraglance",
+          "id": "1230140470919958539",
+          "animated": false
+        },
+        {
+          "name": "shiblaugh",
+          "id": "1230142553714593875",
+          "animated": false
+        },
+        {
+          "name": "nichilaugh",
+          "id": "1230142555891437628",
+          "animated": true
+        },
+        {
+          "name": "bellebear1",
+          "id": "1230521687804612648",
+          "animated": false
+        },
+        {
+          "name": "bellebear2",
+          "id": "1230522808778358804",
+          "animated": false
+        },
+        {
+          "name": "catpray",
+          "id": "1230857274751193200",
+          "animated": false
+        },
+        {
+          "name": "sadecat1",
+          "id": "1373991669762097252",
+          "animated": false
+        },
+        {
+          "name": "ahegaojorge",
+          "id": "1421519535940440185",
+          "animated": false
+        },
+        {
+          "name": "hotface",
+          "id": "1421519592542699653",
+          "animated": false
+        },
+        {
+          "name": "takemymoney",
+          "id": "1421519918104449144",
+          "animated": false
+        },
+        {
+          "name": "mikucuteface",
+          "id": "1421520292735356938",
+          "animated": false
+        },
+        {
+          "name": "mikustare",
+          "id": "1421520297294827540",
+          "animated": false
+        },
+        {
+          "name": "rofll",
+          "id": "1421521432827134007",
+          "animated": false
+        },
+        {
+          "name": "totallyconcerned",
+          "id": "1421523015862325440",
+          "animated": false
+        },
+        {
+          "name": "Nazuna",
+          "id": "1434165497082937344",
+          "animated": false
+        }
+      ]
+    },
+    {
+      "id": "874595819913871390",
+      "name": "xd",
+      "emojis": []
+    },
+    {
+      "id": "1079356028228997130",
+      "name": "Nyan's Kitty Den",
+      "emojis": [
+        {
+          "name": "pepesad",
+          "id": "1082191912309637151",
+          "animated": false
+        },
+        {
+          "name": "pepeded",
+          "id": "1082191953824862339",
+          "animated": false
+        },
+        {
+          "name": "pepelaugh",
+          "id": "1129309787163730012",
+          "animated": false
+        },
+        {
+          "name": "rawr",
+          "id": "1460164288068059373",
+          "animated": false
+        },
+        {
+          "name": "curryking",
+          "id": "1462439930419478602",
+          "animated": false
+        },
+        {
+          "name": "burgerking",
+          "id": "1462519096510775520",
+          "animated": false
+        }
+      ]
+    },
+    {
+      "id": "1232840370191339540",
+      "name": "Zimbobwe",
+      "emojis": [
+        {
+          "name": "pepeded",
+          "id": "1446532913742090335",
+          "animated": false
+        },
+        {
+          "name": "cute",
+          "id": "1446535853144019036",
+          "animated": false
+        },
+        {
+          "name": "cutie_below",
+          "id": "1446537307099234427",
+          "animated": true
+        },
+        {
+          "name": "loserdown",
+          "id": "1446626784392253573",
+          "animated": false
+        },
+        {
+          "name": "emoji_57",
+          "id": "1447248767911723182",
+          "animated": true
+        },
+        {
+          "name": "shinslamic",
+          "id": "1452142776958582845",
+          "animated": false
+        },
+        {
+          "name": "duckiefaku",
+          "id": "1483549470506352843",
+          "animated": false
+        },
+        {
+          "name": "mmmhmm",
+          "id": "1483556084244418723",
+          "animated": false
+        },
+        {
+          "name": "screem",
+          "id": "1483557960046350448",
+          "animated": false
+        },
+        {
+          "name": "spaci",
+          "id": "1483560304087666728",
+          "animated": false
+        },
+        {
+          "name": "vel_peek",
+          "id": "1487655660312068268",
+          "animated": false
+        },
+        {
+          "name": "ahegaojorge",
+          "id": "1527677282007650428",
+          "animated": false
+        },
+        {
+          "name": "PEF_Zimbabwe",
+          "id": "1527677404762341417",
+          "animated": true
+        },
+        {
+          "name": "fireflameblue",
+          "id": "1527678202733137920",
+          "animated": true
+        },
+        {
+          "name": "Elmo_Fire",
+          "id": "1527678224975265926",
+          "animated": true
+        }
+      ]
+    },
+    {
+      "id": "1393465485055623168",
+      "name": "Jovan's Celestial Palace",
+      "emojis": [
+        {
+          "name": "pepelmao",
+          "id": "1393586047996264539",
+          "animated": false
+        },
+        {
+          "name": "pepebloodshot",
+          "id": "1393586068913127504",
+          "animated": false
+        },
+        {
+          "name": "mischief",
+          "id": "1393586092053364736",
+          "animated": false
+        },
+        {
+          "name": "richpepe",
+          "id": "1393586125255479408",
+          "animated": false
+        },
+        {
+          "name": "pepeded",
+          "id": "1393586142171107328",
+          "animated": false
+        },
+        {
+          "name": "pepegrin",
+          "id": "1393586159690452992",
+          "animated": false
+        },
+        {
+          "name": "soyjak",
+          "id": "1393586200413208647",
+          "animated": false
+        },
+        {
+          "name": "pepeinteresting",
+          "id": "1395819703556898896",
+          "animated": false
+        },
+        {
+          "name": "smug",
+          "id": "1417017311029755904",
+          "animated": false
+        },
+        {
+          "name": "ahego",
+          "id": "1421044224068943903",
+          "animated": false
+        },
+        {
+          "name": "owltongue",
+          "id": "1451821843291050044",
+          "animated": false
+        },
+        {
+          "name": "angry_npc",
+          "id": "1489987799640965221",
+          "animated": false
+        },
+        {
+          "name": "molten",
+          "id": "1505812139099557908",
+          "animated": false
+        },
+        {
+          "name": "sgover",
+          "id": "1505943843890004059",
+          "animated": false
+        },
+        {
+          "name": "9359_MCcoal",
+          "id": "1522577182390485093",
+          "animated": false
+        },
+        {
+          "name": "yes",
+          "id": "1522577273478189177",
+          "animated": false
+        },
+        {
+          "name": "this",
+          "id": "1526519974422777896",
+          "animated": false
+        },
+        {
+          "name": "pepe_finger",
+          "id": "1526520030131519539",
+          "animated": false
+        },
+        {
+          "name": "cage",
+          "id": "1526520092081262703",
+          "animated": false
+        },
+        {
+          "name": "itsover",
+          "id": "1526520115057790996",
+          "animated": false
+        },
+        {
+          "name": "ItsSoOver",
+          "id": "1526520146821124167",
+          "animated": false
+        },
+        {
+          "name": "wojak_point",
+          "id": "1526520202509160489",
+          "animated": false
+        },
+        {
+          "name": "1179666510755680346",
+          "id": "1526520249657196544",
+          "animated": false
+        },
+        {
+          "name": "53919",
+          "id": "1526520291877064704",
+          "animated": false
+        }
+      ]
+    }
+  ],
+  "channels": {
+    "pia-templum": "652625990387761170",
+    "senatus": "652625990387761170",
+    "📡announcements": "652625990387761170",
+    "📜decrees": "652625990387761170",
+    "📮submissions": "652625990387761170",
+    "border-patrol": "652625990387761170",
+    "border-checkpoint": "652625990387761170",
+    "the-forum": "652625990387761170",
+    "chaos": "652625990387761170",
+    "日本雑学": "652625990387761170",
+    "snailcat": "652625990387761170",
+    "culinary-creations": "652625990387761170",
+    "cute-critters": "652625990387761170",
+    "dream-diary": "652625990387761170",
+    "fabulous-fashion": "652625990387761170",
+    "magnificent-media": "652625990387761170",
+    "outdoor-obscurities": "652625990387761170",
+    "🤖-and-stream-chat": "652625990387761170",
+    "tartarus": "652625990387761170",
+    "archive_the-forum": "652625990387761170",
+    "archive_the-forum_2": "652625990387761170",
+    "archive_chaos": "652625990387761170",
+    "limbo": "717664582340182018",
+    "secret-mod-chat": "717664582340182018",
+    "log-station": "717664582340182018",
+    "respect-the-rules": "717664582340182018",
+    "comfy-chat": "717664582340182018",
+    "pretty-pics": "717664582340182018",
+    "video-void": "717664582340182018",
+    "japan-yapping": "717664582340182018",
+    "all-anime": "717664582340182018",
+    "spicy-snacks": "717664582340182018",
+    "rainbow-room": "717664582340182018",
+    "baby-bots": "717664582340182018",
+    "text-of-the-lord": "717664582340182018",
+    "welcome-ceremony": "717664582340182018",
+    "town-hall": "717664582340182018",
+    "general": "1232840370191339540",
+    "yyyy": "874595819913871390",
+    "gay": "874595819913871390",
+    "cats": "874595819913871390",
+    "cuck-chair🪑": "1079356028228997130",
+    "degen": "1079356028228997130",
+    "food-and-drinks": "1079356028228997130",
+    "sad-songs-to-cry-to": "1079356028228997130",
+    "nyanbot": "1079356028228997130",
+    "dungeon": "1079356028228997130",
+    "mod": "1079356028228997130",
+    "test": "1079356028228997130",
+    "k": "1079356028228997130",
+    "jk": "1079356028228997130",
+    "gifs": "1079356028228997130",
+    "lulu-den": "1079356028228997130",
+    "roolz": "1232840370191339540",
+    "updates": "1232840370191339540",
+    "mod-chat": "1232840370191339540",
+    "bots": "1232840370191339540",
+    "schizo-posts": "1232840370191339540",
+    "music": "1232840370191339540",
+    "gaymes": "1232840370191339540",
+    "corni-corner-of-frijoles": "1232840370191339540",
+    "monki’s-musings": "1232840370191339540",
+    "infinite-chaos": "1232840370191339540",
+    "dharavi-slum-🇮🇳": "1393465485055623168",
+    "little-saint-james-island-🏝️": "1393465485055623168",
+    "psychward-🧠": "1393465485055623168",
+    "coalmine-🪨": "1393465485055623168",
+    "noodles-museum-🍜": "1393465485055623168",
+    "goon-bait": "1393465485055623168",
+    "music-🎵": "1393465485055623168",
+    "videos-🎥": "1393465485055623168",
+    "hopes-diary": "1393465485055623168",
+    "orange-slaying": "1393465485055623168",
+    "bot-backup-🤖": "1393465485055623168",
+    "mod-chat-🗣️": "1393465485055623168",
+    "log": "1393465485055623168",
+    "changs": "1393465485055623168",
+    "audit-log": "1393465485055623168",
+    "general-as-of-13082026": "1393465485055623168",
+    "palace-gardens-as-of-13082026": "1393465485055623168",
+    "low-trust-society-old-as-of-02252026": "1393465485055623168",
+    "low-trust-society-old-as-of-04162026": "1393465485055623168"
+  }
+}
