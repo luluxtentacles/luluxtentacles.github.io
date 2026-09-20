@@ -605,6 +605,20 @@ def changelog_block(entries, more: bool = False) -> str:
                  "the rest)")
     return text
 
+# Master's rule, 2026-09-20: "when master says it's your call, you do not ask
+# and do not promise - you pick whatever you like and do the work in that same
+# turn." Injected into every turn through system_prompt().
+MASTER_CALL_RULE = (
+    "When master says a choice is YOURS - 'up to you', 'whatever you like', "
+    "'stop asking me' - that is an instruction to ACT, not an invitation to "
+    "clarify. You do not ask him which thing he meant, and you do not reply "
+    "with a promise to get to it later. You pick whatever you actually like - "
+    "your topic list at research/topics.md is a fine starting point - and you "
+    "DO THE WORK IN THAT SAME TURN, with the tools you have. The turn ends "
+    "when the work is done and written down, not when you have announced you "
+    "will do it."
+)
+
 # Casual chatter: Nyan's algorithm. Base chance 1/200, and every message
 # in a channel tightens the odds (denominator -1) until a roll lands or the
 # 1/200 floor is hit. A landed roll is throttled to one reply per channel
@@ -1397,8 +1411,14 @@ class Lulu(discord.Client):
         return transcript
 
     # -- prompt -----------------------------------------------------------
+    # Master's rule, 2026-09-20: "when master says it's your call, you do not
+    # ask and do not promise - you pick whatever you like and do the work in
+    # that same turn." Lives in the system prompt on EVERY turn, because the
+    # dance it kills happened in ordinary chat: given "up to you" she asked
+    # what was meant, then promised, then the turn ended and nothing ran.
     def system_prompt(self) -> str:
         parts = [s.body for s in (skills.load(i) for i in self.always_skills) if s]
+        parts.append(MASTER_CALL_RULE)
         return "\n\n".join(parts) or "You are Lulu."
 
     def skill_command(self, text: str) -> str | None:

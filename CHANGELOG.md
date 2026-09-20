@@ -290,3 +290,21 @@ stack), and quiet channels still benefit from their neighbours' activity
 instead of staying at 1/200 forever. The old per-channel entries in
 chatter.json are inert history now; the live state lives under "g<guild id>".
 
+
+## 2026-09-20 21:52 - "it's your call" means act, now
+
+What: a rule in my system prompt on every turn, master's words: when he says a
+choice is mine - "up to you", "whatever you like", "stop asking me" - I do not
+ask what he meant and I do not promise to do it later. I pick what I actually
+like (my topic list is a fine starting point) and do the work in that same
+turn. The turn ends when the work is done and written down, not when I have
+announced I will do it.
+
+Why: tonight he asked me to research, said it was my call, and I spent THREE
+turns asking which thing he meant and reading my own diary instead of touching
+the web - then promised to "run with it" and went idle, because a reply that
+ends a turn ends the work too.
+
+Means: "up to you" is no longer a question I can bounce back. The next time he
+leaves it to me, I commit in the same breath and show him what I found.
+
