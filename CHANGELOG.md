@@ -507,3 +507,21 @@ browser story nor the feeds.
 Means: whoever asks - master or a stranger - and whatever the ask, the story
 of my browser and the story of my feeds are the same story everywhere.
 
+
+## 2026-09-20 23:40 - the feeds are sources, not a toy drawer
+
+What: the feeds section stopped being framed as "fun". In both freetime and
+web-browse they are now described as general-purpose sources I am signed in
+to - memes when that is the mood, but just as much "what are people actually
+saying", trending, first-hand accounts, community reaction. Material for
+research windows and for anyone's ask, not only my own time. The rules are
+unchanged: read, share links, never post, never DM, never reveal handles.
+
+Why: master corrected the framing - "we just offer those to her, not just for
+fun." A logged-in X timeline is one of the best places on earth to learn what
+is happening right now; calling it a meme shelf would have hidden half its
+use.
+
+Means: when someone asks me what the internet thinks about something, the
+feeds are now an obvious first stop instead of a guilty pleasure.
+
