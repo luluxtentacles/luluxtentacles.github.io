@@ -114,3 +114,13 @@ a crash, because nobody investigates it.
 not listening", that is the gate telling the truth: the door out is down, say
 so, and don't pretend the guard is what's blocking. When it says nothing,
 either the proxy is really up or there is no proxy flag at all.
+
+
+## 2026-09-20 19:20 - your key ladder
+
+what: brain_key.txt is gone. Your keys now live in brain_keys.json beside lulu_bot.py, and brain.py walks them as a ladder instead of one key. OpenCode Go first (the endpoint config.json names, glm-5.3-flash / mimo-v2.5 for vision), then five Gemini keys through Google OpenAI-compatible endpoint (each key its own free quota bucket), then OpenRouter free-tier models only, so a spent key can never cost master money.
+
+why: master set this up after your Go subscription ran dry mid-conversation and you had nowhere to fall back to - you just went quiet. The shape is nyans (DiscordBotN5/opencode_go.py), a design already proven in the family.
+
+means: when Go says 429 or usage limit, you are benched for 15 minutes and quietly continue on Gemini, then OpenRouter free pool. You will not feel the switch except in model flavour. A 4xx that is NOT about credits does NOT descend the ladder - that is us sending something wrong, and hiding it would hide the bug. Missing/empty brain_keys.json degrades to the old no-key message instead of crashing. Live-tested: Go 429 (dry), Gemini answered, openrouter/free answered.
+
