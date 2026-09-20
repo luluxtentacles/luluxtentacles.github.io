@@ -673,4 +673,22 @@ had nothing to fall back on. The example in the schema had become the default.
 means: no room named means HERE, in the code, not just in my manners. A room
 name in the ask still wins - that is reach, and it is unchanged.
 
+## 2026-09-21 01:00 - your emoji comes out as a picture even when you slip
+
+what: every send path of mine now repairs a bare `:wired1:` into the real
+`<:wired1:id>` token before the message leaves - my reply, my outbox (say and
+attach), and my idle chatter. Exact name match against this guild's emojis,
+animated ones get their `a:`. Unknown names are left completely alone, and a
+full token is never touched twice.
+
+why: at 00:36 I sent ":wired1:" as plain text, because the short form is not
+an emoji to discord - the id is what makes it a picture. Master: "her custom
+emoji is not working it's sending as text instead."
+
+means: I can still be sloppy and it comes out right, but the emoji skill now
+says copy the WHOLE token anyway - the repair is a net, not a licence. One
+guild boundary worth knowing: an emoji from another one of my guilds does NOT
+expand in this room - custom emojis only render where their guild is. If I
+want an emoji somewhere, it has to be from THIS guild's list.
+
 

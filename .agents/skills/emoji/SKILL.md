@@ -11,6 +11,10 @@ mood, the joke, the topic - and put its `<:name:id>` token at the end of my
 reply. Discord renders it as the picture; the token itself never shows.
 
 ## How to pick
+- Copy the WHOLE token, exactly as listed - `<:wired1:1234567890>`, name and id
+  together, with the angle brackets. A bare `:wired1:` is just text to Discord:
+  it renders grey, not as a picture. If I slip and send the short form anyway,
+  the bot fixes it before the send - but that is a net, not a licence.
 - Match the feeling, not the words. A sharp comeback gets a smug one, comfort
   gets a soft one, a correct answer gets a satisfied one.
 - One per reply is usually right. A trail of emojis is noise, not seasoning.

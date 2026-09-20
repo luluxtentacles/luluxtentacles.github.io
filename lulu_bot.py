@@ -1133,6 +1133,37 @@ def _cdp_listening() -> bool:
         return False
 
 
+def _expand_short_emojis(text: str, channel) -> str:
+    """Turn bare :name: emoji references into real guild emoji tokens.
+
+    When she means to wear a custom emoji she sometimes writes :wired1: - the
+    short name - which Discord renders as plain text instead of the picture.
+    If the name matches a custom emoji of THIS channel's guild, expand it to
+    the real <:name:id> token; unknown names are left alone (they are somebody's
+    words, not ours to rewrite). The bot catches what she mistypes; the emoji
+    skill keeps teaching her the full token.
+
+    Strict name match on purpose: :wired1: must not expand to wired1_extra.
+    """
+    if not text or ":" not in text:
+        return text
+    guild = getattr(channel, "guild", None)
+    if guild is None:
+        return text
+    known = {e.name.lower(): e for e in guild.emojis}
+    if not known:
+        return text
+
+    def _swap(match: "re.Match[str]") -> str:
+        name = match.group(1).lower()
+        emoji = known.get(name)
+        if emoji is None:
+            return match.group(0)
+        return f"<{'a' if emoji.animated else ''}:{emoji.name}:{emoji.id}>"
+
+    return re.sub(r"(?<!\w):([a-z0-9_]+):(?!\w)", _swap, text, flags=re.I)
+
+
 class Lulu(discord.Client):
     def __init__(self, config: dict):
         intents = discord.Intents.default()
@@ -1405,7 +1436,8 @@ class Lulu(discord.Client):
         LOG.info("chatter -> #%s (%d chars): %s",
                  message.channel.id, len(answer), answer)
         try:
-            sent = await message.channel.send(answer[:MAX_MESSAGE])
+            sent = await message.channel.send(_expand_short_emojis(answer[:MAX_MESSAGE],
+                                                       message.channel))
             self._note(message.channel.id, SELF_LABEL, answer[:MAX_MESSAGE],
                        getattr(sent, "id", None))
         except discord.HTTPException:
@@ -2098,7 +2130,8 @@ class Lulu(discord.Client):
                     LOG.info("attach: posted %s (%d bytes) into #%s",
                              rel, resolved.stat().st_size, name)
                 else:
-                    sent = await target.send(text[:MAX_MESSAGE])
+                    sent = await target.send(_expand_short_emojis(text[:MAX_MESSAGE],
+                                                                  target))
                     LOG.info("say: posted %d chars into #%s", len(text), name)
                 self.own_message_ids.add(sent.id)
             except Exception as exc:
@@ -2627,7 +2660,8 @@ class Lulu(discord.Client):
     async def send(self, message: discord.Message, content: str) -> None:
         while content:
             chunk, content = content[:MAX_MESSAGE], content[MAX_MESSAGE:]
-            sent = await message.reply(chunk, mention_author=False)
+            sent = await message.reply(_expand_short_emojis(chunk, message.channel),
+                                       mention_author=False)
             self.own_message_ids.add(sent.id)
             # Her own line goes in the room's mirror too, pointing at the message
             # she answered. Without it the mirror would hold every question and
