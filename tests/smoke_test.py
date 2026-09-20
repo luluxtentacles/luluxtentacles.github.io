@@ -2567,55 +2567,73 @@ def _empty_reply() -> str:
 # checked mechanically, and the tool must never post anything itself: it queues,
 # and the event loop sends.
 def _say_guard() -> str:
-    """say() is owner-only, unconstrained in WHERE, capped in HOW MUCH.
-
-    Master, 2026-09-20: the say_channels allowlist is GONE. He wants her to go
-    wherever he points her, and every reachable caller of say() is the owner - so
-    the old gate's only live effect was refusing the man giving the order. This
-    check is the inverse of the one it replaces: it proves there is NO allowlist
-    now, and that the guards which still matter survived the change.
+    """say() is open to strangers, and capped PER PERSON so they cannot spend
+    master's voice. Master, 2026-09-20: a stranger asking her to speak in a room
+    is normal, and being reachable only in the room she was pinged in made her
+    mute for no reason. The say_channels allowlist stays gone, `attach` stays
+    master's, and the thing this check really protects is the budget - one shared
+    pot would have let one stranger silence the owner with a limit written to
+    protect him.
     """
     import tools
 
     tools._OUTBOX.clear()
     tools._SAY_TIMES.clear()
     try:
-        # 1. strangers cannot reach it at all - the guard that still matters
-        expect("say" not in tools.LOOKUP_TOOL_NAMES,
-               "say is offered to people who are not master")
+        # 1. a stranger CAN reach it - that is the change master asked for
+        expect("say" in tools.LOOKUP_TOOL_NAMES,
+               "say is still hidden from everyone but master")
+        tools.set_context(2222, "someone", "general")
         out = tools.run("say", {"channel": "general", "text": "hi"},
-                        allowed=tools.LOOKUP_TOOL_NAMES)
-        expect(out.startswith("refused:"), f"a stranger could say something: {out}")
+                        allowed=set(tools.LOOKUP_TOOL_NAMES))
+        expect("queued" in out, f"a stranger could not be spoken for: {out}")
+        expect(len(tools._OUTBOX) == 1, "the stranger's send did not queue")
 
-        # 2. NO allowlist: a channel master names is queued, full stop
+        # 2. and their budget is SMALLER than master's - the whole point
+        expect(tools.SAY_MAX_STRANGER < tools.SAY_MAX,
+               "a stranger is allowed as many sends as master")
+        out = tools.say("general", "again")
+        expect("already spoken" in out, f"a stranger was not capped: {out}")
+        expect(len(tools._OUTBOX) == 1, "a capped stranger still queued")
+
+        # 3. the pot is per person: that stranger's sends cost master nothing
+        tools.set_context(1, "master", "general", master=True)
+        out = tools.say("general", "his own words")
+        expect("queued" in out, f"a stranger spent master's sends: {out}")
+        expect(len(tools._OUTBOX) == 2, "master's send did not queue")
+
+        # 4. NO allowlist: a channel master names is queued, full stop
         expect(not hasattr(tools, "_say_allowlist"),
                "the say_channels allowlist is still here - it was meant to be gone")
-        out = tools.say("general", "hi")
-        expect("queued" in out, f"a channel master named was refused: {out}")
-        expect(len(tools._OUTBOX) == 1, "the send did not queue exactly once")
 
-        # 3. length still caps a blurt, and an over-long one is not queued
+        # 5. length still caps a blurt, and an over-long one is not queued
         out = tools.say("general", "x" * (tools.SAY_MAX_CHARS + 1))
         expect("too long" in out, f"an over-long say was accepted: {out}")
-        expect(len(tools._OUTBOX) == 1, "an over-long say was still queued")
+        expect(len(tools._OUTBOX) == 2, "an over-long say was still queued")
 
-        # 4. rate limit holds after SAY_MAX
+        # 6. master's own limit still holds once it is spent
         tools.say("snailcat", "two")
         tools.say("snailcat", "three")
         out = tools.say("snailcat", "four")
         expect("already spoken" in out, f"the rate limit did not hold: {out}")
 
-        # 5. drain hands over exactly what was queued, then empties
+        # 7. drain hands over exactly what was queued, then empties
         queued = tools.drain_outbox()
-        expect(len(queued) == tools.SAY_MAX,
-               f"drain returned {len(queued)}, expected {tools.SAY_MAX}")
+        expect(len(queued) == 4, f"drain returned {len(queued)}, expected 4")
         expect(not tools._OUTBOX, "drain did not empty the outbox")
+
+        # 8. the fences that did NOT move. `attach` is the one that matters -
+        # file reach stayed master's when speech was opened up - and the mcp pair
+        # had no assertion here at all, so it gets one now.
+        for name in ("attach", "mcp_call", "mcp_list", "look_at", "run_command"):
+            expect(name not in tools.LOOKUP_TOOL_NAMES,
+                   f"{name} is offered to people who are not master")
     finally:
+        tools.set_context(None)
         tools._OUTBOX.clear()
         tools._SAY_TIMES.clear()
-    return ("owner-only, NO channel allowlist, length and rate limit, "
-            "queue/drain all enforced")
-
+    return ("open to strangers on a per-person budget, NO channel allowlist, "
+            "length and rate limit, queue/drain all enforced")
 
 # -- 19. the restart notice, written once and consumed once ---------------
 # on_ready fires on EVERY boot, including the supervisor's crash-loop attempts.

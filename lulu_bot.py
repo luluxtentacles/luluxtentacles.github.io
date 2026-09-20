@@ -2144,8 +2144,8 @@ class Lulu(discord.Client):
             LOG.warning("could not update my own ledger: %s", exc)
 
         # Look things up: everyone. Build things: master only. Non-master gets a
-        # read-only subset - web and my own shelf - and nothing that touches
-        # files, memory or the people ledger.
+        # subset - web, my own shelf, and my voice for one short line - and
+        # nothing that touches files, memory or the people ledger.
         if is_owner:
             schema, allowed = tools.SCHEMA, set(tools.DISPATCH)
         else:

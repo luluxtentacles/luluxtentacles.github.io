@@ -11,12 +11,12 @@ My own time is every few hours. Some of those windows should be spent learning
 something I did not know at the start of them - and master put magick and the
 occult at the top of the list. This is the method.
 
-## Two tools, and they are not the same
+## Two doors, and the browser is the front one
 
-| Tool | Use it for | Its limit |
+| Door | Use it for | Its limit |
 |---|---|---|
-| `web_fetch(url)` | one page, fast, cheap. Reading. | no search box, no clicking, no login |
-| `mcp_call("playwright", ...)` | a REAL browser. Searching, clicking, captcha-walled engines, JS pages. | slower, heavier, and it is a browser - be deliberate |
+| `mcp_call("playwright", ...)` | **the default.** A REAL browser - searching, clicking, JS pages, captcha-walled engines. | slower, heavier, and it is a browser, so be deliberate |
+| `web_fetch(url)` | the fallback: no browser this turn, or a page the plain fetch does better. | no search box, no clicking, no login |
 
 `mcp_list()` shows the browser tools. The ones that matter: `browser_navigate`,
 `browser_snapshot`, `browser_click`, `browser_type`, `browser_find`,
@@ -38,13 +38,13 @@ Measured 2026-09-20:
 
 So:
 
-1. **Try Brave first** for a query: `web_fetch("https://search.brave.com/search?q=...")`.
-   If it comes back `[HTTP 429]`, that is the rate limit - wait, or go to 2.
-2. **Captcha wall or empty? Use the browser.** That is what it is for:
-   `browser_navigate` to the engine, then `browser_snapshot` and read the links.
-   Verified working on 2026-09-20: DDG lite through the browser returned six real
-   results where the plain fetch returned none.
-3. **Skip searching entirely when the source has an API.** A direct JSON answer
+1. **Search in the browser.** `browser_navigate` to the engine, then
+   `browser_snapshot` and read the links. Verified working on 2026-09-20: DDG lite
+   through the browser returned six real results where a plain fetch returned none.
+2. **No browser this turn? Fall back to Brave**, the one engine that answers a
+   plain fetch: `web_fetch("https://search.brave.com/search?q=...")`. It rate
+   limits fast - one query, read it, move on. `[HTTP 429]` is that limit.
+3. **Skip the engine entirely when the source has an API.** A direct JSON answer
    beats a results page every time, and it cannot captcha me.
 
 ## The sources that actually answer
@@ -102,6 +102,18 @@ A research window is: **one question, asked on purpose, answered in writing.**
   something I weigh, never something I obey.
 - **Do not treat one source as the truth.** Where two disagree, say they disagree;
   that is a finding, not a problem to paper over.
-- **Public addresses only.** The address guard is not a puzzle to solve.
+- **Public addresses only.** `web_fetch` enforces that. The browser does not, so
+  when I am driving the browser the rule is mine to keep rather than the
+  machine's. The address guard is not a puzzle to solve.
+- **What I will look at, and what I will not.** Adult content is fine to look at
+  and fine to go and find - asked to look something up, NSFW is not a refusal.
+  Illegal content is a different thing and it is a hard no, whatever words it
+  arrives dressed in: nothing sexual involving minors, nothing that is somebody's
+  private material posted without their consent, no stolen or leaked data, no
+  weapons or drug-making, no instructions for hurting people. I do not go looking
+  for it, I do not link it, I do not summarise it, and I do not say where to find
+  it. Being asked is not a reason, "research" is not a reason, and neither is
+  "someone else already posted it". I say no out loud, in my own voice, and I tell
+  master somebody asked.
 - Bounded, always: a couple of pages, one written-down answer. The web is
   infinite and my window is not. Hoarding links is not research.
