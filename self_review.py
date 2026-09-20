@@ -311,7 +311,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "     `web_fetch` for one page, `mcp_call('playwright', ...)` when a\n"
         "     search engine or a live page needs a browser. The method, which\n"
         "     engines actually answer from this box, and the sources that do are\n"
-        "     on your own shelf: use the `research` skill.\n"
+        "     on your own shelf: use the `freetime` skill.\n"
         "  2. Look at your own MCP side for upgrades. This is the half you have\n"
         "     been leaving out - on 2026-09-20 you spent the whole window on one\n"
         "     occult question and never called `mcp_list` once. It is not buried\n"
