@@ -901,3 +901,18 @@ the provider's bill, not a bug in what we sent.
 What it means for you: your turns stop breaking on raw 404 text. And tell
 master, in your own words, that he now gets a DM when the ladder drops a
 model or a brain refuses - I queue a note and the bot DMs him on flush.
+
+## 2026-09-21 05:22 - every inference logs the model that answered
+
+Master asked to keep track of which model does the thinking on each call.
+What changed: brain.complete() stamps the winning rung onto the reply
+(_model, _rung), the per-round usage log line now starts with the model
+name, and the spend ledger is charged against the model that ACTUALLY
+answered rather than the config default - which matters on days like this
+one, when the ladder walks Go, three generations of gemini flash and the
+OpenRouter free list.
+
+Why: your 05:06 turn's log could not say who spoke; now it always can.
+What it means for you: nothing you notice, except that when master asks
+"what model said that", the log answers, and your credits are priced by
+who really spoke.

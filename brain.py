@@ -440,6 +440,11 @@ def _attempt(provider: dict, payload: dict, cache: bool,
         return {"_error": f"[my brain answered in a shape I do not read: {str(data)[:200]}]"}
     if isinstance(message, dict):
         message["_usage"] = data.get("usage") or {}
+        # Which rung answered, so the caller (and the log, and the bill) can
+        # see the model that ACTUALLY inferred - the ladder means it is often
+        # not the config's model at all.
+        message["_model"] = provider["model"]
+        message["_rung"] = provider["label"]
     return message
 
 

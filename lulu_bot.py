@@ -2694,7 +2694,13 @@ class Lulu(discord.Client):
             # The running total is here because the interesting number is not
             # any single round - it is the whole turn, which is what the bill
             # measures.
+            # WHICH model answered this round - master asked (2026-09-21) to
+            # keep track of that on every inference, since the ladder means
+            # the config's model is often not the one that spoke.
+            used_model = reply.get("_model") or self.config["brain"].get("model")
             note = brain.usage_note(reply.get("_usage"))
+            if note:
+                note = f"[{used_model}] " + note
             if note:
                 stats = brain.cache_stats(reply.get("_usage"))
                 if stats["prompt"]:
@@ -2726,7 +2732,7 @@ class Lulu(discord.Client):
                     last_line = line
             if meter is not None:
                 spend.charge(meter, reply.get("_usage"),
-                             self.config["brain"].get("model"),
+                             used_model,
                              prompt_chars=_prompt_chars(turns),
                              answer_chars=len(answer))
                 if spend.exhausted():
