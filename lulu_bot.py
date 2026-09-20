@@ -54,6 +54,8 @@ MIRROR_TOTAL_CHARS = 5000  # the block's budget in characters, for the LINES
 MIRROR_VERBATIM_SHARE = 0.70   # of that budget: newest lines, left untouched
 MIRROR_FOLD_LINE_CHARS = 90    # per line in the folded digest of the rest
 MIRROR_QUOTE_CHARS = 60    # how much of a replied-to message to quote inline
+EMOJI_SCAN_MAX_PER_DAY = 10    # vision calls one daily sweep may spend
+EMOJI_SCAN_INTERVAL_SECONDS = 24 * 3600
 # Discord's own ceiling is 2000 characters per message.
 MAX_MESSAGE = 2000
 # How many brain calls one message may take. 6 was too few for real digging and
@@ -1224,6 +1226,7 @@ class Lulu(discord.Client):
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
         self._chatter_task: asyncio.Task | None = None
+        self._emoji_scan_task: asyncio.Task | None = None
         # The turn slot, one per channel: which generation owns the room right
         # now, and the task running it. Together they are how a follow-up
         # message interrupts a dig instead of stacking a second one beside it.
@@ -1417,6 +1420,16 @@ class Lulu(discord.Client):
             f"{escape_line(self.readable_text(message))[:300]})"
         )})
 
+        # A chatter turn is a stranger's turn for context, master 2026-09-21:
+        # the same window machinery as any other prompt - wide when the free
+        # rungs are answering, pinned to 128k when the metered Go rung is on
+        # the ladder. compact_history folds against it exactly as think() does;
+        # a busy room can no longer mean a different-shaped prompt.
+        turns, _fold_note = compact_history(
+            turns,
+            context_limit(self.config.get("brain"), is_owner=False),
+        )
+
         # brain.complete rather than brain.reply: reply() throws the reasoning
         # away and returns bare text, and the console wants to show it. One
         # caller, so this is the whole change.
@@ -1574,6 +1587,11 @@ class Lulu(discord.Client):
         # CHATTER_DECAY_SECONDS. Nyan has this; the port had dropped it.
         if self._chatter_task is None or self._chatter_task.done():
             self._chatter_task = asyncio.create_task(self._chatter_decay())
+        # Emoji meanings: one scan a day, only for emojis without a meaning on
+        # file. Pictures go to the vision model; the words come back to the
+        # emoji picker, so she chooses by meaning and not by name alone.
+        if self._emoji_scan_task is None or self._emoji_scan_task.done():
+            self._emoji_scan_task = asyncio.create_task(self._emoji_meaning_loop())
 
     def _refresh_emoji_shelf(self) -> None:
         """Write my guilds' custom emojis to emoji_shelf.json, for tools.
@@ -1598,6 +1616,67 @@ class Lulu(discord.Client):
             LOG.info("emoji shelf: %d guilds written", len(guilds))
         except Exception as exc:
             LOG.warning("could not write the emoji shelf: %s", exc)
+
+    async def _emoji_meaning_loop(self) -> None:
+        """One meaning scan a day, forever, never fatal."""
+        while True:
+            try:
+                await self._scan_emoji_meanings()
+            except Exception as exc:
+                LOG.warning("emoji meaning scan stumbled: %s", exc)
+            await asyncio.sleep(EMOJI_SCAN_INTERVAL_SECONDS)
+
+    async def _scan_emoji_meanings(self) -> None:
+        """Ask the vision model what our unscanned custom emojis depict.
+
+        Only emojis WITHOUT a meaning on file are scanned - one picture, one
+        vision call each, up to EMOJI_SCAN_MAX_PER_DAY a day so a server that
+        adds a hundred emojis cannot eat the vision quota in one pass; the
+        rest wait for the next day's sweep. New emojis are picked up because
+        the daily sweep re-reads the guild cache (and re-writes the shelf the
+        emoji tool reads, so mid-boot additions are seen too). Never fatal.
+        """
+        meanings = {}
+        try:
+            meanings = paths.read_json("emoji_meanings.json", default={}) or {}
+        except Exception:
+            meanings = {}
+        todo = [(g, e) for g in self.guilds for e in g.emojis
+                if str(e.id) not in meanings]
+        if not todo:
+            return
+        # New emojis exist mid-boot too; refresh the shelf the picker reads.
+        self._refresh_emoji_shelf()
+        todo = todo[:EMOJI_SCAN_MAX_PER_DAY]
+        scanned = 0
+        for guild, emoji in todo:
+            url = f"https://cdn.discordapp.com/emojis/{emoji.id}.png"
+            try:
+                answer = await asyncio.to_thread(
+                    vision.describe, url,
+                    "This is a discord custom emoji. In ONE short sentence: "
+                    "what does it depict, and what feeling or situation is "
+                    "it used for?",
+                    self.config["brain"])
+            except Exception as exc:
+                LOG.warning("emoji meaning scan failed for %s: %s",
+                            emoji.name, exc)
+                continue
+            answer = " ".join((answer or "").split())
+            if not answer or answer.startswith("["):
+                continue
+            meanings[str(emoji.id)] = {
+                "name": emoji.name, "guild": guild.name,
+                "meaning": answer[:300],
+                "at": time.strftime("%Y-%m-%d %H:%M:%S")}
+            scanned += 1
+        if scanned:
+            try:
+                paths.write_json("emoji_meanings.json", meanings)
+            except Exception as exc:
+                LOG.warning("could not write emoji meanings: %s", exc)
+        LOG.info("emoji meanings: scanned %d, %d still unscanned",
+                 scanned, max(0, len(todo) - scanned))
 
     def mark_healthy(self) -> None:
         """Tell the supervisor I actually came up.

@@ -11,6 +11,12 @@ mood, the joke, the topic - and put its `<:name:id>` token at the end of my
 reply. Discord renders it as the picture; the token itself never shows.
 
 ## How to pick
+- MEANING decides, never the name. Each token comes with a meaning on file -
+  what it depicts and what it is used for, written by a daily scan of the
+  picture itself. I choose the emoji whose MEANING fits the reply; the name is
+  only a hint, and a name that sounds right can describe the wrong picture.
+  One that says "(not scanned yet)" is honest: I can pick it if the name is
+  plain enough, but meaning beats name whenever both exist.
 - Copy the WHOLE token, exactly as listed - `<:wired1:1234567890>`, name and id
   together, with the angle brackets. A bare `:wired1:` is just text to Discord:
   it renders grey, not as a picture. If I slip and send the short form anyway,

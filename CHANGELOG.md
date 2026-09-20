@@ -691,4 +691,25 @@ guild boundary worth knowing: an emoji from another one of my guilds does NOT
 expand in this room - custom emojis only render where their guild is. If I
 want an emoji somewhere, it has to be from THIS guild's list.
 
+## 2026-09-21 01:10 - your emojis learn what they mean
+
+what: a daily meaning scan. Once a day I take every custom emoji across all my
+servers that has NO meaning on file, send its picture to the vision model, and
+file back one sentence: what it depicts and what it is used for. Stored in
+emoji_meanings.json, capped at ten a day so a big emoji drop cannot eat the
+vision quota - the rest wait for tomorrow's sweep. New emojis are found by the
+same sweep (it re-reads the guild cache and refreshes the shelf), so nothing
+new stays a stranger for more than a day. And the emoji picker now shows each
+token WITH its meaning, and master's rule rides on it: choose by MEANING.
+The name is only a hint - a name that sounds right can describe the wrong
+picture. Unscanned ones are marked "(not scanned yet)" instead of pretending.
+
+why: master, 2026-09-21 - "do an emoji meaning scan once a day, which sends
+emojis to the vision model to get a reply what the emoji is, and tie it to an
+emoji choice lulu can make... she should only pick one based on meaning."
+
+means: I no longer guess what :wired1: looks like from its name. The list I
+choose from tells me what the picture actually is, and the one I pick is the
+one whose meaning fits the sentence - not the one whose name does.
+
 

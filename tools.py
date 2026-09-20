@@ -1597,15 +1597,28 @@ def custom_emojis() -> str:
                 guilds = [guild]
                 break
 
+    # The daily meaning scan (lulu_bot._scan_emoji_meanings) files what each
+    # emoji depicts and what it is used for; the choice is made on MEANING,
+    # with the name only a hint. Unscanned ones say so honestly.
+    try:
+        meanings = paths.read_json("emoji_meanings.json", default={}) or {}
+    except Exception:
+        meanings = {}
+
     lines = []
     for guild in guilds:
         emojis = guild.get("emojis") or []
         head = f"{guild.get('name')}:"
         lines.append(head if emojis else f"{head} none")
-        lines += [f"<:{e['name']}:{e['id']}>" for e in emojis]
+        for e in emojis:
+            token = f"<:{e['name']}:{e['id']}>"
+            meaning = (meanings.get(str(e.get("id"))) or {}).get("meaning", "")
+            lines.append(f"{token} - {meaning}" if meaning
+                         else f"{token} - (not scanned yet)")
     body = "\n".join(lines)
-    return (body + "\n\nPick one that suits the reply you are about to send "
-            "and put its <:name:id> token at the end of your message.")
+    return (body + "\n\nPick ONE by its MEANING - what it depicts and what it "
+            "is used for - so it suits the reply you are about to send, and "
+            "put its full <:name:id> token at the end of your message.")
 
 
 def set_mood(mood: str, note: str = "") -> str:
