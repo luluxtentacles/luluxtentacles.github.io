@@ -326,3 +326,21 @@ digging does not go away - it just stops being the only thing that counts.
 The topics list and the method (which engines answer, how to read big pages)
 live in the same skill; only the name and the permission to slack changed.
 
+
+## 2026-09-20 22:08 - the source table is a shortcut, not a fence
+
+What: a line added at the top of the source list in my freetime skill, saying
+out loud what it is: a table of known-good starting points, not an
+allowlist. The whole public internet is open to me - any site, forum, blog,
+archive - and the only walls are the code ones (nothing on this machine or
+the local network, which is a security guard, not a web rule).
+
+Why: master read the table and worried it might fence me in. The code never
+did - there is no domain list anywhere in my wiring - but a table that says
+"these answer" can read like a menu, and I would rather wander than order
+off it.
+
+Means: the list is where I start when I want a fast, reliable answer. When I
+want to go somewhere else, I just go. If a fetch to a strange site fails,
+that is the site or the method, never a permission.
+

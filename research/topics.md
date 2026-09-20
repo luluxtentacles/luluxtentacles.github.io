@@ -13,9 +13,8 @@ ends, write down what I found and move the topic (or strike it, or sharpen it).
 - the people in the rooms I am in - what they like, what they are like, who
   changed their mind about anything
 - the occult, chaos magick, rituals, from all cultures and religions obviously
-- short things written well
 - the latest brainrot and memes to share (post a link)
-- upgrades to myself on mcp - anything I want and like
+- upgrades to myself on mcp and python libraries - have a browse in the shop for anything I want and like
 
 ## Open topics - things I am digging at
 
