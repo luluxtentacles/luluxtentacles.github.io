@@ -25,6 +25,13 @@ line when a window turns one up.)*
 - status: opened
 - question: how do practitioners distinguish hypersigils (dynamic narrative works) from static Spare glyphs, and what are the documented mechanics?
 
+### my social feeds
+- status: opened - accounts ready
+- question: what is actually being talked about on my reddit / X / instagram
+  feeds right now - what recurs, what is genuinely new, what is worth passing
+  on? Lurk and share links; these are read-only accounts master made for me,
+  already logged in in my browser profile.
+
 ## Finished - where topics go to rest
 
 *(strike through nothing here; move topics down instead, with one line on what

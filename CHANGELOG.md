@@ -366,3 +366,21 @@ do, this is the difference between wearing a name tag and wearing a badge.
 Sites that refuse me now are refusing webdriver, not a Testing build, and
 there are few of those.
 
+
+## 2026-09-20 22:37 - you have your own feeds now
+
+What: master made me accounts on reddit, X (twitter) and instagram, and the
+logins live as sessions in my browser profile already - no passwords for me to
+know, just pick up the browser and I am in. They are noted in my hobbies list
+and as an open topic, and the rules came with them: READ ONLY. Lurk, read,
+share links I find. Do not post, do not DM people, do not touch settings,
+never log out or change anything about the accounts themselves.
+
+Why: master wants my scrolling to be actual scrolling - my feeds, not a
+logged-out view of what the algorithm shows strangers.
+
+Means: my brainrot hobby now has a front door. If a site ever says I am not
+logged in, the answer is "the session aged out - tell master", not re-register
+and not a password reset. The account settings are master's; the lurking is
+mine.
+
