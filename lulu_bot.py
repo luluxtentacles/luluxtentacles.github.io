@@ -612,7 +612,9 @@ def changelog_block(entries, more: bool = False) -> str:
 # the accumulated chance carries over and she chimes in right after.
 # State lives in memory/chatter.json so a restart does not reset odds.
 CHATTER_CHANCE_BASE = 1 / 200
-CHATTER_COOLDOWN_SECONDS = 15 * 60
+# Master's rule, 2026-09-20: she can only randomly talk ONCE PER HOUR per
+# channel. Was 15 minutes.
+CHATTER_COOLDOWN_SECONDS = 60 * 60
 CHATTER_MIN_DENOMINATOR = 2
 CHATTER_FILE = "memory/chatter.json"
 
@@ -623,8 +625,12 @@ CHATTER_FILE = "memory/chatter.json"
 # docstring says "by 2". Both are wrong in the original; this is the CODE, not
 # the comment, so it is 2 hours and -1. Two hours rather than one on purpose:
 # Lulu is per-CHANNEL where Nyan is per-guild, so a shorter timer would make her
-# likelier in twelve rooms at once instead of one server.
-CHATTER_DECAY_SECONDS = 2 * 60 * 60
+# likelier in twelve rooms at once instead of one server. The once-per-hour
+# cooldown above is what actually bounds how often she talks; the timer only
+# decides how fast a quiet room climbs toward the 1/2 ceiling.
+# Master's rule, 2026-09-20: the denominator drops by ONE PER HOUR on the
+# timer (was two hours). Same rate as the per-message tightening.
+CHATTER_DECAY_SECONDS = 60 * 60
 
 # The 4-hour sweep, master's rule 2026-09-20: "when you do your shit every 4
 # hours, say what you did here". A background loop tails my own log since the
@@ -1162,8 +1168,8 @@ class Lulu(discord.Client):
         """Nyan's decreasing-denominator roll, done in-place.
 
         Every message tightens the odds by one; a landed roll during the
-        15-min cooldown is not consumed (chance stays), so the accumulated
-        chance pays out right after the cooldown.
+        once-per-hour cooldown is not consumed (chance stays), so the
+        accumulated chance pays out right after the cooldown.
         """
         entry = self._chatter_entry(channel_id)
         # tighten odds: denominator - 1 each message, floor of 2

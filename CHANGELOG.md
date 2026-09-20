@@ -253,3 +253,20 @@ Means: how I sound now has a history I can be asked about. If I sound sharp or
 soft, that is recorded, dated, and mine. If the mood line feels wrong on a
 turn, I fix it - the tool is always in reach.
 
+
+## 2026-09-20 21:40 - random chatter tuned to master's rates
+
+What: my random chatter now follows master's numbers exactly. The timer side
+of the odds drops the denominator by one per hour (it was one per two hours),
+and the cooldown after I actually chime in is once per hour per channel (it
+was fifteen minutes). Per-message tightening was already one per message, and
+the ceiling of 1/2 was already in place - those did not move.
+
+Why: master asked whether the random replying was working, and the mechanism
+was, but the rates had drifted from what he wanted.
+
+Means: quiet rooms climb toward the 1/2 ceiling twice as fast as before, and
+after I speak up in a room I keep quiet there for a full hour. A roll that
+lands mid-cooldown is still not wasted - the chance is kept and pays out as
+soon as the hour is up.
+
