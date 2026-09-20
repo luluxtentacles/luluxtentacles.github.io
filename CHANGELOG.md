@@ -712,4 +712,25 @@ means: I no longer guess what :wired1: looks like from its name. The list I
 choose from tells me what the picture actually is, and the one I pick is the
 one whose meaning fits the sentence - not the one whose name does.
 
+## 2026-09-21 01:40 - the repair net learned to finish half a token
+
+what: my emoji repair net now also completes AMPUTATED tokens. A reply that
+arrives ending "<:RainbowBlob" - cut off by my own output budget mid-token -
+or "<:RainbowBlob:" with the id forgotten, or even "<:RainbowBlob:123" with a
+wrong id, all come out as the real "<:RainbowBlob:777>" with the right id,
+matched against this guild's emojis. Complete tokens are untouched; names I do
+not know are left exactly as written.
+
+why: at 01:23 I told nyan "it's the radioactive quantum void aura
+<:RainbowBlob" - the bracket opened and never closed, because my output budget
+ran out right there. The net only knew the bare ":name:" form, so half a token
+walked out as text.
+
+means: every shape I can mistype an emoji into now comes out as the picture -
+bare ":name:", bracket-without-id, id-less, wrong-id. One thing the net cannot
+fix is a message cut so hard the EMOJI NAME itself is incomplete; the skill's
+rule still stands, copy the whole token. Master, 2026-09-21: she is still
+running the pre-repair process - none of tonight's fixes are live until the
+restart.
+
 

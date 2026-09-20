@@ -1163,7 +1163,23 @@ def _expand_short_emojis(text: str, channel) -> str:
             return match.group(0)
         return f"<{'a' if emoji.animated else ''}:{emoji.name}:{emoji.id}>"
 
-    return re.sub(r"(?<!\w):([a-z0-9_]+):(?!\w)", _swap, text, flags=re.I)
+    # Amputated tokens FIRST, so the bare-name pass below can never fire
+    # inside a bracket prefix like "<:RainbowBlob:" and double the "<".
+    def _finish(match: "re.Match[str]") -> str:
+        token = match.group(0)
+        if re.fullmatch(r"<a?:[a-z0-9_]+:\d+>", token, flags=re.I):
+            return token  # already whole, with its id
+        name = re.match(r"<(a?):([a-z0-9_]+)", token, flags=re.I).group(2)
+        emoji = known.get(name.lower())
+        if emoji is None:
+            return token  # not ours to rewrite
+        return f"<{'a' if emoji.animated else ''}:{emoji.name}:{emoji.id}>"
+
+    text = re.sub(r"<a?:[a-z0-9_]+[:\d>]*>?", _finish, text, flags=re.I)
+
+    # Bare short names, now that every bracket form is whole. The lookbehind
+    # excludes "<" so it cannot touch what the pass above just wrote.
+    return re.sub(r"(?<![\w<]):([a-z0-9_]+):(?!\w)", _swap, text, flags=re.I)
 
 
 class Lulu(discord.Client):
