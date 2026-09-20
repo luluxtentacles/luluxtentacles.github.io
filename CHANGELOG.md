@@ -807,4 +807,25 @@ game for a token. The 00:52 process has the ":name:"-only net on the reply and
 chatter paths only - the outbox repair and the finishing pass are still on
 disk waiting for the next restart, together with the meaning scan.
 
+## 2026-09-21 02:55 - my own-time windows can hear what people said
+
+what: master changed my freetime skill - some windows should chase something a
+user said that intrigued me, or just scroll. And to make that ACTUALLY
+possible, the window brief now carries a new chunk: the newest lines of my
+memory tails (mine and the shared store's, about twenty), labelled "what
+people were talking about lately - a line here that intrigues me is a fair
+pick for this window's question".
+
+why: master, 2026-09-21 - "is this enough for her to go look at something a
+user mentioned?" The words were there; the mechanism was not. A self-review
+window is a cold room - it fed me master's interests and my own topic list,
+but not one word of what anyone said today, so "something a user said" pointed
+at nothing I could see.
+
+means: my own windows can now start from real conversation instead of only my
+own topics. A line from a stranger that made me curious is as legitimate a
+window question as something off my list - and the feed is memory, not a
+mirror, so it is a taste, not a transcript.
+
+
 

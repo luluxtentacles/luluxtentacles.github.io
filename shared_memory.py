@@ -94,3 +94,22 @@ def search(query: str, limit: int = RECALL_LIMIT) -> list[dict]:
 def context_block(query: str) -> str:
     """What I already know, ready to drop into the prompt."""
     return store.format_for_prompt(search(query))[:RECALL_CHARS]
+
+
+def recent(limit: int = 15) -> list[dict]:
+    """The newest memories, mine and the shared store's, newest last.
+
+    Query-free, so it works in windows where there is no question yet - this
+    is how a freetime window learns what people were talking about today
+    without being handed a whole channel mirror.
+    """
+    out: list[dict] = []
+    seen: set[str] = set()
+    for entries in (store.tail(limit, path=local_path()),
+                    store.tail(limit, path=SHARED_PATH)):
+        for entry in entries:
+            key = entry.get("id") or entry.get("text") or ""
+            if key and key not in seen:
+                seen.add(key)
+                out.append(entry)
+    return out[-limit:]

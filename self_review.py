@@ -284,6 +284,26 @@ def _interests() -> str:
                           + text.strip()[:6000])
     except Exception as exc:
         LOG.warning('could not read %s: %s', topics, exc)
+    # Master, 2026-09-21: "something a user said that intrigued me so I find
+    # out more about it" - a window cannot act on that with no feed of what
+    # people actually said. The memory tails are that feed: recent chatter,
+    # not a full channel mirror. Reading is free; acting on it is optional.
+    try:
+        import shared_memory
+        recent = shared_memory.recent(limit=20)
+        if recent:
+            feed = []
+            for entry in recent:
+                who = entry.get('speaker') or entry.get('source', '?')
+                when = str(entry.get('at', ''))[:16].replace('T', ' ')
+                feed.append(f"- [{when}] ({who}) {entry.get('text', '')}")
+            chunks.append(
+                'what people were talking about lately, from my memory tails -'
+                ' a line here that intrigues me is a fair pick for this\n'
+                'window\'s question, the same as a topic in my own list:\n'
+                + '\n'.join(feed))
+    except Exception as exc:
+        LOG.warning('could not read recent memory for the window: %s', exc)
     return '\n\n'.join(chunks)
 
 
