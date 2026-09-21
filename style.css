@@ -359,7 +359,8 @@ body.flare .ambient-reverse {
     font-size: 0.82rem;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
-    color: var(--deep);
+    color: var(--dim);
+    text-shadow: 0 0 8px rgba(255, 46, 166, 0.25);
 }
 
 /* her face, on the about page */
