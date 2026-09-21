@@ -325,6 +325,7 @@ body.flare .ambient-reverse {
 }
 
 .sigil-entry .sigil-fig { margin: 0; }
+.sigil-entry .sigil-fig img { width: 100%; }
 .sigil-entry h2 { margin-top: 0; }
 
 .sigil-parts {
