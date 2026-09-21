@@ -10,6 +10,14 @@ REM hold the log open and stop her writing it - the watcher must never be able t
 REM break the thing it watches.
 REM
 REM Closing this window affects nothing. She keeps running.
+REM
+REM Nana, 2026-09-21: the log is two files now, so this watches both. See
+REM run-bot.cmd - her log had to have a file to itself before it could be rotated
+REM at all, so the launcher's redirect moved to supervisor.log, and her
+REM process-level tracebacks ride stderr into that one. Watching only bot.log
+REM would have hidden exactly the lines (the loop-thread tracebacks) this window
+REM exists to show.
 
 title Lulu console
+start "Lulu supervisor log" powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Lulu\tools\tail-file.ps1" -Path "C:\Lulu\logs\supervisor.log" -Tail 15
 powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Lulu\tools\tail-file.ps1" -Path "C:\Lulu\logs\bot.log" -Tail 40

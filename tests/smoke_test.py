@@ -2372,6 +2372,130 @@ def _thread_context() -> str:
             "cannot leak one turn's room into the next")
 
 
+# -- 8i. why she restarted reaches her as a turn, not only a room --------
+# Master, 2026-09-21: "make sure she gets handed why she restarted as a turn
+# though with full context". The room announcement already existed; what did not
+# was anything she was HOLDING when the next turn arrived. A reverted patch is
+# the case with teeth: master's rule is that she may patch herself for something
+# she needs to USE, but a revert ends that attempt - proposal and a DM, never a
+# second run at the same wall.
+def _restart_context() -> str:
+    import lulu_bot
+
+    expect(lulu_bot.restart_context_note({"kind": "startup"}) == "",
+           "a cold start was handed to her as news")
+
+    reverted = lulu_bot.restart_context_note(
+        {"kind": "patch-reverted", "files": ["tools.py"], "sha": "abc1234",
+         "why": "i need the eyes tool"})
+    expect(reverted, "a reverted patch produced no note at all")
+    for needed in ("pending/rejected/", "research/proposals.md", "REASON.txt"):
+        expect(needed in reverted,
+               f"the revert note never points at {needed}: {reverted!r}")
+    expect("tools.py" in reverted and "abc1234" in reverted,
+           "the revert note lost which patch it was about")
+    expect("i need the eyes tool" in reverted,
+           "the revert note lost what she said she wanted")
+    expect("Do NOT stage that patch again" in reverted,
+           "the revert note does not actually forbid the retry")
+
+    crashed = lulu_bot.restart_context_note({"kind": "crashed", "exit_code": 9})
+    expect("9" in crashed and "Nobody asked" in crashed,
+           f"a crash note lost the exit code or the fact: {crashed!r}")
+
+    applied = lulu_bot.restart_context_note(
+        {"kind": "patch-applied", "files": ["tools.py"], "sha": "deadbee"})
+    expect("deadbee" in applied and "changelog" in applied.lower(),
+           f"an applied note did not send her to the changelog: {applied!r}")
+
+    # Every other kind must still say SOMETHING. A silent kind here is a restart
+    # nobody ever tells her about.
+    for kind in ("restart-requested", "exited", "running-new-code"):
+        expect(lulu_bot.restart_context_note({"kind": kind}),
+               f"kind {kind} produced no note")
+    return "a restart is handed to her next turn, and a revert sends her to a proposal"
+
+
+# -- 8j. her own folders do not cost her a restart ------------------------
+# Master, 2026-09-21: she may patch herself for something she needs to use - and
+# this is the other half of that. A page, a post or a helper script is not code
+# that boots, so routing one through the supervisor bought her exactly a bounce
+# and nothing else. She paid for two inside a single window (research/_eyes.py at
+# 20:13, the site's index and css at 20:22) before this existed.
+def _own_work_route() -> str:
+    import paths
+    import tools
+
+    # The predicate first, because the routing hangs on it. A prefix match that
+    # leaks (projectss/, researchx/) would make a BODY file look like her own
+    # work, and that is the one direction that must never happen - it would skip
+    # the smoke test on the code that runs her.
+    for rel in ("projects/site/index.html", "projects/site/things/a/b.html",
+                "research/_eyes.py", "projects", "research"):
+        expect(tools._is_own_work(rel), f"{rel} was not treated as her own work")
+    for rel in ("lulu_bot.py", "tools.py", "projectss/x.py", "researchx/y.py",
+                ".agents/skills/emoji/SKILL.md"):
+        expect(not tools._is_own_work(rel),
+               f"{rel} was treated as her own work - that would skip the net")
+
+    # The real branch, driven through a sandbox tree so her actual site is never
+    # touched. REQUEST.json is the thing that restarts her, so its bytes are
+    # compared rather than its absence: an earlier check may legitimately have
+    # left one behind.
+    watcher = paths.resolve(tools.REQUEST_FILE)
+    before = watcher.read_bytes() if watcher.exists() else None
+    real = tools.NO_RESTART_TREES
+    tools.NO_RESTART_TREES = (f"{SANDBOX_NAME}/mine/",)
+    try:
+        (ROOT / SANDBOX_NAME / "mine").mkdir(parents=True, exist_ok=True)
+        target = f"{SANDBOX_NAME}/mine/page.html"
+        out = tools.propose_patch(target, "<html>hi</html>", "smoke: my own page")
+        written = paths.resolve(target)
+        expect("no restart" in out,
+               f"an own-work patch did not say it skipped the restart: {out!r}")
+        expect(written.exists() and "hi" in written.read_text(encoding="utf-8"),
+               "an own-work patch did not actually write the file")
+        after = watcher.read_bytes() if watcher.exists() else None
+        expect(after == before,
+               "an own-work patch still wrote the restart request - that bounces her")
+    finally:
+        tools.NO_RESTART_TREES = real
+
+    # The converse, and it is the one that matters: a BODY patch must still go
+    # through the supervisor. A syntax error is refused BEFORE anything is
+    # staged, so this proves which branch it took without running a trial build.
+    body = tools.propose_patch("tools.py", "def broken(:\n", "smoke: must stage")
+    expect(body.startswith("refused before staging"),
+           f"a body patch did not reach the staging branch: {body!r}")
+    return ("her own folders write straight in with no bounce; a body patch "
+            "still stages")
+
+
+# -- 8k. the log the launcher holds decides whether hers can roll ---------
+# Master, 2026-09-21: "her logs are getting too long we should split it by 24
+# hours". The daily handler in lulu_bot._setup_logging CANNOT work while
+# setup/run-bot.cmd redirects into the same file: Windows refuses to rename a
+# file another process holds open, so the rotation would fail every midnight and
+# quietly leave one file growing forever - which is the exact bug being fixed.
+# This holds the two halves together, across two files, because nothing else can.
+def _log_split() -> str:
+    launcher = (ROOT / "setup" / "run-bot.cmd").read_text(encoding="utf-8")
+    for line in launcher.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.lower().startswith("rem"):
+            continue
+        expect("logs\\bot.log" not in stripped,
+               f"the launcher still redirects into her log: {stripped!r}")
+    expect("logs\\supervisor.log" in launcher,
+           "the launcher redirects nowhere the console watcher knows about")
+
+    src = (ROOT / "lulu_bot.py").read_text(encoding="utf-8")
+    expect('when="midnight"' in src, "her own log is not rotated daily")
+    expect("backupCount=LOG_KEEP_DAYS" in src,
+           "her rotated logs are never pruned - they would pile up instead")
+    return "the launcher keeps out of bot.log, so hers can roll at midnight"
+
+
 # -- 9. the skill shelf still parses --------------------------------------
 # Her prompt IS this shelf, and since .agents/ became proposable a bad edit here
 # is a real possibility. Importing cleanly proves nothing: a SKILL.md that is
@@ -4158,6 +4282,9 @@ CHECKS = [
     ("look-at", _look_at),
     ("emoji-retire", _emoji_retire),
     ("thread-context", _thread_context),
+    ("restart-context", _restart_context),
+    ("own-work-route", _own_work_route),
+    ("log-split", _log_split),
 ]
 
 

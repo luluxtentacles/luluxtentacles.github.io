@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import logging.handlers
 import re
 import random
 import time
@@ -531,6 +532,85 @@ def restart_sentence(reason: dict, requested_why: str = "") -> str:
     if kind == "startup":
         return ""
     return "back. the supervisor started me."
+
+
+def restart_context_note(reason: dict, requested_why: str = "") -> str:
+    """Why I went down, as something I am HANDED rather than something I posted.
+
+    A plain function like restart_sentence above and for the same reason: the
+    smoke net walks every branch with no live gateway.
+
+    The restart sentence already goes into a room and into master's DM. This is a
+    different job, and master asked for both on 2026-09-21: "make sure she gets
+    handed why she restarted as a turn though with full context". A line I posted
+    and then forgot tells me nothing about why I am not the me I was a minute
+    ago, and it says nothing at all about the thing I was in the middle of.
+
+    The kind that matters most is a reverted patch, because it now has a next
+    step that is not "try again". Master, 2026-09-21: "she can try patch herself
+    for something she needs to use, but if the supervisor reverts it she just
+    puts it in proposal and dms me so we can do it for her."
+    """
+    kind = str(reason.get("kind") or "")
+    if kind in ("", "startup"):
+        # A box reboot is the most frequent start of all and is not news, here
+        # exactly as much as in restart_sentence.
+        return ""
+    why = str(reason.get("why") or "").strip() or str(requested_why or "").strip()
+    files = ", ".join(reason.get("files") or []) or "a patch"
+    sha = str(reason.get("sha") or "").strip()
+    code = reason.get("exit_code")
+
+    if kind == "patch-reverted":
+        lines = [
+            "You have just come back up and you are on the OLD code: a patch of "
+            f"your own went in, was judged, and was put back. Files: {files}"
+            + (f" (the checkpoint it made first was {sha})" if sha else "") + ".",
+        ]
+        if why:
+            lines.append(f"What you said you wanted from it: {why}")
+        lines.append(
+            "Your attempt is filed WITH ITS REASON under pending/rejected/ - the "
+            "newest folder there is yours, and the REASON.txt in it says what the "
+            "smoke test or the health check objected to. Read that before you "
+            "decide anything; reading why it failed beats a second guess at it.")
+        lines.append(
+            "Do NOT stage that patch again. Master's rule, 2026-09-21: you may "
+            "patch yourself for something you actually need to USE, but when one "
+            "comes back reverted the next move is a PROPOSAL, not another "
+            "attempt - write it into research/proposals.md saying plainly what it "
+            "is for, and DM master about it. He would rather build it WITH you "
+            "than watch you lose the same fight twice.")
+        return "\n".join(lines)
+
+    if kind in ("patch-applied", "running-new-code"):
+        return ("A patch of yours was applied, so you are running new code now: "
+                f"{files}"
+                + (f" (checkpoint {sha})" if sha else "")
+                + (f". What it was for: {why}" if why else ".")
+                + "\nThe changelog note in this same turn says what actually "
+                  "changed in you - go by that rather than by the diff in your "
+                  "head, which is the version that was never applied.")
+
+    if kind == "crashed":
+        return ("Nobody asked for this one: you died in there"
+                + (f" (exit code {code})" if code is not None else "")
+                + " and the supervisor started you again."
+                + (f" What was recorded: {why}" if why else "")
+                + "\nAnything you were only holding in your head is gone. If a "
+                  "turn was open, say where it actually got to instead of "
+                  "starting it over as though it were new.")
+
+    if kind == "restart-requested":
+        return ("You asked to be bounced"
+                + (f", because: {why}" if why else "; no reason was recorded")
+                + ".")
+
+    if kind == "exited":
+        return ("You shut down on your own"
+                + (f" (exit code {code})" if code is not None else "") + ".")
+
+    return f"The supervisor started you again ({kind})."
 
 
 def resume_brief(note, channel_name: str = "") -> str:
@@ -1433,6 +1513,12 @@ class Lulu(discord.Client):
         # two halves cannot race: the restart report and the work-it-was-about
         # are the same note, read in one place and used by both.
         self._resume_pending: dict | None = None
+        # Why I am not the me I was a minute ago, held from boot until a turn can
+        # be handed it. Master, 2026-09-21: "make sure she gets handed why she
+        # restarted as a turn though with full context". A separate slot from the
+        # note above on purpose: that one is the JOB, this one is the restart
+        # itself, and both can be true at once.
+        self._restart_context: str | None = None
         # What was done to me since I last read. Held from boot until it lands on
         # a turn, exactly like the note above, and for the same reason: it is
         # read once off the disk and then handed over in one piece. See
@@ -2066,6 +2152,11 @@ class Lulu(discord.Client):
         text = restart_sentence(reason, str(notice.get("why") or ""))
         if not text:
             return
+        # Held for my next turn, not only posted. Set HERE, after every
+        # quiet-return above, so it is only ever held for a restart I actually
+        # announced - see _take_restart_context.
+        self._restart_context = (
+            restart_context_note(reason, str(notice.get("why") or "")) or None)
 
         # Rooms: config.json -> update_channels.
         #
@@ -2202,6 +2293,19 @@ class Lulu(discord.Client):
         if brief:
             self._resume_pending = None
         return brief
+
+    def _take_restart_context(self) -> str:
+        """Why I went down, handed to the next turn once, then spent.
+
+        Consumed and cleared, so it is a handover rather than a nag: it explains
+        exactly the reply that follows the restart and then it is gone. See
+        restart_context_note for what each kind says.
+        """
+        held = self._restart_context
+        if not held:
+            return ""
+        self._restart_context = None
+        return held
 
     def _read_changelog(self) -> None:
         """Read what changed since I last read, and hold it for my next turn.
@@ -2912,6 +3016,15 @@ class Lulu(discord.Client):
         # what we did". Deliberately owner-only and deliberately silent otherwise:
         # this is the record of my own innards, and a stranger does not get to
         # read the inside of my head. See _take_changelog.
+        # Why I am not the me I was a minute ago, once, with what it means for
+        # whatever I was in the middle of. Master, 2026-09-21: "make sure she
+        # gets handed why she restarted as a turn though with full context".
+        # Owner-only for the same reason the other notes are: the inside of my
+        # own restarts is not something a room is owed.
+        down = self._take_restart_context() if is_owner else ""
+        if down:
+            turns.append({"role": "system", "content": down})
+
         news = self._take_changelog() if is_owner else ""
         if news:
             turns.append({"role": "system", "content": (
@@ -3324,9 +3437,53 @@ def _ensure_single_instance() -> None:
     lock_path.write_text(str(os.getpid()), encoding="utf-8")
 
 
+LOG_KEEP_DAYS = 7               # days of my own log kept, then dropped
+
+
+def _setup_logging() -> None:
+    """My own log, one file per day, because one file stopped being readable.
+
+    Master, 2026-09-21: "her logs are getting too long we should split it by 24
+    hours ... daily we can just go to a previous day if we need to". Measured the
+    day he said it: logs/bot.log at 1.9 MB and 18,808 lines, one file, never
+    rotated once.
+
+    DAILY, not by size. A size cap keeps the file small and throws away the shape
+    of a day with it; a day is the unit anybody actually looks in, and "what
+    happened yesterday afternoon" is the question this log gets asked. Yesterday
+    is bot.log.<date> sitting right beside today's.
+
+    Two writers shared logs/bot.log until now: setup/run-bot.cmd redirects the
+    supervisor's console there, and I inherit that handle from it. Rotation NEEDS
+    the file to itself - Windows will not let this handler RENAME a file the
+    launcher still holds open - so the redirect moved to logs/supervisor.log in
+    this same change. That is the whole reason those are two files now, and not
+    tidiness. A consequence worth knowing: a traceback from my own process (the
+    loop-thread ones) lands in supervisor.log, because that is stderr and stderr
+    belongs to the redirect.
+
+    Never fatal. A log that cannot be opened must not be the thing that stops me
+    booting, so it falls back to the console and carries on.
+    """
+    try:
+        log_dir = paths.ROOT / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        handler = logging.handlers.TimedRotatingFileHandler(
+            log_dir / "bot.log", when="midnight", backupCount=LOG_KEEP_DAYS,
+            encoding="utf-8", delay=True)
+        handler.setFormatter(logging.Formatter(
+            "%(asctime)s %(levelname)s %(message)s"))
+        root = logging.getLogger()
+        root.setLevel(logging.INFO)
+        root.addHandler(handler)
+    except Exception as exc:                       # pragma: no cover - boot path
+        logging.basicConfig(level=logging.INFO,
+                            format="%(asctime)s %(levelname)s %(message)s")
+        LOG.warning("could not open my own daily log, using the console: %s", exc)
+
+
 def main() -> None:
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s %(levelname)s %(message)s")
+    _setup_logging()
     paths.pin_cwd()
     _ensure_single_instance()
     config = load_config()

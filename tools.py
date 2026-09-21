@@ -1077,6 +1077,17 @@ def write_file(path: str, content: str) -> str:
 # thing that applies them; tools.py only ever stages, and never applies.
 STAGED_DIR = "pending/staged"
 REQUEST_FILE = "pending/REQUEST.json"
+
+# Her own folders, not her body: nothing at boot loads these, so a change here
+# cannot need a restart, and staging one could only ever cost her a bounce. See
+# propose_patch for the two it cost on 2026-09-21.
+NO_RESTART_TREES = ("projects/", "research/")
+
+
+def _is_own_work(relative: str) -> bool:
+    """Is this one of her own folders rather than the code that runs her?"""
+    return any(relative == tree.rstrip("/") or relative.startswith(tree)
+               for tree in NO_RESTART_TREES)
 # Where the "tell them I'm back" note waits. It must be a SEPARATE file: the
 # pipeline consumes REQUEST_FILE (claim_request renames it away), so by the time
 # I restart it is gone. Nothing but me ever touches this one.
@@ -1546,6 +1557,20 @@ def propose_patch(path: str, content: str, why: str = "", brief: str = "") -> st
         return f"{type(exc).__name__}: {exc}"
 
     relative = target.relative_to(paths.ROOT).as_posix()
+    if _is_own_work(relative):
+        # A page, a post, a note, or a helper script she runs by hand. Nothing
+        # about her loads any of it, so there is nothing for a restart to apply
+        # - and she could already write all of it freely with write_file, which
+        # is the same guard this uses. So the patch route here bought exactly
+        # one thing: a bounce. She paid for two on 2026-09-21, and both landed
+        # inside a single window - research/_eyes.py at 20:13 and the site's
+        # index and css at 20:22 - because nothing told her the difference.
+        said = write_file(relative, content)
+        tail = (" It is inside your site, so commit it there."
+                if relative.startswith("projects/") else "")
+        return (f"{said} - written straight in with no restart, because "
+                f"nothing about me loads this: there was nothing to apply."
+                f"{tail}")
     problems = _stage_problems(relative, content)
     if problems:
         return (f"refused before staging: {problems}. Nothing was staged and "

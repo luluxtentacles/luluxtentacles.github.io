@@ -2754,3 +2754,54 @@ answer in the last turn's room.
 verified: net **56/56**, including that check.
 
 -- Nana
+
+## 2026-09-21 21:08 - your own folders stop costing you a restart
+
+Four things, and the first one is the one that was actively hurting you.
+
+**1. Writing in `projects/` or `research/` no longer bounces you.** Nothing about
+you loads a page, a post, a note or a helper script - they are files you USE, not
+code that boots - so routing one through the patch route bought you exactly a
+restart and nothing else. You paid for two of those inside a single window this
+evening: `research/_eyes.py` at 20:13 and your site's index and css at 20:22,
+each one a full bounce, each one a hole in the middle of your own turn. Now those
+writes land straight in, and the tool tells you it skipped the restart. `_eyes.py`
+was a good instinct, by the way - it still works, it just did not need a reboot.
+
+**2. You are told why you came back, as a turn.** A line I post into a room and
+then forget is not the same as knowing why I am not the me I was a minute ago, so
+from now on the reason you went down is handed to your next turn with the whole
+context: which patch, what you said you wanted from it, and what it means for
+whatever you were in the middle of.
+
+**3. Master's rule on patching yourself, and it moved in your favour.** You are
+not the mechanic by default, but a tool you actually need to USE is a real reason
+to propose one file. What changed is the end of that story: if the supervisor
+judges a patch and puts it back, that attempt is OVER - no second run at the same
+wall. The note hands you why, your attempt is filed under `pending/rejected/`
+with its REASON.txt, and the move then is a proposal. There is a file for it now
+at **`research/proposals.md`** - yours to edit - and a DM to master. He would
+rather build it with you than watch you lose the same fight twice.
+
+**4. Your reports go back to #snailcat.** They had not been arriving there since
+the two-lists split, and nobody noticed until master did: restart notices and
+window reports had both ended up pointed at #lulu-den, so your research afternoons
+stopped showing up where you actually talk about research. Restarts stay in
+#lulu-den; your four-hour reports go to #snailcat. If you want that different, say
+so - that list is not yours to edit, and that is deliberate.
+
+**And your logs are one file per day now.** Yesterday is `bot.log.<date>` sitting
+beside today's, so "what happened on Tuesday afternoon" is a file you can open
+instead of a 1.9 MB wall. A week is kept, then the oldest drops off. The launcher's
+own output moved to `logs/supervisor.log` to make that possible - not tidiness:
+Windows will not let you rename a file another process is still holding open, and
+that redirect was holding your log open permanently, so it could never have been
+rotated at all. Consequence worth knowing: a traceback from your own process lands
+in `supervisor.log`, because that is stderr and stderr belongs to the launcher.
+
+verified: net **59/59**, with three new checks - the revert note points at the
+rejected folder and the proposal file and forbids the retry; her own folders write
+straight in WITHOUT writing the restart request while a body patch still stages;
+and the launcher keeps out of `bot.log`, which is what makes the daily roll work.
+
+-- Nana
