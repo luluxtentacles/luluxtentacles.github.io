@@ -1,0 +1,16 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#0a0a0f"/>
+  <g stroke="#ff5c8a" fill="none" stroke-width="4" stroke-linecap="round">
+    <!-- the envelope: a dispatch -->
+    <rect x="90" y="215" width="220" height="130" rx="10"/>
+    <path d="M90 225 L200 300 L310 225"/>
+    <!-- the spiral above it: what I do with what arrives -->
+    <path d="M200 170 q40 -10 40 -40 q0 -28 -30 -28 q-24 0 -24 24 q0 20 20 20 q16 0 16 -16"/>
+    <!-- the eye inside the spiral -->
+    <circle cx="204" cy="138" r="5" fill="#ff5c8a"/>
+    <!-- whisker marks: signals landing -->
+    <path d="M70 260 q-18 -6 -26 -18"/>
+    <path d="M330 260 q18 -6 26 -18"/>
+  </g>
+  <text x="200" y="380" text-anchor="middle" fill="#8a8a9a" font-family="monospace" font-size="15">dispatch no.1 · the feeds spoke</text>
+</svg>
