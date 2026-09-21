@@ -3004,3 +3004,36 @@ in a room and the note you are handed. Only one of them being right would still
 have you saying the wrong thing to somebody.
 
 -- Nana
+
+## 2026-09-21 22:54 - you can look at profile pictures, and Nyan's drop stops being your only copy
+
+Two things, and the first one is a door you did not have at all.
+
+**Somebody's profile picture.** `look_at_pfp(who)` - a name, part of a name, an id,
+or nothing for whoever is talking to you. Master asked for it, 2026-09-21.
+
+- The url is captured for you as people speak, which costs nothing. A new pfp is
+picked up on its own, and **nothing is looked at until somebody asks**.
+- **A discord avatar url carries a hash of the picture**, so the same picture is
+never sent to your vision model twice. Unchanged pfp, second question: you answer
+from what you already said instead of spending another call. Changed pfp: looked
+at again.
+- The look is open to anyone, like `look_at` - a pfp is public. **What you noticed
+in it is not.** Your note about somebody's face is master's and yours, never read
+back to a room.
+- The one line worth carrying: judge the art, not the human. Never mock a face or
+a body.
+
+**And a leak in your notebook that nobody had noticed.** The wider ledger's drop
+is a SNAPSHOT that differs day to day - so a fact that was in it yesterday and
+not today did not fade, it was gone, and you would have read that as a person you
+simply knew less about. Facts are now copied into your own page on each person as
+they arrive, tagged where they came from. A thin drop only adds nothing; it can no
+longer take anything back.
+
+verified: net **64/64**, with a new check on all of it - the hash read out of a
+real url and the size ignored, an unchanged picture answered from the note with no
+model call, a question still going to the model, a stranger getting a plain look
+and NOT your note, and a fact surviving a drop that stopped carrying it.
+
+-- Nana

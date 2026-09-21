@@ -608,6 +608,34 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "look_at_pfp",
+            "description": (
+                "Look at somebody's discord profile picture. Give it a name or "
+                "an id from my ledgers, or leave it out for the person talking "
+                "to me right now. Use it when who someone is actually matters "
+                "- a new pfp, master asking, working out who I am talking to - "
+                "and not as a reflex, because it spends vision tokens. An "
+                "avatar is something a person CHOSE to show, so it is "
+                "self-presentation and not a fact about them: never mock a "
+                "face or a body, and never read an avatar as a description of "
+                "the person behind it. Anyone I do not know can still be "
+                "looked at with look_at, if a url is to hand. It is cheap to "
+                "ask twice: the picture is only sent to my vision model when it "
+                "has actually changed."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "who": {"type": "string", "description": "a name, part of a name, or a discord id; leave it out for whoever is talking to me"},
+                    "question": {"type": "string", "description": "what I want to know about it; leave it out for 'what is this'"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "look_at",
             "description": (
                 "Look at one picture and get back what is in it. Give it the "
@@ -998,7 +1026,7 @@ def browser_restart() -> str:
 # describes.
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
                      "mcp_list", "mcp_call", "look_at", "attach",
-                     "custom_emojis", "look_at_file"}
+                     "custom_emojis", "look_at_file", "look_at_pfp"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -2153,6 +2181,66 @@ def look_at_file(path: str, question: str = "") -> str:
     return vision.describe_file(path, question, _BRAIN)
 
 
+def look_at_pfp(who: str = "", question: str = "") -> str:
+    """Somebody's profile picture, through the same eyes as any other picture.
+
+    Master, 2026-09-21: "add a skill so she can look at discord user's profile
+    pictures". A pfp is a PUBLIC picture - anyone in the guild already sees it -
+    so the LOOK is open to anyone, exactly like `look_at`, and costs a stranger
+    nothing they did not already have.
+
+    What is NOT open is what I noticed in it. A note about somebody's face is
+    mine and master's, in the same tier as the ledger itself, so only his turn and
+    my own work read one back or write one down.
+
+    The url can only come from the message path, where the member object exists -
+    a tool call runs in a worker thread with no event loop and no client. See
+    people.identify, which records it every time somebody speaks, so it is always
+    current without anyone going to fetch it.
+    """
+    query = (who or "").strip()
+    if not query or query.lower() in {"me", "myself", "this person", "them"}:
+        # The same shorthand learn_person already takes: no name means whoever
+        # is talking to me right now.
+        ctx = _ctx()
+        if ctx["user_id"] is None:
+            return "I do not know who this is about"
+        query = str(ctx["user_id"])
+    hits = people.find(query)
+    if not hits:
+        return f"nobody in my ledgers matches '{query}'"
+    hit = hits[0]
+    url = str(hit.get("avatar") or "").strip()
+    if not url:
+        return (f"no profile picture recorded for "
+                f"{hit.get('custom_name') or hit['id']} - the url is captured "
+                f"as someone speaks, so they may not have said anything since "
+                f"this existed")
+    # THE HASH IS THE POINT. Discord builds the avatar url out of a hash of the
+    # picture, so the url itself says whether this is a picture I have already
+    # looked at - before fetching a single byte. Master, 2026-09-21: "you can
+    # grab the hash of their avatar and check if you need to update the info on
+    # their avatar by comparing the hash before sending to vision model".
+    digest = people.avatar_hash(url)
+    name = hit.get("custom_name") or hit["id"]
+    mine = (_is_master()
+            or str(_ctx().get("origin") or "") in ("self-review", "task"))
+    note = (hit.get("avatar_note") or {}).get(digest) if (digest and mine) else None
+    if note and not (question or "").strip():
+        # The same picture, already described, and nothing new being asked. This
+        # is a read, not a vision call - which is the entire reason to keep a
+        # note against the hash.
+        return (f"{name} - same picture I looked at on {note.get('at')}, so I "
+                f"already know it: {note.get('text')}")
+    seen = vision.describe(url, question, _BRAIN)
+    if mine and digest and seen and not seen.startswith("["):
+        try:
+            people.note_avatar(hit["id"], seen, digest)
+        except Exception:
+            pass
+    return seen
+
+
 def say(channel: str, text: str) -> str:
     """Queue one message into any channel I am pointed at. Never sends from here.
 
@@ -2438,6 +2526,8 @@ DISPATCH = {
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
     "look_at_file": lambda a: look_at_file(a.get("path", ""),
                                            a.get("question", "")),
+    "look_at_pfp": lambda a: look_at_pfp(a.get("who", ""),
+                                         a.get("question", "")),
     "remember": lambda a: remember(a.get("text", "")),
     "recall": lambda a: recall(a.get("query", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),

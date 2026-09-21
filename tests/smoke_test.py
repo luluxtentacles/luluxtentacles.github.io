@@ -4548,6 +4548,129 @@ def _mcp_image() -> str:
             "really a picture is refused without touching the disk")
 
 
+def _look_at_pfp() -> str:
+    """A profile picture, and the two rules that make it cheap and private.
+
+    Master, 2026-09-21: "add a skill so she can look at discord user's profile
+    pictures" and "you can grab the hash of their avatar and check if you need to
+    update the info on their avatar by comparing the hash before sending to
+    vision model". The second line is the interesting one: a discord avatar url
+    carries a hash of the IMAGE, so a look can be skipped before a byte moves.
+
+    Nothing here opens a socket and no model is ever reached: every call below is
+    run with NO brain configured, so "no brain configured" is positive proof that
+    the code TRIED to make a vision call, and a note coming back is proof that it
+    did not have to.
+    """
+    import json as _json
+
+    import paths
+    import people
+    import tools
+
+    # 1. registered in both halves, and the LOOK is open like look_at
+    names = {t["function"]["name"] for t in tools.SCHEMA}
+    expect("look_at_pfp" in names and "look_at_pfp" in tools.DISPATCH,
+           "look_at_pfp is not consistently registered")
+    expect("look_at_pfp" in tools.LOOKUP_TOOL_NAMES,
+           "a public picture was locked away from everyone but master")
+
+    # 2. the hash out of a real-shaped avatar url - and nothing out of a url
+    # that is not one, so a non-avatar can never be mistaken for a cached one
+    real = ("https://cdn.discordapp.com/avatars/123456789012345678/"
+            "abcdef0123456789abcdef0123456789.png?size=1024")
+    expect(people.avatar_hash(real) == "abcdef0123456789abcdef0123456789",
+           f"the avatar hash was not read: {people.avatar_hash(real)!r}")
+    # the same hash through a different dressing is the same picture
+    expect(people.avatar_hash(real.replace("?size=1024", "?size=64"))
+           == people.avatar_hash(real),
+           "the size was read as part of the picture's identity")
+    for label, url in (("a default avatar",
+                        "https://cdn.discordapp.com/embed/avatars/0.png"),
+                       ("an ordinary image", "https://example.com/a.png"),
+                       ("nothing", "")):
+        expect(people.avatar_hash(url) == "",
+               f"{label} produced a hash: {people.avatar_hash(url)!r}")
+
+    # 3. a person who has actually SPOKEN, which is the only way a url gets into
+    # my ledger - people.identify runs on every message the bot sees, and a tool
+    # call cannot reach the member object, so this is the real capture path and
+    # not a shortcut around it.
+    uid = "906000000000000001"
+    people.identify(uid, username="probe", display="Probe", avatar=real)
+    hit = people.lookup(uid)
+    expect(hit.get("avatar") == real,
+           f"the profile picture url was not captured on the message path: {hit.get('avatar')!r}")
+    expect(hit.get("avatar_hash") == people.avatar_hash(real),
+           "the picture's hash was not kept beside its url")
+    people.note_avatar(uid, "a green frog wearing a tiny hat",
+                       people.avatar_hash(real))
+
+    brain = dict(tools._BRAIN)
+    try:
+        tools.set_brain({})
+        tools.set_context(uid, "probe", "lulu-den", master=True)
+
+        # 4. THE HASH GATE. Same picture, no new question: a read, not a call.
+        got = tools.look_at_pfp("", "")
+        expect("green frog wearing a tiny hat" in got,
+               f"an unchanged picture was not answered from the note: {got!r}")
+        expect("no brain configured" not in got,
+               f"an unchanged picture was sent to the vision model anyway: {got!r}")
+
+        # 5. and a real question IS a reason to look again - which, with no
+        # brain, is the only thing that can come back. Proves it tried.
+        asked = tools.look_at_pfp("", "is the hat animated?")
+        expect("no brain configured" in asked,
+               f"a question did not trigger a fresh look: {asked!r}")
+
+        # 6. THE NOTE IS MINE. A room may ask me to look; nobody but master reads
+        # back what I wrote about somebody's face.
+        tools.set_context("stranger-probe", master=False)
+        seen = tools.look_at_pfp(uid, "")
+        expect("green frog wearing a tiny hat" not in seen,
+               f"a stranger read my private note about someone: {seen!r}")
+        expect("no brain configured" in seen,
+               f"a stranger did not get a plain look at a public picture: {seen!r}")
+    finally:
+        tools.set_brain(brain)
+        tools.set_context(None)
+
+    # 7. THE DROP IS A SNAPSHOT AND IT DIFFERS DAY TO DAY. Master, 2026-09-21:
+    # "nyan's drop can divffer day to day, you should extract info from it and
+    # keep maybe a page of file on each person". So a fact that arrives must
+    # STAY after the file stops carrying it.
+    def facts_of(person):
+        raw = _json.loads(paths.resolve(people.LOCAL).read_text(encoding="utf-8"))
+        entry = (raw.get("people") or {}).get(person) or {}
+        return [str(f.get("text")) for f in (entry.get("facts") or [])
+                if isinstance(f, dict)]
+
+    wide = {uid: {"custom_name": "Probe",
+                  "facts": [{"text": "likes frogs"}, {"text": "plays bass"}]}}
+    expect(people._absorb_facts(wide) >= 1,
+           "nothing was taken from the wider ledger")
+    first = facts_of(uid)
+    expect("likes frogs" in first and "plays bass" in first,
+           f"the wider facts did not land in my own page: {first!r}")
+
+    # twice is not twice: an identical fact must not stack up on every refresh
+    people._absorb_facts(wide)
+    expect(facts_of(uid).count("likes frogs") == 1,
+           f"a repeated fact stacked up: {facts_of(uid)!r}")
+
+    # and the point of the whole thing: a THIN day must not take it back
+    people._absorb_facts({})
+    people._absorb_facts({uid: {"custom_name": "Probe", "facts": []}})
+    last = facts_of(uid)
+    expect("likes frogs" in last and "plays bass" in last,
+           f"a fact vanished when the drop went quiet: {last!r}")
+    return ("the pfp url and its hash are recorded for free, an unchanged "
+            "picture is answered from what I already saw, a changed one is "
+            "looked at again, my note about it stays master's, and a wider drop "
+            "can go quiet without taking back what it already told me")
+
+
 def _browser_proxy() -> str:
     """The gap between "tested" and "works", closed.
 
@@ -4679,6 +4802,7 @@ CHECKS = [
     ("changelog", _changelog),
     ("look-at", _look_at),
     ("look-at-file", _look_at_file),
+    ("look-at-pfp", _look_at_pfp),
     ("mcp-image", _mcp_image),
     ("emoji-retire", _emoji_retire),
     ("thread-context", _thread_context),

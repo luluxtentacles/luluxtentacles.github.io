@@ -2521,6 +2521,15 @@ class Lulu(discord.Client):
                 nick=getattr(message.author, "nick", "") or "",
                 mention=getattr(message.author, "mention", ""),
                 channel=getattr(message.channel, "name", "") or str(message.channel.id),
+                # Their profile picture, as a url. This line is the ONLY reason a
+                # tool can ever see a pfp: a tool call runs in a worker thread
+                # with no client, so the url has to be captured here, on the
+                # message path, and left in the ledger for the door to read.
+                # getattr-chained because display_avatar is a discord.py Asset
+                # and an older or stubbed library should cost a missing pfp, not
+                # a lost message.
+                avatar=getattr(getattr(message.author, "display_avatar", None),
+                               "url", "") or "",
             )
         except Exception as exc:
             LOG.warning("could not record who this is: %s", exc)

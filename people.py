@@ -58,6 +58,10 @@ REFRESH_SECONDS = 24 * 60 * 60
 
 MAX_FACTS = 12
 MAX_LOCAL_FACTS = 40
+# How many described profile pictures I keep per person. A page, not a
+# scrapbook: somebody who changes their pfp daily should not grow their record
+# without end, and the newest is the one anybody is asking about.
+MAX_AVATAR_NOTES = 6
 AUTO_MAX_CHARS = 240
 SCHEMA_VERSION = 3
 # The marker Nyanbot writes into every drop. A file without it is not a drop -
@@ -213,7 +217,63 @@ def refresh(force: bool = False) -> bool:
     _cache["data"] = {_canonical(str(k)): v for k, v in data.items()
                       if isinstance(v, dict)}
     _cache["loaded_at"] = now
+    # And take a copy of what the wider ledger knows, into my own page on each
+    # person. Never fatal - a ledger I could not absorb from is still a ledger.
+    try:
+        absorbed = _absorb_facts(_cache["data"])
+        if absorbed:
+            _cache["absorbed"] = absorbed
+    except Exception:
+        pass
     return True
+
+
+def _absorb_facts(wide: dict) -> int:
+    """Keep what the wider ledger knows as MY OWN page on a person.
+
+    The drop is a SNAPSHOT, and it differs day to day. Master, 2026-09-21:
+    "nyan's drop can divffer day to day, you should extract info from it and keep
+    maybe a page of file on each person". Left as a live read of somebody else's
+    latest export, knowledge does not decay - it vanishes all at once and
+    silently, the day a fact stops being in the file: a person does not become a
+    stranger gradually, they just stop existing in it.
+
+    So the wider facts are COPIED IN, tagged with where they came from, and from
+    then on they are mine - they survive a thin drop, and a later one only adds.
+    Deduped by text, so a fact that is the same every day does not stack up, and
+    bounded by the same cap my own facts already use.
+
+    Returns how many people gained something.
+    """
+    people = learned()
+    gained = 0
+    for key, entry in (wide or {}).items():
+        if not isinstance(entry, dict):
+            continue
+        wide_facts = []
+        for item in entry.get("facts") or []:
+            text = item.get("text") if isinstance(item, dict) else item
+            if text:
+                wide_facts.append(str(text))
+        if not wide_facts:
+            continue
+        mine = _entry(people, str(key))
+        known = {str(f.get("text")) for f in mine["facts"] if isinstance(f, dict)}
+        added = False
+        for text in wide_facts:
+            text = redact(text.strip())[:500]
+            if not text or text == "[redacted]" or text in known:
+                continue
+            mine["facts"].append({"text": text, "source": "nyan",
+                                  "at": time.strftime("%Y-%m-%d %H:%M")})
+            known.add(text)
+            added = True
+        if added:
+            mine["facts"] = mine["facts"][-MAX_LOCAL_FACTS:]
+            gained += 1
+    if gained:
+        _save(people)
+    return gained
 
 
 def _bridge_from_drop(dropped: dict) -> None:
@@ -482,11 +542,59 @@ def _entry(people: dict, key: str) -> dict:
     for key_name in ("facts", "likes", "dislikes", "interests", "accounts"):
         if not isinstance(entry.get(key_name), list):
             entry[key_name] = []
+    if not isinstance(entry.get("avatar_note"), dict):
+        entry["avatar_note"] = {}
     return entry
 
 
+# Discord builds an avatar url out of a HASH of the picture, so the hash in the
+# url IS the picture's identity: same hash, same image, whatever the size or
+# format suffix claims. That is what makes a look worth caching - it says
+# whether the thing in front of me is a picture I have already seen, without
+# spending a vision call or a single byte to find out.
+_AVATAR_HASH = re.compile(r"/avatars/\d+/([0-9a-fA-F]{32})")
+
+
+def avatar_hash(url: str) -> str:
+    """The picture's own hash out of an avatar url, or "" if it is not one."""
+    found = _AVATAR_HASH.search(str(url or ""))
+    return found.group(1).lower() if found else ""
+
+
+def note_avatar(user_id, text: str, avatar_hash: str,
+                source: str = "look") -> str:
+    """What I saw in somebody's profile picture, kept AT the hash I saw it at.
+
+    So a second ask about an unchanged picture is a read and not another vision
+    call, and a picture that HAS changed is looked at again without anyone
+    telling me. Master, 2026-09-21: "you can grab the hash of their avatar and
+    check if you need to update the info on their avatar by comparing the hash
+    before sending to vision model".
+
+    One note per picture, newest kept, redacted like anything else I write down
+    about a person.
+    """
+    key = resolve(user_id)
+    text = redact((text or "").strip())
+    if not key or not text or text == "[redacted]":
+        return "nothing worth storing"
+    people = learned()
+    entry = _entry(people, key)
+    note = entry["avatar_note"]
+    note[avatar_hash or "unknown"] = {
+        "text": text[:600],
+        "at": time.strftime("%Y-%m-%d %H:%M"),
+        "source": source,
+    }
+    for stale in sorted(note, key=lambda k: str(note[k].get("at") or ""))[:-MAX_AVATAR_NOTES]:
+        note.pop(stale, None)
+    _save(people)
+    return "noted"
+
+
 def identify(user_id, username: str = "", display: str = "", global_name: str = "",
-             nick: str = "", mention: str = "", channel: str = "") -> bool:
+             nick: str = "", mention: str = "", channel: str = "",
+             avatar: str = "") -> bool:
     """Record who someone is, every time they speak.
 
     The key is resolved first, so a carded person writes to their own record
@@ -534,6 +642,29 @@ def identify(user_id, username: str = "", display: str = "", global_name: str = 
     if mention and names.get("mention") != str(mention):
         names["mention"] = str(mention)[:64]
         changed = True
+
+    # Their profile picture, kept as a URL and never as bytes - and kept for
+    # its HASH, which is the whole point. Discord builds an avatar url out of a
+    # hash of the image, so two urls with the same hash are the same picture no
+    # matter how the query string is dressed. Recorded here because this is the
+    # only place the member object exists: a tool call runs in a worker thread
+    # with no event loop and no client.
+    #
+    # Free: it costs no vision call and no request. What it does NOT do is look
+    # at the picture - master, 2026-09-21: "you dont need to automatically grab
+    # every user's profile picture, only update it when something requires you
+    # to". The url and hash are facts about a message somebody already sent; the
+    # LOOKING happens on demand, in tools.look_at_pfp.
+    avatar = str(avatar or "").strip()
+    if avatar:
+        if entry.get("avatar") != avatar:
+            entry["avatar"] = avatar[:512]
+            changed = True
+        seen_hash = avatar_hash(avatar)
+        if seen_hash and entry.get("avatar_hash") != seen_hash:
+            entry["avatar_hash"] = seen_hash
+            changed = True
+
     names["aliases"] = aliases[-MAX_ALIASES:]
 
     # What the card knows and a single message cannot: the other accounts this
@@ -689,6 +820,14 @@ def lookup(user_id) -> dict:
         "names": mine.get("names") if isinstance(mine.get("names"), dict) else {},
         "accounts": mine.get("accounts") if isinstance(mine.get("accounts"), list) else [],
         "card": card.get("key") or "",
+        # The profile picture, and what I last saw in it. `avatar_hash` is the
+        # picture's identity on Discord's side; `avatar_note` carries the hash it
+        # was seen AT, so a look is only re-taken when the picture has actually
+        # changed. Empty for anyone who has not spoken since this existed, which
+        # the door says plainly rather than guessing.
+        "avatar": mine.get("avatar") or "",
+        "avatar_hash": mine.get("avatar_hash") or "",
+        "avatar_note": mine.get("avatar_note") if isinstance(mine.get("avatar_note"), dict) else {},
         "first_seen": mine.get("first_seen") or "",
         "last_seen": mine.get("last_seen") or "",
         "seen": mine.get("seen") or 0,
