@@ -1488,7 +1488,14 @@ def _progress() -> str:
     expect(answer == "found it - the wiring is missing",
            f"the answer was changed by the progress path: {answer!r}")
 
-    # Bounded: one turn cannot flood a room.
+    # UNBOUNDED, and this asserts the opposite of what it used to. There was a
+    # `PROGRESS_MAX = 4` in lulu_bot.py and master retired it - "she can print
+    # as many progress lines as she wants" (2026-09-21). A turn that narrates
+    # for nine rounds has to arrive as nine lines, in order. I am not deleting a
+    # ceiling because it was inconvenient: every one of those nine was written
+    # by her, the room is the one she was addressed in, and the alternative was
+    # four lines and then silence for the rest of the dig. If this goes red,
+    # something has put a ceiling back on her.
     rounds.extend(
         {"content": f"step {n}",
          "tool_calls": [{"id": f"c{n}", "function": {
@@ -1501,9 +1508,8 @@ def _progress() -> str:
     finally:
         brain.complete = real_complete
     flooded = tools.drain_progress(999)
-    expect(len(flooded) <= lulu_bot.PROGRESS_MAX,
-           f"one turn posted {len(flooded)} lines, the cap is "
-           f"{lulu_bot.PROGRESS_MAX}")
+    expect(flooded == [f"step {n}" for n in range(1, 10)],
+           f"her narration was cut short: {flooded!r}")
 
     # Master's half of it: told to narrate while she works, in the file that is
     # always loaded, so it rides every single turn.
@@ -1515,9 +1521,8 @@ def _progress() -> str:
            "no reason to say anything while she digs")
 
     return ("a line is queued per room and drained per room, markup and empty "
-            f"lines are refused, one turn cannot post more than "
-            f"{lulu_bot.PROGRESS_MAX}, and the rule is in her always-loaded "
-            "skill")
+            "lines are refused, one turn posts every line it narrates, and the "
+            "rule is in her always-loaded skill")
 
 
 # -- 8d. she is told WHY she was restarted, not a boilerplate line ----------

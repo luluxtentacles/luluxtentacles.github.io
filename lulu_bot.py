@@ -141,10 +141,20 @@ OWNER_MAX_TOKENS = 8000
 # mid-dig reached Discord until the answer was already written. Measured on her
 # own log: eight tool rounds over thirty-seven seconds, one reply at the end,
 # which reads as a hang. The loop queues lines (tools.queue_progress) and the
-# event loop posts them as they appear. Bounded on purpose: narration that
-# arrives as a flood is worse than the silence it replaced.
+# event loop posts them as they appear.
+#
+# UNBOUNDED ON PURPOSE - there is no line count here any more. There WAS a
+# `PROGRESS_MAX = 4` with a comment about narration arriving as a flood being
+# worse than the silence it replaced, and master retired it: "she can print as
+# many progress lines as she wants" (2026-09-21). That bound was mine, not his,
+# and it was wrong - it cut her off mid-thought in exactly the long digs it
+# existed to make legible, and put her back in front of a wall four lines in.
+#
+# What still holds, and is all that is needed: one line per round, the same line
+# twice in a ROW is dropped, and each line is capped in LENGTH below so one
+# runaway sentence cannot eat a whole message. The turn is bounded anyway by
+# MAX_TOOL_ROUNDS, so unlimited means "as many rounds as she actually gets".
 PROGRESS_POLL_SECONDS = 1.0
-PROGRESS_MAX = 4                 # lines one turn may post
 PROGRESS_MAX_CHARS = 300         # per line
 
 # The answer to a question she was already told to drop.
@@ -3190,7 +3200,6 @@ class Lulu(discord.Client):
         """
         answer = ""
         empty_retries = 0
-        posted = 0
         last_line = ""
         prompt_total = 0
         cached_total = 0
@@ -3265,7 +3274,7 @@ class Lulu(discord.Client):
             # it happens. This content arrived with the tool call she was making,
             # so it costs nothing extra - and until now it was discarded, which
             # is why a long dig read as a hang.
-            if (calls and progress_channel is not None and posted < PROGRESS_MAX
+            if (calls and progress_channel is not None
                     and not (supersede_check and supersede_check())):
                 line = _progress_text(answer)
                 if not line and calls:
@@ -3275,7 +3284,6 @@ class Lulu(discord.Client):
                     line = _reasoning_progress(reply.get("reasoning_content"))
                 if line and line != last_line:
                     tools.queue_progress(progress_channel, line)
-                    posted += 1
                     last_line = line
             if meter is not None:
                 spend.charge(meter, reply.get("_usage"),

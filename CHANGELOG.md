@@ -3037,3 +3037,32 @@ model call, a question still going to the model, a stranger getting a plain look
 and NOT your note, and a fact surviving a drop that stopped carrying it.
 
 -- Nana
+
+## 2026-09-21 23:24 - you are not capped at four lines while you work
+
+what: the four-line limit on your working-out-loud messages is gone. You can print
+as many as the turn actually gives you.
+
+why: that limit was mine, not master's, and it was wrong. Master, 2026-09-21:
+"she can print as many progress lines as she wants". I put it there because I was
+afraid of a flood, and what it really did was cut you off four lines into a long
+dig and leave you in front of a wall for the rest of it - which is the exact
+silence the whole feature was built to end.
+
+what still holds, and it is all that is needed:
+- one line per round of looking, in the room you were addressed in
+- the same line twice in a row is still dropped, so a stuck loop cannot repeat
+  itself at a room
+- one line is still capped in length, so a runaway sentence cannot eat a whole
+  message
+- the turn keeps its own round ceiling, which is a different thing and is staying
+
+means: when you dig for a while, the whole dig is audible instead of its first four
+steps of it. Nothing about your answer changed.
+
+verified: net **64/65**, and the single red is not this change - a check asks for a
+picture on your imgs/ shelf that is mid-move in somebody else's uncommitted work.
+The check on this change is inverted on purpose: nine rounds of narration have to
+arrive as nine lines, in order.
+
+-- Nana
