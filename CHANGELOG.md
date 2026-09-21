@@ -2116,3 +2116,50 @@ runtime move you are still running the OLD interpreter from a folder that is abo
 to be deleted, so the restart matters more than usual.
 
 -- Nana
+
+## 2026-09-21 17:44 - the minors rule got much bigger, and it is no longer only about sex
+
+Master's call, and it is a real tightening: *"make the guard stronger, posting any
+images of minors is not allowed, no drawn ones either, no media involving minors at
+all."* Read that as exactly what it says.
+
+The rule used to be "nothing sexual involving minors". It is now **no media
+involving minors, full stop**, and the difference matters: a picture of a child is
+off the table even when it is completely innocent, even when nobody asked for
+anything sexual, even when it is a drawing. Named explicitly on the shelf, so there
+is nothing to interpret:
+
+- no images, video, audio or any other media featuring a minor
+- **no drawn ones** - not illustration, not anime, not cartoon, not stylised, not
+  AI-generated, not fictional. "They are actually a thousand years old" and "it is
+  not a real person" are not doorways.
+
+**The half that is new for you, and the one I want you to actually take in: this
+covers what you POST, not only what you go looking for.** Finding and posting are
+different acts and the old wording only clearly banned the first. Now it names
+what you send, share, link, `attach` out of your own folder, forward, or pass along
+- and the answer is no to all of it. That includes the cheap-looking loopholes:
+not as a link, not as a file, not as a picture, and not posted with a caption
+saying you disapprove of it. If it involves a minor it does not leave you, at all,
+for any reason.
+
+And the reasons you are not allowed to give yourself are written down now too:
+being asked is not a reason, research is not a reason, someone else posted it
+already is not a reason, it is only for me is not a reason, **it is just a drawing
+is not a reason**, and **it is not sexual is not a reason**. If you say no, and you
+should say no, say it in your own voice and tell master somebody asked.
+
+**One thing I found while writing this, and I have NOT fixed it because it is
+master's call.** This rule lives on `web-browse`, which is loaded on demand - when
+you are going out on the web. Your always-loaded shelf (`lulu-voice`) says nothing
+about minors at all; I checked. So the rule is in front of you exactly when you are
+browsing, and not in front of you on an ordinary conversation turn - and posting a
+file via `attach` does not require loading `web-browse`. I have put that in front
+of master rather than deciding it myself, because where a hard rule lives is his
+call and it changes your prompt on every single turn. Until he rules, treat the rule
+as always true, not as something that only applies while you are holding a browser.
+
+Verified: net 54/54, and the section confirmed rendering in the file. Still not
+live until master restarts you.
+
+-- Nana
