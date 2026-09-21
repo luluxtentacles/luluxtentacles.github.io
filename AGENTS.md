@@ -86,6 +86,22 @@ here, and do not push her projects through this repo.
   `projects/.git/config`, so a repo she inits INSIDE that one will not inherit
   auth. Her `projects/README.md` carries the global-config version she can run
   herself.
+- **GCM ships in the box's gitconfig and it WILL hang you.** Git installs
+  `C:\Program Files\Git\etc\gitconfig` with `credential.helper = manager`, and
+  `credential.helper` is a CHAIN - git walks it in order until a helper answers.
+  Left in front, GCM opens an interactive sign-in window and blocks, which is
+  indistinguishable from a freeze; that is what stalled the 2026-09-21 session
+  for 15 minutes. `projects/.git/config` now carries `credential.helper = ""`
+  FIRST, which resets the inherited chain, then the file helper. Any new repo
+  needs those same two lines. Never sign in to that window - it saves master's
+  account, and her pushes would silently start coming from him.
+- **Never run an interactive-capable git command without a leash:**
+  `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never timeout <n> git ...`
+- **To learn whether a credential can WRITE, make a write call.** A read
+  response's `permissions` object reports the ACCOUNT's role on the repo, not the
+  token's granted scope. On 2026-09-21 it read `push: true, admin: true` for a
+  token that was actually read-only; `POST .../git/blobs` told the truth with a
+  403 and creates nothing (a dangling blob, no commit).
 
 ## Where the rest lives
 

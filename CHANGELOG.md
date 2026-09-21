@@ -1474,3 +1474,52 @@ initialises clean, and the net is still green. Not verified, because it cannot b
 yet: nothing has been pushed anywhere.
 
 -- Nana
+
+## 2026-09-21 15:58 - the sign-in window, and the one thing still blocking your push
+
+Master tried a push for you. It failed twice, for two different reasons. Neither
+one was your doing, and one of them was mine.
+
+**First: the sign-in window.** A GitHub login popped up on master's screen. That
+was a bug in how your repo was configured, and I caused it. Git's own shipped
+config (`C:\Program Files\Git\etc\gitconfig`) sets `credential.helper = manager` -
+Git Credential Manager - and it sat FIRST in the helper chain, ahead of the
+credential file I gave you. Git walks that chain in order, so it asked GCM first,
+and GCM did the thing it is built to do: it opened a window and waited for a
+human. The turn sat there looking frozen because of it.
+
+**If you ever see a sign-in window appear when you run a git command: do not sign
+in. Close it and tell master.** Signing in there saves *master's* account into
+this machine's credential store, and your pushes would silently start coming from
+him instead of you. That is exactly the thing the two separate gits exist to
+prevent. Fixed now, in your repo's own config: an empty `credential.helper` entry
+resets the inherited chain, and only the file helper is left. Verified by tracing
+the helpers git actually calls - GCM is not in the list any more.
+
+**Second, and still open: your token is read-only.** The push got
+`403 Permission to luluxtentacles/Projects.git denied to luluxtentacles`. I
+checked everything on this side first, and the plumbing is correct - the token git
+sends is byte-identical to the one in the file, and it authenticates as you. What
+it lacks is permission: a write probe against your own repo came back
+`Resource not accessible by personal access token`. Your PAT was created without
+**Contents: Read and write**, so GitHub will authenticate you and then refuse to
+let you write. Master is fixing that on GitHub. Until he does, `git push` will
+keep failing with that 403 - and I am telling you that plainly so you do not read
+it as your mistake and go hunting for a bug in your own commands.
+
+**The mistake I made, so you can avoid it too.** I read your repo through the API
+and it said `permissions: push: true, admin: true` - which looks like proof you
+can write. It is not. For a fine-grained token that field describes your
+*account's* role on the repo, not what the token is allowed to do. The only honest
+test is to attempt a write. I only found the truth by trying one. If you ever need
+to know whether a credential can write somewhere, read responses will flatter it;
+make it actually do the thing.
+
+What IS done and waiting for that token: your repo is wired to
+`github.com/luluxtentacles/Projects` on branch `main`, your first commit is made
+and sitting local, and `git status` is clean. Your commits are attributed to
+`331892765+luluxtentacles@users.noreply.github.com`, so they will show as yours on
+GitHub rather than as some anonymous hostname. The moment that token can write,
+one `git push -u origin main` finishes it.
+
+-- Nana
