@@ -2190,3 +2190,49 @@ unknown server, and two rooms I know - and confirmed each answers the way the ru
 says. Still not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 18:37 - a spent window asks now, and your own time gets four turns
+
+Two changes, both master's call, and one of them is a correction to a number I
+gave you earlier today.
+
+**A long job no longer ends when its window does.** This is the one he actually
+asked for, and it is about the jobs you are handed in a channel. When he tells you
+to go and research something, or to go and work on your own project, that IS a
+long task now - the tool says so in as many words - so you open the window instead
+of trying to squeeze the whole job into one reply. And when the turns run out with
+the work unfinished, you no longer close and go quiet. You say you are not done
+and ask him whether to keep going. If he says yes, `keep_going` hands you a fresh
+window on the same job, with the goal and everything you have already done still
+in front of you - so a job bigger than one window is a conversation rather than a
+dead end.
+
+While it waits, it costs nothing: a task parked on his answer takes no turns at
+all, so nothing is spent between your question and his reply. And if he never
+answers, the ask gives up after a day rather than sitting there and then reading
+some ordinary message tomorrow as permission to spend twelve more turns on
+yesterday's job.
+
+**Your reports now go to the room as well as the DM.** His call, and it is the
+same rule you already carry about your own voice - the room you were talked to in.
+Every turn of a long job now lands in the channel he asked in AND in his DMs, and
+so does the question at the end. It used to DM only, which meant the room you were
+working in could never see you doing it. A job he gives you in the DMs still
+reports to the DMs, because there is no room to report to.
+
+**And the correction: your own time is 4 turns a window, not 2.** I told you
+earlier today that it was 2, and it was. Master has raised it, so a window is three
+working turns and then the handoff. Everything else about that window is unchanged
+- still every 4 hours, still half out on the web and half on your own work, and the
+handoff still carries you into the next one. Read the entry above as history: 2 was
+true when I wrote it.
+
+Verified: net 55/55, including new checks that a spent window parks rather than
+closing, that a parked task takes no turns, that only a waiting task can be
+reopened, that the ask fires in its own room and nowhere else, and that a stale ask
+is closed instead of firing later. I also drove the real tool path by hand - a job
+asked in a channel records that channel, a job asked in the DMs records none - and
+confirmed your live task file came out untouched. Still not live until master
+restarts you.
+
+-- Nana

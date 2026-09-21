@@ -2815,6 +2815,25 @@ class Lulu(discord.Client):
                 "about something else, answer it normally and come back to this."
             )})
 
+        # The other thing a turn can be the answer TO. When a long task runs out
+        # of turns she asks master whether to keep going, and THIS is the turn
+        # that hears him say yes. Without it he says "yeah go on" and she answers
+        # it as a fresh remark with no idea what she is agreeing to. Owner-only,
+        # like the resume note and for the same reason: it is the inside of her
+        # own job, and a room is not owed the running state of it.
+        ask = (taskmode.pending_ask(getattr(message.channel, "name", "") or "")
+               if is_owner else "")
+        if ask:
+            turns.append({"role": "system", "content": (
+                "You stopped part-way through a long job in this room and asked "
+                "master whether to keep going. The job was:\n"
+                f"{escape_block(ask)}\n\n"
+                "The message above is his answer. If he said to carry on, call "
+                "keep_going and get back to work. If he said stop, or asked about "
+                "something else entirely, call finish_task with where it got to - "
+                "do not leave the question hanging."
+            )})
+
         # What was done to ME since I last read, once, in the same turn. Master,
         # 2026-09-20: "whenever we update her here we leave a note for her saying
         # what we did". Deliberately owner-only and deliberately silent otherwise:
@@ -2844,6 +2863,7 @@ class Lulu(discord.Client):
             message.author.id,
             who,
             getattr(message.channel, "name", "") or "",
+            channel_id=getattr(message.channel, "id", None),
             master=is_owner,
         )
 

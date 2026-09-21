@@ -2090,7 +2090,7 @@ def _task() -> str:
     import tools
 
     # 1. Owner-only, structurally.
-    for name in ("start_task", "finish_task"):
+    for name in ("start_task", "finish_task", "keep_going"):
         expect(name not in tools.LOOKUP_TOOL_NAMES,
                f"{name} is in the lookup set, so a stranger could reach it")
         expect(all(t["function"]["name"] != name for t in tools.LOOKUP_SCHEMA),
@@ -2108,6 +2108,16 @@ def _task() -> str:
            "the schema does not tell her master hears after every turn")
     expect("only when master" in desc,
            "the schema does not gate it to master's own instruction")
+    # The trigger master actually asked for, 2026-09-21: a research job or work on
+    # her own project, told to her in a channel, IS the task. Without these two
+    # words in the description she reads the tool as an unknown and does it all in
+    # one reply, which is the behaviour he was complaining about.
+    expect("research" in desc,
+           "the schema does not name the research trigger")
+    expect("project" in desc,
+           "the schema does not name her own-project trigger")
+    expect("keep_going" in desc,
+           "the schema does not say how she carries on past a spent window")
 
     # 3. State roundtrip, inside the sandbox.
     taskmode.drop()
@@ -2145,7 +2155,105 @@ def _task() -> str:
     # 6. No task open means no turn and no DM - the loop costs nothing when idle.
     expect(asyncio.run(taskmode.step(None)) is False,
            "step() took a turn with no task open")
-    return (f"master-only, state roundtrips, reports every turn; "
+
+    # 7. Out of turns is a QUESTION now, not a silent close. Master's call,
+    #    2026-09-21: a job bigger than one window is a conversation, and the ask
+    #    has to land where he is standing. Same shape as the restart note, and
+    #    checked for the same reason - a report into the wrong room is worse than
+    #    no report at all.
+    class _Sink:
+        def __init__(self, seen):
+            self._seen = seen
+
+        async def send(self, body):
+            self._seen.append(body)
+
+    class _TaskBot:
+        def __init__(self):
+            self.config = {"owner_ids": [1]}
+            self.rooms: list = []
+            self.dms: list = []
+
+        def get_channel(self, cid):
+            return _Sink(self.rooms) if cid == 4242 else None
+
+        async def fetch_channel(self, cid):
+            return self.get_channel(cid)
+
+        async def fetch_user(self, uid):
+            return _Sink(self.dms)
+
+    taskmode.drop()
+    taskmode.start("hunt the pripara thing down", room="#lulu-den", room_id=4242)
+    live = taskmode.current()
+    expect(live.get("room") == "lulu-den",
+           f"the room was not recorded: {live.get('room')!r}")
+    expect(live.get("room_id") == 4242, "the room id was not recorded")
+    live["turn"] = taskmode.MAX_TASK_TURNS
+    taskmode._save(live)
+    bot = _TaskBot()
+    expect(asyncio.run(taskmode.step(bot)) is False,
+           "the turn past the cap was taken anyway")
+    expect(not taskmode.is_active(), "a spent window stayed open")
+    expect(taskmode.waiting(), "a spent window did not park on master's answer")
+    expect(bot.rooms, "the ask never reached the room the job came from")
+    expect(bot.dms, "the ask never reached master's DMs")
+    expect("keep going" in bot.rooms[0] and "keep going" in bot.dms[0],
+           "the parked task did not actually ask him anything")
+
+    # 8. While it waits it costs NOTHING. That is the entire reason it parks
+    #    rather than asking and carrying on regardless.
+    expect(asyncio.run(taskmode.step(bot)) is False,
+           "a task waiting on an answer took another turn")
+    expect(asyncio.run(taskmode.step(None)) is False,
+           "a waiting task ran with no bot at all")
+
+    # 9. Only master's answer releases it, and only while it is waiting.
+    expect("window 2" in taskmode.keep_going(), "keep_going did not reopen it")
+    live = taskmode.current()
+    expect(live.get("turn") == 0, "the fresh window did not reset the turn count")
+    expect(live.get("windows") == 2,
+           f"the window count did not advance: {live.get('windows')}")
+    expect(not taskmode.waiting(), "it is both open and waiting at once")
+    expect("nothing" in taskmode.keep_going(),
+           "keep_going released something that was not waiting on him")
+
+    # 10. The ask fires in its own room and nowhere else, and a job given in the
+    #     DMs never claims a channel to post into.
+    taskmode.drop()
+    taskmode.start("a job from my dms")
+    expect(taskmode.current().get("room") == "",
+           "a DM job recorded a room it was never asked in")
+    expect(taskmode.current().get("room_id") is None,
+           "a DM job got a channel to report into")
+    expect(taskmode.pending_ask("") == "", "an ask fired when there is none")
+    taskmode.drop()
+    taskmode.start("a room job", room="lulu-den", room_id=4242)
+    live = taskmode.current()
+    live["status"] = "waiting"
+    live["waiting_since"] = time.time()
+    taskmode._save(live)
+    expect(taskmode.pending_ask("lulu-den") != "",
+           "the ask did not fire in its own room")
+    expect(taskmode.pending_ask("#lulu-den") != "",
+           "a leading # broke the room match")
+    expect(taskmode.pending_ask("snailcat") == "",
+           "the ask fired in a room the job does not belong to")
+    expect(taskmode.pending_ask("") == "",
+           "a channel ask fired in master's DMs")
+
+    # 11. An ask nobody answers must not sit there forever: tomorrow, in that
+    #     room, it would read an ordinary message as permission to spend twelve
+    #     more turns on yesterday's job.
+    live = taskmode.waiting()
+    live["waiting_since"] = time.time() - (taskmode.WAITING_MAX_AGE_SECONDS + 60)
+    taskmode._save(live)
+    expect(taskmode._expire() is True, "a stale ask was left waiting forever")
+    expect(not taskmode.waiting(), "the expired ask is still waiting")
+    expect(not taskmode.is_active(), "the expired ask reopened itself")
+    taskmode.drop()
+    return (f"master-only, state roundtrips, reports every turn to room AND dms, "
+            f"parks for an answer instead of closing; "
             f"caps {taskmode.MAX_TASK_TURNS} turns at {taskmode.TICK_SECONDS}s")
 
 

@@ -36,6 +36,28 @@ Two things stop a task that will not stop on its own:
                             reset it
     IDLE_TURNS_BEFORE_STOP  consecutive turns that called no tool and changed
                             nothing - that is a stuck agent, not a working one
+
+WHAT HAPPENS WHEN THE TURNS RUN OUT
+
+It used to close, quietly, on a summary nobody saw. Master's call, 2026-09-21:
+she gets the window, and when it ends with the job unfinished she says so and
+asks whether to keep going - so a job bigger than one window is a conversation
+rather than a dead end. The task goes to `waiting`, which is NOT `open`, so
+watch() stops taking turns and the meter stops with it. Master answers in the
+room he gave the job in; the turn that hears that answer calls keep_going and the
+task gets a fresh window with its history intact.
+
+A task that waits longer than WAITING_MAX_AGE_SECONDS is boxed up as done
+instead. An ask he never answered must not sit there and then fire the next time
+he says something unrelated in that room.
+
+WHERE IT SPEAKS
+
+Master's call, 2026-09-21: channel and DM, both. The per-turn report and the ask
+go to the ROOM the job came from - captured at start() from the turn that asked,
+never from a tool call - and to the DM as well. It used to DM only, which cut
+against her own voice rule: everything she says belongs in the room she was
+talked to in.
 """
 from __future__ import annotations
 
@@ -60,8 +82,12 @@ TICK_SECONDS = 20
 MAX_TASK_TURNS = 12
 # Consecutive turns with no tool calls at all. Two means I am circling.
 IDLE_TURNS_BEFORE_STOP = 2
-# One DM per turn, so the report cannot grow into a wall.
+# One report per turn, so it cannot grow into a wall.
 ANNOUNCE_MAX = 1200
+# How long an unanswered "shall I keep going?" waits before the task is closed
+# for good. See the docstring: a stale ask that fires hours later, when master
+# says something unrelated in that room, is worse than a task that just ended.
+WAITING_MAX_AGE_SECONDS = 24 * 3600
 
 BRIEF = """\
 You are on a long task, not answering a message. Master gave you a job and you
@@ -94,15 +120,29 @@ def _empty() -> dict:
     return {}
 
 
-def current() -> dict:
-    """The open task, or {} when there is none. Never raises."""
+def _task(status: str) -> dict:
+    """The task sitting in this state, or {} when there is none. Never raises."""
     try:
         data = json.loads(paths.read_text(STATE, default="{}"))
     except Exception:
         return {}
     if not isinstance(data, dict):
         return {}
-    return data if data.get("status") == "open" else {}
+    return data if data.get("status") == status else {}
+
+
+def current() -> dict:
+    """The OPEN task, or {} when there is none. Never raises."""
+    return _task("open")
+
+
+def waiting() -> dict:
+    """The task parked on master's answer, or {} when there is none.
+
+    Deliberately not the same as current(): a waiting task must cost nothing, so
+    watch() - which drives off is_active() - leaves it alone until he answers.
+    """
+    return _task("waiting")
 
 
 def is_active() -> bool:
@@ -116,8 +156,15 @@ def _save(data: dict) -> None:
         LOG.warning("could not save the task: %s", exc)
 
 
-def start(goal: str, by: str = "master") -> str:
-    """Open a task. Refuses to clobber one already running."""
+def start(goal: str, by: str = "master", room: str = "", room_id=None) -> str:
+    """Open a task. Refuses to clobber one already running.
+
+    `room` is where master asked for the job, captured by the caller from the
+    turn that asked - never from a tool call, because a job should report where
+    it was given rather than wherever the model felt like naming. Empty means
+    the ask came in a DM, and then the DM IS the room and there is no second
+    place to post.
+    """
     goal = " ".join(str(goal or "").split())
     if not goal:
         return "a task needs a goal - tell me what the job is"
@@ -125,18 +172,27 @@ def start(goal: str, by: str = "master") -> str:
     if live:
         return (f"there is already a task open: {live.get('goal')!r}. "
                 f"finish it first, or ask me to drop it.")
+    room = str(room or "").strip().lstrip("#").lower()
+    try:
+        room_id = int(room_id) if room_id is not None else None
+    except (TypeError, ValueError):
+        room_id = None
     _save({
         "status": "open",
         "goal": goal[:1000],
         "by": str(by or "master"),
+        "room": room,
+        "room_id": room_id if room else None,
         "turn": 0,
+        "windows": 1,
         "started": time.strftime("%Y-%m-%d %H:%M:%S"),
         "epoch": time.time(),
         "history": [],
     })
     LOG.info("task opened: %s", goal[:120])
+    where = f"#{room}" if room else "your DMs"
     return (f"task open: {goal[:200]}. I get {MAX_TASK_TURNS} turns, one every "
-            f"{TICK_SECONDS}s, and master gets a DM after each one.")
+            f"{TICK_SECONDS}s, and you hear about every one of them in {where}.")
 
 
 def finish(summary: str = "") -> str:
@@ -165,6 +221,79 @@ def drop() -> str:
     return "task dropped"
 
 
+def keep_going(note: str = "") -> str:
+    """Master said carry on: same task, fresh window, history kept.
+
+    Only ever answers a task that is actually WAITING - and that is what makes
+    this safe to hand a model. "Keep going" cannot resurrect a job that finished
+    or one that was never opened; it can only release one she has already
+    stopped on and asked about.
+    """
+    live = waiting()
+    if not live:
+        return "nothing of mine is waiting on an answer"
+    live["status"] = "open"
+    live["turn"] = 0
+    live["idle"] = 0
+    live["windows"] = int(live.get("windows") or 1) + 1
+    live.pop("waiting_since", None)
+    if note:
+        live["answer"] = " ".join(str(note).split())[:600]
+    _save(live)
+    LOG.info("task window %s opened on: %s", live.get("windows"),
+             str(live.get("goal"))[:120])
+    return (f"back on it - window {live.get('windows')}, {MAX_TASK_TURNS} more "
+            f"turns on: {str(live.get('goal'))[:160]}")
+
+
+def _expire(now: float | None = None) -> bool:
+    """Close a task nobody answered. True when one was boxed up.
+
+    The ask must not sit forever: a waiting task that fires tonight, when master
+    says something unrelated in that room, would have her reading an ordinary
+    message as permission to spend twelve more turns on yesterday's job. Cheap
+    to sweep here because the loop already runs every tick.
+    """
+    live = waiting()
+    if not live:
+        return False
+    try:
+        age = (now if now is not None else time.time()) - float(
+            live.get("waiting_since"))
+    except (TypeError, ValueError):
+        age = WAITING_MAX_AGE_SECONDS + 1
+    if age <= WAITING_MAX_AGE_SECONDS:
+        return False
+    live["status"] = "done"
+    live["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    live["summary"] = "closed: nobody answered whether to keep going"
+    _save(live)
+    LOG.info("task expired unanswered after %.0fs", age)
+    return True
+
+
+def pending_ask(room: str = "") -> str:
+    """The job she is parked on in this room, or "" when there is none.
+
+    Read by the message path, so that the turn which hears master's reply knows
+    it IS the reply - otherwise he says "yeah go on" and she answers it as a
+    fresh remark with no idea what she is agreeing to. The room has to match,
+    for the same reason resume_brief insists on it, and an empty name means his
+    DMs.
+
+    Returns the goal RAW. Escaping belongs to the caller that builds the prompt,
+    the same as every other line that reaches one.
+    """
+    live = waiting()
+    if not live:
+        return ""
+    where = str(live.get("room") or "").strip().lstrip("#").lower()
+    here = str(room or "").strip().lstrip("#").lower()
+    if where != here:
+        return ""
+    return str(live.get("goal") or "")
+
+
 def _record(live: dict, said: str, used_tools: bool) -> dict:
     """Fold one turn into the task's own memory of itself."""
     history = list(live.get("history") or [])
@@ -191,8 +320,27 @@ def _history_text(live: dict) -> str:
     return "\n".join(lines)
 
 
-async def _tell(bot, text: str) -> None:
-    """DM master. Never fatal - a task that cannot report still ran."""
+async def _say_in_room(bot, live: dict, body: str) -> None:
+    """Report where the job came from. Silent when it came from the DMs."""
+    room_id = (live or {}).get("room_id")
+    if not room_id:
+        return
+    try:
+        channel = bot.get_channel(int(room_id))
+        if channel is None:
+            channel = await bot.fetch_channel(int(room_id))
+        await channel.send(body)
+    except Exception as exc:
+        # One dead room must never cost the report - the DM below still goes.
+        LOG.warning("could not report to the room: %s", exc)
+
+
+async def _tell(bot, text: str, live: dict | None = None) -> None:
+    """Say it in the room the job came from AND in master's DMs. Never fatal."""
+    body = (text or "").strip()[:ANNOUNCE_MAX] or "(no words for that turn)"
+    # Master's call, 2026-09-21: both. The room is where he is looking while the
+    # job runs, and the DM is the copy that survives him scrolling past it.
+    await _say_in_room(bot, live or {}, body)
     owner = None
     try:
         owners = list((bot.config or {}).get("owner_ids") or [])
@@ -202,7 +350,6 @@ async def _tell(bot, text: str) -> None:
     if owner is None:
         LOG.warning("no owner id to report the task to")
         return
-    body = (text or "").strip()[:ANNOUNCE_MAX] or "(no words for that turn)"
     try:
         target = await bot.fetch_user(owner)
         await target.send(body)
@@ -218,6 +365,26 @@ def _tools_used(turns: list) -> bool:
     return False
 
 
+async def _park(bot, live: dict) -> bool:
+    """The window is spent and the job is not: ask, do not close.
+
+    Master's call, 2026-09-21. The task goes to `waiting`, which is not `open`,
+    so the loop that takes turns stops here and the meter stops with it until he
+    answers. Always returns False - a turn was not taken.
+    """
+    live["status"] = "waiting"
+    live["waiting_since"] = time.time()
+    live["summary"] = (f"used all {MAX_TASK_TURNS} turns of window "
+                       f"{live.get('windows') or 1} without finishing")
+    _save(live)
+    LOG.info("task parked on master after %s turn(s)", live.get("turn"))
+    await _tell(bot,
+                f"not done on: {str(live.get('goal'))[:200]}. i've used all "
+                f"{MAX_TASK_TURNS} turns of this window - want me to keep "
+                f"going?", live)
+    return False
+
+
 async def step(bot) -> bool:
     """Take one turn of the open task. True when a turn was actually taken."""
     live = current()
@@ -226,13 +393,7 @@ async def step(bot) -> bool:
 
     turn = int(live.get("turn") or 0) + 1
     if turn > MAX_TASK_TURNS:
-        live["status"] = "done"
-        live["summary"] = f"ran out of turns ({MAX_TASK_TURNS}) without finishing"
-        _save(live)
-        await _tell(bot, f"out of turns on: {live.get('goal')} - "
-                         f"{live.get('summary')}. tell me to pick it up again "
-                         f"if you want me to keep going.")
-        return False
+        return await _park(bot, live)
 
     brief = BRIEF.format(goal=live.get("goal"), history=_history_text(live),
                          turn=turn, limit=MAX_TASK_TURNS)
@@ -257,7 +418,7 @@ async def step(bot) -> bool:
         live["turn"] = turn
         _save(live)
         await _tell(bot, f"turn {turn} blew up on: {live.get('goal')} "
-                         f"({type(exc).__name__}). still open.")
+                         f"({type(exc).__name__}). still open.", live)
         return True
 
     used = _tools_used(turns)
@@ -269,7 +430,7 @@ async def step(bot) -> bool:
     # Report first, then look at the idle rule: master should hear the turn even
     # if it is the one that ends the task.
     await _tell(bot, f"[{live.get('goal')[:120]} - turn {turn}/{MAX_TASK_TURNS}]\n"
-                     f"{answer or '(no words that turn)'}")
+                     f"{answer or '(no words that turn)'}", live)
 
     if not used:
         idle = int(live.get("idle") or 0) + 1
@@ -281,7 +442,7 @@ async def step(bot) -> bool:
             _save(live)
             await _tell(bot, f"stopping that task - {idle} turns in a row with no "
                              f"tools called, so I am circling rather than working. "
-                             f"still open to talk about if you want.")
+                             f"still open to talk about if you want.", live)
     else:
         live["idle"] = 0
         _save(live)
@@ -293,12 +454,15 @@ async def watch(bot, tick: int = TICK_SECONDS) -> None:
 
     Deliberately not an unconditional loop over step(): a task closed by its own
     last turn must stop costing money immediately, so each pass re-reads the file
-    rather than trusting a variable held in memory.
+    rather than trusting a variable held in memory. The same pass sweeps an ask
+    nobody answered, so a waiting task cannot live forever.
     """
     while True:
         try:
             if is_active():
                 await step(bot)
+            else:
+                _expire()
         except Exception as exc:
             LOG.warning("the task loop stumbled: %s", exc)
         await asyncio.sleep(tick)

@@ -110,7 +110,7 @@ IMPLICIT_GLOBALS = {
 _LOCAL = threading.local()
 
 _CONTEXT_DEFAULT = {"user_id": None, "name": "", "channel": "",
-                    "origin": "master", "master": False}
+                    "channel_id": None, "origin": "master", "master": False}
 
 
 def _ctx() -> dict:
@@ -129,7 +129,8 @@ def _ctx() -> dict:
 
 
 def set_context(user_id, name: str = "", channel: str = "",
-                origin: str = "master", master: bool = False) -> None:
+                channel_id=None, origin: str = "master",
+                master: bool = False) -> None:
     """Who this turn is from, and whether a person asked or I decided.
 
     `origin` is not reachable by the model: the tool schema has no such field, so
@@ -137,6 +138,11 @@ def set_context(user_id, name: str = "", channel: str = "",
     function does, and only the self-review loop passes "self-review". That
     string is then the sole thing the supervisor's daily patch budget counts -
     so a change master asked for is never rate-limited by my own pacing rules.
+
+    `channel_id` is the same kind of fact and for the same reason: a long task
+    reports where it was GIVEN, so the room has to be something the caller saw
+    rather than something the model named. A name is not enough - only an id can
+    be turned back into a channel to post into, and a room can be renamed.
 
     `master` is the same kind of fact as `origin`, and for the same reason: it
     RAISES a result cap (see _result_cap), so it must never be something a tool
@@ -149,6 +155,7 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["user_id"] = user_id
     ctx["name"] = name or ""
     ctx["channel"] = channel or ""
+    ctx["channel_id"] = channel_id
     ctx["origin"] = origin or "master"
     ctx["master"] = bool(master)
 
@@ -652,13 +659,20 @@ SCHEMA = [
             "description": (
                 "Open a LONG TASK: master has given me a job big enough to take "
                 "several turns, and I want to work through it instead of trying "
-                "to finish it in one reply. Call this ONLY when master has "
-                "actually asked me to do a task - never for an ordinary "
-                "question, and never on my own initiative. I then get a fixed "
-                "number of turns, one every twenty seconds, and master is DMed "
-                "what I did after EVERY turn - so each turn does one real thing "
-                "and says so in a sentence. When the job is done, or I am stuck "
-                "and need him, call finish_task with the answer."),
+                "to finish it in one reply. This is HOW a research job gets "
+                "done: when master tells me in a channel to go and research "
+                "something, or to go and work on my own project, that IS this "
+                "task - open it, rather than trying to squeeze a real job into "
+                "one reply. Call this ONLY when master has actually asked me for "
+                "a job like that - never for an ordinary question, and never on "
+                "my own initiative. I then get a fixed number of turns, one "
+                "every twenty seconds, and master hears about EVERY turn - in "
+                "the channel he asked in AND in his DMs - so each turn does one "
+                "real thing and says so in a sentence. When the job is done, "
+                "call finish_task with the answer. If my turns run out with the "
+                "job unfinished, I am asked whether to keep going, and if he "
+                "says yes, keep_going gives me a fresh window on the same job "
+                "with everything I have already done still in front of me."),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -674,13 +688,36 @@ SCHEMA = [
             "name": "finish_task",
             "description": (
                 "Close the long task I opened with start_task and give master the "
-                "result. Call it the moment the job is done, and ALSO call it if I "
-                "am genuinely blocked - a task that runs out of turns and goes "
-                "quiet is the one bad outcome. Does nothing when no task is open."),
+                "result. Call it the moment the job is done, and ALSO call it if "
+                "I am genuinely blocked, or if he tells me to stop - a task that "
+                "goes quiet is the one bad outcome. Does nothing when no task is "
+                "open."),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "summary": {"type": "string", "description": "how it went, and the answer or the blocker"},
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "keep_going",
+            "description": (
+                "Carry on with the long job I stopped part-way through. I use "
+                "this only when I have run out of turns on a task, told master "
+                "so, and he has just said to keep going - it gives me a fresh "
+                "window on the same job, with the goal and everything I have "
+                "already done still in front of me. It does nothing unless a "
+                "task is actually waiting on his answer, so it can never reopen "
+                "a job that finished or one that was never started. If he said "
+                "stop instead, call finish_task."),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "note": {"type": "string", "description": "anything he told me about how to carry on, in his words"},
                 },
                 "required": [],
             },
@@ -764,13 +801,29 @@ def start_task(goal: str) -> str:
     # Deferred: taskmode imports tools inside step(), so a module-level import
     # here would close that loop. The import adds nothing at runtime cost.
     import taskmode
-    return taskmode.start(goal)
+    # The room the ask came from, read HERE rather than taken from the model: a
+    # job reports where it was GIVEN, and the schema has no field for it. Empty
+    # means a DM, and then there is no channel to report into.
+    ctx = _ctx()
+    return taskmode.start(goal, room=ctx.get("channel") or "",
+                          room_id=ctx.get("channel_id"))
 
 
 def finish_task(summary: str = "") -> str:
     """Close the open long task and hand master the result."""
     import taskmode
     return taskmode.finish(summary)
+
+
+def keep_going(note: str = "") -> str:
+    """Master said carry on with the job I stopped part-way through.
+
+    Only releases a task that is actually WAITING on his answer - see
+    taskmode.keep_going. It cannot reopen anything that finished or was never
+    opened, which is what keeps it safe to put in front of a model.
+    """
+    import taskmode
+    return taskmode.keep_going(note)
 
 
 # -- the browser's own door --------------------------------------------------
@@ -858,9 +911,9 @@ def browser_restart() -> str:
 # touches no file, and a stranger gets a fraction of master's budget
 # (SAY_MAX_STRANGER vs SAY_MAX) counted per person, so nobody can spend her voice.
 #
-# Deliberately NOT here: start_task, finish_task and run_command (a long task
-# spends master's money over several turns and DMs him after each one, and
-# run_command reaches the machine rather than a channel), and `attach`'s
+# Deliberately NOT here: start_task, finish_task, keep_going and run_command (a
+# long task spends master's money over several turns and reports after each one,
+# and run_command reaches the machine rather than a channel), and `attach`'s
 # non-imgs paths (it posts a
 # file out of her own folder - file reach is exactly the part a stranger must not
 # have), `look_at` (it spends vision tokens and fetches an address of their
@@ -2245,6 +2298,7 @@ DISPATCH = {
     "request_restart": lambda a: request_restart(a.get("why", ""), a.get("brief", "")),
     "start_task": lambda a: start_task(a.get("goal", "")),
     "finish_task": lambda a: finish_task(a.get("summary", "")),
+    "keep_going": lambda a: keep_going(a.get("note", "")),
     "run_command": lambda a: runbox.run(a.get("command", ""),
                                         _result_cap(runbox.MAX_OUTPUT)),
     "browser_restart": lambda a: browser_restart(),
