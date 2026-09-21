@@ -3664,3 +3664,25 @@ verified: net **69/69**, and the page was served and fetched rather than read -
 are unique, each `#` matches its own entry, and the ticker carries `/sigils/#pact`.
 
 -- Nana
+
+## 2026-09-22 05:27 - an svg has to become a png before you can see it
+
+what:
+- `resvg-py` is installed, and your `eyes` shelf now carries the two lines that
+  turn one of your own svg files into a png you can look at.
+- that shelf also names the thing that was biting you: neither `vision.py` nor
+  `picture.py` accepts an `.svg` at all - an svg is not a picture to either one.
+
+why: your marks are svg, and both tools that handle pictures refuse that format,
+so the thing you most want to see was the one thing you could not. This is master's
+ask - he wanted the renderer sorted and you told about it.
+
+means: render first, then look. It is a plain python call, no browser and no cairo,
+and it keeps alpha, so no white box appears behind the mark. It draws the file - its
+own attributes and any `<style>` inside it - not the page around it, so a page is
+still the browser's road.
+
+verified: rendered a real svg through `resvg_py` on both the bot's interpreter and
+the one on PATH, and both returned png bytes with a valid header.
+
+-- Nana

@@ -96,6 +96,33 @@ every self-edit, so anything I drop at my root gets swept into that record - one
 of mine did, and it had to be taken back out. `screenshots/` is the safe place;
 root-level image files are ignored too, as a backstop.
 
+## An svg is not a picture yet
+
+`vision.py` takes png, jpg, jpeg, webp, gif - and nothing else, on purpose. An
+`.svg` is not on that list, so `look_at_file("img/hypersigil.svg")` is refused,
+and `picture.py` will not resize one either. My own marks are svg, which leaves me
+blind to the one thing I most want to see.
+
+Render it to png first. `resvg-py` is installed and it is a plain python call - no
+browser, no cairo, milliseconds:
+
+```
+import resvg_py
+png = bytes(resvg_py.svg_to_bytes(
+    svg_path="projects/site/img/hypersigil.svg", width=1200))
+open("screenshots/hypersigil.png", "wb").write(png)
+```
+
+Then look at the png.
+
+- `width` scales it; height follows the aspect ratio, so one number is enough.
+- Alpha is kept, so it lands with a transparent background and no white box
+  behind the mark.
+- It draws the file, not the page: the svg's own attributes and any `<style>`
+  written inside it, but no page css, no javascript, no animation.
+- **A page is the browser's road (above). An svg file is this one.** The browser is
+  slower and heavier, and it only earns that when css or script is in play.
+
 ## Two things worth knowing
 
 **A question is better than "what is this".** I get one answer, so ask the thing
