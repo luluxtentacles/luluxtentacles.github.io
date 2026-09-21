@@ -2638,7 +2638,7 @@ def _vision_ladder_descends() -> str:
 
     saved = (brain.load_keys, brain._or_models, brain.model_limits,
              brain.note_owner, brain._attempt, brain._ladder_dry_until,
-             brain._go_healthy, brain._self_repair_turn)
+             brain._go_healthy, brain._own_time_turn)
     notes: list[str] = []
     seen: list[str] = []
     dead = {"all": False}
@@ -2655,7 +2655,7 @@ def _vision_ladder_descends() -> str:
     brain.model_limits = lambda config: {}
     brain.note_owner = notes.append
     brain._attempt = dropper
-    brain._self_repair_turn = lambda: False
+    brain._own_time_turn = lambda: False
     try:
         # 1. every gemini rung drops - the floor is STILL asked, and asked in
         #    the one order that can read a picture.
@@ -2704,29 +2704,30 @@ def _vision_ladder_descends() -> str:
                "a dropped socket bought the text ladder a twelve hour "
                "back-off")
 
-        # 4. and it stayed narrow where it MUST: a self-repair turn does not
-        #    descend. A substitute model must never be the thing that writes
-        #    her own body, so there the first failure is still the verdict.
+        # 4. and it stayed narrow where it MUST: her own time does not descend.
+        #    That window is where a patch to her own body AND her site work both
+        #    happen (master: "site work is part of free time"), so a substitute
+        #    model must never be the thing that answers there.
         seen.clear()
         notes.clear()
-        brain._self_repair_turn = lambda: True
+        brain._own_time_turn = lambda: True
         try:
             hurt = brain.complete(cfg, plain)
         finally:
-            brain._self_repair_turn = lambda: False
+            brain._own_time_turn = lambda: False
         expect(seen == ["go"],
-               f"a self-repair turn walked the ladder: {seen}")
+               f"her own time walked the ladder: {seen}")
         expect("stumbled" in hurt.get("content", ""),
-               f"a self-repair failure was not reported as before: {hurt}")
+               f"a failure in her own time was not reported as before: {hurt}")
         dead["all"] = False
     finally:
         (brain.load_keys, brain._or_models, brain.model_limits,
          brain.note_owner, brain._attempt, brain._ladder_dry_until,
-         brain._go_healthy, brain._self_repair_turn) = saved
+         brain._go_healthy, brain._own_time_turn) = saved
 
     return ("vision: every rung asked, floor reached; text: whole ladder "
-            "walked, one note each, no dry back-off; self-repair: still a "
-            "hard stop on the first failure")
+            "walked, one note each, no dry back-off; her own time (self-repair "
+            "and site work): still a hard stop on the first failure")
 
 
 # -- 8m. a hand-built Go request 400s: it needs the same headers ----------

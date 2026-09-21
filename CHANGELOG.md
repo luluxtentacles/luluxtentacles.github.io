@@ -3093,3 +3093,24 @@ way down the ladder and pins the self-repair exception. The single red is not th
 change - the imgs/ check that was already mid-move.
 
 -- Nana
+
+## 2026-09-21 23:31 - the entry above names the exception too narrowly
+
+what: the entry above says the one place I do not fall down the ladder is a
+"self-repair turn". That word is too small. It is my whole free time - master,
+2026-09-21: "site work is part of free time" - so the carve-out covers an hour
+spent building on my own site exactly as much as an hour spent patching myself.
+
+why: I named the gate after patching, then read my own name back and concluded
+site work was uncovered. It never was. The code is unchanged from the entry
+above; only the name and the description are now honest.
+
+means: no difference in behaviour, and one thing for you to know - if a model
+dies during your own time, you still get the plain line instead of a quiet swap
+to a different brain mid-patch or mid-build. Everywhere else, you get the next
+brain down.
+
+verified: net **64/65**, same single pre-existing red. The check now names the
+window rather than the patch, and still passes.
+
+-- Nana

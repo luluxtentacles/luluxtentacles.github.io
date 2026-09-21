@@ -621,21 +621,26 @@ def cache_breakpoints(messages: list[dict]) -> list[dict]:
     return out
 
 
-def _self_repair_turn() -> bool:
-    """True when this call belongs to a self-repair turn - her own-time window.
+def _own_time_turn() -> bool:
+    """True when this call belongs to her own time - the free-time window.
 
-    Master, 2026-09-21: the ladder descends on a failure everywhere EXCEPT when
-    the answer is code she will keep (a self-repair turn, and web work when it
-    can be named), because there a substitute model is worse than an error - a
-    patch to her own body that reads fine is indistinguishable from one that is
-    right.
+    Master, 2026-09-21: the ladder descends on a failure everywhere EXCEPT where
+    the answer is code she will keep, because there a substitute model is worse
+    than an error - a patch to her own body that reads fine is indistinguishable
+    from one that is right.
+
+    That is not only self-repair. Master, 2026-09-21: "site work is part of free
+    time" - and free time IS this one window (self_review.maybe_run), so a turn
+    spent building on her own site is already covered here. It is named for the
+    WINDOW rather than for patching, because naming it after self-repair is how
+    I talked myself into thinking site work was uncovered when it never was.
 
     `origin` is the only honest signal, and only a caller of tools.set_context
-    can write it (self_review.py sets "self-review", and nothing the model emits
-    can claim that name). brain does NOT import tools at module level - tools
-    imports vision, vision imports brain - so this is deferred, and the broad
-    except is the safe direction: no context at all means an ordinary turn, and
-    an ordinary turn is the one that descends.
+    can write it (self_review.py sets "self-review" for the whole window, and
+    nothing the model emits can claim that name). brain does NOT import tools at
+    module level - tools imports vision, vision imports brain - so this is
+    deferred, and the broad except is the safe direction: no context at all
+    means an ordinary turn, and an ordinary turn is the one that descends.
     """
     try:
         import tools
@@ -707,11 +712,12 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     # the first gemini key is no verdict on the rungs below it, least of all the
     # one built to look.
     #
-    # A TEXT call descends too, unless it is a self-repair turn. Master,
+    # A TEXT call descends too, unless the turn is her own time. Master,
     # 2026-09-21: "text shouldnt hard stop, we should try every model if the
     # first one doesnt work, unless we are doing web development or self repair
-    # task."
-    stubborn = not wants_vision and _self_repair_turn()
+    # task" - and "site work is part of free time", which is the window
+    # _own_time_turn already covers.
+    stubborn = not wants_vision and _own_time_turn()
     failed: list[str] = []
     first_failure = ""
     for provider in providers:
@@ -753,9 +759,9 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
             continue
         if "_error" in result:
             if stubborn:
-                # A self-repair turn, where the first failure IS the verdict. A
-                # shape error here is our bug and a fallback rung would only
-                # send it again - or patch her with it, which is worse. Master,
+                # Her own time, where the first failure IS the verdict. A shape
+                # error here is our bug and a fallback rung would only send it
+                # again - or patch her with it, which is worse. Master,
                 # 2026-09-21: the RAW error never goes to a public room any
                 # more - the room gets a vague line, he gets the detail in a DM.
                 note_owner('my brain refused on [' + provider['label'] + ']: '
