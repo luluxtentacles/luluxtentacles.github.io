@@ -5240,6 +5240,94 @@ def _no_retry_forever() -> str:
             "clears the streak, and a shortcut shares its command's streak")
 
 
+def _own_state() -> str:
+    """A fault in my own stored state must not cost me the pipeline.
+
+    Three faults, all measured on the night of 2026-09-22, and the damage came
+    from how they COMPOUNDED: an empty `memory/people.json` raised out of
+    on_ready ABOVE `mark_healthy()`, so no fresh health marker was written; the
+    supervisor's health gate timed out at 120s and REVERTED the patch she was
+    staging; and what she had staged was a scratch screenshot helper, which
+    should never have needed a restart at all. Each pin below is one link in
+    that chain.
+    """
+    import inspect
+
+    import lulu_bot
+    import people
+    import tools
+    import webtool
+
+    # 1. AN EMPTY LEDGER READS AS NOTHING, NOT AS AN EXCEPTION. The reader really
+    # does raise on it - that is the whole point - so the store is stubbed to the
+    # shape that broke her, including a quarantine that cannot even run.
+    class _BrokenStore:
+        def read_json(self, relative, default=None):
+            raise ValueError("Expecting value: line 1 column 1 (char 0)")
+
+        def resolve(self, relative):
+            raise OSError("cannot be set aside either")
+
+    real_paths = people.paths
+    people.paths = _BrokenStore()
+    try:
+        got = people.learned()
+    finally:
+        people.paths = real_paths
+    expect(got == {}, f"an unreadable ledger did not read as empty: {got!r}")
+
+    # And the save is atomic, because a plain truncate is what LEFT it at 0 bytes.
+    expect("os.replace" in inspect.getsource(people._save),
+           "the ledger is written in place again - a kill mid-write can leave it "
+           "empty, and an empty ledger is what took her pipeline down")
+
+    # 2. THE MARKER COMES FIRST. This is the structural half: the health gate must
+    # never depend on an optional subsystem, or a bad file in her store silently
+    # turns every self-edit into apply-restart-timeout-revert.
+    src = inspect.getsource(lulu_bot.Lulu.on_ready)
+    mark = src.index("mark_healthy")
+    for later in ("people", "ensure_browser_proxy", "_refresh_emoji_shelf"):
+        expect(mark < src.index(later),
+               f"on_ready reaches {later} before it marks itself healthy, so a "
+               f"fault there gets her patch reverted")
+
+    # 3. SCRATCH IS NOT A SELF-EDIT. Staging one applies nothing and costs a
+    # restart, which is what a throwaway render script did to her.
+    for scratch in ("tmp_render_check.cjs", "tmp_probe.py"):
+        expect(tools._is_own_work(scratch),
+               f"{scratch} would be staged as a self-edit and restart her")
+    for real in ("lulu_bot.py", "tools.py", "tests/smoke_test.py",
+                 "src/tmp_not_scratch.py",
+                 # The name that bit me: `scratch_` is NOT this convention, it is
+                 # what the probes in THIS FILE are called, and my first prefix
+                 # list swallowed them and broke two checks.
+                 "scratch_probe.py", "scratch_trial_probe.py"):
+        expect(not tools._is_own_work(real),
+               f"{real} is being treated as scratch, so it could skip the "
+               f"pipeline")
+
+    # 4. THE WALL NAMES ITS DOOR ON EVERY LOCAL REFUSAL, not just on `localhost`.
+    # She hit 127.0.0.1:8123 and a LAN address; the bare refusal is what made her
+    # believe the browser cannot see local at all.
+    for host, port in (("127.0.0.1", 8123), ("10.2.0.2", 8123),
+                       ("localhost", 8123)):
+        try:
+            webtool._assert_public(host, port)
+        except webtool.Blocked as exc:
+            expect("8899" in str(exc),
+                   f"refusing {host}:{port} does not name the one address that "
+                   f"works: {exc}")
+        else:
+            raise AssertionError(f"{host}:{port} was allowed through the wall")
+    # ...and the sanctioned port is still the only one that gets through.
+    webtool._assert_public("127.0.0.1", webtool.LOCAL_PREVIEW_PORT)
+
+    return ("an unreadable ledger reads as empty instead of raising, the save is "
+            "atomic, the health marker is written before anything optional, "
+            "scratch is never staged as a self-edit, and every local refusal "
+            "names the one open address")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5304,6 +5392,7 @@ CHECKS = [
     ("log-split", _log_split),
     ("vision-ladder", _vision_ladder),
     ("vision-ladder-descends", _vision_ladder_descends),
+    ("own-state", _own_state),
     ("brain-headers", _brain_headers),
     ("stop-limits", _stop_and_limits),
     ("no-retry-forever", _no_retry_forever),

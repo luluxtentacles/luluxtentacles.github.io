@@ -171,11 +171,19 @@ def _assert_public(host: str, port: int) -> None:
             continue
         if (ip.is_private or ip.is_loopback or ip.is_link_local
                 or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
-            # The hint belongs ONLY where it is true. A LAN address has nothing to
-            # do with the mirror, so telling her to look at 127.0.0.1 when she
-            # asked for 192.168.x would be a worse message than none at all.
-            hint = LOOPBACK_HINT if ip.is_loopback else ""
-            raise Blocked(f"{host} resolves to {address}, which is not public{hint}")
+            # The hint goes on EVERY local refusal now, and that reverses an
+            # earlier call of mine. I had argued a LAN address "has nothing to do
+            # with the mirror", so naming 127.0.0.1 would be "a worse message than
+            # none at all" - and that reads the ask from the wrong side. On
+            # 2026-09-22 she reached for the LAN address *precisely because* a
+            # loopback attempt had been refused, so she was looking at a page SHE
+            # wrote the whole time; the bare version told her "local is refused"
+            # and she spent the rest of the night rebuilding a renderer instead.
+            # The hint is worded conditionally - "If you were looking at a page
+            # YOU wrote" - so it is true here too. The BOUNDARY is untouched: this
+            # is one string, on the refusing path only.
+            raise Blocked(f"{host} resolves to {address}, which is not public"
+                          f"{LOOPBACK_HINT}")
 
 
 def _check(url: str) -> urllib.parse.ParseResult:

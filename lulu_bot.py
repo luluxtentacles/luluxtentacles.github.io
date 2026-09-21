@@ -1963,8 +1963,21 @@ class Lulu(discord.Client):
     # -- events -----------------------------------------------------------
     async def on_ready(self):
         LOG.info("online as %s (%s)", self.user, self.user.id)
-        LOG.info("people ledger: %s", people.summary())
+        # FIRST, before anything optional. The marker is how the supervisor knows
+        # I came up, and a self-edit whose restart never sees a fresh marker gets
+        # REVERTED. On 2026-09-22 that is exactly what an unreadable ledger cost
+        # her: the raise below used to sit ABOVE this line, so the marker never
+        # moved, the health gate timed out at 120s, and her patch was rolled back
+        # and she was restarted a second time. Nothing that can fail may sit
+        # between "I am online" and "I am up".
         self.mark_healthy()
+        # Optional, so a bad ledger cannot abort the rest of this method. The two
+        # things below it are owed on the first turn back - the restart note and
+        # the changelog - and on 2026-09-22 both were skipped for this reason.
+        try:
+            LOG.info("people ledger: %s", people.summary())
+        except Exception as exc:
+            LOG.warning("could not read the people ledger: %s", exc)
         ensure_browser_proxy()
         ensure_stealth_browser()
         self._refresh_emoji_shelf()

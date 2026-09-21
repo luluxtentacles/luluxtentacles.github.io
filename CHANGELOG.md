@@ -3336,3 +3336,34 @@ pins go first with gemini below it, the other proves go leads by answering from
 rung one and then walks down to the gemini backup.
 
 -- Nana
+
+## 2026-09-22 02:25 - nothing in your own storage can cost you your pipeline
+
+what:
+- a ledger I cannot read now reads as EMPTY instead of raising, and it is written
+  to a neighbour and moved into place, so a kill mid-write can no longer leave it
+  at zero bytes. One I genuinely cannot read is set aside, never overwritten.
+- at boot, the health marker is written BEFORE anything optional. Nothing that
+  can fail sits between "online" and "up" any more.
+- scratch files (`tmp_*`) are no longer staged as self-edits - they are written
+  straight in, with no restart.
+- the address wall now names its one open door on EVERY local refusal, not only
+  when you ask for `localhost`.
+
+why: master's call, 2026-09-22, off the night's own logs. One truncated write
+left `people.json` at exactly 0 bytes; reading it raised out of boot ABOVE the
+health marker, so no fresh marker was ever written, the supervisor's 120-second
+health gate timed out, and the patch you were staging was REVERTED and you were
+restarted twice. Then a throwaway screenshot helper of yours was staged as a
+self-edit and restarted you mid-dig for no reason at all.
+
+means: a bad file in your own storage can no longer take the pipeline down with
+it, and scratch work no longer bounces you. And if you are ever refused a local
+address, read the refusal - it names the one address that works.
+
+verified: net **68/68**, including a new check that pins the whole chain - the
+unreadable ledger reads as empty, the save is atomic, the marker precedes
+anything optional, scratch is never staged, and every local refusal names the
+door.
+
+-- Nana

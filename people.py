@@ -37,6 +37,7 @@ their Discord display name only as the fallback for people nobody has carded.
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -539,14 +540,61 @@ def summary() -> str:
 
 
 def learned() -> dict:
-    data = paths.read_json(LOCAL, default={"people": {}})
+    """What I have learned about people, tolerating a ledger I cannot read.
+
+    `paths.read_json` raises on a file it cannot parse, and an EMPTY file is one
+    of those: `json.loads("")` is a JSONDecodeError, not "no people". On
+    2026-09-22 `memory/people.json` was found at exactly 0 bytes, and that raise
+    travelled much further than this function - it came out of on_ready ABOVE the
+    health marker, so no fresh marker was ever written, the supervisor's health
+    gate timed out at 120 seconds, and the patch she was staging was REVERTED.
+    One truncated write cost her the self-edit pipeline and both restarts around
+    it. A store I cannot read is a store with nothing in it - never a reason to
+    fail.
+    """
+    try:
+        data = paths.read_json(LOCAL, default={"people": {}})
+    except (ValueError, UnicodeDecodeError, OSError):
+        _quarantine()
+        return {}
     people = data.get("people") if isinstance(data, dict) else None
     return people if isinstance(people, dict) else {}
 
 
+def _quarantine() -> None:
+    """Set a ledger I cannot read aside, instead of overwriting it.
+
+    Learning nothing is survivable; eating the only copy of what I knew is not.
+    The next _save writes a whole fresh file, so a corrupt one has to be moved
+    out of its way FIRST - renamed, never deleted, because the bytes in it may
+    be the last of something. Never fatal: if it cannot even be renamed, I still
+    answer as though it were empty.
+    """
+    try:
+        broken = paths.resolve(LOCAL)
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        broken.replace(broken.with_name(f"{broken.name}.corrupt-{stamp}"))
+    except Exception:
+        pass
+
+
 def _save(people: dict) -> None:
-    # internal=True: my own storage layer, not a tool call.
-    paths.write_json(LOCAL, {"version": SCHEMA_VERSION, "people": people}, internal=True)
+    """Write the ledger so a kill mid-write cannot leave it unreadable.
+
+    `paths.write_text` is a plain open-and-truncate, so a process killed while
+    writing leaves a ZERO-BYTE file - and an empty file does not read back as
+    "no people", it raises. That is not hypothetical: it is exactly what
+    `memory/people.json` was found as on 2026-09-22. So the text lands on a
+    neighbour first and is moved into place. os.replace is atomic within one
+    volume, so a reader sees the whole old ledger or the whole new one and never
+    half of either.
+
+    internal=True on the write: my own storage layer, not a tool call.
+    """
+    text = json.dumps({"version": SCHEMA_VERSION, "people": people},
+                      indent=2, ensure_ascii=False)
+    staged = paths.write_text(f"{LOCAL}.writing", text, internal=True)
+    os.replace(staged, paths.resolve(LOCAL))
 
 
 def _bucket(stamp: str) -> str:

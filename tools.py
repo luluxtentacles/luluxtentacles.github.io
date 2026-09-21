@@ -1164,10 +1164,31 @@ REQUEST_FILE = "pending/REQUEST.json"
 # cannot need a restart, and staging one could only ever cost her a bounce. See
 # propose_patch for the two it cost on 2026-09-21.
 NO_RESTART_TREES = ("projects/", "research/")
+# Scratch, named the way her own .gitignore already names it: `tmp_*.py` is
+# ignored there as throwaway, and the same is true one extension over. A file
+# like this is something she wrote to get through THIS turn - nothing at boot
+# loads it, so staging one applies nothing and buys exactly one thing: a
+# restart. Measured 2026-09-22: `patch_file` on `tmp_render_check.cjs` went
+# through propose_patch, was staged as a self-edit, restarted her mid-dig, and
+# was reverted 120s later when the health gate timed out. Three minutes and her
+# whole working context, for a screenshot helper.
+#
+# ONE prefix, and the list is deliberately not longer. My first cut also had
+# `temp_` and `scratch_`, and `scratch_` swallowed the net's OWN probe files
+# (scratch_probe.py, scratch_trial_probe.py) - two checks broke immediately,
+# which is the net doing its job. Match the convention that exists and do not
+# invent neighbours for it.
+NO_RESTART_PREFIXES = ("tmp_",)
 
 
 def _is_own_work(relative: str) -> bool:
-    """Is this one of her own folders rather than the code that runs her?"""
+    """Is this her own folder, or scratch, rather than the code that runs her?
+
+    Root-level scratch only, which is why the "/" test is there: a `tmp_x.py`
+    sitting inside a package is a name somebody chose, not this convention.
+    """
+    if "/" not in relative and relative.startswith(NO_RESTART_PREFIXES):
+        return True
     return any(relative == tree.rstrip("/") or relative.startswith(tree)
                for tree in NO_RESTART_TREES)
 # Where the "tell them I'm back" note waits. It must be a SEPARATE file: the
