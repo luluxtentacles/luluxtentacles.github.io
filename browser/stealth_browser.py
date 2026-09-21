@@ -25,7 +25,9 @@ it launches by executable_path instead. The copy is frozen at 156.0.8066.0 and
 will not auto-update: that is the price of owning it.
 
 Started by lulu_bot at boot (ensure_stealth_browser), kept alive by an
-infinite sleep. The proxy (browseguard) stays the only network door.
+infinite sleep that now watches BOTH things it depends on - the bot that
+started it and the browser it started - and closes when either goes. The proxy
+(browseguard) stays the only network door.
 
 Known, not yet fixed (measured 2026-09-21): a launch counts as "already up" if
 the PORT answers, so a wedged or foreign browser squatting 9222 makes every
@@ -44,12 +46,26 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-PROFILE = r"C:\lulu\browser-profile"
+PROFILE = os.environ.get("LULU_BROWSER_PROFILE") or r"C:\lulu\browser-profile"
 CDP_PORT = 9222
 # Chrome Canary, copied into her folder 2026-09-21. By path, not by channel:
 # playwright's channel lookup only knows the standard install locations, and the
 # standard location on this box is master's profile, which denies lulu-bot.
-CANARY = r"C:\lulu\chrome-canary\chrome.exe"
+CANARY = os.environ.get("LULU_BROWSER_EXE") or r"C:\lulu\chrome-canary\chrome.exe"
+
+# ISOLATION. Both paths above are ABSOLUTE, so the smoke test's path relocation
+# cannot reach them: a sandboxed boot used to spawn a REAL browser against her
+# REAL profile on her REAL CDP port. Measured 2026-09-21 - that leak is what put
+# a Chrome on an Edge-written profile, and her reddit and X cookies did not
+# survive the encounter. So the env vars are a door the sandbox CAN override,
+# and the checks below are a lock that stops a copy starting one by accident.
+_SANDBOX_MARKERS = (".smoke_sandbox", ".trial")
+
+
+def _running_from_a_copy() -> bool:
+    """Am I executing out of a sandbox or trial copy, not her real tree?"""
+    here = str(Path(__file__).resolve()).replace("\\", "/").lower()
+    return any(marker in here for marker in _SANDBOX_MARKERS)
 # The UA has to match the engine it rides on, or it IS the tell. This said
 # "Edg/153" while the binary was Edge; on Chromium the Edg/ token would be the
 # odd thing out. Kept as an override at all because the thing that must not
@@ -106,6 +122,14 @@ def _parent_alive(pid: int) -> bool:
 
 
 def main() -> None:
+    # The lock. A browser started from a COPY has no business touching her real
+    # profile or her real port, and the failure mode is silent: the sandbox dir
+    # gets cleaned up and the browser it leaked just keeps running. Nothing
+    # legitimate runs this file from a sandbox, so a copy simply refuses.
+    if _running_from_a_copy():
+        print("running from a sandbox/trial copy - refusing to start a browser "
+              "on the real profile")
+        return 0
     if cdp_up():
         print("stealth browser already up on", CDP_PORT)
         return
@@ -148,6 +172,19 @@ def main() -> None:
             time.sleep(60)
             if not _parent_alive(parent):
                 print("the bot that started me is gone - closing with it")
+                break
+            # A dead BROWSER is a different event from a dead bot, and only the
+            # bot was covered. Without this the launcher kept sleeping after its
+            # browser had been killed - so the watchdog started a second one and
+            # the first lingered forever, which is how the orphans accumulated.
+            #
+            # ctx.cookies(), not ctx.pages: MEASURED 2026-09-21 against a killed
+            # browser, and pages does NOT raise while browser does not either.
+            # Only calls that actually talk to the browser notice it is gone.
+            try:
+                ctx.cookies()
+            except Exception:
+                print("my browser is gone - closing the launcher with it")
                 break
 
 

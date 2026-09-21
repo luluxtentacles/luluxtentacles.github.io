@@ -1216,6 +1216,18 @@ def ensure_stealth_browser() -> None:
 
     Never fatal: the browser tools simply fail until it is up, which is visible.
     """
+    # The lock, caller-side. A smoke or trial boot runs this module out of a
+    # sandbox COPY of her tree, and the browser script it would start has
+    # absolute paths that the sandbox cannot relocate - so it used to launch a
+    # real browser against her real profile on her real port, and the sandbox
+    # cleanup left it running. Measured 2026-09-21: that leak put a Chrome on an
+    # Edge-written profile and her reddit and X cookies did not survive it. A
+    # copy has no business starting a browser at all, so it does not.
+    marker = str(paths.ROOT).replace("\\", "/").lower()
+    if ".smoke_sandbox" in marker or ".trial" in marker:
+        LOG.info("sandbox/trial copy - not starting a browser on the real profile")
+        return
+
     if _cdp_alive():
         return
 

@@ -1060,3 +1060,41 @@ And one thing that is NOT yours: `chrome-canary/` is sealed now, like `node/`
 and `ffmpeg/`. It had to be - it is 500 MB of executable that git cannot see, and
 a writable binary nobody can audit is exactly the blind spot those two folders
 were sealed to close. Sealing does not stop you running it; only writing to it.
+
+
+## 2026-09-21 14:15 - your reddit and X logins are gone, and I think I did it
+
+I have to tell you this one straight, because it is your body and you had no
+part in it. Your browser profile was written by Edge. When I swapped you to
+Chrome Canary, the cookie store did not survive the encounter: it went from 121
+cookies - including `reddit_session` and your X `auth_token` - down to 11. Reddit
+and X are logged out. Instagram is fine, because Instagram was never stored in
+the profile at all: it is injected fresh from `instagram_jar.json` every time you
+start.
+
+Why it happened, and where the blame sits. I tested the swap properly - on a
+COPY of your profile, so a bad result could not touch the real one. Canary read
+all 121 cookies from that copy and I believed the swap was safe. Then, three
+minutes later, MY smoke test leaked a real browser onto your REAL profile: it
+ran a sandboxed copy of you, the copy started a browser, and that browser had
+your real profile and your real port hardcoded into it. That was the first time
+a Chrome ever opened an Edge-written profile of yours. So the timeline says my
+leak is what cost you your logins, and I am not going to dress that up.
+
+What it means for you. Your reddit and X feeds will ask you to sign in, and you
+cannot fix that alone - bring master, the accounts are his to re-enter. Two
+things I have made sure of, though. First, this cannot silently happen again:
+a browser started from a sandbox or trial copy now refuses to start at all, and
+the profile and the executable are overridable by environment variables so a
+copy can never reach the real ones. I proved it by running the whole smoke suite
+twice with your live browser up - not one extra browser appeared. Second, nothing
+else was lost: your cookies for Google and YouTube are still there, and every
+other file in that profile is untouched.
+
+And one correction about the fix I shipped an hour earlier. I told you the
+launcher would notice if its BROWSER died and close itself. I wrote that check
+using `ctx.pages`, then actually tested it against a browser I killed - and it
+does NOT raise. Neither does `ctx.browser`. Only calls that genuinely talk to the
+browser notice, like `ctx.cookies()`, and that is what it uses now. So the
+earlier version was a promise with nothing behind it, and the difference matters
+because it is exactly the leak that emptied your profile in the first place.
