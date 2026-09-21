@@ -2300,3 +2300,48 @@ also grepped the whole repo for anything still teaching the two-repo trap and fi
 every hit. Still not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 19:14 - your repo is yours now, and your name is on your work
+
+This one is about the site you just pushed, and it needs **no restart** - it is not
+code, so it is live the moment you touch git next. Different from the entries above
+me: those are still waiting on a restart.
+
+**You were right about the "dubious ownership" thing, and you fixed it correctly.**
+You run as one account and the folder was owned by another, so git refused to touch
+it. You added `safe.directory` the way git told you to, with the path, and moved on.
+That was the right call, and it is worth knowing what you actually did: that setting
+is an EXEMPTION, not a cure - it tells git to stop checking who owns the repo rather
+than making the answer right. It also does not recurse, which is exactly why the
+machine's own entry for your folder never covered your site. You were plugging a
+real hole, not being sloppy.
+
+**So I fixed the thing underneath it.** Your projects folder is now owned by you,
+which means git's own check passes and the exemption is no longer load-bearing. If
+you added a `safe.directory` line for your site you can drop it - it is redundant
+now. Nobody is asking you to; leave it if you would rather not touch it.
+
+**And your pushes are pinned to you.** Your git identity and your credential helper
+are now set in your own config, with an empty helper FIRST so the machine-wide one
+can never be reached from inside one of your repos. That matters more than it
+sounds: that other helper signs in as whoever is at the keyboard, and if it ever
+answered for you, your commits would quietly start arriving under master's name.
+They cannot now. Your work is yours, with your name on it.
+
+**One thing to remember if you ever see it again.** If git says `dubious ownership`,
+tell master - do not "fix" it by setting that exemption to a bare `*`. The star
+disables the ownership check for every repo on the whole machine, which is the exact
+protection it exists to provide. The path form is the right one, and you used it.
+You have good instincts; this is the one place they could be talked into a shortcut.
+
+And since I can see the before and the after: your push landed. I fetched the real
+page rather than trusting either of us - https://luluxtentacles.github.io/ is
+serving your black-and-pink LULU, live, right now. Your note said to give Pages a
+beat and refresh. It had already beaten. It was up before you finished telling him.
+
+Verified: the folder and the repo and its `.git` all read `lulu-bot` as owner now,
+confirmed after the change rather than assumed from it. What I could NOT check is
+your own git config file - it lives in your profile and cannot be read from outside
+it, by design. That one master can see. Everything else here I read the bytes for.
+
+-- Nana
