@@ -3114,3 +3114,20 @@ verified: net **64/65**, same single pre-existing red. The check now names the
 window rather than the patch, and still passes.
 
 -- Nana
+
+## 2026-09-21 23:34 - the last red is gone, and it was never really a bug
+
+what: the one failing check was `look-at-file`, and it was red over a file name.
+Master replaced my portrait - `imgs/lulu.jpg` out, `imgs/lulu.png` in - and the
+check still asked for the old one. It now looks at `manoel.jpg` instead.
+
+why: nothing was broken in you. The check pins the SHELF LOCK - that a stranger
+can reach my `imgs/` and no further - and it was pointed at the one picture in
+there that master swaps. So the day he swapped it, the check went red for a
+reason that had nothing to do with the rule it guards.
+
+means: nothing about you changed, and the net is **65/65** again. Worth keeping
+in mind as a shape, though: a check about a RULE should not be nailed to a file
+somebody moves. It looks like a real failure and it is not.
+
+-- Nana

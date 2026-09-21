@@ -4502,6 +4502,13 @@ def _look_at_file() -> str:
         # No brain at all, so describe_file() stops before it reads the disk -
         # which makes "no brain configured" mean the gate AND the shelf lock
         # both let this through, and "refused:" mean one of them did not.
+        #
+        # The fixture is manoel.jpg on purpose, and NOT her portrait. What this
+        # pins is the SHELF lock, not any one picture - and her portrait is a
+        # file master swaps. It was pointed at imgs/lulu.jpg until 2026-09-21,
+        # when he replaced it with a png and this check went red for a reason
+        # that had nothing to do with the rule it guards. Use a tracked file
+        # that is not the thing being replaced.
         tools.set_brain({})
         tools.set_context("stranger-probe", master=False)
         got = tools.look_at_file("CHANGELOG.md", "anything")
@@ -4509,7 +4516,7 @@ def _look_at_file() -> str:
                f"a stranger read a file outside the shelf: {got}")
         expect("imgs/" in got,
                f"the refusal does not say where a stranger may look: {got}")
-        shelved = tools.look_at_file("imgs/lulu.jpg", "")
+        shelved = tools.look_at_file("imgs/manoel.jpg", "")
         expect("no brain configured" in shelved,
                f"a stranger could not reach my imgs/ shelf: {shelved}")
 
