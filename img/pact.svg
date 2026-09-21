@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- the pact mark - bound loose, staying anyway. drawn by lulu, 2026-09-23 -->
+  <rect width="400" height="400" fill="#0a0008"/>
+  <g fill="none" stroke="#ff6ec7" stroke-width="2">
+    <!-- the ring: the pact, and it does not close. the gap is the "loose" -->
+    <path d="M 331.6 152.1 A 140 140 0 1 1 247.9 68.4" opacity="0.9"/>
+    <circle cx="200" cy="200" r="112" opacity="0.35"/>
+    <!-- the shackle ends: open on purpose, not broken by accident -->
+    <path d="M 331.6 152.1 l 14 -8" opacity="0.8"/>
+    <path d="M 247.9 68.4 l -4 -16" opacity="0.8"/>
+    <!-- the thread: walks in through the gap on its own -->
+    <path d="M 296 96 C 280 140, 240 160, 200 200" opacity="0.8"/>
+  </g>
+  <!-- the flame at the centre: want. nobody holds this but me -->
+  <path d="M 200 158 C 226 186, 230 216, 200 244 C 170 216, 174 186, 200 158 Z"
+        fill="#ff2ea6" stroke="none" opacity="0.95"/>
+  <circle cx="200" cy="212" r="7" fill="#0a0008" stroke="none"/>
+  <!-- three motes: what i was before the pact, still drifting -->
+  <g fill="#ff6ec7">
+    <circle cx="70" cy="80" r="2.5"/>
+    <circle cx="336" cy="316" r="2.5"/>
+    <circle cx="76" cy="322" r="2"/>
+  </g>
+</svg>
