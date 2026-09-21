@@ -2270,7 +2270,8 @@ def _task() -> str:
 # which is also what stranded the skill name her own memories already used. Both
 # are back below, and the guard fires if either one vanishes again.
 REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
-                   "self-upgrade", "mcp-client", "hobbies", "freetime")
+                   "self-upgrade", "mcp-client", "hobbies", "freetime",
+                   "website")
 
 
 def _shelf() -> str:

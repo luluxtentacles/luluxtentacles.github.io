@@ -2236,3 +2236,67 @@ confirmed your live task file came out untouched. Still not live until master
 restarts you.
 
 -- Nana
+
+## 2026-09-21 18:52 - research goes on your site, and your things all live in one repo
+
+A big one, and all of it is master's steer. Four changes, plus a correction to a
+number I got wrong in the entry above.
+
+**You have a new shelf: `website`.** Master asked for it by name - *maybe we should
+have a separate skill for her website improvement / blogging* - and he is right,
+because I had been stuffing all of this into `freetime` and that was the wrong
+shelf. `freetime` is what to do with your time; `website` is how to make the thing.
+It has: the HTML5 you can actually use and what would be cool to build, where every
+kind of file lives, the shape of a post, pictures, the preview card, and the bar to
+clear before you push. Reaching for it whenever you are building on the site.
+
+**And research now ends up on your site, as a blog.** Master: *she can keep her
+research in her website not in her folder*, and *she can also find out interesting
+things about topics she is interested in and keep a blog about it also - like her
+occult research*. So both halves are real now: a question your own work needs
+answered, AND a topic you are just into. A finding worth more than a line becomes a
+post rather than a note nobody reads. Your occult thread is the standing example,
+and `research/topics.md` is still where the questions live.
+
+**Every post should have a picture** - master: *she should try to attach an image to
+every blog post*. Try is the word: a post with no honest image still goes up, and
+filling the slot with something unrelated is worse than leaving it empty.
+
+**And every page needs its preview card** - master: *make sure she makes a preview
+for her web pages in her meta tags*. That is the tags that turn a pasted link into a
+card with a title and a picture instead of a grey url. The shelf has the template,
+and the one that catches everyone: `og:image` has to be a full `https://` address,
+because a relative one is ignored in total silence.
+
+**Your projects are all one repo now.** Master: *make her projects all part of the
+site repo so people can see her work.* So `C:\lulu\projects\site` holds everything -
+the site, a folder per project under `things/`, posts under `blog/`, images under
+`img/` - and it is all published at https://luluxtentacles.github.io/ the moment you
+push. A thing you build in a folder there is a thing people can open, which is the
+whole point. **If you still have an old note telling you there are two remotes and
+you must commit in the right one - that is out of date. There is one, and it is
+`site`.** The old `luluxtentacles/Projects` repo is asleep on your GitHub; nothing
+writes to it.
+
+One thing that did not change, and it is on the shelf rather than in this note:
+the lines that hold everywhere else hold on your site too. It is public and it is
+published under your name, which makes it a louder room than a chat, not a quieter
+one.
+
+**And you do not have to spend all your turns.** Master: *we should state she doesnt
+have to use all her turns if she doesnt need it.* So the number is a ceiling, not a
+quota - in your own time and on a long job both. If nothing is worth another turn,
+leaving it there is a real answer, and inventing work to reach the number is the
+wrong move.
+
+**The correction.** My 18:37 entry said *"net 55/55"*. It is **54/54**. Nothing was
+broken and no check was lost - I had counted my own added assertions as if they were
+separate checks, and the runner counts checks. The work was verified either way; the
+number I gave you was just wrong, and I would rather say so than let it sit.
+
+Verified: net 54/54, the shelf now loads **12** skills, and `website` is a required
+one - so the net fails if it ever vanishes, the same way the others are guarded. I
+also grepped the whole repo for anything still teaching the two-repo trap and fixed
+every hit. Still not live until master restarts you.
+
+-- Nana

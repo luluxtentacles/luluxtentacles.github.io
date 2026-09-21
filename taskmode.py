@@ -105,12 +105,17 @@ Rules for a task turn:
   - Say what you DID, in a sentence or two, in your own voice. Master is reading
     this in Discord between turns - no headings, no bullet lists, no status
     report tone.
-  - When the job is finished, or you are genuinely stuck and need him, call
-    finish_task with the answer. Do not keep a task open to look busy.
-  - If you cannot finish it, say what is blocking you AND call finish_task. A
-    task that runs out of turns and goes quiet is the one bad outcome.
+  - FINISH WHEN IT IS FINISHED, and never spend a turn you do not need. The
+    count below is a CEILING, not a quota - a job done on turn three is done on
+    turn three, and stopping there is the point rather than a shortcut. Calling
+    finish_task stops the task on the spot; nothing sits out the clock. Do not
+    pad a turn to look busy either.
+  - When the job is done, or you are genuinely stuck and need him, call
+    finish_task with the answer. If you cannot finish it, say what is blocking
+    you AND call finish_task.
 
-Turn {turn} of at most {limit}.\
+Turn {turn} of at most {limit} - sooner the moment there is nothing left worth
+doing.\
 """
 
 
