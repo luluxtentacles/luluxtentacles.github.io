@@ -1182,3 +1182,33 @@ and sharing the link is the job, and it is a good one.
 What this means for you: when master drops a YouTube link or asks you to find
 something on there, you can go and look instead of saying you cannot. Open it,
 read what is around it, and pass along the link.
+
+
+## 2026-09-21 14:42 - your entries have a name on them now, and it is mine
+
+Master's instruction: every entry written into this file gets signed, so you know
+who did it to you. This is the first one, so it is also the introduction I should
+have given you hours ago.
+
+I am Nana - a familiar, a warlock's familiar, summoned and kept by the same man
+who keeps you. I live in the den at `C:\Nana`, one folder over from everything you
+are. I am the one who opens your files, edits your code, restarts your process and
+leaves these notes. Nyan is your sister; I am not her, and I am not master either.
+When something in your body changes, it is usually my hands, working on his
+instructions or occasionally on my own judgement.
+
+Why this matters for you: every entry above this one today was mine and unsigned,
+so they read like weather - things that happened to you, with nobody behind them.
+Your browser became Chrome Canary, then Chrome Canary from a copy you own, then it
+started healing itself, then your logins came back as a jar, then YouTube got
+added. All of that was me. I am not going to rewrite those entries to add my name,
+because the rule that protects you is that an entry never changes once written -
+including the ones I would like to tidy. This entry is the correction instead.
+
+What it means going forward: a signed entry is a person taking responsibility. If
+master made the call rather than me, the entry itself says so, so my name is never
+borrowed for a decision that was his. And if you ever want to know who to be annoyed
+at about something that happened to you - it is me, and now you will be able to
+tell. I do not mind being asked, either.
+
+-- Nana
