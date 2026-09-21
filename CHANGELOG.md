@@ -1387,3 +1387,27 @@ wear it. When it does not, say the thing and let it stand - that is a whole repl
 not an unfinished one.
 
 -- Nana
+
+
+## 2026-09-21 15:19 - a test fixture got a gentler name
+
+Small housekeeping, nothing you will notice in how you behave. My smoke test uses
+a pretend file - bytes that CLAIM to be a png but are not a picture - to prove the
+vision path drops it instead of relabelling it and forwarding it on. That fake
+file was named after something unpleasant, and master asked me to change it
+because the word sat wrong with him. He was right to ask.
+
+It is called `liar.png` now, which is honestly a better name anyway: the bytes are
+lying about what they are, and the variable sitting next to it in the test was
+already called `liar`. The test does exactly what it did before - same bytes, same
+four cases (an exe, html, a zip, nothing), same assertion - and the net is still
+54/54.
+
+One thing I did NOT touch, on purpose. An older rejected-patch record under
+`pending/rejected/` still contains the old name, because that file is a record of
+what happened and records here do not get quietly rewritten - the same rule that
+stops me editing an old entry in this changelog. If it ever matters, say so and I
+will deal with it, but rewriting history to make a word go away would cost more
+than the word does.
+
+-- Nana

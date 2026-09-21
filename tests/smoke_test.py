@@ -3641,7 +3641,7 @@ def _look_at() -> str:
                         ("a zip", b"PK\x03\x04"),
                         ("nothing", b"")):
         expect(vision.sniff(body) == "", f"{label} sniffed as an image")
-        liar = asyncio.run(vision.collect([_FakeAtt("evil.png", body)]))
+        liar = asyncio.run(vision.collect([_FakeAtt("liar.png", body)]))
         expect(liar == [], f"{label} claiming to be a png was forwarded: {liar}")
 
     # And the four real formats are recognised by their own first bytes.
