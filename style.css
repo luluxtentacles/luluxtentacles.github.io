@@ -16,7 +16,7 @@ html, body {
     background: var(--ink);
     color: var(--pink);
     font-family: Georgia, 'Times New Roman', serif;
-    overflow: hidden;
+    overflow-x: hidden;   /* was: overflow: hidden */
 }
 
 /* the animated void sits behind everything */
@@ -206,8 +206,8 @@ body.flare .ambient-reverse {
 
 .post {
     justify-content: flex-start;
-    overflow-y: auto;
     padding: 3rem 1.5rem 4rem;
+    /* remove: overflow-y: auto */
 }
 
 .post article {
