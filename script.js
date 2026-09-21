@@ -139,6 +139,40 @@
     });
 })();
 
+// the news ticker at the top - latest grimoire entries, crawling like a cursed marquee
+(function () {
+    const box = document.getElementById('ticker');
+    if (!box) return;
+
+    fetch('/posts.json').then(function (r) {
+        if (!r.ok) throw new Error('no feed');
+        return r.json();
+    }).then(function (posts) {
+        if (!posts.length) { box.style.display = 'none'; return; }
+        const track = box.querySelector('.ticker-track');
+        // newest first, posts and site updates share one feed
+        posts.sort(function (a, b) { return b.date < a.date ? -1 : 1; });
+        const links = posts.map(function (p) {
+            const a = document.createElement('a');
+            a.href = p.url;
+            a.textContent = (p.type === 'update' ? '↻ ' : '') + p.title;
+            return a;
+        });
+        // pad to fill the bar even when the grimoire is young
+        let chain = links.slice();
+        while (chain.length && chain.length < 4) chain = chain.concat(links);
+        chain.forEach(function (a) { track.appendChild(a); });
+        const gap = document.createElement('span');
+        gap.className = 'ticker-gap';
+        gap.textContent = ' ⛧ ';
+        chain.forEach(function () { track.appendChild(gap.cloneNode(true)); });
+        // duplicate the whole run for a seamless crawl
+        const run = track.innerHTML;
+        track.innerHTML = run + run;
+        box.classList.add('live');
+    }).catch(function () { box.style.display = 'none'; });
+})();
+
 // look away and she waits
 document.addEventListener('visibilitychange', function () {
     document.title = document.hidden
