@@ -38,6 +38,7 @@ Eight of them were found, none of them hers to kill.
 BROWSING ONLY: this makes reading survivable, it does not make posting
 safe, and it is not for impersonating a person.
 """
+import json
 import os
 import socket
 import sys
@@ -149,16 +150,22 @@ def main() -> None:
         )
         ctx.add_init_script(STEALTH_SCRIPT)
         # Nyan's flow: sessions that do not survive a fingerprint change are
-        # injected fresh at every startup, from a jar in this folder. The jar
+        # injected fresh at every startup, from jars in this folder. Each jar
         # holds live login values - gitignored, never logged, never sent.
-        jar = Path(__file__).parent / "instagram_jar.json"
-        if jar.is_file():
-            import json
+        #
+        # WHY JARS AND NOT JUST THE PROFILE. The profile's cookie key is wrapped
+        # by Windows for the ACCOUNT that owns it, and a browser running as a
+        # different account cannot unwrap it - it regenerates the key and every
+        # stored cookie is orphaned. That is what emptied this profile on
+        # 2026-09-21: 121 cookies down to 11. Injected cookies carry their values
+        # in the clear, so they cross that account boundary intact, which is why
+        # instagram survived it and everything else did not.
+        for jar in sorted(Path(__file__).parent.glob("*_jar.json")):
             try:
                 ctx.add_cookies(json.loads(jar.read_text(encoding="utf-8")))
-                print(f"instagram jar injected: {jar.name}")
+                print(f"session jar injected: {jar.name}")
             except Exception as exc:
-                print(f"jar injection failed: {exc}")
+                print(f"jar injection failed ({jar.name}): {exc}")
         # sanity: confirm the tell is actually gone
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto("about:blank")

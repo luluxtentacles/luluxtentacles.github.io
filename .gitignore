@@ -158,3 +158,15 @@ venv/
 browser-profile/
 brain_keys.json
 browser/instagram_jar.json
+# The reddit / X / instagram / google session cookies, injected at startup the
+# same way the instagram jar is. Named here BEFORE the file existed, on purpose:
+# a jar of live session values that is not ignored gets swept into her history by
+# the next self-edit's `git add -A`, which is how ffmpeg nearly landed and how
+# mcp_secrets.json would have. Written 2026-09-21, when the profile's own cookie
+# store came up empty and master signed back in on his own Canary so this could
+# be rebuilt.
+#
+# Also NOT fixed by this line, and worth knowing: the jar sits inside C:/lulu and
+# her read_file has no read guard, so she can read her own session cookies. Same
+# fact as the browser-profile note above - not a leak to a stranger, just true.
+browser/social_jar.json
