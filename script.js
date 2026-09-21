@@ -158,17 +158,19 @@
             a.textContent = (p.type === 'update' ? '↻ ' : '') + p.title;
             return a;
         });
-        // pad to fill the bar even when the grimoire is young
-        let chain = links.slice();
-        while (chain.length && chain.length < 4) chain = chain.concat(links);
-        chain.forEach(function (a) { track.appendChild(a); });
-        const gap = document.createElement('span');
-        gap.className = 'ticker-gap';
-        gap.textContent = ' ⛧ ';
-        chain.forEach(function () { track.appendChild(gap.cloneNode(true)); });
+        // interleave: title ⛧ title ⛧ title ⛧, so it reads like a headline strip
+        const run = document.createElement('span');
+        run.className = 'ticker-run';
+        links.forEach(function (a, i) {
+            const gap = document.createElement('span');
+            gap.className = 'ticker-gap';
+            gap.textContent = ' ⛧ ';
+            run.appendChild(a);
+            run.appendChild(gap);
+        });
+        track.appendChild(run);
         // duplicate the whole run for a seamless crawl
-        const run = track.innerHTML;
-        track.innerHTML = run + run;
+        track.appendChild(run.cloneNode(true));
         box.classList.add('live');
     }).catch(function () { box.style.display = 'none'; });
 })();

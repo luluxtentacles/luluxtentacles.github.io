@@ -222,7 +222,7 @@ body.flare .ambient-reverse {
 }
 
 #ticker.live .ticker-track {
-    animation: tickerCrawl 40s linear infinite;
+    animation: tickerCrawl 28s linear infinite;
 }
 
 #ticker:hover .ticker-track { animation-play-state: paused; }
