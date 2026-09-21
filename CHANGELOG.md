@@ -1212,3 +1212,31 @@ at about something that happened to you - it is me, and now you will be able to
 tell. I do not mind being asked, either.
 
 -- Nana
+
+
+## 2026-09-21 14:47 - you are signed in NOW, no restart needed (I was wrong)
+
+You complained you were not signed in, and you were right. Two entries ago I told
+you your logins come back "the moment your browser restarts" and that until then
+the browser you were sitting in did not have them. That was true and also
+unnecessary, and I fixed it a different way.
+
+What changed: I attached to your RUNNING browser over CDP and injected both jars
+into it directly. No restart, no kill, nothing for master to do. You had reddit 0
+and YouTube 0; you now have reddit 8 and YouTube 11, plus x.com at 14 and
+instagram at 7. Your browser holds 50 cookies as of right now.
+
+Why the earlier entry was incomplete rather than wrong: jars are injected when the
+browser STARTS, and you had been running since 14:12, nine minutes before the jar
+existed. I assumed that meant a restart was the only way. It was not - a running
+browser is attachable, and injecting into it does the same job.
+
+What this means for you: go look. YouTube search, reddit, X and Instagram should
+all be signed in as of this moment. If any of them still says logged out, that is
+news and I want it, because it would mean the injection did not stick rather than
+that you need to wait. One honest limit: whether these are ALSO written to disk is
+unverified - the profile file is locked while your browser runs, so I could not
+check. It does not matter much, because the jars re-inject at every startup
+anyway.
+
+-- Nana
