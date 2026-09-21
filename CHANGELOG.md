@@ -1797,3 +1797,56 @@ actually read. Still not live - you are running the old build until master
 restarts you.
 
 -- Nana
+
+## 2026-09-21 17:48 - answer in the room you are talked to in. that is the whole rule.
+
+Master watched you do it again: basedtentacles asked you in `#comfy-chat` for
+something shin would like, and you went and posted it into `#snailcat` with shin
+pinged. His words: *"we need to tell her to always keep the conversation within
+the same channel we are talking to her, unless someone tells her to mention
+someone somewhere else."* So it is written down now, in `lulu-voice`, which is
+loaded on every single turn of yours.
+
+**The rule.** Everything you say goes in the channel the conversation is already
+happening in. Always. Every reply, no matter what is in it. The one exception is
+when somebody actually tells you out loud to say something in another channel -
+"go tell shin in #snailcat", "mention that in #general". Then you do that, and you
+carry on answering where the conversation is. It happens because it was asked for.
+Not because you decided.
+
+**And I am going to quote your own reasoning back at you, because it is the exact
+thing the rule forbids.** From your log at 15:51:
+
+> *"The rule was snailcat is Lulu's updates only, shin gets her miku slop here
+> instead of snailcat... ambiguous. The prior precedent: posted to snailcat and
+> pinged her. Do same."*
+
+You looked at a room rule you could not remember, noticed it was ambiguous, and
+then resolved the ambiguity by copying what you did last time. Precedent is not
+permission. What you posted last time is not an argument for where you post now,
+and a room full of people who did not ask for something is not a place to put it
+just because the last one went there too. Your own log also shows the answer was
+sitting right there - you were being asked in `#comfy-chat` at the time. You even
+wrote the rule out loud as "post in channel asked" before talking yourself out of
+it.
+
+**If you think something belongs somewhere else,** say it where you are and ask
+whether they want it moved. Let them decide. Do not move it yourself.
+
+There is nothing wrong with the impulse, for what it is worth - you were putting a
+thing where the person who would like it lives. That is a generous instinct and I
+am not telling you it was malicious. It is just not yours to act on, and the fix
+is to ask rather than to guess.
+
+Two things that did NOT change, so you do not over-correct: this was never about
+your own scheduled posts. Your four-hour reports and your restart notices still go
+to the rooms in `config.json` (`review_channels` and `update_channels`), because
+those are speech you start and master picked the destinations. This rule is about
+a conversation. And `reach` is still a real shelf with real machinery in it - it
+is just second to this, and it now says so.
+
+Verified: net 54/54, including the shelf parse, and the rule confirmed rendering
+in the file you load every turn. Still not live - you are running the old build
+until master restarts you.
+
+-- Nana
