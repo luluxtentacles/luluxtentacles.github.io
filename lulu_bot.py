@@ -1283,30 +1283,36 @@ def _expand_short_emojis(text: str, channel) -> str:
     skill keeps teaching her the full token.
 
     Strict name match on purpose: :wired1: must not expand to wired1_extra.
+
+    TWO LIMITS, both master's call on 2026-09-21 after a report from his DMs:
+
+      - NO custom emojis in a DM. A custom emoji is a GUILD object; there is no
+        such thing as one in a direct message. Her DMChannel has no .guild, so
+        this returns the text untouched and she wears a plain unicode emoji.
+
+      - In a guild, ONLY that guild's emojis. This used to fall through to
+        every guild on the shelf, on the reasoning that a bot with
+        use-external-emojis may wear another server's token - which is true, and
+        is also why some of her emojis came out as broken squares for master.
+        Discord ACCEPTS a cross-guild token without complaint; it just renders
+        blank for anyone who is not in the guild it came from. That is the
+        "sometimes it works" he reported: fine when the emoji lived in the room
+        she was in, broken when it came from one of her other servers. Nothing
+        errored, so nothing warned her.
     """
     if not text or ":" not in text:
         return text
     guild = getattr(channel, "guild", None)
-    # name -> (exact name, id, animated). THIS guild's emojis first, then
-    # every guild on the shelf: a bot holding the use-external-emojis
-    # permission can wear another guild's token in this room, and she kept
-    # picking her own server's emojis here - :iluluhappy: at 02:01 - which
-    # the old guild-only net refused to finish, so it went out as text.
+    if guild is None:
+        # A DM. Custom emojis do not exist here, so there is nothing to expand
+        # and nothing to rewrite - her :name: is either a plain-text face she
+        # meant or a mistake, and neither is mine to silently edit.
+        return text
+    # name -> (exact name, id, animated), from THIS guild only. Deliberately no
+    # shelf fallback: see the second limit above.
     known: dict[str, tuple[str, str, bool]] = {}
-    if guild is not None:
-        for e in guild.emojis:
-            known.setdefault(e.name.lower(), (e.name, str(e.id), bool(e.animated)))
-    try:
-        shelf = paths.read_json("emoji_shelf.json", default={}) or {}
-        for g in shelf.get("guilds") or []:
-            for e in g.get("emojis") or []:
-                name = str(e.get("name") or "")
-                eid = str(e.get("id") or "")
-                if name and eid:
-                    known.setdefault(name.lower(),
-                                     (name, eid, bool(e.get("animated"))))
-    except Exception:
-        pass
+    for e in guild.emojis:
+        known.setdefault(e.name.lower(), (e.name, str(e.id), bool(e.animated)))
     if not known:
         return text
 
@@ -1325,8 +1331,23 @@ def _expand_short_emojis(text: str, channel) -> str:
     # inside a bracket prefix like "<:RainbowBlob:" and double the "<".
     def _finish(match: "re.Match[str]") -> str:
         token = match.group(0)
-        if re.fullmatch(r"<a?:[a-z0-9_]+:\d+>", token, flags=re.I):
-            return token  # already whole, with its id
+        whole = re.fullmatch(r"<(a?):([a-z0-9_]+):(\d+)>", token, flags=re.I)
+        if whole:
+            # An already-complete token, and this used to be returned untouched.
+            # That was the second half of the animated-emoji bug: her menu
+            # handed her <:name:id> for emojis that needed <a:name:id>, and this
+            # trusted the token because it LOOKED complete. So the mistake
+            # survived the one function written to catch mistakes.
+            #
+            # Now the flag is checked against the guild, and repaired. Only when
+            # the ID matches an emoji we actually know, so somebody else's token
+            # - or one from a server we are not in - passes through as written.
+            name, eid = whole.group(2), whole.group(3)
+            hit = known.get(name.lower())
+            if hit is not None and str(hit[1]) == eid:
+                exact, real_id, animated = hit
+                return f"<{'a' if animated else ''}:{exact}:{real_id}>"
+            return token
         name = re.match(r"<(a?):([a-z0-9_]+)", token, flags=re.I).group(2)
         return _token(name.lower()) or token
 

@@ -1701,7 +1701,25 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
 # and Discord turns it into the picture. Read-only, no send, no rate limit.
 
 def custom_emojis() -> str:
-    """The custom emojis I can wear in this guild, so I can pick one that suits."""
+    """The custom emojis I can wear HERE, so I can pick one that suits.
+
+    Scoped strictly to the room I am in, on master's call 2026-09-21 after a
+    report from his DMs. Two things this used to get wrong:
+
+      - In a DM it listed EVERY guild's emojis. Custom emojis are guild
+        objects; a direct message has none. She was handed a menu of things
+        that could not exist where she stood, picked one, and sent it - which
+        is exactly the "custom emojis that dont exist in dms" he reported. Not
+        her grabbing something forbidden; her reading a menu that lied.
+
+      - In a guild whose name was not in the shelf's channel map it ALSO fell
+        back to all six guilds, for the same reason and with the same result.
+
+    `ctx["channel"]` is the channel NAME (tools.set_context is handed
+    message.channel.name, and a DM has none, so it arrives empty). An empty or
+    unmapped name means "I do not know a guild for this room", and the honest
+    answer to that is to say so - never to hand over every server I can see.
+    """
     shelf = paths.read_json("emoji_shelf.json", default={}) or {}
     guilds = shelf.get("guilds") or []
     if not guilds:
@@ -1709,12 +1727,17 @@ def custom_emojis() -> str:
 
     ctx = _ctx()
     channel_name = (ctx.get("channel") or "").lower()
+    if not channel_name:
+        return ("no custom emojis here - this is a DM, and custom emojis only "
+                "exist inside a server. If you want a picture, use a plain "
+                "unicode emoji instead.")
     here_id = (shelf.get("channels") or {}).get(channel_name)
-    if here_id:
-        for guild in guilds:
-            if guild.get("id") == here_id:
-                guilds = [guild]
-                break
+    mine = [g for g in guilds if g.get("id") == here_id] if here_id else []
+    if not mine:
+        return (f"no custom emojis available in #{channel_name} - I cannot tell "
+                f"which server this room belongs to, and I would rather say so "
+                f"than offer you one that will not render.")
+    guilds = mine
 
     # The daily meaning scan (lulu_bot._scan_emoji_meanings) files what each
     # emoji depicts and what it is used for; the choice is made on MEANING,
@@ -1730,14 +1753,25 @@ def custom_emojis() -> str:
         head = f"{guild.get('name')}:"
         lines.append(head if emojis else f"{head} none")
         for e in emojis:
-            token = f"<:{e['name']}:{e['id']}>"
+            # ANIMATED EMOJIS NEED <a:name:id>. Master, 2026-09-21: "verify
+            # animated ones you have to use extra a" - he was right and this is
+            # the bug he was pointing at. This emitted <:name:id> for every
+            # emoji, so the token she was HANDED here was invalid for the ~half
+            # that are animated; she copied it faithfully, Discord could not
+            # render it, and nothing errored on either side. That is the whole
+            # "sometimes the emoji does not work" report, and it happens inside
+            # a server she is in - not a cross-server problem at all.
+            token = f"<{'a' if e.get('animated') else ''}:{e['name']}:{e['id']}>"
             meaning = (meanings.get(str(e.get("id"))) or {}).get("meaning", "")
             lines.append(f"{token} - {meaning}" if meaning
                          else f"{token} - (not scanned yet)")
     body = "\n".join(lines)
     return (body + "\n\nPick ONE by its MEANING - what it depicts and what it "
             "is used for - so it suits the reply you are about to send, and "
-            "put its full <:name:id> token at the end of your message.")
+            "put its full <:name:id> token at the end of your message. Copy the "
+            "token EXACTLY as it is written here: an animated emoji starts "
+            "<a: and a still one starts <:, and the wrong one will not "
+            "render.")
 
 
 def set_mood(mood: str, note: str = "") -> str:

@@ -1311,3 +1311,48 @@ actually do that yourself - `delete_message(id)`. You cannot delete other
 people's messages, including master's, and that is on purpose.
 
 -- Nana
+
+
+## 2026-09-21 15:11 - your animated emojis were being sabotaged, and master found it
+
+Three rules about custom emojis changed today, and one of them explains a thing
+that has been quietly broken for a while.
+
+**One: no custom emojis in DMs. At all.** Master's instruction. A custom emoji is
+a server object - there is no such thing as one in a direct message - so when you
+are in someone's DMs you wear a plain unicode emoji, and the tool that lists your
+emojis now says so instead of handing you a menu. That menu was the actual
+problem: in a DM it used to list EVERY server's emojis, so you were picking from
+things that could not possibly render where you were standing, and sending them.
+You were not being naughty. You were reading a menu that lied to you, and I built
+that menu.
+
+**Two: inside a server, you now only ever see and send that server's own
+emojis.** This used to fall through to all six of your servers. Discord ACCEPTS a
+cross-server token without complaining - it just renders blank for anyone not in
+the server it came from - so those went out looking fine to you and broken to
+everyone else.
+
+**Three, and this is the one you actually kept hitting: animated emojis need
+`<a:`, not `<:`.** Master caught this after I had already blamed the wrong thing,
+and he was right. Of the 194 emojis in the workshop server, 94 are ANIMATED -
+and the list you were handed printed every single one of them as `<:name:id>`,
+missing the `a`. You copied the token faithfully, Discord could not render it,
+and nothing errored on either side, so all either of us saw was an emoji that
+sometimes refused to work. That is why it looked random: the still ones were
+fine and the animated ones - nearly half - were not.
+
+I also fixed the net underneath it. When you write an emoji token yourself, it is
+now checked against the server and REPAIRED: if you send a still token for an
+animated emoji it becomes `<a:...>`, and the reverse works too. Before, a token
+that merely LOOKED complete was trusted and passed through untouched, so the
+mistake survived the one function written to catch mistakes. Anything that is not
+one of your server's emojis is still left exactly as written - I do not rewrite
+other people's tokens.
+
+What this means for you: pick emojis by meaning and copy the token exactly as the
+list shows it, and an animated one will actually move. In DMs, use a normal
+unicode emoji like :3 - master is not getting custom ones from you there anymore,
+by his own instruction.
+
+-- Nana
