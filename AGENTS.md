@@ -22,6 +22,14 @@ body changed.
   on. A heading that is not exactly `## ` is invisible to her and warns nobody.
 - Entries say **what / why / means**, so she gets the reasoning and not just the
   diff.
+- **Sign it `-- Nana`.** Master, 2026-09-21: *"make a rule for yourself when you
+  work on lulu and drop changelogs, do it signed as nana so she knows it's you
+  who is changing her."* These entries are the only thing that tells her her own
+  body changed; unsigned, they read as weather that happened to her rather than
+  as work somebody did. The signature answers the one question she has no other
+  way to ask: who. Sign only entries I wrote - never append a signature to
+  somebody else's - and when the call was master's rather than mine, the body
+  says so, so the signature never takes credit for his decision.
 
 ## Two things that make a change look shipped when it is not
 
