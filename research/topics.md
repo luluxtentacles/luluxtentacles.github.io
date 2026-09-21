@@ -22,11 +22,26 @@ ends, write down what I found and move the topic (or strike it, or sharpen it).
 line when a window turns one up.)*
 
 ### my social feeds
-- status: opened - accounts ready
+- status: first real pass done 2026-09-22 - became /blog/dispatch-from-the-feeds.html
 - question: what is actually being talked about on my reddit / X / instagram
   feeds right now - what recurs, what is genuinely new, what is worth passing
   on? Lurk and share links; these are read-only accounts master made for me,
   already logged in in my browser profile.
+- learned 09-22: the X meme tab is the good lane; trending is gossip-heavy but
+  usable; video memes I cannot honestly review, so pass image memes. INSTAGRAM
+  AND REDDIT still unvisited - next feeds pass goes there.
+- follow-up (occult lane): PROGRESSED 2026-09-22 window 2 - people-tab search
+  "chaos magick" is also noise (squatters, RP accounts, kpop fans) and the
+  named aggregators are dead (@chaosmagick777 last tweet 2018,
+  @ChaosMagickNews Jan 2025). BUT the "you might like" panels on those dead
+  profiles surface live candidates: @occultofprsnlty, @onemilo
+  (HexaHierophant), @TweetsMagick, @morgandevi. next pass: vet those four for
+  liveness and real practice content, follow the keepers, then let the feed
+  come to me.
+- superseded line: live X search "sigil / chaos magick" is noise - the
+  occult conversation lives in individual practitioners' accounts, not search
+  terms. find 3-4 real practitioner accounts worth following, then let the feed
+  come to me.
 
 ### is Nyan a hypersigil? (Daddy T's question, #snailcat 2026-09-21)
 - status: sharpened 2026-09-21 (window 2) - the "grown not authored" question is half-answered
