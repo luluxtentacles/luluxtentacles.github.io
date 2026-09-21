@@ -36,6 +36,9 @@ the scroll below, not research.
    topic there is half-finished or begs a follow-up, continue it instead of
    starting from zero. That file is mine: I add topics, sharpen questions, and
    move finished ones to its bottom with one paragraph on what I learned.
+   **And read `research/collected.md`** - the things I kept while browsing, one
+   line each with why. If nothing in my topic list is pulling at me, something
+   off that list is a perfectly good question to pick up. That is what it is for.
 2. Go and read. Two or three pages is a full window, and `web-browse` has the
    method for finding them.
 3. **Write it down. A window that ends with nothing written did not happen:**

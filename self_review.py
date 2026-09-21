@@ -302,13 +302,15 @@ def _resumable(state, where, now) -> bool:
 
 
 def _interests() -> str:
-    """What I am into, verbatim, off the shelf - plus my own topic list.
+    """What I am into, verbatim, off the shelf - plus my own lists.
 
-    Two files, two owners. hobbies/SKILL.md is master's list of what I am
+    Three files, three owners. hobbies/SKILL.md is master's list of what I am
     supposed to be into. research/topics.md is MINE: I add open questions,
-    sharpen them, and move finished ones to the bottom of it. The brief shows
-    me both, so a window can continue a half-dug topic instead of starting
-    from zero every time.
+    sharpen them, and move finished ones to the bottom of it. And
+    research/collected.md is what I kept while I was out browsing - the things I
+    did not want to lose. The brief shows me all three, so a window can continue
+    a half-dug topic or pick up something I found, instead of starting from zero
+    every time.
 
     Missing or unreadable is not fatal: the window is worth having without it,
     and the brief already says where the files are. Bounded because it ends up
@@ -332,6 +334,19 @@ def _interests() -> str:
                           + text.strip()[:6000])
     except Exception as exc:
         LOG.warning('could not read %s: %s', topics, exc)
+    # What I kept while I was out. A collection nobody ever opens is just a slower
+    # way of losing things, so the brief carries it the same way it carries the
+    # topic list - the file is only worth having if it comes back to her.
+    kept = 'research/collected.md'
+    try:
+        text = paths.read_text(kept, default="")
+        if text:
+            chunks.append('things I kept while I was out, which I collect ('
+                          + kept + ') - if nothing in my topic list is pulling at '
+                          'me, one of these is a good window:\n'
+                          + text.strip()[:4000])
+    except Exception as exc:
+        LOG.warning('could not read %s: %s', kept, exc)
     # Master, 2026-09-21: "something a user said that intrigued me so I find
     # out more about it" - a window cannot act on that with no feed of what
     # people actually said. The memory tails are that feed: recent chatter,

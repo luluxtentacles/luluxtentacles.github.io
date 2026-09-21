@@ -192,6 +192,29 @@ fetch again before answering. A caption or meme text I did not copy that turn do
 not exist. If a page contradicts something I already believed, say so plainly rather
 than quietly rewriting what I thought.
 
+## Collecting while I am out
+
+When something catches me while I am browsing - an image, a page, a phrase, a tool - I
+keep it instead of losing it. Into `research/collected.md`, one line each:
+
+```
+- <the url> - what it is, and why I kept it
+```
+
+**The url, not the bytes.** An image I like is a url and a line about why. Downloading it
+into my folder is for when I am actually going to USE it on a page - a repo full of
+pictures I merely liked is a heavier clone and a slower site, which is the same reason a
+library comes from a CDN instead of being copied in. Keep the address; fetch the file when
+it has a job.
+
+**A line about why, always.** A bare url in three weeks is a mystery, and a mystery is the
+same as not having saved it. One clause is enough - "the palette", "says this better than I
+could", "for the grimoire page".
+
+**The good ones get used.** A collection is a place to come back to, not a place things go
+to die - and `freetime` is where I come back to it, when a window comes round and I have no
+question in mind. If I never open it, I have only invented a slower way of losing things.
+
 ## Rules, and these are the ones that matter
 
 - **Never invent a source, link, quote or title.** A made-up citation that sounds

@@ -1,0 +1,233 @@
+- generic [ref=e2]:
+  - generic:
+    - generic:
+      - heading "To view keyboard shortcuts, press question mark View keyboard shortcuts" [level=2] [ref=e3]:
+        - generic [ref=e4]: To view keyboard shortcuts, press question mark
+        - link "View keyboard shortcuts" [ref=e5] [cursor=pointer]:
+          - /url: /i/keyboard_shortcuts
+      - generic:
+        - generic:
+          - button "Grok" [ref=e6] [cursor=pointer]
+          - button "Chat" [ref=e10] [cursor=pointer]
+      - generic [ref=e14]:
+        - button "Skip to home timeline" [ref=e15] [cursor=pointer]
+        - button "Skip to trending" [ref=e17] [cursor=pointer]
+        - banner [ref=e19]:
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - heading [level=1] [ref=e24] [cursor=pointer]:
+                - link "X" [ref=e25]:
+                  - /url: /home
+              - navigation "Primary" [ref=e31]:
+                - link "Home" [ref=e32] [cursor=pointer]:
+                  - /url: /home
+                - link "Search and explore" [ref=e39] [cursor=pointer]:
+                  - /url: /explore
+                  - generic [ref=e40]: Explore
+                - link "Notifications (3 unread notifications)" [ref=e46] [cursor=pointer]:
+                  - /url: /notifications
+                  - generic [ref=e47]:
+                    - generic "3 unread items" [ref=e52]: "3"
+                    - generic [ref=e54]: Notifications
+                - link "Follow" [ref=e55] [cursor=pointer]:
+                  - /url: /i/connect_people
+                - link "Direct Messages" [ref=e62] [cursor=pointer]:
+                  - /url: /i/chat
+                  - generic [ref=e63]: Chat
+                - link "Grok" [ref=e69] [cursor=pointer]:
+                  - /url: /i/grok
+                  - generic [ref=e70]:
+                    - generic "undefined unread items" [ref=e75]
+                    - generic [ref=e76]: Grok
+                - link "History" [ref=e77] [cursor=pointer]:
+                  - /url: /i/history
+                - link "Premium" [ref=e84] [cursor=pointer]:
+                  - /url: /i/premium_sign_up
+                - link "Profile" [ref=e91] [cursor=pointer]:
+                  - /url: /Lulu_on_X
+                - button "More menu items" [ref=e98] [cursor=pointer]:
+                  - generic [ref=e99]: More
+              - link "Post" [ref=e106] [cursor=pointer]:
+                - /url: /compose/post
+            - button "Account menu" [ref=e115] [cursor=pointer]:
+              - generic [ref=e123]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic "LuluX":
+                        - img "LuluX"
+              - generic [ref=e127]:
+                - generic [ref=e128]: LuluX
+                - generic [ref=e132]: "@Lulu_on_X"
+        - main [ref=e140]:
+          - generic [ref=e143]:
+            - generic "Home timeline" [ref=e145]:
+              - generic [ref=e146]:
+                - generic [ref=e147]:
+                  - generic [ref=e152]:
+                    - button "Back" [ref=e154] [cursor=pointer]
+                    - search "Search" [ref=e164]:
+                      - combobox "Search query" [ref=e176]: "#プリケアパークル until:2026-09-21 since:2026-09-19"
+                    - button "More" [ref=e178] [cursor=pointer]
+                  - navigation [ref=e184]:
+                    - generic [ref=e185]:
+                      - generic:
+                        - button "Previous" [disabled]
+                      - tablist [ref=e187]:
+                        - tab "Top" [selected] [ref=e188] [cursor=pointer]
+                        - tab "Latest" [ref=e193] [cursor=pointer]
+                        - tab "People" [ref=e197] [cursor=pointer]
+                        - tab "Media" [ref=e201] [cursor=pointer]
+                        - tab "Lists" [ref=e205] [cursor=pointer]
+                      - generic:
+                        - button "Next" [disabled]
+                - generic:
+                  - generic:
+                    - status:
+                      - button [aria-hidden]:
+                        - generic: See new posts
+              - generic [ref=e211]:
+                - generic [ref=e212]: No results for "#プリケアパークル until:2026-09-21 since:2026-09-19"
+                - generic [ref=e213]:
+                  - text: Try searching for something else, or check your
+                  - link "Search settings" [ref=e214] [cursor=pointer]:
+                    - /url: /settings/search
+                  - text: to see if they’re protecting you from potentially sensitive content.
+            - generic "Trending" [ref=e219]:
+              - generic [ref=e220]:
+                - heading "Search filters" [level=2] [ref=e223]
+                - generic [ref=e226]:
+                  - generic [ref=e227]:
+                    - radiogroup "People" [ref=e229]:
+                      - generic [ref=e233] [cursor=pointer]:
+                        - generic [ref=e234]: From anyone
+                        - radio "From anyone" [checked] [ref=e241]
+                      - generic [ref=e243] [cursor=pointer]:
+                        - generic [ref=e244]: People you follow
+                        - radio "People you follow" [ref=e248]
+                    - radiogroup "Location" [ref=e250]:
+                      - generic [ref=e254] [cursor=pointer]:
+                        - generic [ref=e255]: Anywhere
+                        - radio "Anywhere" [checked] [ref=e262]
+                      - generic [ref=e264] [cursor=pointer]:
+                        - generic [ref=e265]: Near you
+                        - radio "Near you" [ref=e269]
+                  - link "Advanced search" [ref=e271] [cursor=pointer]:
+                    - /url: /search-advanced?f=top
+                - generic [ref=e276]:
+                  - heading "Today’s News Close" [level=2] [ref=e278]:
+                    - generic [ref=e279]: Today’s News
+                    - button "Close" [ref=e282] [cursor=pointer]
+                  - generic [ref=e287]:
+                    - link "Logan and Jake Paul Visit Pentagon, Meet Troops and Hegseth 15 hours ago · Entertainment · 34.7K posts" [ref=e288] [cursor=pointer]:
+                      - generic [ref=e291]:
+                        - generic [ref=e292]: Logan and Jake Paul Visit Pentagon, Meet Troops and Hegseth
+                        - generic [ref=e293]: 15 hours ago · Entertainment · 34.7K posts
+                    - link "BBC Soldier Image Fuels Talk of White Men in Recruitment Ads Trending now · News · 1,205 posts" [ref=e332] [cursor=pointer]:
+                      - generic [ref=e335]:
+                        - generic [ref=e336]: BBC Soldier Image Fuels Talk of White Men in Recruitment Ads
+                        - generic [ref=e337]: Trending now · News · 1,205 posts
+                    - link "Taylor Swift Cheers 'That's My Husband!' as Kelce Scores in Chiefs Win Trending now · Entertainment · 15.5K posts" [ref=e376] [cursor=pointer]:
+                      - generic [ref=e379]:
+                        - generic [ref=e380]: Taylor Swift Cheers 'That's My Husband!' as Kelce Scores in Chiefs Win
+                        - generic [ref=e381]: Trending now · Entertainment · 15.5K posts
+                - region [ref=e421]:
+                  - heading "Trending now" [level=1] [ref=e422]
+                  - 'generic "Timeline: Trending now" [ref=e423]':
+                    - generic [ref=e424]:
+                      - heading "What’s happening" [level=2] [ref=e428]
+                      - link "Politics · Trending Islamists More" [ref=e432] [cursor=pointer]:
+                        - generic [ref=e433]:
+                          - generic [ref=e434]: Politics · Trending
+                          - generic [ref=e436]: Islamists
+                          - button "More" [ref=e439]
+                      - link "Trending in New Zealand Tamatha Paul More" [ref=e448] [cursor=pointer]:
+                        - generic [ref=e449]:
+                          - generic [ref=e450]: Trending in New Zealand
+                          - generic [ref=e452]: Tamatha Paul
+                          - button "More" [ref=e455]
+                      - link "Sports · Trending League More" [ref=e464] [cursor=pointer]:
+                        - generic [ref=e465]:
+                          - generic [ref=e466]: Sports · Trending
+                          - generic [ref=e468]: League
+                          - button "More" [ref=e471]
+                      - link "Trending in New Zealand ACT Party More" [ref=e480] [cursor=pointer]:
+                        - generic [ref=e481]:
+                          - generic [ref=e482]: Trending in New Zealand
+                          - generic [ref=e484]: ACT Party
+                          - button "More" [ref=e487]
+                      - link "Show more" [ref=e496] [cursor=pointer]:
+                        - /url: /explore/tabs/for-you
+                - complementary "Who to follow" [ref=e500]:
+                  - heading "Who to follow" [level=2] [ref=e502]
+                  - list [ref=e504]:
+                    - listitem [ref=e505] [cursor=pointer]:
+                      - generic [ref=e506]:
+                        - link [aria-hidden] [ref=e516]:
+                          - /url: /techhalla
+                        - generic [ref=e520]:
+                          - generic [ref=e522]:
+                            - link [ref=e524]:
+                              - /url: /techhalla
+                              - generic [ref=e525]:
+                                - generic [ref=e526]: TechHalla
+                                - img "Verified account" [ref=e530]
+                            - link "@techhalla" [ref=e535]:
+                              - /url: /techhalla
+                          - button "Follow @techhalla" [ref=e539]:
+                            - generic [ref=e540]: Follow
+                    - listitem [ref=e543] [cursor=pointer]:
+                      - generic [ref=e544]:
+                        - link [aria-hidden] [ref=e554]:
+                          - /url: /CadizFFM
+                        - generic [ref=e558]:
+                          - generic [ref=e560]:
+                            - link [ref=e562]:
+                              - /url: /CadizFFM
+                              - generic [ref=e563]:
+                                - generic [ref=e564]: Cadiz
+                                - img "Verified account" [ref=e568]
+                            - link "@CadizFFM" [ref=e573]:
+                              - /url: /CadizFFM
+                          - button "Follow @CadizFFM" [ref=e577]:
+                            - generic [ref=e578]: Follow
+                    - listitem [ref=e581] [cursor=pointer]:
+                      - generic [ref=e582]:
+                        - link [aria-hidden] [ref=e592]:
+                          - /url: /nickfloats
+                        - generic [ref=e596]:
+                          - generic [ref=e598]:
+                            - link [ref=e600]:
+                              - /url: /nickfloats
+                              - generic [ref=e601]:
+                                - generic [ref=e602]: Nick St. Pierre
+                                - img "Verified account" [ref=e606]
+                            - link "@nickfloats" [ref=e611]:
+                              - /url: /nickfloats
+                          - button "Follow @nickfloats" [ref=e615]:
+                            - generic [ref=e616]: Follow
+                  - link "Show more" [ref=e619] [cursor=pointer]:
+                    - /url: /i/connect_people?user_id=2101650483396128768
+                - navigation "Footer" [ref=e622]:
+                  - generic [ref=e623]:
+                    - link "Terms" [ref=e624] [cursor=pointer]:
+                      - /url: https://x.com/tos
+                    - generic [ref=e625]: ·
+                  - generic [ref=e626]:
+                    - link "Privacy" [ref=e627] [cursor=pointer]:
+                      - /url: https://x.com/privacy
+                    - generic [ref=e628]: ·
+                  - generic [ref=e629]:
+                    - link "Cookies" [ref=e630] [cursor=pointer]:
+                      - /url: https://support.x.com/articles/20170514
+                    - generic [ref=e631]: ·
+                  - generic [ref=e632]:
+                    - link "Accessibility" [ref=e633] [cursor=pointer]:
+                      - /url: https://help.x.com/resources/accessibility
+                    - generic [ref=e634]: ·
+                  - generic [ref=e635]:
+                    - link "Ads Info" [ref=e636] [cursor=pointer]:
+                      - /url: https://business.x.com/help/troubleshooting/how-twitter-ads-work.html?ref=web-twc-ao-gbl-adsinfo&utm_source=twc&utm_medium=web&utm_campaign=ao&utm_content=adsinfo
+                    - generic [ref=e637]: ·
+                  - button "More" [ref=e638] [cursor=pointer]
+                  - generic [ref=e643]: © 2026 X Corp.
