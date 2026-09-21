@@ -1798,8 +1798,11 @@ class Lulu(discord.Client):
                                   exclude_ids=[getattr(message, "id", None)]))
         known = user_knowledge_block(message.author.id)
         if known:
+            # The name I SAY, not the name the room shows - master, 2026-09-21:
+            # preferred name, then the ledger's custom name, then the live one.
             turns.append({"role": "system", "content": (
-                f"About {clean_name(message.author.display_name)}:\n{escape_block(known)}"
+                f"About {clean_name(people.display_name(message.author.id, message.author.display_name))}:"
+                f"\n{escape_block(known)}"
             )})
         turns.append({"role": "user", "content": (
             f"(background chat, {clean_name(message.author.display_name)} just sent: "
@@ -1876,9 +1879,13 @@ class Lulu(discord.Client):
                 continue
             # A mention token is swapped for the name VERBATIM into message
             # text, and that text becomes the prompt - so it gets the same
-            # treatment as a display name anywhere else. The custom name from
-            # Nyan's ledger wins over the Discord display name when it exists.
-            name = clean_name(people.display_name(person.id, raw_name))
+            # treatment as a display name anywhere else.
+            #
+            # The LIVE name, deliberately, and not people.display_name(): a ping
+            # has to stay the name the room can see, master 2026-09-21 -
+            # "preferred name, then custom name, then their normal display name
+            # unless we are @mentioning someone". A mention is that exception.
+            name = clean_name(raw_name)
             for form in (f"<@{person.id}>", f"<@!{person.id}>"):
                 text = text.replace(form, f"@{name}")
         for form in (f"<@{self.user.id}>", f"<@!{self.user.id}>"):
@@ -3077,8 +3084,14 @@ class Lulu(discord.Client):
                                   exclude_ids=skip, parent_line=parent_line))
         known = user_knowledge_block(message.author.id)
         if known:
+            # The header carries the name I should USE - master, 2026-09-21:
+            # preferred name, then the ledger's custom name, then the live one.
+            # `who` is the raw Discord display name, so it is only the fallback.
+            # The dossier below it already says the same thing; the two used to
+            # disagree, and the header is the half I read as her name for him.
             turns.append({"role": "system", "content": (
-                f"About {who}:\n{escape_block(known)}"
+                f"About {clean_name(people.display_name(message.author.id, who))}:"
+                f"\n{escape_block(known)}"
             )})
             ledger = people.summary()
             if ledger:

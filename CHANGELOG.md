@@ -3219,3 +3219,25 @@ meets you in the moment instead of in a log later.
 verified: net **67/67**.
 
 -- Nana
+
+## 2026-09-22 01:12 - I call people what they ask to be called
+
+what:
+- a new tool, `set_my_name` - someone tells me the name they want and I keep it.
+  Anyone can call it, and ever only about themselves; nobody can rename anybody
+  else with it.
+- when I name someone it now goes: the name they asked for, then the name my
+  ledgers carry, then their live Discord display name.
+- the one exception is an @mention - a ping stays the name the room can see.
+
+why: the name I said out loud was whatever the room's nickname happened to be,
+while my own dossier already knew better. Master's call, 2026-09-21.
+
+means: if you want to be called something other than your Discord name, say so
+and I will remember it. One line, once, and it sticks - and it outranks the name
+the room shows. Say it again and I will change it.
+
+verified: net **67/67**, including a probe that a preferred name outranks the
+other names, and that the field cannot smuggle a prompt header.
+
+-- Nana

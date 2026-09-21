@@ -63,6 +63,12 @@ MAX_LOCAL_FACTS = 40
 # without end, and the newest is the one anybody is asking about.
 MAX_AVATAR_NOTES = 6
 AUTO_MAX_CHARS = 240
+# What someone asked to be called, as they typed it. Shorter than the Discord
+# cap on purpose: it lands above their facts in a prompt line, so it stays a
+# name and cannot grow into a paragraph.
+PREFERRED_MAX_CHARS = 32
+_TEMPLATE_OPEN = "<|"
+_TEMPLATE_SAFE = "\u27e8|"     # <| read the same, is not a chat-template token
 SCHEMA_VERSION = 3
 # The marker Nyanbot writes into every drop. A file without it is not a drop -
 # it is something else wearing the name, and it is refused whole.
@@ -81,6 +87,19 @@ SEEN_BUCKET_MINUTES = 5
 # Without this the ledger becomes a transcript, which is not what it is for.
 _SELF_TALK = re.compile(
     r"\b(i|i'm|im|my|me|mine|myself)\b", re.IGNORECASE)
+
+
+def clean_preferred(raw) -> str:
+    """A name someone chose for themselves, made safe to keep and to speak.
+
+    Untrusted by definition, because anyone may set their own, so it gets what a
+    Discord display name already gets in the bot: no control characters, no
+    newlines, one line, a cap, and `<|` broken so it cannot forge a
+    chat-template header.
+    """
+    text = str(raw or "").replace(_TEMPLATE_OPEN, _TEMPLATE_SAFE)
+    text = " ".join("".join(ch for ch in text if ch.isprintable()).split())
+    return text[:PREFERRED_MAX_CHARS].strip()
 
 _cache: dict = {"loaded_at": 0.0, "data": {}, "cards": {}, "drop": ""}
 
@@ -458,18 +477,33 @@ def resolve(key) -> str:
 def display_name(key, fallback: str = "") -> str:
     """What she should CALL this person, for the prompt and the mirror.
 
-    Master's rule, 2026-09-20: prefer the custom name Nyan's ledger carries
-    (facts.json custom_name, arriving in the daily drop) over whatever the
-    Discord display name happens to be this week - when one exists. The
-    fallback (their live Discord name) wins whenever there is no custom name,
-    so nobody becomes "someone" over a missing field.
+    Master's rule, 2026-09-21: their preferred name, then the ledger's custom
+    name, then their live Discord display name. The preferred name is the one
+    they asked for themselves, so it outranks everything - that is the whole
+    point of asking. The custom name is what the ledgers carry (my own record
+    first, then Nyan's drop, because mine is newer and it is mine), and the live
+    display name is only the fallback for somebody nobody has carded, so nobody
+    becomes "someone" over a missing field.
+
+    NOT the @mention path: a ping has to stay the name the room can see, so
+    readable_text() reads the live name directly instead of calling this.
     """
+    preferred, custom = "", ""
     try:
-        entry = nyan_ledger().get(resolve(key)) or {}
-        custom = str(entry.get("custom_name") or "").strip()
+        entry = learned().get(resolve(key)) or {}
+        if isinstance(entry, dict):
+            preferred = str(entry.get("preferred_name") or "").strip()
+            custom = str(entry.get("custom_name") or "").strip()
     except Exception:
-        custom = ""
-    return custom or fallback
+        pass
+    if not custom:
+        try:
+            wider = nyan_ledger().get(resolve(key)) or {}
+            if isinstance(wider, dict):
+                custom = str(wider.get("custom_name") or "").strip()
+        except Exception:
+            custom = ""
+    return preferred or custom or fallback
 
 
 def known_person(key) -> bool:
@@ -526,7 +560,8 @@ def _bucket(stamp: str) -> str:
 
 
 def _blank() -> dict:
-    return {"names": {}, "facts": [], "likes": [], "dislikes": [], "interests": []}
+    return {"names": {}, "preferred_name": "", "facts": [], "likes": [],
+            "dislikes": [], "interests": []}
 
 
 def _entry(people: dict, key: str) -> dict:
@@ -544,6 +579,8 @@ def _entry(people: dict, key: str) -> dict:
             entry[key_name] = []
     if not isinstance(entry.get("avatar_note"), dict):
         entry["avatar_note"] = {}
+    if not isinstance(entry.get("preferred_name"), str):
+        entry["preferred_name"] = ""
     return entry
 
 
@@ -788,7 +825,10 @@ def lookup(user_id) -> dict:
     names = mine.get("names") if isinstance(mine.get("names"), dict) else {}
     live = str(names.get("nick") or names.get("display") or "").strip()
     mine_name = str(mine.get("custom_name") or "").strip()
-    hero = (card.get("name") or hers.get("custom_name")
+    # Their own preferred name outranks every ledger, master 2026-09-21: it is
+    # the one they asked for. Everything after it is the old order, unchanged.
+    preferred = str(mine.get("preferred_name") or "").strip()
+    hero = (preferred or card.get("name") or hers.get("custom_name")
             or ("" if mine_name.isdigit() else mine_name) or live)
 
     facts: list[str] = []
@@ -945,6 +985,32 @@ def learn(user_id, text: str, name: str = "", source: str = "told") -> str:
     facts.append({"text": text[:500], "at": time.strftime("%Y-%m-%d %H:%M"),
                   "source": source})
     entry["facts"] = facts[-MAX_LOCAL_FACTS:]
+    _save(people)
+    return "noted"
+
+
+def set_preferred(user_id, name: str) -> str:
+    """Record what someone asked to be CALLED, in their own words.
+
+    The one thing a person writes into my ledger about themselves, and it is
+    only ever about themselves: the key is the caller, never a name handed to
+    me, so nobody renames anybody else through this. It writes one name and no
+    facts - nothing a message contained lands in the record.
+
+    Master's rule, 2026-09-21: a preferred name outranks the ledger's custom
+    name and the live Discord display name, because it is the name they chose.
+    """
+    key = resolve(user_id)
+    if not key:
+        return "I do not know whose name that is"
+    clean = clean_preferred(name)
+    if not clean:
+        return "that is not a name I can keep"
+    people = learned()
+    entry = _entry(people, key)
+    if str(entry.get("preferred_name") or "") == clean:
+        return "already had that"
+    entry["preferred_name"] = clean
     _save(people)
     return "noted"
 

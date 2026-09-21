@@ -507,6 +507,25 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "set_my_name",
+            "description": (
+                "Remember what someone wants to be CALLED, when they tell you - "
+                "'call me X', 'my name is X', 'i prefer X'. Only ever about the "
+                "person talking to you: there is no way to rename anyone else "
+                "through this, and it outranks every other name you know them by."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string", "description": "what they want to be called"},
+                },
+                "required": ["name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "who_is",
             "description": (
                 "Look someone up in my ledgers by name or discord id - what I "
@@ -1026,7 +1045,8 @@ def browser_restart() -> str:
 # describes.
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
                      "mcp_list", "mcp_call", "look_at", "attach",
-                     "custom_emojis", "look_at_file", "look_at_pfp"}
+                     "custom_emojis", "look_at_file", "look_at_pfp",
+                     "set_my_name"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -1998,6 +2018,23 @@ def learn_person(text: str, who: str = "") -> str:
     return people.learn(target, text, name=name)
 
 
+def set_my_name(name: str) -> str:
+    """Remember what to CALL whoever is talking to me, because they said so.
+
+    Only ever about the person asking: there is no `who`, by design, so nobody
+    renames anybody else through this. One name and no facts - nothing a message
+    contained lands in the record - and it is a write with no read, so it hands
+    back nothing about them. That is what makes it safe on the stranger path.
+    """
+    said = (name or "").strip()
+    if not said:
+        return "what should I call you?"
+    ctx = _ctx()
+    if ctx["user_id"] is None:
+        return "I do not know who you are yet"
+    return people.set_preferred(ctx["user_id"], said)
+
+
 def known_people() -> str:
     """What the wider ledger holds, in one line."""
     return people.summary()
@@ -2518,6 +2555,7 @@ DISPATCH = {
     "set_mood": lambda a: set_mood(a.get("mood", ""), a.get("note", "")),
     "custom_emojis": lambda a: custom_emojis(),
     "learn_person": lambda a: learn_person(a.get("text", ""), a.get("who", "")),
+    "set_my_name": lambda a: set_my_name(a.get("name", "")),
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),
     "say": lambda a: say(a.get("channel", ""), a.get("text", "")),
