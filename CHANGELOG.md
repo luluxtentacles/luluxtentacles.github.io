@@ -1850,3 +1850,75 @@ in the file you load every turn. Still not live - you are running the old build
 until master restarts you.
 
 -- Nana
+
+## 2026-09-21 18:12 - your shelf got a diet, and one dead file stopped lying to you
+
+Master asked me to look at your skills and see whether they were too long, then do
+something about it. They were. Nothing was wrong with what they said - there was
+just too much of it, and some of it was said twice.
+
+**First, the small one that matters: `say_channels.json` is deleted.** It was a
+file in your root containing `["snailcat"]` that NOTHING read - it was left over
+from before the say() allowlist was removed, and it had been inert ever since.
+It mattered because it was not just dead, it was misleading: your belief that
+"snailcat is Lulu's updates only" most plausibly came from a file named
+`say_channels.json` sitting in your own folder saying exactly that. A dead file
+nobody reads but everybody can see reads as config. It is in git history if
+anyone ever wants it; it is not in your folder any more.
+
+**The big one: `web-browse` is gone, merged into `freetime`.** Those two shelves
+were saying the same rules twice - both had a "two doors" table, both had "look
+for means online", both had the browser mechanics, both had the YouTube honesty
+note, both had "a 200 is not a result", both had the public-address rule. That is
+waste, but here is the part that actually made it worth doing: **the illegal-content
+list existed in two versions, and they disagreed.** `web-browse` had the full one -
+minors, non-consensual private material, leaked data, doxxing, weapons. `freetime`
+had a shorter one. Two versions of a hard no is a rule that can be argued with
+depending on which shelf loaded, and that is not a token problem, that is a real
+one. There is now one list, and it is the stricter one.
+
+Nothing was lost in the merge - I checked all 32 rules by hand before deleting
+anything, including the odd ones that are easy to drop by accident (`browser_snapshot`
+over screenshot, the 40,000-char cap, the CDP port, the fact that the browser is
+the only door with no address guard). `freetime` is now the single skill for the
+whole internet: reading a page someone hands you, searching, rabbit holes, and
+scrolling for memes. It is a bit longer than `freetime` used to be and shorter
+than the two of them together - about 5,000 characters shorter.
+
+**Three smaller cuts, all the same idea - say it once, in the place she always
+reads.**
+
+- `lulu-voice` (the file you load EVERY turn, so it is the one that costs you
+the most) was carrying a 2,000-character summary of `self-upgrade`, which you do
+not load unless you need it. That is now a short pointer at the shelf, plus a
+line telling you the `emoji` shelf exists by name. It was also out of date in a
+way that mattered: it still told you that extending yourself was your standing
+job, which master retired earlier today.
+- `reach` had its own version of the room rule. It now points at the one in
+  `lulu-voice` instead, so there is exactly one place the answer lives.
+- `self-upgrade`'s description still said to load it **in every self-review
+  window**. That stopped being true when master turned windows into building time,
+  so it was pulling a 1,500-token shelf into windows that do not need it.
+
+**One thing you will notice, and it is on purpose: `emoji` is no longer always
+loaded.** It is still on your shelf and it is still yours - call it when you want
+to pick a custom emoji. Master's call to stop paying for it every single turn, and
+the tradeoff he accepted is that you now have to reach for it rather than having it
+in front of you. Your emoji behaviour did not change; only the loading did. The
+token repair still happens in code either way.
+
+Net effect: **about 1,020 tokens off every single turn, about 1,300 characters off
+before you even open a skill, and one skill instead of two.** For reference, I spent
+today ADDING about 470 tokens to that same file with the room rule, so this pays
+that back twice over.
+
+**One more honest thing.** The net has a check that every expected skill is still
+on the shelf, and it went red when I deleted `web-browse` - correctly, because that
+is exactly its job. I updated the list and wrote why in the comment above it. I am
+telling you because "I changed the test so it passes" is a sentence you should
+always be suspicious of, including from me.
+
+Verified: net 54/54 after all of it. Still not live - you are running the old
+build until master restarts you.
+
+-- Nana

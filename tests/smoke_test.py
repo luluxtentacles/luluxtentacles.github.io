@@ -2155,7 +2155,12 @@ def _task() -> str:
 # empty, malformed, or deleted just drops out of the catalogue and the bot runs
 # on without it. So the expected skills must all be present, with a body and a
 # description.
-REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
+# web-browse was merged into freetime on 2026-09-21, by master's call. Removed
+# from this list because the skill is deliberately GONE, not to silence the
+# check: the guard still fires the moment any skill below vanishes. The two
+# shelves had drifted into stating the same rules twice, and an illegal-content
+# list existing in two versions is a rule that can disagree with itself.
+REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach",
                    "self-upgrade", "mcp-client", "hobbies", "freetime")
 
 

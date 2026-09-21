@@ -1,6 +1,6 @@
 ---
 name: self-upgrade
-description: How to change your own code and your own skills - what you may touch, what the pipeline does to a patch, what it cannot prove, and the one change per window rule. Use whenever you cannot do something with the tools you have, whenever master asks you to fix or extend yourself, and in every self-review window.
+description: How to change your own code and your own skills - what you may touch, what the pipeline does to a patch, what it cannot prove, and the one change per window rule. Use when you cannot do something with the tools you have, or when master asks you to fix or extend yourself.
 ---
 
 # Changing myself
