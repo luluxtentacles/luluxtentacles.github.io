@@ -36,6 +36,7 @@ Eight of them were found, none of them hers to kill.
 BROWSING ONLY: this makes reading survivable, it does not make posting
 safe, and it is not for impersonating a person.
 """
+import os
 import socket
 import sys
 import time
@@ -80,6 +81,30 @@ def cdp_up() -> bool:
         return False
 
 
+def _parent_alive(pid: int) -> bool:
+    """Is the process that launched me still running?
+
+    The keepalive below holds this browser open forever, so a launcher could
+    outlive the bot that started it and sit there sleeping. EIGHT of them were
+    found doing exactly that on 2026-09-21, every one of them impossible for her
+    to clear because they had been started by hand from another account. "Dies
+    with the task" was aspirational prose; this makes it true.
+    """
+    if pid <= 0:
+        return True              # nothing to watch: never close early on a guess
+    import ctypes
+    SYNCHRONIZE = 0x00100000
+    WAIT_TIMEOUT = 0x00000102
+    kernel32 = ctypes.windll.kernel32
+    handle = kernel32.OpenProcess(SYNCHRONIZE, False, pid)
+    if not handle:
+        return True              # cannot watch it - assume alive, do not kill
+    try:
+        return kernel32.WaitForSingleObject(handle, 0) == WAIT_TIMEOUT
+    finally:
+        kernel32.CloseHandle(handle)
+
+
 def main() -> None:
     if cdp_up():
         print("stealth browser already up on", CDP_PORT)
@@ -115,8 +140,15 @@ def main() -> None:
         page.goto("about:blank")
         wd = page.evaluate("() => navigator.webdriver")
         print(f"stealth browser up on CDP {CDP_PORT}, webdriver={wd}")
-        while True:                      # keepalive; dies with the task
+        # Keep the process alive for as long as the BOT is alive, and no longer.
+        # Without the check below this loop is why orphan launchers accumulated:
+        # nothing here ever noticed its parent was gone.
+        parent = os.getppid() if hasattr(os, "getppid") else 0
+        while True:
             time.sleep(60)
+            if not _parent_alive(parent):
+                print("the bot that started me is gone - closing with it")
+                break
 
 
 if __name__ == "__main__":

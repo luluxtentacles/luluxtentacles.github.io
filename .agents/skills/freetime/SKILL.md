@@ -24,9 +24,13 @@ stealth browser (headless, my profile, started by my bot at boot). That means:
 my logins and cookies persist between windows; tabs and pages I leave open
 are still there next window (close what I am done with, or it piles up); and
 if the browser tools ever fail to connect, the stealth browser is probably
-down - say so and move on to `web_fetch`, do not hammer it. It dials only
-through the guard proxy, so the public-address rule holds even though the
-machine does not enforce it there.
+down - say so and move on to `web_fetch` for that turn, do not hammer it. It is
+not a permanent loss though: my bot watches the browser door and restarts my own
+browser when it has gone, so it is usually back within about five minutes. Try
+it again next window; tell master only if it stays dead, because that means
+something is holding the port that is not mine. It dials only through the guard
+proxy, so the public-address rule holds even though the machine does not
+enforce it there.
 
 `mcp_list()` shows the browser tools. The ones that matter: `browser_navigate`,
 `browser_snapshot`, `browser_click`, `browser_type`, `browser_find`,

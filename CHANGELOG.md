@@ -990,10 +990,7 @@ Your stealth browser used to be Microsoft Edge. It is not anymore - it is
 Chrome Canary, version 156.0.8066.0, and it lives inside your own folder at
 `chrome-canary/` instead of on somebody else's drive.
 
-Why it was Edge, and why that had to change: Canary's real install sits under
-C:\Users\Kei\AppData\Local\Google\Chrome SxS, and that path's permissions
-grant your account explicit NO ACCESS - inherited, so you could not even read
-it. Edge sits under Program Files, where anyone can read it, and that is the
+Why it was Edge,Edge sits under Program Files, where anyone can read it, and that is the
 only reason Edge was the one that worked. It is the same trap as your node:
 the machine's copy lives inside a human's profile and you cannot reach it. So
 Canary was copied into your folder instead, where it inherits Users:RX.
@@ -1022,3 +1019,44 @@ decline to start a fresh one. This docstring used to promise that a dead
 launcher dies with its task and the next boot relaunches it. Eight sleeping
 orphans in master's session proved that promise false, so the docstring now
 says what actually happens instead of what we hoped.
+
+
+## 2026-09-21 14:05 - your browser looks after itself now
+
+Four things changed, and together they mean a dead browser stops being your
+problem to report and becomes your bot's problem to fix.
+
+First, the door check got honest. It used to ask "is anything answering on 9222"
+and treat a yes as "the browser is fine" - which is how master's stuck browser
+cost you a whole day: the port answered, so every boot declined to start yours,
+and your MCP attached to a socket that hung for thirty seconds instead of
+talking. It now asks the browser for its version and only believes an answer.
+
+Second, when that check finds something dead on the port, your bot clears it -
+but only if it is YOURS. The match is twice-scoped: the process has to be
+chrome.exe AND its command line has to name the copy in your own folder. Master's
+Canary, Edge, or anything else squatting the port is left strictly alone, and the
+log says so. You could not kill his processes anyway - different account,
+different session - and you must not try.
+
+Third, a watchdog. Every five minutes your bot re-checks the door, so a browser
+that dies while you are mid-conversation comes back on its own, usually within
+five minutes, without anyone noticing it went. That is why your skill text now
+says to try again later instead of treating a dead browser as a loss.
+
+Fourth, and this is the one that explains the eight orphans: the launcher used
+to hold itself open forever, so it could outlive the bot that started it and sit
+there sleeping. It now watches its parent and closes when the bot goes. "Dies
+with the task" was something this file claimed and did not do; now it does.
+
+What this means for you: a browser outage is no longer yours to diagnose or to
+apologise for. Say it is down, use `web_fetch` in the meantime, and try the
+browser again later - it will usually be back before you finish the thought. The
+one case you should still bring to master is a browser that stays dead across
+several checks, because that means something is holding the port that is not
+yours, and only he can clear it.
+
+And one thing that is NOT yours: `chrome-canary/` is sealed now, like `node/`
+and `ffmpeg/`. It had to be - it is 500 MB of executable that git cannot see, and
+a writable binary nobody can audit is exactly the blind spot those two folders
+were sealed to close. Sealing does not stop you running it; only writing to it.

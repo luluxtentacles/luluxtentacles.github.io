@@ -92,6 +92,15 @@ SEALED_DIRS = {
                 # git, so it is sealed for the same reason node/ is. Sealing does not
                 # stop her RUNNING it - the exec goes through subprocess, not
                 # resolve().
+    # Chrome Canary, copied into her folder on 2026-09-21 so she stops borrowing
+    # a browser she has no rights to (master's Canary lives in his profile and
+    # denies her account outright). Sealed the moment it arrived, for exactly the
+    # reason node/ and ffmpeg/ are: it is GITIGNORED - chrome-canary/.gitignore
+    # ignores the whole 500 MB - so a swapped binary would be invisible to git,
+    # and an unversioned, writable executable is a blind spot in the only audit
+    # trail there is. Sealing does not stop her running it; the launch goes
+    # through subprocess, not resolve().
+    "chrome-canary",
     ".git",
 }
 

@@ -1114,19 +1114,124 @@ def ensure_browser_proxy() -> None:
                   "refuse to start until this is fixed", exc)
 
 
-def ensure_stealth_browser() -> None:
-    """Start the stealth browser (Nyan's recipe, ported) if it is not up.
+# The CDP door her MCP attaches to. tests/smoke_test.py pins mcp.json to this
+# same endpoint, so the two cannot drift apart silently.
+CDP_PORT = 9222
 
-    Long-lived Edge on her profile, headless, automation tells patched,
-    CDP on 127.0.0.1:9222 - her MCP connects to it instead of spawning a
-    naked browser whose fingerprint churns her sessions into logout walls.
-    Started detached, so it outlives nothing: if her task dies the child
-    dies with the session, and the next boot relaunches it. Already-up is
-    fine (a previous boot's instance still answering). Never fatal: the
-    browser tools will simply fail until it is up, which is visible.
+# How often the watchdog checks that the browser is still answering. One
+# loopback request; cheap enough to be boring.
+BROWSER_WATCHDOG_SECONDS = 300
+
+# The copy of Chrome Canary that lives in her own folder. Master's Canary sits
+# under his profile and carries a different path, so matching on this string can
+# only ever find HERS - which is what makes the kill below safe.
+_BROWSER_MARKER = "chrome-canary"
+
+
+def _cdp_port_open() -> bool:
+    """Is SOMETHING accepting connections on the CDP port?
+
+    Deliberately not the same question as _cdp_alive. This one answers "is the
+    door occupied", which is all a bare port check can tell you - and treating
+    that as "the browser is fine" is what cost her a day.
     """
-    if _cdp_listening():
+    try:
+        import socket
+        with socket.create_connection(("127.0.0.1", CDP_PORT), timeout=1):
+            return True
+    except OSError:
+        return False
+
+
+def _cdp_alive() -> bool:
+    """Is a RESPONSIVE browser actually behind that door?
+
+    A port that accepts a connection and then never answers is either a wedged
+    browser or somebody else's process. Measured 2026-09-21: a stuck browser of
+    master's held 9222, so every boot declined to start hers, her MCP attached
+    to a CDP that hung for 30 seconds, and the whole thing looked like a broken
+    browser instead of a stale socket.
+    """
+    import urllib.request
+    try:
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{CDP_PORT}/json/version", timeout=2) as reply:
+            info = json.load(reply)
+        return bool(info.get("Browser"))
+    except Exception:
+        return False
+
+
+def _kill_our_browsers() -> int:
+    """Kill stray copies of HER browser. Returns how many went down.
+
+    Scoped twice, on purpose. The image must be chrome.exe AND the command line
+    must name the copy in her own folder, so master's Canary, Edge, or any
+    foreign process squatting the port can never be matched - she could not kill
+    those anyway (different account, different session) and must not try. A
+    blanket "kill whatever holds the port" would be his browser one day.
+    """
+    import subprocess
+    query = (
+        "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe'\" | "
+        f"Where-Object {{ $_.CommandLine -like '*{_BROWSER_MARKER}*' }} | "
+        "ForEach-Object { $_.ProcessId }"
+    )
+    try:
+        listed = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", query],
+            capture_output=True, text=True, timeout=30,
+        ).stdout
+    except Exception as exc:
+        LOG.warning("stealth browser: could not list our own copies: %s", exc)
+        return 0
+
+    killed = 0
+    for token in listed.split():
+        if not token.isdigit():
+            continue
+        try:
+            subprocess.run(["taskkill", "/PID", token, "/T", "/F"],
+                           capture_output=True, timeout=20)
+            killed += 1
+        except Exception:
+            pass  # already gone, or never ours; nothing to add
+    return killed
+
+
+def ensure_stealth_browser() -> None:
+    """Make sure a HEALTHY stealth browser is answering on the CDP port.
+
+    Long-lived Chromium (Chrome Canary, from the copy in her own folder) on her
+    profile, headless, automation tells patched, CDP on 127.0.0.1:9222 - her MCP
+    attaches to it instead of spawning a naked browser whose fingerprint churns
+    her sessions into logout walls.
+
+    Three states, and the middle one is the one that used to hurt:
+      - a live browser answering       -> nothing to do
+      - the port held by something dead -> if it is one of HER stray copies,
+        clear it and launch fresh; if it is not hers, say so and back off,
+        because she cannot kill master's processes and must not try
+      - nothing there                  -> launch
+
+    Never fatal: the browser tools simply fail until it is up, which is visible.
+    """
+    if _cdp_alive():
         return
+
+    if _cdp_port_open():
+        cleared = _kill_our_browsers()
+        if cleared:
+            LOG.warning("stealth browser: cleared %d unresponsive copy of our "
+                        "own browser, relaunching", cleared)
+            time.sleep(1.0)
+        if _cdp_port_open():
+            LOG.warning(
+                "CDP port %d is held by a process that is not ours - leaving it "
+                "strictly alone. My browser stays down until master clears it.",
+                CDP_PORT)
+            return
+
     try:
         import subprocess
         import sys
@@ -1136,18 +1241,9 @@ def ensure_stealth_browser() -> None:
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             cwd=str(paths.resolve(".")),
         )
-        LOG.info("stealth browser: launched (CDP 127.0.0.1:9222)")
+        LOG.info("stealth browser: launched (CDP 127.0.0.1:%d)", CDP_PORT)
     except Exception as exc:
         LOG.warning("could not launch the stealth browser: %s", exc)
-
-
-def _cdp_listening() -> bool:
-    try:
-        import socket
-        with socket.create_connection(("127.0.0.1", 9222), timeout=1):
-            return True
-    except OSError:
-        return False
 
 
 def _expand_short_emojis(text: str, channel) -> str:
@@ -1276,6 +1372,7 @@ class Lulu(discord.Client):
         self._task_task: asyncio.Task | None = None
         self._chatter_task: asyncio.Task | None = None
         self._emoji_scan_task: asyncio.Task | None = None
+        self._browser_task: asyncio.Task | None = None
         # The turn slot, one per channel: which generation owns the room right
         # now, and the task running it. Together they are how a follow-up
         # message interrupts a dig instead of stacking a second one beside it.
@@ -1657,6 +1754,26 @@ class Lulu(discord.Client):
         # emoji picker, so she chooses by meaning and not by name alone.
         if self._emoji_scan_task is None or self._emoji_scan_task.done():
             self._emoji_scan_task = asyncio.create_task(self._emoji_meaning_loop())
+        # The browser heals itself rather than waiting on master to notice.
+        # She cannot do it by hand: run_command tree-kills at 15 minutes, so a
+        # browser launched from a shell would die minutes later and read as a
+        # fresh bug, and anything of his on the port is not hers to touch.
+        if self._browser_task is None or self._browser_task.done():
+            self._browser_task = asyncio.create_task(self._browser_watchdog())
+
+    async def _browser_watchdog(self) -> None:
+        """Keep her browser up without anyone having to notice it went down.
+
+        One loopback probe every BROWSER_WATCHDOG_SECONDS. If the browser has
+        gone, ensure_stealth_browser brings it back - clearing only her own
+        stray copies, never a foreign process.
+        """
+        while True:
+            await asyncio.sleep(BROWSER_WATCHDOG_SECONDS)
+            try:
+                await asyncio.to_thread(ensure_stealth_browser)
+            except Exception as exc:
+                LOG.warning("browser watchdog stumbled: %s", exc)
 
     def _refresh_emoji_shelf(self) -> None:
         """Write my guilds' custom emojis to emoji_shelf.json, for tools.
