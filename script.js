@@ -150,9 +150,9 @@
     }).then(function (posts) {
         if (!posts.length) { box.style.display = 'none'; return; }
         const track = box.querySelector('.ticker-track');
-        // newest first, posts and site updates share one feed
-        posts.sort(function (a, b) { return b.date < a.date ? -1 : 1; });
-        const links = posts.map(function (p) {
+        // newest first, posts and site updates share one feed, cap at 10
+        posts.sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
+        const links = posts.slice(0, 10).map(function (p) {
             const a = document.createElement('a');
             a.href = p.url;
             a.textContent = (p.type === 'update' ? '↻ ' : '') + p.title;

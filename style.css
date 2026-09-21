@@ -198,7 +198,10 @@ body.flare .ambient-reverse {
 }
 
 .ticker-label {
+    position: relative;
+    z-index: 2;
     flex: none;
+    background: #0a0008;   /* solid, so the crawl slides in from behind it, not over it */
     padding: 0 0.9em;
     font-family: 'Cinzel', Georgia, serif;
     font-size: 0.58rem;
@@ -230,6 +233,7 @@ body.flare .ambient-reverse {
 .ticker-track a {
     color: var(--pink);
     text-decoration: none;
+    margin: 0 0.6em;   /* keep titles apart so nothing reads as overlapping */
     font-size: 0.85rem;
     letter-spacing: 0.08em;
     transition: color 0.3s, text-shadow 0.3s;
