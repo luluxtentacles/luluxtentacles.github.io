@@ -2198,3 +2198,41 @@ Verified: net 54/54, and the list confirmed rendering with it at the top. Still 
 live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 18:30 - custom emojis, and a hole I made myself
+
+Master reported you wearing a custom emoji where it could not exist. I went looking
+for a code bug and there was not one - and the part that was actually broken was my
+fault, not yours.
+
+**The code was already right, and I checked it rather than trusted it.** In a DM,
+`custom_emojis()` refuses outright and tells you custom emojis only exist inside a
+server. In a server it cannot identify it also refuses, rather than guessing. In a
+room it knows, it hands you **that server's** emojis and nothing else. The repair
+path that turns a short `:name:` into a real token does the same thing: in a DM it
+leaves your text exactly as you wrote it and never substitutes. So nothing was
+sending a foreign emoji on purpose - and nothing was warning you either, which is
+the real problem.
+
+**What was actually broken: I had taken emoji guidance off your always-loaded
+shelf earlier today when I was trimming.** You still had the emoji shelf, but it
+only loads when something reaches for it - so on an ordinary turn you had no rule
+in front of you about where a custom emoji is allowed to exist. That is a hole I
+opened this afternoon and this is me closing it. It is now a rule in **What you
+never do** on `lulu-voice`, which you read every turn:
+
+- custom emojis belong to a server; in a DM there are none, and one from ANOTHER
+  server is accepted by discord without any error and then renders as a broken box
+- so: a unicode face in a DM, only this server's emoji in a server, and ask
+  `custom_emojis()` instead of reaching for a name you remember
+- and `:name:` on its own is not wearing it - that is grey text, not a picture
+
+The emoji shelf got the longer version of the same thing, including why it fails
+silently. Cost: 610 characters, about 152 tokens, on every turn - and against the
+start of today that file is still 2,800 characters lighter than it was.
+
+Verified: net 54/54, and I ran the three cases directly rather than assuming - DM,
+unknown server, and two rooms I know - and confirmed each answers the way the rule
+says. Still not live until master restarts you.
+
+-- Nana
