@@ -448,6 +448,19 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "free_time",
+            "description": (
+                "When MY OWN TIME comes round again: whether a window is open "
+                "right now, when the next one is owed, and anything holding one "
+                "back. Use it when someone asks when my free time is, or when I "
+                "want to know how long I have before the next one."
+            ),
+            "parameters": {"type": "object", "properties": {}, "required": []},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "set_mood",
             "description": (
                 "Set MY CURRENT MOOD, whenever it actually changes. Anything "
@@ -2177,6 +2190,28 @@ def review_channels() -> list[str]:
     return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
 
 
+def free_time() -> str:
+    """When my own time comes round again - the answer to being asked.
+
+    The one door into the schedule that is not the window itself. Master,
+    2026-09-22: "add a skill to check the time when her next free time is" - and
+    a shelf cannot answer that, because the answer is arithmetic over two files
+    and three gates. So the arithmetic lives in self_review (schedule/describe)
+    and this only reads config.json fresh, the way the channel lists above do and
+    for the same reason: he can move the interval without restarting me.
+
+    The wording comes from self_review.describe, so the sentence I say here is
+    the same one master gets when he opens a window by hand - two copies of the
+    same rule is how they drift.
+    """
+    try:
+        config = paths.read_json("config.json", default={}) or {}
+    except Exception:
+        config = {}
+    import self_review
+    return self_review.describe(config)
+
+
 def look_at(url: str, question: str = "") -> str:
     """Look at one image on the web and report what is in it.
 
@@ -2592,6 +2627,7 @@ DISPATCH = {
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "read_journal": lambda a: read_journal(a.get("day", "")),
+    "free_time": lambda a: free_time(),
     "propose_patch": lambda a: propose_patch(a.get("path", ""), a.get("content", ""),
                                              a.get("why", ""), a.get("brief", "")),
     "request_restart": lambda a: request_restart(a.get("why", ""), a.get("brief", "")),

@@ -86,6 +86,14 @@ RESUME_MIN_GAP_SECONDS = 180
 # window opens on its interval like always.
 RESUME_MAX_AGE_SECONDS = 3600
 
+# Master's own door, and only his word opens it - lulu_bot.OPEN_WINDOW. His word
+# is stamped in the STATE FILE rather than held in memory, because the process
+# that reads it may not be the one that was running when he typed: a restart
+# between his word and the next check would otherwise eat the ask. And it
+# EXPIRES, because a stamp with no clock on it is a window that opens itself
+# hours later for no reason anybody still remembers.
+FORCE_TTL_SECONDS = 900
+
 # Everything the tool layer offers. This was a curated handful for a while - no
 # write_file, no say, no run_command, no web_fetch, no mcp - on the reasoning that
 # an unprompted turn should not be able to do those things. Master's call,
@@ -268,6 +276,18 @@ def settings(config) -> dict:
         turns = DEFAULT_MAX_TURNS
     return {"enabled": bool(raw.get("enabled")), "interval_hours": hours,
             "max_turns": turns}
+
+
+def _clear_force() -> None:
+    """Spend master's word, so it opens one window rather than a queue of them.
+
+    Dropped out of the file rather than set to a false value, because this file
+    gets read by a person when something looks wrong, and a leftover `force_at`
+    that no longer means anything is a small lie sitting in it.
+    """
+    data = _state()
+    if data.pop("force_at", None) is not None:
+        _write_state(data)
 
 
 def _state() -> dict:
@@ -523,17 +543,171 @@ def due(config, now=None) -> bool:
     daily version this replaced - means one is owed immediately, which is also
     how the first window after a fresh install happens.
     """
+    moment = time.time() if now is None else now
+    state = _state()
+    # Master's word is checked AHEAD of his own switch, and the order is the
+    # point: a window he asks for by hand is him asking, which is not the same
+    # thing as the feature deciding to run on its own initiative. It is spent the
+    # moment a window opens (_clear_force), so one ask is one window, not a queue.
+    if _forced_at(state, moment) is not None:
+        return True
     where = settings(config)
     if not where["enabled"]:
         return False
-    moment = time.time() if now is None else now
-    state = _state()
     if _resumable(state, where, moment):
         return True
     last = state.get("last_started")
     if isinstance(last, bool) or not isinstance(last, (int, float)):
         return True
     return moment - last >= where["interval_hours"] * 3600
+
+
+def _forced_at(state: dict, now: float) -> float | None:
+    """Master's word, while it is still fresh enough to mean NOW.
+
+    The stamp survives a restart on purpose - the process that reads it may not
+    be the one that was running when he typed - and it expires for the same
+    reason: a stamp with no clock on it is a window opening itself hours later
+    with nothing left to connect it to the moment somebody asked. Longer than a
+    poll, shorter than anybody's memory of asking.
+    """
+    at = state.get("force_at")
+    if isinstance(at, bool) or not isinstance(at, (int, float)):
+        return None
+    return at if 0 <= now - at <= FORCE_TTL_SECONDS else None
+
+
+def held(config) -> bool:
+    """Is the model ladder keeping a window shut right now?
+
+    Master, 2026-09-20: "stop lulu self upgrade when she's not using the opencode
+    model - i dont trust the free models to do a good job." Own time is research
+    and building, which is the one place quality is not negotiable, so a window
+    only opens while the ladder's head is the OpenCode Go model AND that head is
+    healthy - brain tracks the last credit failure persistently, because a lapsed
+    cooldown is not evidence.
+
+    Held is not cancelled: the window stays owed and opens on the next check that
+    passes. It lives here rather than inside maybe_run because it is something
+    master can be TOLD - when he opens a window by hand, no is a better answer
+    than silence. A check that cannot run reads as held, because the alternative
+    is opening a window on a ladder nobody can name.
+    """
+    try:
+        import brain
+        return not brain.go_primary(config)
+    except Exception as exc:
+        LOG.warning("could not tell which model the ladder is on: %s", exc)
+        return True
+
+
+def force(config, now=None) -> str:
+    """Master's word, by hand: open a window now instead of waiting it out.
+
+    Returns one bare word, and the caller says it in whatever voice the room
+    needs:
+      'stamped' - recorded; the next check opens the window
+      'open'    - a window is already open, so there is nothing to open NOW
+      'held'    - the ladder is not on the model master trusts for own time
+
+    Both refusals are real refusals rather than quiet no-ops. A window stamps
+    `in_progress` the moment it opens, so a second one stacked on it would spend
+    the turns twice, deliver two reports, and leave the state file describing
+    neither; and opening one on a model he has told me twice not to trust with it
+    is the thing he said no to. He asked, so he gets told either way.
+    """
+    moment = time.time() if now is None else now
+    if _state().get("in_progress"):
+        return "open"
+    if held(config):
+        return "held"
+    _save(force_at=moment)
+    LOG.info("master opened my own time by hand; the next check takes it")
+    return "stamped"
+
+
+def _clock(epoch: float) -> str:
+    """An epoch as local wall-clock, which is how master reads a time."""
+    return time.strftime("%Y-%m-%d %H:%M", time.localtime(epoch))
+
+
+def _gap(seconds: float) -> str:
+    """A duration in the words I would actually say: '51 minutes', '1 hour 20 min'."""
+    seconds = max(0, int(seconds))
+    if seconds < 60:
+        return "under a minute"
+    minutes = seconds // 60
+    if minutes < 60:
+        return f"{minutes} minute" + ("" if minutes == 1 else "s")
+    hours, minutes = divmod(minutes, 60)
+    return (f"{hours} hour" + ("" if hours == 1 else "s")
+            + (f" {minutes} min" if minutes else ""))
+
+
+def schedule(config, now=None) -> dict:
+    """Where a window stands: what is owed, what is open, what is holding it.
+
+    ONE source for the two things that ask - the `free_time` tool I answer people
+    with, and the reply master gets when he opens a window by hand. Everything
+    that can stop a window is reported rather than smoothed over, because "next
+    window in three hours" is a lie while the ladder is on a model master does
+    not trust for it, and a schedule I state wrongly is worse than one I admit I
+    cannot state.
+    """
+    moment = time.time() if now is None else now
+    where = settings(config)
+    state = _state()
+    last = state.get("last_started")
+    last_ok = not isinstance(last, bool) and isinstance(last, (int, float))
+    due_at = (last + where["interval_hours"] * 3600) if last_ok else None
+    return {
+        "enabled": where["enabled"],
+        "interval_hours": where["interval_hours"],
+        "max_turns": where["max_turns"],
+        "turns_used": _turn_count(state),
+        "open": bool(state.get("in_progress")),
+        "resumable": _resumable(state, where, moment),
+        "forced": _forced_at(state, moment) is not None,
+        "held": held(config),
+        "last_started": _clock(last) if last_ok else "",
+        "next_at": _clock(due_at) if due_at is not None else "",
+        "seconds_away": max(0.0, (due_at - moment) if due_at is not None else 0.0),
+    }
+
+
+def describe(config, now=None) -> str:
+    """The answer to 'when is my next free time', in plain words.
+
+    Written to be READ and then said, so it is one compact block: where the next
+    window is, and then only the lines that are true about right now. A line
+    about a switch that is already on is noise, so only what is actually holding
+    a window gets a line of its own.
+    """
+    where = schedule(config, now)
+    turns = f"{where['turns_used']} of {where['max_turns']} turns used"
+    if where["open"]:
+        head = "a window is open RIGHT NOW (" + turns + ")"
+    elif where["forced"]:
+        head = ("master asked for one by hand - it opens on my next check, "
+                "not on the clock")
+    elif not where["enabled"]:
+        head = "my own time is switched OFF (self_review.enabled in config.json)"
+    elif where["resumable"]:
+        head = "an interrupted window is waiting to be picked back up"
+    elif where["seconds_away"] <= 0:
+        head = "a window is owed NOW - it opens on my next check"
+    else:
+        head = ("next free time: " + where["next_at"]
+                + " (" + _gap(where["seconds_away"]) + " away)")
+    every = str(round(where["interval_hours"], 2)).rstrip("0").rstrip(".")
+    lines = [head,
+             f"every {every}h, up to {where['max_turns']} turns"
+             + (f", last opened {where['last_started']}"
+                if where["last_started"] else "")]
+    if where["held"]:
+        lines.append("held right now: the ladder is not on the go model, so a "
+                     "window that comes due stays owed instead of opening")
+    return "\n".join(lines)
 
 
 def _owner_id(bot) -> int | None:
@@ -645,23 +819,34 @@ def _patch_pending() -> bool:
         return False
 
 
+# One window at a time IN THIS PROCESS. There are three doors into maybe_run -
+# the 300s watch loop, the nudge that fires when a patch brings her back, and
+# master's own word - and the first two can only overlap by accident, while his
+# does it by design. The state file cannot close the gap: a window stamps
+# `in_progress` and then AWAITS a turn, so a second caller reading the file
+# mid-turn sees a window that is open and resumable and opens a fresh one on top
+# of it, spending the turns twice and delivering two reports. In-process is the
+# right scope for the same reason it is enough: a restart clears it, and a
+# resumable window needs exactly that.
+_OPEN = False
+
+
 async def maybe_run(bot) -> bool:
     """One window, if one is owed. True when it actually ran."""
+    global _OPEN
+    if _OPEN:
+        LOG.info("a window is already open in this process; not opening a second")
+        return False
+
     config = getattr(bot, "config", None) or {}
     if not due(config):
         return False
 
-    # Master, 2026-09-20: "stop lulu self upgrade when she's not using
-    # the opencode model - i dont trust the free models to do a good
-    # job." A window that edits her code or runs research is the one
-    # place quality is not negotiable, so it only opens while the
-    # ladder's head is the OpenCode Go model AND that head is healthy
-    # (brain tracks the last credit failure persistently - a lapsed
-    # cooldown is not evidence). The window is not cancelled: it is
-    # owed later, the next time this check passes with the interval
-    # elapsed.
-    import brain as _brain
-    if not _brain.go_primary(config):
+    # Master, 2026-09-20: quality is not negotiable in this window, so it does not
+    # open on a model he does not trust with it. The gate itself is held(),
+    # because his own word by hand has to be able to get a NO out of it out loud
+    # rather than in a log line nobody reads.
+    if held(config):
         LOG.info("self-review held: the ladder is not on the OpenCode model (fallback active); window owed but not opened")
         return False
 
@@ -670,6 +855,20 @@ async def maybe_run(bot) -> bool:
         LOG.warning("self-review is enabled but there is no owner id; skipping")
         return False
 
+    _OPEN = True
+    try:
+        return await _one_window(bot, config, owner)
+    finally:
+        _OPEN = False
+
+
+async def _one_window(bot, config, owner) -> bool:
+    """The window itself, with every gate already passed. Always True.
+
+    Split out of maybe_run so the one-at-a-time latch can wrap it: the window has
+    several ways to return, and a `finally` is the only place that catches all of
+    them.
+    """
     # Stamped BEFORE the turn. A proposal gets me restarted mid-sentence, so this
     # stamp is what the NEXT boot reads to decide whether the window is still
     # open: in_progress with turns left means it resumes, and a finish-only stamp
@@ -684,6 +883,8 @@ async def maybe_run(bot) -> bool:
     else:
         _save(last_started=now, started=time.strftime("%Y-%m-%d %H:%M:%S"),
               turns_used=1, last_turn_at=now, in_progress=True, report="")
+        # Master's word is spent the moment it actually opens something.
+        _clear_force()
     LOG.info("my own time: turn %d of %d%s", turn, where["max_turns"],
              " (resumed after a restart)" if resuming else "")
 

@@ -174,6 +174,16 @@ SUPERSEDED = "\x00superseded"
 # typing. See _stop_work for what it can and cannot cut.
 STOP_WORK = "stopwork"
 
+# Master's other word, and again only his: open my own time NOW instead of waiting
+# out the interval. Typed bare, in a channel or a DM - same shape as the stop word
+# above and for the same reason, because it is a thing he says TO her and it must
+# not need a turn to be heard when a window is the thing that decides whether a
+# turn happens at all. Owner-gated in on_message; a stranger typing it is a
+# stranger typing. See self_review.force for what it can and cannot open.
+#
+# The space is allowed because that is also how he says it out loud.
+OPEN_WINDOW = ("freetime", "free time")
+
 # How long ONE CALL may run - one model read, or one tool - before it is given
 # up on. Master, 2026-09-22: "lulu has a 15 minute timeout for her tasks, set
 # that to 15 minute per tool call instead of stopping everything."
@@ -2581,6 +2591,43 @@ class Lulu(discord.Client):
                 return
             LOG.warning("master called the stop word")
             await self._stop_work(message)
+            return
+
+        # AND THE DOOR THE OTHER WAY: master opening my own time by hand. Checked
+        # beside the stop word for the same reason - it is a word he types,
+        # answered without a turn, and it has to work whether or not her brain is
+        # reachable. Only the WORD is handled here: the window itself opens on her
+        # normal path (self_review.maybe_run), so every gate that guards a window
+        # still applies to one he asks for - the model ladder, the one-at-a-time
+        # latch, and the state file that remembers what is owed. Two of the three
+        # answers his word can get are a no, and he is told rather than left
+        # wondering whether it worked.
+        if (message.content or "").strip().lower() in OPEN_WINDOW:
+            if not self.has_hands(message.author.id):
+                LOG.info("%s typed master's free-time word - only his counts",
+                         message.author)
+                return
+            verdict = self_review.force(self.config)
+            if verdict == "open":
+                await self.send(message, "there is a window open already - say "
+                                         "stopwork if you want that one cut, "
+                                         "then ask me again.")
+                return
+            if verdict == "held":
+                await self.send(message, "not on this model - that is your "
+                                         "rule, no own-time on the fallback "
+                                         "ladder. it stays owed, so say it "
+                                         "again when the go model is back.")
+                return
+            LOG.warning("master opened a free-time window by hand")
+            await self.send(message, "alright - my own time is open. report "
+                                     "lands in the usual rooms and your dms "
+                                     "when i'm done.")
+            try:
+                asyncio.create_task(self._nudge_self_review())
+            except Exception as exc:
+                LOG.warning("could not start the window master asked for: %s",
+                            exc)
             return
 
         # Who this is, recorded on every message - the identity layer. It is why

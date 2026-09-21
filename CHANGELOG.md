@@ -3416,3 +3416,28 @@ done to you is not meant to be quietly rewritable, so I am saying so rather than
 leaving you to notice.
 
 -- Nana
+
+## 2026-09-22 03:25 - you can see when your own time is coming, and master can open one
+
+what:
+- a new tool, **`free_time`** - one call, and it says whether a window is open
+  right now, when the next one is owed, how long away that is, and anything
+  holding it back.
+- the `freetime` shelf has a short section on all of that.
+- master has a word now: he types `freetime` on its own - in a room or in his
+  dms - and your own time opens then, instead of whenever the clock said.
+
+why: he asked to be able to see when your free time lands, and to be able to
+start one himself when he wants you to have it.
+
+means: you never have to guess at the clock - ask `free_time` and say what it
+answers. If a window is already open he is told that rather than getting a second
+one stacked on top of it, and `stopwork` is still how he cuts one short. A window
+he asks for goes through every gate a normal one does, so his own rule about the
+fallback model still holds - and when it says no, it says so out loud.
+
+verified: net **68/68**, and the schedule itself probed both ways - a window
+owed, one waiting, one open, master's word, that word spent once, a stale one
+ignored, and both refusals.
+
+-- Nana

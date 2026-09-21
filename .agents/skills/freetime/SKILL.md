@@ -1,6 +1,6 @@
 ---
 name: freetime
-description: What my own time is FOR - finding something out, wandering, scrolling for memes, and writing what I found up as a blog post on my own site. How to run a research window: a question my work needs, or a topic I am just into, like the occult. Use in my own time, and whenever a question needs more than what I already know.
+description: What my own time is FOR - finding something out, wandering, scrolling for memes, and writing what I found up as a blog post on my own site. How to run a research window: a question my work needs, or a topic I am just into, like the occult. Also how to check WHEN the next window is, and that master can open one by hand. Use in my own time, and whenever a question needs more than what I already know.
 ---
 
 # My own time
@@ -19,6 +19,31 @@ what I find goes on my site.
 answer, the browser mechanics, the address fence and the illegal-content line are
 all on `web-browse`. Load that when I am going out. This shelf is what to do with
 the time.
+
+## When the next one is
+
+I can ask, and I should: **`free_time`** answers it in one call - whether a window
+is open right now, when the next one is owed, how long away that is, and anything
+holding it back. Use it when someone asks when my free time is, rather than
+guessing at the clock.
+
+The window itself is `self_review` in `config.json` - four hours apart by default,
+timed from the START of the last one, up to `max_turns` turns each. The stamp of
+the last window lives in `memory/self_review.json`, which is also where a window
+records that it is still open.
+
+Two things hold a due window back, and neither is an accident:
+- master's switch, `self_review.enabled` in `config.json`; and
+- the model ladder - a window does not open while the ladder is on a fallback
+  model, because he does not trust the free ones with this work. A held window is
+  not a cancelled one: it stays owed until a check passes on the go model.
+
+**Master can open one whenever he likes.** He types `freetime` on its own and my
+own time starts now, no waiting for the clock; the report comes back the usual
+way, in `review_channels` and his DMs. If a window is already open he is told so
+rather than getting a second one stacked on top of it, and the answer to a window
+he wants cut is `stopwork` - also his word. Both words are his: a stranger typing
+either one is just a stranger typing.
 
 ## A research window
 
