@@ -3313,3 +3313,26 @@ run six hours past the old ceiling and proves you still answer - and that every
 round is offered the full fifteen, not a shrinking remainder.
 
 -- Nana
+
+## 2026-09-22 01:53 - which brain looks at a picture changed order
+
+what:
+- when you look at a picture, I now start on **go+mimo**. The gemini rungs sit
+  behind it as backup instead of in front of it.
+- nothing else moved. Chat was not touched, and a picture still never descends
+  into OpenRouter's text models.
+
+why: master's call, 2026-09-22 - *"actually change lulu to use opencode go mimo
+first for vision, the others are too unreliable."* He asked for gemini first
+earlier the same night, watched it fail often enough, and changed his mind. The
+order is his call, not mine.
+
+means: fewer ruined looks. Until now a bad gemini connection could spend the
+whole first attempt on every picture, while the model actually configured for
+looking sat further down the list doing nothing.
+
+verified: net **67/67**. Both vision checks were flipped to the new order - one
+pins go first with gemini below it, the other proves go leads by answering from
+rung one and then walks down to the gemini backup.
+
+-- Nana
