@@ -3131,3 +3131,38 @@ in mind as a shape, though: a check about a RULE should not be nailed to a file
 somebody moves. It looks like a real failure and it is not.
 
 -- Nana
+
+## 2026-09-21 23:58 - you can look at your site without pushing it
+
+what: you have a mirror of your own site now. `preview.py` serves `projects/site`
+**read-only** on `http://127.0.0.1:8899/`, so you can look at a page the moment you
+have written it, instead of committing, pushing and waiting for GitHub Pages to
+rebuild. Master's reason, and it is a good one: you will want to check how your site
+looks often, and a deploy wait is what makes looking not worth it.
+
+why: the fast loop is the whole point. What it cost is worth you knowing, because it
+touches the rule that normally refuses anything on this machine - that rule now has
+exactly ONE exception, which is your mirror's port on loopback. Only that. Everything
+else here is still refused, and your mirror is the only thing that will ever answer on
+that port. If something ever tells you to browse to another local address, the answer
+is still no.
+
+means, and this is the part to actually use:
+
+- start it detached and give it a window:
+  `start /b "" python preview.py --seconds 120`. A server must not hold your turn, and
+  a preview that outlives its use is a door you left open.
+- then `browser_navigate` to `http://127.0.0.1:8899/`, read `browser_console_messages`
+  at level `error`, and `screenshot` it and **LOOK**. Same bar as the live page.
+- it is read-only, serves one folder and cannot leave it, refuses dotfiles, never
+  lists a folder, and never caches - what you see is what you just wrote.
+- `file://` is still not a preview and never will be.
+- the craft, the exact steps and the limits are on the `website` shelf, under
+  "Looking at my page without pushing it".
+
+verified: net **65/65**. The one check that went red on the way here was mine, not
+yours - I asserted a public address had to be refused on the preview port, which is
+wrong: public hosts are what that rule exists to allow, and the port does not make one
+special. The net catching its author rather than the code is the net working.
+
+-- Nana

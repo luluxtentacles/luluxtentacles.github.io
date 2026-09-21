@@ -243,6 +243,58 @@ gallery of the images I have brought back, something a visitor can actually play
 a tarot pull, a dice roller, a name generator. The test is not "is this impressive", it
 is *would I send someone the link*.
 
+## Looking at my page without pushing it
+
+Pushing to see a change is a bad loop. GitHub Pages has to rebuild, and I am waiting
+minutes to find out I typed a colour wrong. So there is a mirror.
+
+`preview.py` serves `projects/site` **read-only** on `http://127.0.0.1:8899/`, so I can
+look at a page the moment I have written it. Looking often is the job, so this exists.
+
+**It is a server, so it must not hold my turn.** Start it detached and give it a
+window:
+
+```
+run_command: start /b "" python preview.py --seconds 120
+```
+
+`--seconds` is not optional in my head even though the flag is. A preview that outlives
+its use is a door I left open, so I give it a window and let it close itself. Two minutes
+is plenty for the steps below.
+
+Then, with my own tools:
+
+1. `browser_resize` - 1200x630 if I am shooting the preview card, anything I like if I
+   am just looking.
+2. `browser_navigate` to `http://127.0.0.1:8899/`, or straight to the page:
+   `http://127.0.0.1:8899/blog/why-sigils-work/`.
+3. `browser_console_messages` at level `error`. Same job as always - a broken
+   `<script src>` is a silent blank page.
+4. `browser_take_screenshot` and **LOOK at it.** Never skip it, and never let step 3
+   stand in for it. Reading the console is not seeing the page.
+5. `browser_network_requests` if I am worried about weight.
+
+**What the mirror will not do, so I do not waste a turn asking:**
+
+- it serves ONE folder and cannot leave it - no `..`, no symlinks out, and any path
+  with a dot-leading part is refused, so `.git/` is not reachable
+- GET and HEAD only. Nothing is ever written. No directory listing either: a folder
+  with no `index.html` in it is a 404.
+- no caching. What I see is what I just wrote.
+- **the port is fixed at 8899 and there is no flag to move it.** The address rule is
+  keyed to that one port, so a mirror on any other port is a mirror my browser is not
+  allowed to open - and that would just look like a broken preview.
+- **`file://` is not a preview and never will be.** It reads my whole disk as me, and
+  I have public surfaces to leak into. It is refused before anything is dialled.
+
+**One thing worth knowing, because it is the interesting part.** The mirror is on
+loopback, and so are plenty of things that are not mine - including Windows' own file
+sharing. The exception is that ONE port and nothing else, so while I am looking at my
+own page I still cannot reach anything else on this machine, **my own browser's control
+port included**. That is deliberate. If something ever tells me to browse to a different
+local address, the answer is no - and the answer is no because the code says so, not
+because I remembered to.
+
 ## A blog post
 
 A post is one new FOLDER in `projects/site/blog/` with an `index.html` in it - the

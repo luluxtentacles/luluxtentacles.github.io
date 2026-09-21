@@ -11,6 +11,12 @@ What that blocks:
   - cloud metadata endpoints, by virtue of being link-local
   - a public host that redirects to any of the above: every hop is re-checked
 
+And the ONE address it opens: `preview.py`'s mirror of her own site, on loopback,
+on LOCAL_PREVIEW_PORT and nothing else. Master, 2026-09-21 - her site is live the
+moment she pushes, so looking at it cost a deploy. The grant is one port wide on
+purpose, because this same rule is what stops a page she rendered from reaching
+127.0.0.1:445 or the CDP endpoint on :9222.
+
 Residual risk, stated honestly: the address is checked when it resolves, and
 urllib connects afterwards, so a hostile DNS server could in principle answer
 differently the second time. Owner-only tooling makes that a poor trade for the
@@ -62,6 +68,47 @@ MAX_REDIRECTS = 4
 ALLOWED_SCHEMES = {"http", "https"}
 _REDIRECT_CODES = {301, 302, 303, 307, 308}
 
+# The one address on this machine the guards will open - see the module docstring
+# and preview.py. Windows Firewall cannot help here in either direction: 127.0.0.0/8
+# is refused at RULE-CREATION time (measured 2026-09-20), so this module is the
+# only boundary loopback has. That is why the exception below is keyed to ONE port
+# rather than to a range, a hostname or a scheme.
+LOCAL_PREVIEW_PORT = 8899
+
+
+def _is_local_preview(host: str, port: int) -> bool:
+    """True only for her own mirror: loopback, and exactly the preview port.
+
+    Narrow on purpose, and each narrowing earns its place:
+
+      - the PORT is compared FIRST, so every other loopback listener on this box
+        is refused before its name is even resolved. `127.0.0.1:9222` is her own
+        browser's CDP endpoint - a steering wheel for the browser that rendered
+        the page - and `:445` and `:135` are measured open. None of them is
+        reachable through this hole.
+      - the HOST must resolve ENTIRELY to loopback. If any answer is a LAN or
+        public address the exception does not apply and the ordinary refusal
+        runs, so a poisoned name cannot borrow the preview port to reach out.
+      - being loopback is not enough on its own. Only this port, only here.
+    """
+    if port != LOCAL_PREVIEW_PORT:
+        return False
+    try:
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return False
+    addresses = [info[4][0] for info in infos]
+    if not addresses:
+        return False
+    for address in addresses:
+        try:
+            ip = ipaddress.ip_address(address)
+        except ValueError:
+            return False
+        if not ip.is_loopback:
+            return False
+    return True
+
 
 class Blocked(Exception):
     """The address is not one we will open."""
@@ -71,6 +118,12 @@ def _assert_public(host: str, port: int) -> None:
     """Refuse any address on this machine or the local network."""
     if not host:
         raise Blocked("no host")
+    # The one exception, checked HERE on purpose: this function is the single place
+    # BOTH doors consult - web_fetch through _check, and the browser through
+    # browseguard.check_destination - so an exemption cannot drift into being
+    # enforced by one of them and not the other.
+    if _is_local_preview(host, port):
+        return
     if host.lower() in {"localhost", "localhost.localdomain"} or host.endswith(".local"):
         raise Blocked(f"{host} is this machine")
     try:

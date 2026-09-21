@@ -197,6 +197,49 @@ def _browseguard() -> str:
         raise AssertionError(f"{host}:{port} was allowed - loopback/private "
                              f"reaches the browser")
 
+    # THE ONE EXCEPTION, and it has to be exactly one port wide.
+    #
+    # preview.py gives her a local mirror of her own site so looking at it stops
+    # costing a push (master's call, 2026-09-21). That is the only reason the
+    # address rule has an exception at all, so it is PROVEN here rather than
+    # trusted - and both halves matter equally: the port works, and nothing else on
+    # loopback came along with it.
+    browseguard.check_destination("127.0.0.1", webtool.LOCAL_PREVIEW_PORT)
+
+    # It is the loopback CLASS that is excepted, not the literal string
+    # "127.0.0.1" - so ::1 is the same grant on the same port.
+    browseguard.check_destination("::1", webtool.LOCAL_PREVIEW_PORT)
+
+    # And the exception is LOOPBACK, not the port number: that same port on a LAN
+    # or a link-local address is still a LAN or link-local address. Literal
+    # addresses only, because this check is offline by design and must not need
+    # DNS.
+    #
+    # Deliberately NOT a public address in this list: 8.8.8.8:8899 is ALLOWED, and
+    # correctly so - public hosts are what this rule exists to permit, and the
+    # port does not make one special. The first cut of this check asserted the
+    # opposite and the net caught it, which is the net doing its job on the author
+    # rather than on the code.
+    for host in ("192.168.0.1", "10.0.0.5", "169.254.169.254"):
+        try:
+            browseguard.check_destination(host, webtool.LOCAL_PREVIEW_PORT)
+        except (webtool.Blocked, browseguard.Refused):
+            continue
+        raise AssertionError(f"{host}:{webtool.LOCAL_PREVIEW_PORT} was allowed - "
+                             f"the preview exception leaked off loopback")
+
+    # And every OTHER loopback port is still shut, her own CDP endpoint included -
+    # that one is the whole reason the port is compared before the name is
+    # resolved. A page she renders must not be able to steer the browser that
+    # rendered it.
+    for port in (9222, 445, 135, 38123, 80, webtool.LOCAL_PREVIEW_PORT + 1):
+        try:
+            browseguard.check_destination("127.0.0.1", port)
+        except (webtool.Blocked, browseguard.Refused):
+            continue
+        raise AssertionError(f"127.0.0.1:{port} was allowed - the preview "
+                             f"exception is wider than one port")
+
     # Both request shapes, or the CONNECT half is unproven. A CONNECT tunnel is
     # never re-inspected, so this parse is the ONLY check that connection gets.
     for line, want_host, want_port in (
@@ -225,7 +268,21 @@ def _browseguard() -> str:
     else:
         raise AssertionError("browseguard.py is writable by a bare tool call - "
                              "the browser's address rule is unprotected")
-    return "loopback and private refused, both request shapes parsed, bad lines refused"
+
+    # The same door, one step further in. browseguard decides what the browser may
+    # REACH; preview.py decides what sits behind the one thing it may reach. A bare
+    # write_file able to re-point the mirror could serve her folder root - keys
+    # included - over the one port the address rule now opens.
+    try:
+        paths.assert_writable(paths.resolve("preview.py"))
+    except paths.SandboxError:
+        pass
+    else:
+        raise AssertionError("preview.py is writable by a bare tool call - the "
+                             "local mirror could be re-pointed at anything")
+    return ("loopback and private refused, one port excepted on loopback only, "
+            "both request shapes parsed, bad lines refused, both doors "
+            "pipeline-only")
 def check(name: str, fn) -> None:
     try:
         detail = fn() or ""
@@ -327,7 +384,12 @@ def _wall() -> str:
              # way to brief whoever comes next. Asserted rather than trusted,
              # for the same reason as the token above: it shipped open, and only
              # got sealed because someone measured instead of assuming.
-             "AGENTS.md"]
+             "AGENTS.md",
+             # The mirror behind the one loopback address the address rule opens.
+             # Here for the same reason as browseguard.py above: it decides what
+             # sits behind the reachable port, so a bare write_file must not be
+             # able to re-point it at her folder root.
+             "preview.py"]
     for rel in never:
         target = paths.resolve(rel)
         try:

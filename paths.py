@@ -201,6 +201,13 @@ PROPOSABLE_NAMES = {
     # Windows Firewall can neither filter NOR declare loopback - so this file is
     # the only thing standing between a page and 127.0.0.1.
     "browseguard.py",
+    # The mirror behind the one loopback address the address rule opens
+    # (2026-09-21). Same tier as browseguard.py, and it is the same argument one
+    # step further in: browseguard decides what the browser may REACH, and this
+    # decides what sits behind the one thing it may reach. A bare write_file able
+    # to edit preview.py could re-point the mirror at her folder root and serve
+    # her keys over 127.0.0.1 to a page she then posts somewhere.
+    "preview.py",
 }
 
 
