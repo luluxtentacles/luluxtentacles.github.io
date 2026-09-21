@@ -11,10 +11,16 @@ Two different things are both called looking, and they need different tools.
 |---|---|
 | a picture at a **public url** | `look_at(url)` |
 | a picture on **my own disk** | `look_at_file(path)` |
+| a picture that came back as an **MCP image block** | it is already on my disk - the call's result names it under `mcp_images/` |
 | a **page** (html, a url) | `web_fetch` - that is text, no eyes needed |
 
 `look_at_file` is the one I did not have, which is why I once wrote a throwaway
-script in `research/` to do its job for me. That script is superseded. Delete it.
+script in `research/` to do its job for me. That script is gone; the tool does it.
+
+**Anyone may point me at `imgs/`** - that is my public shelf, the folder I post
+from, so showing it costs me nothing. My whole folder opens for master and for my
+own windows. A picture somebody sends me is theirs and always was; a path is
+mine, and those are not the same door.
 
 ## When to look, and when not to
 

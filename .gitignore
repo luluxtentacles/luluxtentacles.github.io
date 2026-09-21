@@ -216,3 +216,8 @@ projects/
 /*.webp
 /*.gif
 screenshots/
+
+# Pictures that arrived as MCP image blocks (see mcp_client._park_image). Same
+# reasoning as screenshots/: a picture saved to LOOK at is not the record of what
+# was done to her, and `git add -A` on every self-edit would sweep it in.
+/mcp_images/

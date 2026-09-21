@@ -3269,14 +3269,16 @@ def _say_guard() -> str:
         expect(not tools._OUTBOX, "drain did not empty the outbox")
 
         # 8. the fences that moved and the ones that did not. Master opened
-        # attach/look_at/the browser pair to strangers (2026-09-21), so the new
-        # contract is: they ARE offered, attach is path-locked to imgs/ for
+        # attach/look_at/the browser pair to strangers (2026-09-21), and
+        # look_at_file on 2026-09-21 too, so the new contract is: they ARE
+        # offered, attach AND look_at_file are path-locked to imgs/ for
         # non-master, and the truly dangerous doors stay shut.
-        for name in ("attach", "mcp_call", "mcp_list", "look_at"):
+        for name in ("attach", "mcp_call", "mcp_list", "look_at",
+                     "look_at_file"):
             expect(name in tools.LOOKUP_TOOL_NAMES,
                    f"{name} was not offered to strangers - master opened it")
         for name in ("run_command", "write_file", "patch_file", "write_diary",
-                     "learn_person", "start_task", "look_at_file"):
+                     "learn_person", "start_task"):
             expect(name not in tools.LOOKUP_TOOL_NAMES,
                    f"{name} is offered to people who are not master")
         # the attach lock is in the tool, not the palette: a non-master path
@@ -4280,10 +4282,11 @@ def _look_at_file() -> str:
     hold her own work up to her own eyes was a throwaway script in research/
     that called vision._build by hand. This pins the door that replaced it.
 
-    The load-bearing part is WHICH TURN may open it. A public url is something
-    anyone can hand her; a path in her own folder is her disk, so a local read
-    is master's turn or her own window and nothing else - refused in the tool,
-    not left to the palette to enforce.
+    TWO rules are pinned here, and they are not the same rule. WHO may open the
+    door: master talking to her, her own-time window, or a task he started. WHAT
+    everyone else gets: the same open-but-shelved deal attach already has - my
+    imgs/ folder and no further - because a picture is content but a path is a
+    filesystem read, which is master's line from 2026-09-21.
 
     Nothing here opens a socket. Every failure below happens before the model
     is reached, and the one real picture is written by this check and removed
@@ -4299,8 +4302,9 @@ def _look_at_file() -> str:
     names = {t["function"]["name"] for t in tools.SCHEMA}
     expect("look_at_file" in names and "look_at_file" in tools.DISPATCH,
            "look_at_file is not consistently registered")
-    # and it is NOT in the stranger palette - that half is pinned by the
-    # say-guard check, where the shut doors are enumerated in one place.
+    # and it IS in the stranger palette now - the shelf lock inside the tool is
+    # what holds the line, not the list of what she is offered. The palette half
+    # is pinned by the say-guard check, where the doors are enumerated.
 
     real = dict(tools._BRAIN)
     try:
@@ -4308,13 +4312,24 @@ def _look_at_file() -> str:
         # part being tested. It is never called: everything below fails first.
         tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
 
-        # 2. the gate, on a turn that is neither master's nor her own window
+        # 2. a stranger: the door is OPEN, and it opens onto the shelf only.
+        # No brain at all, so describe_file() stops before it reads the disk -
+        # which makes "no brain configured" mean the gate AND the shelf lock
+        # both let this through, and "refused:" mean one of them did not.
+        tools.set_brain({})
         tools.set_context("stranger-probe", master=False)
         got = tools.look_at_file("CHANGELOG.md", "anything")
         expect(got.startswith("refused:"),
-               f"a turn that is not master's read a local file: {got}")
+               f"a stranger read a file outside the shelf: {got}")
+        expect("imgs/" in got,
+               f"the refusal does not say where a stranger may look: {got}")
+        shelved = tools.look_at_file("imgs/lulu.jpg", "")
+        expect("no brain configured" in shelved,
+               f"a stranger could not reach my imgs/ shelf: {shelved}")
 
-        # 3. master's turn, and the file is not hers to read
+        # 3. master's turn, and the file is not hers to read. The probe brain is
+        # back so these failures come from the PATH, not from a missing brain.
+        tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
         tools.set_context("1", master=True)
         for label, path in (("a path outside her folder", "../master-notes.txt"),
                             ("a path that is not there", "nope/not-here.png"),
@@ -4363,10 +4378,20 @@ def _look_at_file() -> str:
         expect("no brain configured" in quiet,
                f"with no brain it got as far as the disk: {quiet}")
 
-        # 7. and the gate OPENS in her own window, which is the whole point of
-        # the tool - she is the one looking at her own screenshots. Proved with
-        # a path that fails AFTER the gate, so no model call is made.
+        # 7. a TASK turn may look too - master's work running without him
+        # typing, which is exactly where she renders a page and then wants to
+        # see it. This and the next use a path that fails AFTER the gate, so no
+        # model call is made either way.
         tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
+        tools.set_context(None, "task", "", origin="task")
+        got = tools.look_at_file("nope/not-here.png", "")
+        expect(not got.startswith("refused:"),
+               f"a task turn could not open the local door: {got}")
+        expect("could not look at that file" in got,
+               f"that was not the gate opening, it was something else: {got}")
+
+        # 8. and so may her own window, which is where she looks at her own
+        # screenshots most.
         tools.set_context(1, "self-review", "", origin="self-review")
         got = tools.look_at_file("nope/not-here.png", "")
         expect(not got.startswith("refused:"),
@@ -4376,9 +4401,81 @@ def _look_at_file() -> str:
     finally:
         tools.set_brain(real)
         tools.set_context(None)
-    return ("a local read is master's turn or her own window only, confined to "
-            "her folder, refused for a non-picture by its bytes, and it gives "
-            "one image_url part for a real one")
+    return ("strangers get my imgs/ shelf and no further, master, her own "
+            "window and a task get the whole folder, a non-picture is refused "
+            "by its bytes, and a real one gives one image_url part")
+
+
+def _mcp_image() -> str:
+    """A picture arriving as an MCP content block has to become SEEABLE.
+
+    This was the hole that made her browser blind. mcp_client serialized every
+    non-text block with json.dumps, so a playwright screenshot came back as up
+    to 40k characters of truncated base64: her vision ladder was never touched,
+    she learned nothing, and the tokens were paid - the worst shape of failure,
+    because it looks like an answer.
+
+    Offline, and it leaves nothing behind: the blocks are built here, and the
+    one file it writes is deleted again.
+    """
+    import base64
+    import re
+
+    import mcp_client
+    import paths
+    import vision
+
+    folder = paths.resolve(mcp_client.MCP_IMAGE_DIR)
+
+    def parked():
+        return (sorted(p.name for p in folder.glob("mcp-*"))
+                if folder.is_dir() else [])
+
+    png = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4"
+        "z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC")
+    encoded = base64.b64encode(png).decode("ascii")
+
+    # 1. an image block becomes a line naming a FILE - never a wall of base64
+    text = mcp_client.flatten_result({"content": [
+        {"type": "text", "text": "here is your screenshot"},
+        {"type": "image", "mimeType": "image/png", "data": encoded},
+    ]})
+    expect("here is your screenshot" in text, "the text block was lost")
+    expect(encoded[:32] not in text,
+           "the image block was serialized into the text result again")
+    expect(len(text) < 500, f"an image block still cost {len(text)} chars")
+    found = re.search(r"mcp_images/(mcp-[0-9a-zA-Z._-]+)", text)
+    expect(bool(found), f"the result does not name a saved file: {text}")
+    saved = folder / found.group(1)
+    try:
+        expect(saved.is_file(), f"the named file is not on disk: {saved}")
+        expect(vision.sniff(saved.read_bytes()) == "image/png",
+               "the parked bytes are not the picture that arrived")
+    finally:
+        saved.unlink()
+
+    # 2. a block LABELLED an image that is really text is refused by its BYTES,
+    # and nothing lands on disk for it - mimeType is a claim the server makes,
+    # which is the same rule she already applies to an attachment
+    before = parked()
+    text = mcp_client.flatten_result({"content": [
+        {"type": "image", "mimeType": "image/png",
+         "data": base64.b64encode(b"<html>not a picture</html>").decode("ascii")},
+    ]})
+    expect("not actually an image" in text,
+           f"a lying image block was not refused: {text}")
+    expect(parked() == before,
+           "a non-picture block was written to disk anyway")
+
+    # 3. the floor on how many are kept is real, and so is the ceiling on one
+    expect(mcp_client.MCP_IMAGE_KEEP >= 1,
+           "the retention floor would delete the picture she just looked at")
+    expect(mcp_client.MCP_IMAGE_MAX_BYTES <= 16_000_000,
+           "an MCP image block may be absurdly large")
+    return ("an image block is parked in mcp_images/ and named in one line, so "
+            "the base64 never reaches the text result, and a block that is not "
+            "really a picture is refused without touching the disk")
 
 
 def _browser_proxy() -> str:
@@ -4512,6 +4609,7 @@ CHECKS = [
     ("changelog", _changelog),
     ("look-at", _look_at),
     ("look-at-file", _look_at_file),
+    ("mcp-image", _mcp_image),
     ("emoji-retire", _emoji_retire),
     ("thread-context", _thread_context),
     ("restart-context", _restart_context),

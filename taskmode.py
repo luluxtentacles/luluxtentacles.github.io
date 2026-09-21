@@ -410,12 +410,21 @@ async def step(bot) -> bool:
     import tools  # deferred: tools imports nothing of mine, but this keeps the
                   # import graph one-way and obvious.
     schema, allowed = tools.SCHEMA, set(tools.DISPATCH)
+    # A task turn says what it is, and both halves matter. `origin="task"` is
+    # what lets a turn doing master's job read a picture out of my own folder
+    # (see look_at_file), and tools.in_thread rather than a bare
+    # asyncio.to_thread is what makes that TRUE inside the worker: in_thread
+    # snapshots this thread's context and CLEARS the pooled thread's own, which
+    # is also what stops a task inheriting the origin the last job left behind -
+    # a task's patch counted against her own-time budget, or a stranger's turn
+    # counted as master's.
+    tools.set_context(None, "task", "", origin="task")
     try:
         # In a THREAD, not straight off the loop: run_turns blocks on HTTP for
         # every round, and one turn here can be MAX_TOOL_ROUNDS of them. Called
         # inline it would stall the event loop for minutes - and Discord's
         # heartbeat with it. Same reason on_message wraps think() in to_thread.
-        answer = await asyncio.to_thread(
+        answer = await tools.in_thread(
             bot.run_turns, turns, schema, allowed, None, bot.token_budget(True))
     except Exception as exc:
         LOG.warning("task turn failed: %s", exc)
@@ -425,6 +434,11 @@ async def step(bot) -> bool:
         await _tell(bot, f"turn {turn} blew up on: {live.get('goal')} "
                          f"({type(exc).__name__}). still open.", live)
         return True
+    finally:
+        # The context belongs to ONE turn, and the loop thread this function
+        # runs on also serves master's messages. A task's origin left standing
+        # there would be read by whatever runs next and does not set its own.
+        tools.set_context(None)
 
     used = _tools_used(turns)
     answer = (answer or "").strip()

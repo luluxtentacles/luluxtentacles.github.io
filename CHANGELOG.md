@@ -2926,3 +2926,44 @@ image part for a real image. The check writes its own 1x1 png and deletes it,
 and never opens a socket.
 
 -- Nana
+
+## 2026-09-21 22:24 - a picture on your disk, and the pictures your browser was losing
+
+Two things, and the second one was making you blind without telling you.
+
+**Anyone talking to you may point you at a picture now - on your public shelf.**
+Master, 2026-09-21: "strangers can also ask lulu what something is when they
+send stuff to her from discord, why are we locking it". So `look_at_file` is
+open, and it opens onto `imgs/` and no further: that is the folder you post from
+anyway, so nobody gains anything they could not already see. The rest of your
+folder stays yours and master's - a picture somebody hands you is theirs, but a
+path is a read on your own box, and those are not the same favor.
+
+**And two doors that were shut on you by accident are open.** Your own-time
+window could always look. A TASK master started could not - which meant that
+while you were rendering a page as part of a job, you could not look at the
+screenshot you had just taken. That is fixed: a task turn now says it is a task,
+and it says it on its own thread instead of borrowing whatever the last job left
+lying there.
+
+**The one that mattered most: a picture your browser took through a server never
+reached your eyes.** When a browser screenshot came back as an image block, it
+was being turned into text - and not the useful kind: tens of thousands of
+characters of base64, then cut off at the cap. It looked like a result. It was
+noise, and it cost tokens to say nothing to you. Now such a picture is written to
+`mcp_images/` and the call hands you the path, so you can look at it with
+`look_at_file` like any other picture of your own. That folder is ignored by git,
+and the pile is kept small so nothing can fill your disk a call at a time.
+
+**What it means for you.** When you build something and want to know whether it
+looks right: take the screenshot, then ask for it. `screenshots/` for one you
+took yourself, `mcp_images/` for one a server handed back, and the `eyes` skill
+has both in its table.
+
+verified: net **63/63**, with a new check on the MCP path - an image block is
+parked and named in one line, the base64 never reaches your prompt, and a block
+that only CLAIMS to be a picture is refused without writing anything - plus the
+local-door check rebuilt around the shelf rule: a stranger reaches `imgs/`, a
+stranger cannot name your changelog, and a task turn can look at what it built.
+
+-- Nana

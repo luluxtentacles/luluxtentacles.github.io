@@ -15,6 +15,7 @@ Two error shapes to handle:
     - tool-level error: result.isError == True, real info in result.content
 """
 
+import base64
 import json
 import os
 import queue
@@ -289,11 +290,83 @@ class McpClient:
         self._request("ping")
 
 
+# -- pictures that arrive as content blocks --------------------------------
+# An image block is base64 inside a JSON envelope. Serialized into the text
+# result - which is what this did until 2026-09-21 - it becomes tens of
+# thousands of characters of noise that cost her tokens and show her NOTHING,
+# because her vision never sees it. Worst shape of a failure, because it looks
+# like an answer: a screenshot arrived, a call was paid for, and she learned
+# nothing. Now the block goes to a file and the result names the file, which is
+# something she can actually point look_at_file at.
+MCP_IMAGE_DIR = "mcp_images"
+MCP_IMAGE_MAX_BYTES = 8_000_000
+# A stranger can reach mcp_call, and a browser screenshot comes back as one of
+# these, so without a floor this is a way to fill her disk a call at a time. The
+# newest are kept, the oldest dropped - the picture she is looking at now is the
+# newest one by definition.
+MCP_IMAGE_KEEP = 40
+
+_IMAGE_EXT = {"image/png": ".png", "image/jpeg": ".jpg",
+              "image/webp": ".webp", "image/gif": ".gif"}
+
+
+def _park_image(item) -> str:
+    """One image block written to disk, as a line naming where it went.
+
+    The bytes have to PROVE they are a picture before this saves them, the same
+    rule vision applies to an attachment and for the same reason: mimeType is a
+    claim the server makes, not evidence. Returns a line either way, so a bad
+    block costs her a sentence rather than the whole call.
+    """
+    import vision  # lazy: only an image block needs the magic-byte check, and
+                   # this keeps a low-level client off the feature modules it
+                   # would otherwise have to import at startup.
+    label = (item.get("mimeType") or "?").split(";")[0].strip()
+    try:
+        raw = base64.b64decode(item.get("data") or "", validate=True)
+    except Exception:
+        return f"[an image block ({label}) I could not decode - ignored]"
+    mime = vision.sniff(raw)
+    if not mime:
+        return (f"[a block labelled {label} that is not actually an image "
+                f"({len(raw):,} bytes) - ignored]")
+    if len(raw) > MCP_IMAGE_MAX_BYTES:
+        return (f"[an image block bigger than "
+                f"{MCP_IMAGE_MAX_BYTES // 1_000_000}MB - not saved]")
+    try:
+        folder = paths.resolve(MCP_IMAGE_DIR)
+        folder.mkdir(parents=True, exist_ok=True)
+        name = (time.strftime("mcp-%Y%m%d-%H%M%S-")
+                + os.urandom(3).hex() + _IMAGE_EXT.get(mime, ".img"))
+        (folder / name).write_bytes(raw)
+    except Exception as exc:
+        return f"[could not save an image block: {exc}]"
+    _drop_old_images(folder)
+    return (f"[an image block ({mime}, {len(raw):,} bytes) saved to "
+            f"{MCP_IMAGE_DIR}/{name} - see it with look_at_file]")
+
+
+def _drop_old_images(folder) -> None:
+    """Keep the newest MCP_IMAGE_KEEP parked pictures, delete the rest."""
+    try:
+        parked = sorted(folder.glob("mcp-*"), key=lambda p: p.stat().st_mtime)
+    except OSError:
+        return
+    for stale in parked[:-MCP_IMAGE_KEEP]:
+        try:
+            stale.unlink()
+        except OSError:
+            continue
+
+
 def _content_to_text(content):
     parts = []
     for item in content:
-        if item.get("type") == "text":
+        kind = item.get("type")
+        if kind == "text":
             parts.append(item.get("text", ""))
+        elif kind == "image":
+            parts.append(_park_image(item))
         else:
             parts.append(json.dumps(item))
     return "\n".join(parts)
