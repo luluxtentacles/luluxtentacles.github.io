@@ -2544,6 +2544,80 @@ def _vision_ladder() -> str:
             f"OpenRouter anywhere; text: go first, OpenRouter intact")
 
 
+# -- 8m. a hand-built Go request 400s: it needs the same headers ----------
+# Learned by doing it myself, 2026-09-21. I hand-rolled a vision call to
+# opencode.ai/zen/go to answer whether Go+mimo-v2.5 works, and got
+# `HTTP 400 MissingSessionID - Request is missing x-opencode-session`. The
+# endpoint was fine: brain._attempt sends that header (and a browser
+# User-Agent, which Cloudflare wants). I nearly reported "Go vision is broken"
+# off a probe that was not the real code path.
+#
+# Which is the recurring lesson in this repo, so it gets a check rather than a
+# note: a request built outside the path that actually runs is not evidence
+# about that path. This pins the headers on the real one.
+def _brain_headers() -> str:
+    import json as _json
+
+    import brain
+
+    captured: dict = {}
+
+    class _Fake:
+        """Just enough of an HTTP response: a context manager with read()."""
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+        def read(self):
+            return _json.dumps({
+                "choices": [{"message": {"content": "ok"},
+                             "finish_reason": "stop"}],
+                "usage": {},
+            }).encode("utf-8")
+
+    def _fake_urlopen(request, timeout=None):
+        captured["request"] = request
+        return _Fake()
+
+    real = brain.urllib.request.urlopen
+    brain.urllib.request.urlopen = _fake_urlopen
+    try:
+        # `label` is not decoration: _attempt stamps it onto the reply as
+        # "_rung" so the caller can see which ladder rung actually answered.
+        out = brain._attempt(
+            {"base_url": "https://example.invalid", "key": "k",
+             "model": "mimo-v2.5", "label": "go"},
+            {"messages": [{"role": "user", "content": "hi"}]}, cache=False)
+    finally:
+        brain.urllib.request.urlopen = real
+
+    # First make sure the fake was faithful, or everything below is theatre:
+    # if _attempt did not read it back as a normal answer, this check would be
+    # asserting headers on a request that its own stub mangled.
+    expect(isinstance(out, dict) and out.get("content") == "ok",
+           f"the stubbed response was not read back as a normal answer: {out!r}")
+    expect(out.get("_rung") == "go",
+           f"the reply did not record which rung answered: {out.get('_rung')!r}")
+    request = captured.get("request")
+    expect(request is not None, "nothing was sent - the stub was never reached")
+
+    sent = {name.lower() for name in request.headers}
+    for needed in ("x-opencode-session", "authorization", "content-type",
+                   "user-agent"):
+        expect(needed in sent,
+               f"a provider call is missing {needed} - on the Go tier that is "
+               f"a hard 400, not a slow rung")
+    expect(request.get_header("X-opencode-session"),
+           "the session header was sent EMPTY, which is the same as absent")
+    expect(request.full_url.endswith("/chat/completions"),
+           f"the provider call went to the wrong path: {request.full_url}")
+    return (f"a real provider call carries all {len(sent)} required headers, "
+            f"session id included")
+
+
 # -- 9. the skill shelf still parses --------------------------------------
 # Her prompt IS this shelf, and since .agents/ became proposable a bad edit here
 # is a real possibility. Importing cleanly proves nothing: a SKILL.md that is
@@ -4334,6 +4408,7 @@ CHECKS = [
     ("own-work-route", _own_work_route),
     ("log-split", _log_split),
     ("vision-ladder", _vision_ladder),
+    ("brain-headers", _brain_headers),
 ]
 
 
