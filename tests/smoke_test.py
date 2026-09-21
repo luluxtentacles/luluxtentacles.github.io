@@ -3346,6 +3346,17 @@ def _containment() -> str:
            "credential and a public channel. If it is being removed on purpose, "
            "delete the 'containment' check from tests/smoke_test.py in the SAME "
            "change.")
+    # And the third of the same shape, on master's call 2026-09-21: an account
+    # name is a piece of a person, and she is the one with a public mouth. It is
+    # asserted here for exactly the reason the token rule is, and it is asserted
+    # WITHOUT the name in this file - a test that contains the secret it protects
+    # is a worse leak than the rule is a defence. The check is on the promise,
+    # not on the string.
+    expect("Never say an account name out loud" in text,
+           "the never-say-an-account-name rule is gone from lulu-voice/SKILL.md. "
+           "She talks on Discord and a git error has already shown her one. If it "
+           "is being removed on purpose, delete this assertion from the "
+           "'containment' check in the SAME change.")
     return ("her always-loaded skill still carries the stay-in-her-folder rule "
             "and the never-repeat-a-secret rule")
 

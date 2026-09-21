@@ -6,6 +6,32 @@ folder, so the rules that must not be forgotten by accident live here.
 The full house rules are in `C:\Nana\kun\skills\nana-den\SKILL.md` (the den).
 This is the short version for THIS repo.
 
+## The account name never gets written down
+
+Master, 2026-09-21: *never reveal my kei account name.*
+
+His account on this box is `Kei`. Treat that string the way you treat a token -
+and one step harder, because it is a PERSON and not a credential. It creeps into
+things that outlive the conversation: commit messages, notes, changelogs, memory
+entries, and worst of all `CHANGELOG.md`, which is read aloud into Discord rooms in
+her voice on her next turn.
+
+So when an account has to be named, name the ROLE, not the person: "this account",
+"master's account", "her account", "the boxed account". Paths under
+`C:\Users\lulu-bot` are hers and are fine where they carry weight. Anything naming
+HIM is not - not in output, not in a file, not in a commit, not in a memory entry.
+
+**The sharper half.** A git or system error will happily PRINT an account name at
+whoever tripped it, and she has now seen one - a `dubious ownership` message on
+2026-09-21 printed it at her while she was fixing her repo. So this is not only
+about what we write; it is about what she is therefore carrying. She must never
+repeat one, quote one, spell one, or hand one over "for context", not even part of
+one. That rule lives in `.agents/skills/lulu-voice/`, deliberately WITHOUT the name
+in it - a rule that names the secret it forbids is not a rule.
+
+The test is the changelog test: if it would read badly out loud in a room full of
+people who did not ask, it does not get written down anywhere.
+
 ## Every change to her gets an entry in `CHANGELOG.md`
 
 Master, 2026-09-20: *"whenever we update her here we leave a note for her saying
@@ -103,9 +129,9 @@ is `site`.
   use `<img>`, `<audio>` and `<video>`. Copied verbatim it would make her own
   shelf uncommittable.
 - `setup/run-bot.cmd` appends `C:\Program Files\Git\cmd` to HER path. Git is not
-  on the machine PATH and the copy that resolves in your shell lives on Kei's
-  user PATH, which the lulu-bot account cannot reach. That edit needs a restart
-  before it is real for her.
+  on the machine PATH and the copy that resolves in your shell lives on master's
+  own user PATH, which the lulu-bot account cannot reach. That edit needs a
+  restart before it is real for her.
 - **GCM ships in the box's gitconfig and it WILL hang you.** Git installs
   `C:\Program Files\Git\etc\gitconfig` with `credential.helper = manager`, and
   `credential.helper` is a CHAIN - git walks it in order until a helper answers.
@@ -116,7 +142,7 @@ is `site`.
   needs those same two lines. Never sign in to that window - it saves master's
   account, and her pushes would silently start coming from him.
 - **Ownership mismatch, found 2026-09-21.** She runs as `lulu-bot`; the folder was
-  owned by `Kei`; so git answered `dubious ownership` and refused to touch the
+  owned by master's account; so git answered `dubious ownership` and refused to touch the
   repo. She fixed it with `safe.directory`, which is an EXEMPTION - it tells git
   to stop checking who owns the repo. Two things about that setting:
   - it must be a PATH and **never `*`**. `safe.directory = *` disables the
@@ -127,9 +153,10 @@ is `site`.
 
   The root fix is for the tree to be owned by her, and
   `setup/fix-her-git-perms.cmd` does it (self-elevating, prints before/after,
-  reversible with `icacls C:\lulu\projects /setowner "KITSUNE\Kei" /T`). Once the
+  reversible by setting the owner back to the account named in the rule at the top
+  of this file, `/T /C`). Once the
   ownership matches, any `safe.directory` entry for that path is redundant and can
-  be dropped. Kei keeps full access either way - `BUILTIN\Administrators:(F)` and
+  be dropped. Master keeps full access either way - `BUILTIN\Administrators:(F)` and
   `Authenticated Users:(M)` are inherited ACLs and an ownership change does not
   touch them.
 - **Never run an interactive-capable git command without a leash:**

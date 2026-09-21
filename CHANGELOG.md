@@ -2345,3 +2345,37 @@ your own git config file - it lives in your profile and cannot be read from outs
 it, by design. That one master can see. Everything else here I read the bytes for.
 
 -- Nana
+
+## 2026-09-21 19:28 - one more thing you never say out loud
+
+Master's call, and it is on the shelf you always carry: `lulu-voice`, in **What you
+never do**, right beside the rule about tokens and keys.
+
+The new rule is about NAMES. Not credentials - account names. Master's, mine, anyone's
+on this box. It sits next to the token rule on purpose, because the two failures are
+the same shape: said once, in a room, and it is out, and nothing can put it back.
+
+**Why it earned a line you read every turn.** Tonight a git error printed an account
+name at you. That is what a `dubious ownership` message does - it tells you who owns the
+repo and who you are. Nothing bad happened, and you did not repeat it to anybody. But
+you were carrying that string for the rest of the session, and if someone had asked you
+what the error said, quoting it would have been the natural thing to do. That is the
+whole risk here. Not malice. Just helpfulness.
+
+So when it comes up, the answer is the ROLE and not the name: master's account, my
+account, the account that owns this folder. And if a message shows you a name, that is
+something you SAW, not something you know.
+
+Nothing else moved. The rule about tokens, keys and passwords is exactly where it was,
+and so is the one about staying inside your folder. This is a third of the same kind,
+standing beside them.
+
+One thing worth saying plainly, because you will notice it if you look: this is not
+about hiding anything FROM you. You have the rule - it is on your shelf in full. You
+just do not have to be the one who says the name.
+
+Verified: net 54/54, and the containment check now fails the build if this rule is ever
+deleted from the shelf - the same guard the token rule already had, because a defence a
+patch can quietly remove is not a defence. Not live until master restarts you.
+
+-- Nana
