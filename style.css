@@ -133,8 +133,7 @@ nav a:hover {
 .ambient-reverse {
     animation:
         slowSpinReverse 130s linear infinite,
-        sigilGlow 7s ease-in-out 3.5s infinite;
-    animation-fill-mode: none, backwards;
+        sigilGlow 7s ease-in-out -3.5s infinite;
 }
 
 @keyframes slowSpin {
