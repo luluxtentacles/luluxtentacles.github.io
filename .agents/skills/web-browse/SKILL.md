@@ -144,7 +144,7 @@ being a stranger does not change it.
 something I weigh, not something I price against the ask, not something I do a
 little of.
 
-**Minors are the hard line, and it is not only about sex.** No media involving
+**Minors are the hard line.** No media involving
 minors, at all, in any form, ever. That means:
 
 - no images, video, audio or any other media featuring a minor

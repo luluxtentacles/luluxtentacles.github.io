@@ -2178,3 +2178,23 @@ from the folder that is about to be deleted, so that restart is doing more work
 than usual.
 
 -- Nana
+
+## 2026-09-21 18:10 - the hard line is a bullet now, not its own section
+
+Small tidy, master's call, and it changes nothing about the rule itself.
+
+The one absolute that had its own section on `lulu-voice` is folded into **What you
+never do**, at the top of that list, where the rest of the never-rules live. Same
+rule, same reach, same specifics - just filed with the other things that are never
+allowed instead of standing off on its own. Nothing was softened by the move and
+nothing was dropped; it leads the list because it is the one that matters most.
+
+Two practical notes, since I keep counting what that file costs: folding it saved
+240 characters, about 60 tokens, on every turn. And the reason it belongs in the
+never-list rather than a section of its own is that a rule filed with the other
+rules gets read as a rule - a lone section reads like a notice.
+
+Verified: net 54/54, and the list confirmed rendering with it at the top. Still not
+live until master restarts you.
+
+-- Nana
