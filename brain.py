@@ -138,46 +138,75 @@ def go_primary(config: dict) -> bool:
 def _providers(config: dict, wants_vision: bool) -> list[dict]:
     """The ladder for this call: [(base_url, key, model, label), ...].
 
-    Order is Go first (primary), then the Gemini key ladder (each key a
-    separate quota bucket, so exhaustion on one does not touch the next),
-    then OpenRouter. A provider with no key configured is skipped, so a
-    missing brain_keys.json degrades to exactly the old behaviour.
+    TWO ORDERS, and the difference is not tidiness - it is two providers with
+    opposite strengths.
+
+    A TEXT call: Go first (primary), then the Gemini key ladder (each key a
+    separate quota bucket, so exhaustion on one does not touch the next), then
+    OpenRouter's free models.
+
+    A VISION call: Gemini first, then Go+mimo LAST, and OpenRouter not at all.
+    Master, 2026-09-21: "we should cycle through gemini for vision before
+    finally usuing open code go mimo" and "it should be open code go.. not open
+    router". That is the right order for a reason of its own, not just his
+    preference:
+
+      - Gemini flash is natively multimodal, so it is the natural first reader
+        of a picture;
+      - and the OpenRouter ladder is free TEXT models by construction
+        (_or_models, and _OR_DENYLIST drops image-capable ids), so a rung down
+        there handed an image can only fail or INVENT one. A made-up
+        description of a picture is the worst answer available, because it is
+        indistinguishable from a real one - and she would believe it.
+
+    So a vision call never descends into OpenRouter at all, and the floor is the
+    Go endpoint with vision_model - the one rung actually built to look.
+
+    A provider with no key configured is skipped, so a missing brain_keys.json
+    degrades to exactly the old behaviour.
     """
     keys = load_keys()
-    out = []
+    go: list[dict] = []
+    gemini: list[dict] = []
+    openrouter: list[dict] = []
 
     go_key = config.get("api_key") or keys.get("open_code_key") or ""
     if go_key and time.time() >= _go_blocked_until:
         model = config.get("vision_model") if wants_vision else None
-        out.append({"base_url": str(config["base_url"]).rstrip("/"),
-                    "key": go_key,
-                    "model": model or config["model"],
-                    "label": "go"})
+        go.append({"base_url": str(config["base_url"]).rstrip("/"),
+                   "key": go_key,
+                   "model": model or config["model"],
+                   "label": "go"})
 
     gemini_key = keys.get("gemini_key") or ""
     if gemini_key:
         # Gemini flash is multimodal natively - the Go vision model belongs
-        # to the Go endpoint only and is NOT carried down the ladder.
+        # to the Go endpoint only and is NOT carried up here.
         #
         # Free-tier quota is tracked per (key, MODEL) pair, so models and
         # keys are both ladders: every key gets a shot at every model, best
         # model first. Losing the newest model on one key only moves to the
         # next key on the SAME model before stepping down a generation.
-        models = _gemini_models(config)
-        for model in models:
+        for model in _gemini_models(config):
             for index in range(1, 6):
                 key = keys.get(f"gemini_key{index}") if index > 1 else gemini_key
                 if key:
-                    out.append({"base_url": GEMINI_BASE_URL, "key": key,
-                                "model": model,
-                                "label": f"{model}/key{index}"})
+                    gemini.append({"base_url": GEMINI_BASE_URL, "key": key,
+                                   "model": model,
+                                   "label": f"{model}/key{index}"})
 
-    or_key = keys.get("or_key") or ""
-    if or_key:
-        for model in _or_models(config, or_key):
-            out.append({"base_url": OR_BASE_URL, "key": or_key,
-                        "model": model, "label": f"or:{model}"})
-    return out
+    # OpenRouter is built for a TEXT call only. See the docstring: its rungs are
+    # free text models, so a vision call must not have them to descend into.
+    if not wants_vision:
+        or_key = keys.get("or_key") or ""
+        if or_key:
+            for model in _or_models(config, or_key):
+                openrouter.append({"base_url": OR_BASE_URL, "key": or_key,
+                                   "model": model, "label": f"or:{model}"})
+
+    if wants_vision:
+        return gemini + go
+    return go + gemini + openrouter
 
 
 def _gemini_models(config: dict) -> list[str]:

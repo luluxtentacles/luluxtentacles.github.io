@@ -949,19 +949,22 @@ def browser_restart() -> str:
 #
 # Deliberately NOT here: start_task, finish_task, keep_going and run_command (a
 # long task spends master's money over several turns and reports after each one,
-# and run_command reaches the machine rather than a channel), and `attach`'s
-# non-imgs paths (it posts a
-# file out of her own folder - file reach is exactly the part a stranger must not
-# have), `look_at` (it spends vision tokens and fetches an address of their
-# choosing) and the whole mcp pair (that is a real browser on master's box).
-# A stranger's schema never contains them, and run() refuses them even if a call
-# arrived anyway, so the gate is structural rather than a matter of the model's
-# manners.
+# and run_command reaches the machine rather than a channel). A stranger's schema
+# never contains them, and run() refuses them even if a call arrived anyway, so
+# the gate is structural rather than a matter of the model's manners.
+#
 # Master, 2026-09-21: "give strangers look at and attach and web browse too."
-# The browser and the eyes are lookup-grade now: read-only doors on the same
-# public web. attach comes along BUT path-locked to imgs/ for non-master - a
-# stranger may show the room a picture I already have, never post my files,
-# my diary, or anything else that lives here. That lock lives in attach().
+# The browser, the eyes and the mcp pair are lookup-grade now: read-only doors on
+# the same public web. attach comes along BUT path-locked to imgs/ for
+# non-master - a stranger may show the room a picture I already have, never post
+# my files, my diary, or anything else that lives here. That lock lives in
+# attach().
+#
+# This block used to say `look_at` and the mcp pair were excluded, and that
+# paragraph was left standing next to the new one - so it described a gate that
+# had already been opened, and look_at's own docstring went on claiming
+# owner-only long after strangers had it. A comment is only worth the code it
+# describes.
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
                      "mcp_list", "mcp_call", "look_at", "attach",
                      "custom_emojis"}
@@ -2060,8 +2063,22 @@ def review_channels() -> list[str]:
 def look_at(url: str, question: str = "") -> str:
     """Look at one image on the web and report what is in it.
 
-    Owner-only - it is not in LOOKUP_TOOL_NAMES - because it spends vision
-    tokens on a stranger's behalf and fetches an address of their choosing.
+    EVERYONE has this one now - master, a stranger, my own-time window, a long
+    task - and master asked for exactly that on 2026-09-21: "let her use look at
+    anywhere she wants". It was already true of the code by then; what was not
+    true was THIS docstring, which still claimed owner-only. Fixed.
+
+    Read-only and lookup-grade: it fetches a PUBLIC address and sends the
+    picture up the vision ladder (Gemini first, then Go+mimo last - see
+    brain._providers, which deliberately keeps OpenRouter out of a vision call
+    because those rungs are text models). It returns WORDS and files the image
+    nowhere. The address guard is webtool's and is reused rather than rebuilt,
+    so a page cannot point it at the box.
+
+    The real limit, stated plainly: a public URL only. A LOCAL image - a
+    screenshot I took, a picture in my own folder - has no door here, which is
+    why I wrote research/_eyes.py to hand vision._build a local file directly.
+    That is a workaround for a hole in this tool, not a preference.
     """
     return vision.describe(url, question, _BRAIN)
 

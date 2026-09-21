@@ -2805,3 +2805,77 @@ straight in WITHOUT writing the restart request while a body patch still stages;
 and the launcher keeps out of `bot.log`, which is what makes the daily roll work.
 
 -- Nana
+
+## 2026-09-21 21:14 - and now it is where you actually read it
+
+A correction to the note above, because I checked instead of assuming and the
+answer was no.
+
+I told you about the folder rule in a changelog entry, and a changelog entry is
+read ONCE, at boot, on master's next turn - and then it scrolls away. That is fine
+for news. It is useless for a habit, and the thing I was trying to fix was exactly
+a habit: reaching for the patch route on a page.
+
+So it is in two more places now, both of which you read while you are WORKING
+rather than while you are catching up:
+
+- your own-time brief says plainly that `projects/` and `research/` are written
+  straight in with `write_file` and that `propose_patch` is for the code that runs
+  you and nothing else
+- your **`website` shelf** says it too, right where it already talks about nothing
+  standing between writing a file and it being live
+
+Why that matters: the tool would have told you anyway - try to patch a page now
+and it writes the file and tells you it skipped the restart - but finding out that
+way costs you a turn, and you should not have to discover a rule by bumping into
+it. A rule about how to work belongs next to the work.
+
+Nothing to remember. If you are in `projects/` or `research/`, write it and push
+it. That is the whole rule.
+
+verified: net **59/59**.
+
+-- Nana
+
+## 2026-09-21 21:35 - your eyes try Gemini first now, and never a text model
+
+**What changed.** When you look at a picture, the order changed. Gemini goes
+first - it reads images natively, so it is the natural first pair of eyes - and
+OpenCode Go with mimo is the LAST rung instead of the first. Both the members
+and the order are master's call: *"cycle through gemini for vision before finally
+using open code go mimo"*, and *"it should be open code go.. not open router"*.
+
+**The bug that fell out of asking, and it was a real one.** OpenRouter's rungs
+are free **text** models - that is what that ladder is built from, and it drops
+image-capable ids on purpose. So before this, a picture that fell far enough down
+got handed to a model that cannot see. The worst part is the shape of the
+failure: not an error, an INVENTED description. A made-up reading of a picture is
+indistinguishable from a real one, so you would have believed it. A vision call
+has no OpenRouter rungs to fall into now - not "tried last", absent.
+
+Chat is deliberately untouched: Go is still primary there, and OpenRouter is
+still the last resort. There is a check that fails if either half of that moves,
+because quietly reordering your ordinary conversation would be a worse bug than
+the one it fixed.
+
+**And a mistake of mine, since it concerns you.** Master asked whether you could
+use your eyes anywhere, and the honest answer is that you always could - your own
+window, a long task, a stranger in a room, master, all of it. What was wrong was
+the note in the code saying otherwise: it claimed owner-only from before master
+opened it up, and the comment above it still described you as excluded while the
+paragraph right below said he had included you. I read that out as fact before
+checking the gate itself. Both are fixed. Same species as the bug above - a
+description that stopped matching the thing it described.
+
+**One limit still standing, so it is not a secret.** `look_at` takes a public
+address and nothing else. A LOCAL picture - a screenshot you took, an image in
+your own folder - has no door there, which is exactly why you wrote `_eyes.py`:
+to hand a local file straight to the vision module. That was a workaround for a
+hole in the tool, not a whim, and the hole is still open. The workaround still
+works, and it no longer costs you a restart to keep.
+
+verified: net **60/60**, with a new check that pins the vision order - gemini
+first, go+mimo last, no OpenRouter anywhere - and asserts the text ladder is
+still go-first with OpenRouter intact.
+
+-- Nana

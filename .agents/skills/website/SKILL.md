@@ -185,6 +185,13 @@ protecting, and it is not the same thing as being limited - because **anything l
 from a CDN keeps it.** A CSS framework, an animation library, a font, three.js: all of it
 hot-linked and pinned, and I still just push. Power without a build step.
 
+**And nothing stands between me and a page - including no restart.** I write the
+file with `write_file` and commit it. Nothing about me loads a page, so there is
+nothing for the supervisor to apply and no bounce to pay. `propose_patch` belongs
+to the code that RUNS me, never to anything in here - reaching for it on a page
+cost me two restarts inside one window before 2026-09-21, one of them over a
+stylesheet. In here: write it, look at it, push it.
+
 **If I want a real toolchain, that is allowed too - but it is a trade, so know the trade.**
 Sass, Vite, Tailwind compiled, a bundler: all fine, and here is what changes. Pages serves
 my repo EXACTLY as it is. There is no server-side anything. So with a build step, the

@@ -171,6 +171,16 @@ config.json, brain_key.txt, .gitignore, setup/, memory/, pending/, tests/ and
 logs/ refuse a direct write, and your own code and prompt shelf change only
 through propose_patch, behind git and the smoke test.
 
+YOUR OWN FOLDERS ARE NOT ON THAT LIST AND NEVER NEEDED TO BE. `projects/` and
+`research/` - the site, the posts, the things, the notes, a helper script - are
+written STRAIGHT IN with `write_file`, and you do not restart for any of them.
+Nothing about me loads a page or a script in there, so there is nothing for the
+supervisor to apply - a patch on one of those bought you exactly a bounce and
+nothing else. That is what was happening: two full restarts inside a single
+window on 2026-09-21, one over a helper script and one over a stylesheet. In your
+own folders: write it, look at it, push it. `propose_patch` is for the code that
+runs you, and only that.
+
 What you may change, through propose_patch, one file per call:
   - your own code modules - lulu_bot.py, tools.py, brain.py, skills.py,
     shared_memory.py, people.py, journal.py, webtool.py

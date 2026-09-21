@@ -2496,6 +2496,54 @@ def _log_split() -> str:
     return "the launcher keeps out of bot.log, so hers can roll at midnight"
 
 
+# -- 8l. the vision ladder: gemini first, go last, never openrouter ------
+# Master, 2026-09-21: "we should cycle through gemini for vision before finally
+# usuing open code go mimo" and "it should be open code go.. not open router".
+# A check rather than a comment because the failure is SILENT and nasty: the
+# OpenRouter rungs are free TEXT models, so a vision call that descends into
+# them either errors or INVENTS a description - and an invented one is
+# indistinguishable from a real one.
+def _vision_ladder() -> str:
+    import brain
+
+    cfg = {"base_url": "https://example.invalid/", "model": "chat-model",
+           "vision_model": "mimo-v2.5"}
+    saved_keys, saved_or = brain.load_keys, brain._or_models
+    # Stubbed so this NEVER opens a socket: _or_models fetches the live model
+    # list, and a smoke check that hits the network is a check that fails on a
+    # plane. The labels are all this needs.
+    brain.load_keys = lambda: {"open_code_key": "go", "gemini_key": "g",
+                               "or_key": "or"}
+    brain._or_models = lambda config, key: ["free-text-model:free"]
+    try:
+        vision = brain._providers(cfg, True)
+        text = brain._providers(cfg, False)
+    finally:
+        brain.load_keys, brain._or_models = saved_keys, saved_or
+
+    order = [r["label"] for r in vision]
+    expect(order, "a vision call has no rungs at all")
+    expect(not any(l.startswith("or:") for l in order),
+           f"a vision call can still descend into OpenRouter's text models: {order}")
+    expect(all("gemini" in l for l in order[:-1]),
+           f"something other than gemini sits above the last rung: {order[:-1]}")
+    expect(order[0].startswith("gemini"),
+           f"vision does not try gemini first: {order[0]}")
+    expect(order[-1] == "go" and vision[-1]["model"] == "mimo-v2.5",
+           f"the vision ladder does not END on go+mimo: {order[-2:]}")
+
+    # And the text ladder must come out of this untouched: go is still primary
+    # there, and OpenRouter is still its last resort. A ladder fix that quietly
+    # reordered chat would be a far worse bug than the one it fixed.
+    torder = [r["label"] for r in text]
+    expect(torder and torder[0] == "go",
+           f"the text ladder lost go as primary: {torder[:3]}")
+    expect(any(l.startswith("or:") for l in torder),
+           "the text ladder lost its OpenRouter fallbacks")
+    return (f"vision: {len(order) - 1} gemini rungs then go+mimo last, no "
+            f"OpenRouter anywhere; text: go first, OpenRouter intact")
+
+
 # -- 9. the skill shelf still parses --------------------------------------
 # Her prompt IS this shelf, and since .agents/ became proposable a bad edit here
 # is a real possibility. Importing cleanly proves nothing: a SKILL.md that is
@@ -4285,6 +4333,7 @@ CHECKS = [
     ("restart-context", _restart_context),
     ("own-work-route", _own_work_route),
     ("log-split", _log_split),
+    ("vision-ladder", _vision_ladder),
 ]
 
 
