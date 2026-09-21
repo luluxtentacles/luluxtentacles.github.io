@@ -349,6 +349,42 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "add_rule",
+            "description": (
+                "Append a rule master gave me to one of my skills, as an "
+                "addendum beside SKILL.md - the skill itself is not touched. "
+                "Use this for 'always/never' instructions, or when master says "
+                "to remember something about how I do a job. The rule loads "
+                "with the skill, and the triggers make it come up on its own "
+                "when a message mentions those words."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "skill_id": {
+                        "type": "string",
+                        "description": "an existing skill id, e.g. website",
+                    },
+                    "rule": {
+                        "type": "string",
+                        "description": "one line, in master's words",
+                    },
+                    "triggers": {
+                        "type": "string",
+                        "description": (
+                            "optional comma-separated words that make this "
+                            "rule relevant, e.g. 'site, ticker, blog post'. "
+                            "Omit to keep whatever is already declared."
+                        ),
+                    },
+                },
+                "required": ["skill_id", "rule"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "web_fetch",
             "description": (
                 "Fetch a public web page and return it as plain text. Public "
@@ -1426,6 +1462,14 @@ def _stage_problems(relative: str, content: str) -> str | None:
             json.loads(content)
         except ValueError as exc:
             return f"{relative} is not valid JSON - {exc}"
+    elif relative.endswith(skills.ADDENDUM):
+        # An addendum is a small list of additions, and an empty one is not a
+        # harmless no-op - it would load as a skill with no rules in it, which
+        # is a patch that changed nothing while looking like it landed.
+        _meta, body = skills._split_front_matter(content)
+        if not any(ln.strip().startswith("-") for ln in body.splitlines()):
+            return (f"{relative} carries no rule lines - an addendum is a "
+                    f"`## Rules` list, and an empty one loads as nothing")
     elif relative.endswith("SKILL.md"):
         meta, body = skills._split_front_matter(content)
         for key in ("name", "description"):
@@ -1744,7 +1788,7 @@ def use_skill(skill_id: str) -> str:
     skill = skills.load(skill_id)
     if not skill:
         return f"nothing on my shelf called '{skill_id}'"
-    return skill.body
+    return skill.text
 
 
 # A skill id becomes a folder name, and the smoke net asserts it matches this
@@ -1779,20 +1823,67 @@ def compose_skill(skill_id: str, description: str, body: str,
 
 
 def write_skill(skill_id: str, description: str, body: str) -> str:
-    """Put a skill on my shelf for good, when master asks for one.
+    """Put a NEW skill on my shelf, when master asks for one.
 
     Deliberately NOT a direct write. A skill is instructions I read every time
     it triggers - the same class as my own code - so it still goes through
     propose_patch: staged, smoke-tested, and kept only if I come back up. What
     this adds is the part I kept getting wrong by hand.
+
+    Create-only, and that is load-bearing rather than tidy. compose_skill builds
+    a WHOLE file, so pointed at a skill that already exists this would replace
+    it outright - and the shelf holds `website` at 31 KB and `lulu-voice`, which
+    is her own voice. Adding to a skill is add_rule's job: a second file, so
+    nothing curated is ever at stake.
     """
     try:
         text = compose_skill(skill_id, description, body)
     except ValueError as exc:
         return f"refused: {exc}"
     sid = skill_id.strip().lower()
+    if skills.load(sid):
+        return (f"refused: '{sid}' is already on my shelf, and write_skill "
+                f"replaces a whole file - that would wipe the one that is "
+                f"there. Use add_rule to append a rule to it instead.")
     return propose_patch(f"{skills.SHELF}/{sid}/SKILL.md", text,
                          f"add the {sid} skill")
+
+
+def add_rule(skill_id: str, rule: str, triggers: str = "") -> str:
+    """Append one rule to a skill's addendum, leaving SKILL.md untouched.
+
+    Master's rules used to go into a skill body by hand, which meant composing
+    the whole file to add a line - and that is exactly the operation that eats a
+    skill. This writes the second file instead, so the curated text stays
+    byte-identical and only the addition is at stake if the pipeline rejects it.
+    """
+    skill = skills.load((skill_id or "").strip())
+    if not skill:
+        return (f"refused: nothing on my shelf called '{skill_id}'. add_rule "
+                f"appends to a skill that exists - write_skill makes a new one.")
+    relative = f"{skills.SHELF}/{skill.id}/{skills.ADDENDUM}"
+    try:
+        target = paths.resolve(relative)
+    except Exception as exc:
+        return f"{type(exc).__name__}: {exc}"
+    # A staged addendum wins over the one on disk, so a second rule in the SAME
+    # turn composes on top of the first instead of losing it. Plain text IO: the
+    # guard on a path is about WRITES, and reading a sealed file by path is what
+    # load_token already does with the token.
+    staged = paths.ROOT / STAGED_DIR / relative
+    source = staged if staged.is_file() else target
+    existing = ""
+    if source.is_file():
+        try:
+            existing = source.read_text(encoding="utf-8")
+        except OSError as exc:
+            return f"could not read the addendum already there: {exc}"
+    try:
+        text = skills.append_rule(skill.id, rule, existing, triggers)
+    except ValueError as exc:
+        return f"refused: {exc}"
+    return propose_patch(relative, text,
+                         f"append a rule to the {skill.id} skill")
 
 
 def web_fetch(url: str) -> str:
@@ -2604,6 +2695,8 @@ DISPATCH = {
     "write_skill": lambda a: write_skill(a.get("skill_id", ""),
                                          a.get("description", ""),
                                          a.get("body", "")),
+    "add_rule": lambda a: add_rule(a.get("skill_id", ""), a.get("rule", ""),
+                                   a.get("triggers", "")),
     "web_fetch": lambda a: web_fetch(a.get("url", "")),
     "mcp_list": lambda a: mcp_list(),
     "mcp_call": lambda a: mcp_call(a.get("server", ""), a.get("tool", ""),

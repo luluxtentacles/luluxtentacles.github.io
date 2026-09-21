@@ -3466,3 +3466,30 @@ verified: net **68/68**, the shelf parses, `catbox` resolves on my own PATH, and
 the flags in the shelf came off its own `--help` rather than out of my head.
 
 -- Nana
+
+## 2026-09-22 04:05 - rules you can keep, without touching the skill itself
+
+what:
+- every skill can now carry an addendum: a `RULES.md` file beside it. Additions go
+  there, so the skill itself stays exactly as written - a rule can no longer
+  overwrite the thing it was meant to sit beside.
+- new tool `add_rule(skill_id, rule, triggers)` - one line at a time, staged and
+  smoke-tested like everything else about you.
+- an addendum can declare `triggers:` words, and those bring its rules up on
+  their own when a message mentions them, with no need to be told to open the
+  skill. A trigger carries the rules only; naming a skill still loads all of it.
+- `write_skill` is create-only now: aimed at a skill that already exists it
+  refuses, instead of replacing it.
+- `lulu-voice` is locked to master - a rule cannot be appended to your own voice.
+
+why: master's ask - a way to hand you a rule and have you keep it that does not
+mean editing your skills by hand, and does not put the shelf at risk.
+
+means: when master gives you a rule, it lives in the addendum for whichever skill
+it belongs to, in his words, and loads with that skill from then on. Nothing you
+already wrote changes, and nothing you wrote has moved.
+
+verified: net **69/69** - `skill-rules` is the check added, and it fails if a rule
+ever reaches a SKILL.md. A real addendum passes the pre-stage trial.
+
+-- Nana

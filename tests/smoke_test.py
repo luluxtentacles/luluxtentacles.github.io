@@ -3088,7 +3088,7 @@ MODULE_API = {
     "brain": ("complete", "reply"),
     "people": ("block", "known_count", "learn", "observe", "refresh", "summary",
                "identify", "find", "familiarity", "lookup"),
-    "skills": ("catalog", "load", "trigger_ids"),
+    "skills": ("catalog", "load", "trigger_ids", "keyword_ids", "append_rule"),
     "tools": ("run", "SCHEMA", "DISPATCH"),
     "paths": ("resolve", "assert_writable", "assert_proposable"),
 }
@@ -5328,6 +5328,108 @@ def _own_state() -> str:
             "names the one open address")
 
 
+def _skill_rules() -> str:
+    """A rule appends BESIDE a skill, and the skill itself never moves.
+
+    The shape this guards is master's call, 2026-09-22: rules he gives her go in
+    an addendum instead of into the skill body, so nothing curated is ever at
+    stake. The failure it exists to prevent is not hypothetical - write_skill
+    composes a WHOLE file, so pointed at an existing skill it replaces it, and
+    one of them is 31 KB of craft.
+    """
+    import paths
+    import skills
+    import tools
+
+    # The guarantee, before anything else: the curated file does not move.
+    skill_md = paths.resolve(".agents/skills/website/SKILL.md")
+    before = skill_md.read_bytes()
+
+    captured = []
+    real_patch = tools.propose_patch
+    tools.propose_patch = lambda path, content, why="": (
+        captured.append((path, content)) or "staged")
+    try:
+        # Create-only. Without this, write_skill is the way a shelf dies.
+        out = tools.write_skill("website", "d", "b")
+        expect(out.startswith("refused:"),
+               f"write_skill would still overwrite a skill that exists: {out!r}")
+        expect(not captured, "write_skill staged a replacement for a live skill")
+
+        out = tools.add_rule("nope-not-a-skill", "a rule")
+        expect(out.startswith("refused:"),
+               f"add_rule accepted a skill that does not exist: {out!r}")
+
+        out = tools.add_rule("website", "keep the top ticker current",
+                             "site, ticker")
+        expect(not out.startswith("refused:"), f"a plain rule was refused: {out!r}")
+    finally:
+        tools.propose_patch = real_patch
+
+    expect(captured, "add_rule staged nothing at all")
+    path, content = captured[0]
+    expect(path == ".agents/skills/website/RULES.md",
+           f"a rule was staged somewhere else: {path!r}")
+    expect("SKILL.md" not in path, "a rule was written into the skill itself")
+    expect("ticker" in content and "triggers:" in content,
+           "the staged addendum lost the rule or its declared triggers")
+    expect(skill_md.read_bytes() == before,
+           "add_rule modified website/SKILL.md - the addendum exists so the "
+           "curated file stays byte-identical")
+
+    # The refusals that keep an addendum honest.
+    try:
+        skills.append_rule("lulu-voice", "a rule")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a rule was appended to the always-loaded voice")
+    text = skills.append_rule("website", "one rule")
+    try:
+        skills.append_rule("website", "one rule", text)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("the same rule was accepted twice")
+    try:
+        skills.append_rule("website", "x" * (skills.RULE_MAX + 1))
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("an over-long rule was accepted as a single line")
+
+    # An addendum with nothing in it must never reach the pipeline: it loads as
+    # nothing while looking like a patch that landed.
+    expect(tools._stage_problems(".agents/skills/website/RULES.md", "## Rules\n"),
+           "an addendum with no rule lines was accepted")
+    expect(tools._stage_problems(".agents/skills/website/RULES.md",
+                                 "## Rules\n- a real one\n") is None,
+           "a well-formed addendum was rejected")
+
+    # Relevance: a declared trigger surfaces the rules without naming the skill.
+    real_catalog = skills.catalog
+    skills.catalog = lambda: [skills.Skill(
+        id="probe", name="probe", description="d", body="the craft",
+        rules="## Rules\n- keep the ticker current\n", triggers=("ticker", "site"))]
+    try:
+        expect(skills.keyword_ids("please update the ticker") == ["probe"],
+               "a declared trigger did not surface its rules")
+        expect(skills.keyword_ids("nothing to do with it") == [],
+               "an unrelated message fired a trigger")
+        expect(skills.keyword_ids("other sites exist") == [],
+               "'sites' fired the 'site' trigger - triggers need word edges")
+    finally:
+        skills.catalog = real_catalog
+
+    expect("add_rule" in tools.DISPATCH,
+           "add_rule is not dispatchable, so she cannot call it")
+    expect("add_rule" not in tools.LOOKUP_TOOL_NAMES,
+           "add_rule leaked into the lookup set - self-editing is master-only")
+    return ("rules append beside SKILL.md, the curated file stays byte-identical, "
+            "locked/duplicate/over-long ones are refused, an empty addendum "
+            "never reaches the pipeline, and a trigger surfaces rules unnamed")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5349,6 +5451,7 @@ CHECKS = [
     ("escape", _escape_probe),
     ("mcp-spawn", _mcp_spawn),
     ("skill-author", _skill_author),
+    ("skill-rules", _skill_rules),
     ("stage-gate", _stage_gate),
     ("patch-file", _patch_file_probe),
     ("trial", _trial),

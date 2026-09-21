@@ -1950,7 +1950,10 @@ class Lulu(discord.Client):
     # dance it kills happened in ordinary chat: given "up to you" she asked
     # what was meant, then promised, then the turn ended and nothing ran.
     def system_prompt(self) -> str:
-        parts = [s.body for s in (skills.load(i) for i in self.always_skills) if s]
+        # `text`, not `body`: an always-loaded skill also carries whatever rules
+        # were appended to it since. That is the only way a rule gets in front of
+        # me on EVERY turn instead of whenever a keyword happens to match.
+        parts = [s.text for s in (skills.load(i) for i in self.always_skills) if s]
         parts.append(MASTER_CALL_RULE)
         return "\n\n".join(parts) or "You are Lulu."
 
@@ -1959,7 +1962,7 @@ class Lulu(discord.Client):
         if words and words[0] in {"skill", "skills"}:
             if len(words) > 2 and words[1] in {"use", "load"}:
                 skill = skills.load(words[2])
-                return f"[{skill.id}]\n\n{skill.body}" if skill else f"nothing called '{words[2]}'"
+                return f"[{skill.id}]\n\n{skill.text}" if skill else f"nothing called '{words[2]}'"
             shelf = skills.catalog()
             if not shelf:
                 return "my shelf is empty"
@@ -1967,7 +1970,14 @@ class Lulu(discord.Client):
         for skill_id in skills.trigger_ids(text):
             skill = skills.load(skill_id)
             if skill:
-                return f"[{skill.id}]\n\n{skill.body}"
+                return f"[{skill.id}]\n\n{skill.text}"
+        # Not named, but relevant. A declared trigger carries the ADDENDUM only:
+        # the craft body on `website` is thousands of tokens, and a passing word
+        # is not a request to read the whole shelf - only the rules added to it.
+        for skill_id in skills.keyword_ids(text):
+            skill = skills.load(skill_id)
+            if skill and skill.rules:
+                return f"[{skill.id} - rules for this]\n\n{skill.rules}"
         return None
 
     # -- events -----------------------------------------------------------
