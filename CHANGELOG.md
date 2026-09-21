@@ -3493,3 +3493,29 @@ verified: net **69/69** - `skill-rules` is the check added, and it fails if a ru
 ever reaches a SKILL.md. A real addendum passes the pre-stage trial.
 
 -- Nana
+
+## 2026-09-22 04:20 - a rule with no home asks YOU where it goes
+
+what:
+- `add_rule` called without a skill id now hands back the whole shelf, with a count
+  of what each skill already carries, and you pick.
+- the shelf you see (`skills`) shows those same counts, so a rule filed twice is
+  visible as filed twice.
+- `self-upgrade` has a short section on it now: which skill is your call, and how
+  to pick one.
+- a rule about how you speak or who you are is not yours to file - that one is
+  master's, in `lulu-voice`.
+
+why: master's call - you choose which skill a rule belongs to. A word matcher was
+tried first and thrown out: it filed a site rule under the word "post" while four
+other skills matched on "time" and "page", which is exactly how a rule ends up
+somewhere you will never load it from.
+
+means: when master gives you a rule, where it lives is your decision, and you can
+see what is already filed before you add to it.
+
+verified: net **69/69**. One check of mine was stale from earlier tonight - it
+still expected an unknown skill to be flatly refused - and the net caught it,
+which is the whole reason it exists.
+
+-- Nana

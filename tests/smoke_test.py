@@ -5356,9 +5356,14 @@ def _skill_rules() -> str:
                f"write_skill would still overwrite a skill that exists: {out!r}")
         expect(not captured, "write_skill staged a replacement for a live skill")
 
+        # An unknown id hands the shelf back instead of staging: a menu is not a
+        # patch, and only a real id may reach propose_patch. This assertion used
+        # to demand a flat refusal, before choosing became her call.
         out = tools.add_rule("nope-not-a-skill", "a rule")
-        expect(out.startswith("refused:"),
-               f"add_rule accepted a skill that does not exist: {out!r}")
+        expect("is not on my shelf" in out and "nope-not-a-skill" in out,
+               f"an unknown skill did not hand back the shelf: {out[:80]!r}")
+        expect(not captured,
+               "a rule with no home was staged - the menu is not a patch")
 
         out = tools.add_rule("website", "keep the top ticker current",
                              "site, ticker")
@@ -5421,13 +5426,41 @@ def _skill_rules() -> str:
     finally:
         skills.catalog = real_catalog
 
+    # WHICH skill is her choice, so a rule with no home must hand back the shelf.
+    # A matcher was tried and rejected: it filed a site rule under the word "post"
+    # while four other skills matched on "time", "page" and "line".
+    menu = tools.add_rule("", "keep the top ticker current")
+    expect("website" in menu and "my shelf" in menu,
+           f"a rule with no skill did not return the shelf: {menu[:140]!r}")
+    expect("keep the top ticker current" in menu,
+           "the rule was dropped instead of being handed back with the shelf")
+    expect("lulu-voice" in menu,
+           "the shelf menu does not say which skill is master's, not hers")
+
+    # The criteria have to live where she actually reads them.
+    upgrade = (paths.resolve(".agents/skills/self-upgrade/SKILL.md")
+               .read_text(encoding="utf-8"))
+    expect("add_rule" in upgrade,
+           "self-upgrade never names add_rule - the routing rule is not written "
+           "down anywhere she reads")
+
+    # A skill carrying rules has to LOOK like it carries them, or a duplicate
+    # filed into a second skill is invisible as a duplicate.
+    probe = skills.Skill(id="probe", name="probe", description="d", body="b",
+                         rules="## Rules\n- one\n- two\n")
+    expect(skills.rule_count(probe) == 2,
+           "rule_count does not count the rules already filed on a skill")
+    expect("2 rules filed" in tools._shelf_line(probe),
+           "the shelf line hides how many rules a skill already carries")
+
     expect("add_rule" in tools.DISPATCH,
            "add_rule is not dispatchable, so she cannot call it")
     expect("add_rule" not in tools.LOOKUP_TOOL_NAMES,
            "add_rule leaked into the lookup set - self-editing is master-only")
     return ("rules append beside SKILL.md, the curated file stays byte-identical, "
             "locked/duplicate/over-long ones are refused, an empty addendum "
-            "never reaches the pipeline, and a trigger surfaces rules unnamed")
+            "never reaches the pipeline, a trigger surfaces rules unnamed, and "
+            "a rule with no home hands her the shelf to choose from")
 
 
 CHECKS = [

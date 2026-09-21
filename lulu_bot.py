@@ -1966,7 +1966,12 @@ class Lulu(discord.Client):
             shelf = skills.catalog()
             if not shelf:
                 return "my shelf is empty"
-            return "my shelf:\n" + "\n".join(f"`{s.id}` - {s.description}" for s in shelf)
+            lines = []
+            for s in shelf:
+                n = skills.rule_count(s)
+                lines.append(f"`{s.id}` - {s.description}"
+                             + (f" ({n} rule{'s' if n != 1 else ''} filed)" if n else ""))
+            return "my shelf:\n" + "\n".join(lines)
         for skill_id in skills.trigger_ids(text):
             skill = skills.load(skill_id)
             if skill:

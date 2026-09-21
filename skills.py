@@ -180,3 +180,14 @@ def append_rule(skill_id: str, rule: str, existing: str = "",
             f"{RULES_MAX} cap - it rides in the prompt every time the skill "
             f"loads, so prune it before adding more")
     return text
+
+
+def rule_count(skill: Skill) -> int:
+    """How many rules are already filed against a skill.
+
+    The shelf shows this so a second copy of a rule is visible AS a second copy.
+    Rules ending up "all over the place" is not something a bare list of names and
+    descriptions can show you, and she is the one who has to notice.
+    """
+    return sum(1 for line in skill.rules.splitlines()
+               if line.strip().startswith("-"))

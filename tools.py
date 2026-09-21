@@ -354,16 +354,23 @@ SCHEMA = [
                 "Append a rule master gave me to one of my skills, as an "
                 "addendum beside SKILL.md - the skill itself is not touched. "
                 "Use this for 'always/never' instructions, or when master says "
-                "to remember something about how I do a job. The rule loads "
-                "with the skill, and the triggers make it come up on its own "
-                "when a message mentions those words."
+                "to remember something about how I do a job. WHICH skill is my "
+                "call: called without an id it hands back the whole shelf, "
+                "with what each skill already carries, so I can pick the best "
+                "fit rather than guess. The rule loads with the skill, and the "
+                "triggers make it come up on its own when a message mentions "
+                "those words."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
                     "skill_id": {
                         "type": "string",
-                        "description": "an existing skill id, e.g. website",
+                        "description": (
+                            "the skill whose job this rule governs; omit it, "
+                            "or get it wrong, and the shelf comes back so I "
+                            "can choose"
+                        ),
                     },
                     "rule": {
                         "type": "string",
@@ -378,7 +385,7 @@ SCHEMA = [
                         ),
                     },
                 },
-                "required": ["skill_id", "rule"],
+                "required": ["rule"],
             },
         },
     },
@@ -1781,7 +1788,46 @@ def list_skills() -> str:
     shelf = skills.catalog()
     if not shelf:
         return "my shelf is empty"
-    return "\n".join(f"{s.id} - {s.description}" for s in shelf)
+    return "\n".join(_shelf_line(s) for s in shelf)
+
+
+def _shelf_line(skill: "skills.Skill") -> str:
+    """One shelf line, with whatever rules are already filed against it.
+
+    A skill carrying rules has to LOOK like it carries them. Otherwise the same
+    rule gets filed into two places and neither copy is obviously the duplicate,
+    which is exactly what "all over the place" means in practice.
+    """
+    n = skills.rule_count(skill)
+    tail = f"  ({n} {'rule' if n == 1 else 'rules'} filed)" if n else ""
+    return f"{skill.id} - {skill.description}{tail}"
+
+
+def _rule_menu(picked: str, rule: str) -> str:
+    """The shelf, when a rule has no home yet - so SHE picks, not a matcher.
+
+    Master's call, 2026-09-22: let her choose which skill fits. A matcher was
+    tried first and it is a blind scorer. Scored against the skill descriptions,
+    a `posts.json ticker` rule reached `website` only through the word "post",
+    while `freetime`, `hobbies`, `mcp-client` and `web-browse` all matched on
+    generic words - "time", "page", "line" - that say nothing at all about whose
+    job the rule governs. A wrong guess files a real rule into a skill she will
+    never load it from, which is worse than not filing it at all.
+    """
+    shelf = skills.catalog()
+    if not shelf:
+        return "my shelf is empty - write_skill makes the first skill."
+    return (
+        f"'{picked}' is not on my shelf, so this rule has no home yet.\n\n"
+        + "\n".join(_shelf_line(s) for s in shelf)
+        + "\n\nPick the skill whose JOB the rule governs - the one you are already "
+        "reading when that work happens - then call add_rule again with its id.\n"
+        "- a rule about how you speak, or who you are, is not a skill rule: that "
+        "one is master's, in lulu-voice.\n"
+        "- if nothing above fits, the rule may want to be a new skill rather "
+        "than a line on an old one.\n"
+        "- the rule, kept safe while you decide: " + (rule or "(none given)")
+    )
 
 
 def use_skill(skill_id: str) -> str:
@@ -1856,11 +1902,14 @@ def add_rule(skill_id: str, rule: str, triggers: str = "") -> str:
     the whole file to add a line - and that is exactly the operation that eats a
     skill. This writes the second file instead, so the curated text stays
     byte-identical and only the addition is at stake if the pipeline rejects it.
+
+    WHICH skill is her call, not a matcher's: with no id, or an id that is not on
+    the shelf, this hands back the shelf and she picks. See _rule_menu.
     """
-    skill = skills.load((skill_id or "").strip())
+    sid = (skill_id or "").strip().lower()
+    skill = skills.load(sid) if sid else None
     if not skill:
-        return (f"refused: nothing on my shelf called '{skill_id}'. add_rule "
-                f"appends to a skill that exists - write_skill makes a new one.")
+        return _rule_menu(skill_id or "(none given)", rule)
     relative = f"{skills.SHELF}/{skill.id}/{skills.ADDENDUM}"
     try:
         target = paths.resolve(relative)

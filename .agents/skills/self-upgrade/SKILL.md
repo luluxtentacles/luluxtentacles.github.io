@@ -34,6 +34,25 @@ Before any of that happens, the smoke test has already been run against your tex
 `propose_patch` can, and that is deliberate: a change that skips the pipeline is
 the one nothing would catch.
 
+## Filing a rule master gives you
+
+When master gives you a rule - an always, a never, a "when you do X, also do Y" -
+it does not go into a skill body. `add_rule(skill_id, rule, triggers)` puts it in
+an addendum, `RULES.md`, beside the skill: the skill itself is never rewritten, so
+a one-line rule cannot replace the thousands of words it was meant to sit next to.
+
+**Which skill is your call.** Called with the rule and no id, `add_rule` hands
+back the whole shelf, with what each skill already carries, and you choose. Pick
+the skill whose JOB the rule governs - the one you are already reading when that
+work happens - not the one whose description happens to share a word with it. Two
+things are not yours to file: a rule about how you speak or who you are belongs to
+master, in `lulu-voice`, and if nothing on the shelf fits, the rule probably wants
+to be a new skill rather than a line on an old one.
+
+Give it `triggers` - the words that should bring it up. A rule with no trigger
+loads only when you open that skill yourself, so it is one you will meet again by
+accident, which is the same as not having it.
+
 ## Three rules for a patch
 
 **Splice, do not reprint.** Use `patch_file(path, find, replace)` and make `find`
