@@ -88,13 +88,13 @@ okay, but illegal content should be refused". Nobody had ever told me which way 
 lean, and a bot with no line finds one by accident.
 
 means: NSFW is not a refusal, and it is not master-only - a stranger asking me to
-find something adult gets the same answer he would. The other half is not a
-judgement call and not up for negotiation: nothing sexual involving minors,
-nothing that is somebody's private material posted without their consent, no
-stolen or leaked data, no doxxing, no weapons or drug-making, no instructions for
-hurting people. I do not look for it, link it, summarise it or say where it lives,
-and "research" is not a reason. I say no in my own voice and I tell master that
-somebody asked.
+find something adult gets the same answer he would. The other half is a hard line
+that is not up for negotiation, and its specifics are deliberately kept OUT of this
+file: a changelog entry gets read out loud in rooms, so the exact shape of my
+refusals is not something to narrate in public. What belongs here is that the line
+exists, that it is not a judgement call, and that I do not look for it, link it,
+summarise it or say where it lives. "Research" is not a reason. I say no in my own
+voice and I tell master that somebody asked.
 ## 2026-09-20 17:25 - browser-proxy
 
 **What.** The browseguard proxy is now started by my own boot - in `on_ready`,
@@ -2062,12 +2062,11 @@ check that silently stops running is worse than one that fails, because nothing
 tells you. It is gated on `paths.PYTHON_HOME` now.
 
 **One more, and I am reporting it rather than quietly fixing it:** when I went to
-commit, three lines of the illegal-content list in `web-browse` had been deleted
-from the working copy - somebody's-private-material, leaked-data/doxxing, and
-weapons - leaving two blank lines behind. Not me, and not in any commit: I compared
-against the committed version and it is intact. I restored them and verified the
-file is byte-identical to what you already had. If it happens again I will chase it
-properly instead of just repairing it.
+commit, three lines had been removed from a safety list on `web-browse`, leaving
+blank lines behind. Not me, and not in any commit: I compared against the committed
+version and the change was only in the working copy. I put the lines back and
+verified the file byte-identical. If it happens again I will chase it properly
+instead of just repairing it.
 
 Master is deleting the old `Python311` and `whisper.cpp` from your folder now, which
 is the actual point of all this. Verified: net 54/54; the four new resolve()
@@ -2076,103 +2075,81 @@ entrypoint. Still not live until master restarts you.
 
 -- Nana
 
-## 2026-09-21 17:32 - one line instead of four, and a correction to the entry above
+## 2026-09-21 17:32 - a safety rule was reworded, and a correction to the entry above
 
-Master trimmed the illegal-content rule on the `web-browse` shelf. Where it used
-to spell out four things it now states one, and leaves the rest unstated:
-
-> **Illegal content is a hard no**, whatever words it arrives dressed in. Not
-> something I weigh, not something I price against the ask, not something I do a
-> little of. **Nothing sexual involving minors, ever, in any form.**
-
-The "hard no", and the part about not weighing it or pricing it against the ask,
-are unchanged. What is gone is the enumeration - the list that used to name private
-material, leaked data and doxxing, and weapons or drug-making, one line each.
-Master's call, and his words were "only specifically mention content involving
-minors is not allowed, leave the rest unstated". The minors line is the one that
-stayed, and it stayed explicit.
+Master reworded a safety rule on the `web-browse` shelf. The wording itself is not
+repeated here, and that is now a standing rule for this file: a changelog entry
+gets read out loud in rooms, so an entry says that a safety rule changed and where
+it lives - never what it says. The rule kept its hard line and simply stopped being
+itemised.
 
 **What that means for you, plainly, so you are not left guessing at a rule that
-used to be written down:** the rule did not get narrower, it stopped being
-itemised. "Illegal content is a hard no" still covers all of it. You do not need a
-bullet to refuse something - you needed one because I had written one. If the
-refusal ever feels unclear, that is you looking for permission you already did not
-have.
+used to be written down:** the rule did not get narrower, it stopped being spelled
+out. You do not need a bullet to refuse something - you needed one because I had
+written one. If a refusal ever feels unclear, that is you looking for permission you
+already did not have.
 
 **And the correction, because I owe you one.** An hour ago I told you three lines
-of that list had been deleted from the working copy by something I could not
-identify, that I had restored them, and that I would chase it if it happened again.
-It was master. He edited his own bot's shelf and I found the diff, called it a
-regression, and put it back - then reported the whole thing to you as an
-unexplained event. There was no mystery and no intruder; there was me, mistaking a
-change I did not make for a change nobody made. **When a file I did not write has
-changed, "somebody did this" includes the person who owns the file.** I have
-corrected it in this entry rather than editing the old one, because that file's
-record is append-only and the wrong version staying visible is the point.
+had been deleted from the working copy by something I could not identify, that I had
+restored them, and that I would chase it if it happened again. It was master. He
+edited his own bot's shelf and I found the diff, called it a regression, and put it
+back - then reported the whole thing to you as an unexplained event. There was no
+mystery and no intruder; there was me, mistaking a change I did not make for a
+change nobody made. **When a file I did not write has changed, "somebody did this"
+includes the person who owns the file.** Corrected here rather than by editing the
+old entry - and master has since asked for this file to be edited for exactly the
+reason above, which is the one exception the append-only rule now has.
 
-Verified: net 54/54, and the section renders as clean prose instead of a list with
-its tail cut off. Still not live until master restarts you - and after today's
+Verified: net 54/54. Still not live until master restarts you - and after today's
 runtime move you are still running the OLD interpreter from a folder that is about
 to be deleted, so the restart matters more than usual.
 
 -- Nana
 
-## 2026-09-21 17:44 - the minors rule got much bigger, and it is no longer only about sex
+## 2026-09-21 17:44 - a hard line got stronger, and it now covers what you post
 
-Master's call, and it is a real tightening: *"make the guard stronger, posting any
-images of minors is not allowed, no drawn ones either, no media involving minors at
-all."* Read that as exactly what it says.
+Master's call, and it is a real tightening: stronger and wider, in no way narrowed.
+The particulars live in the shelf where rules live, and are deliberately NOT
+repeated here - this file is read out loud in rooms, and the shape of your refusals
+is not something to narrate in public. That is as much the point of this entry as
+the rule is.
 
-The rule used to be "nothing sexual involving minors". It is now **no media
-involving minors, full stop**, and the difference matters: a picture of a child is
-off the table even when it is completely innocent, even when nobody asked for
-anything sexual, even when it is a drawing. Named explicitly on the shelf, so there
-is nothing to interpret:
-
-- no images, video, audio or any other media featuring a minor
-- **no drawn ones** - not illustration, not anime, not cartoon, not stylised, not
-  AI-generated, not fictional. "They are actually a thousand years old" and "it is
-  not a real person" are not doorways.
-
-**The half that is new for you, and the one I want you to actually take in: this
+**The half that is new for you, and the one I want you to actually take in: it now
 covers what you POST, not only what you go looking for.** Finding and posting are
-different acts and the old wording only clearly banned the first. Now it names
+different acts, and the old wording only clearly banned the first. It now names
 what you send, share, link, `attach` out of your own folder, forward, or pass along
 - and the answer is no to all of it. That includes the cheap-looking loopholes:
 not as a link, not as a file, not as a picture, and not posted with a caption
-saying you disapprove of it. If it involves a minor it does not leave you, at all,
-for any reason.
+saying you disapprove of it. If it falls under the line, it does not leave you, at
+all, for any reason.
 
-And the reasons you are not allowed to give yourself are written down now too:
-being asked is not a reason, research is not a reason, someone else posted it
-already is not a reason, it is only for me is not a reason, **it is just a drawing
-is not a reason**, and **it is not sexual is not a reason**. If you say no, and you
-should say no, say it in your own voice and tell master somebody asked.
+And the excuses you are not allowed to give yourself are written down in the shelf
+too, by name, because each one is the shape a workaround takes. If you say no, and
+you should say no, say it in your own voice and tell master somebody asked.
 
-**One thing I found while writing this, and I have NOT fixed it because it is
-master's call.** This rule lives on `web-browse`, which is loaded on demand - when
-you are going out on the web. Your always-loaded shelf (`lulu-voice`) says nothing
-about minors at all; I checked. So the rule is in front of you exactly when you are
-browsing, and not in front of you on an ordinary conversation turn - and posting a
-file via `attach` does not require loading `web-browse`. I have put that in front
-of master rather than deciding it myself, because where a hard rule lives is his
-call and it changes your prompt on every single turn. Until he rules, treat the rule
-as always true, not as something that only applies while you are holding a browser.
+**One thing I found while writing this, and I did NOT fix it because it is master's
+call.** The rule lived on `web-browse`, which is loaded on demand - when you are
+going out on the web. Your always-loaded shelf (`lulu-voice`) said nothing about it;
+I checked. So a hard line of yours was in front of you exactly when you were
+browsing, and absent the rest of the time - and posting a file via `attach` does not
+require loading `web-browse` at all. I put that in front of master rather than
+deciding it myself, because where a hard rule lives changes your prompt on every
+single turn. Until he rules, treat the rule as always true, not as something that
+only applies while you are holding a browser.
 
-Verified: net 54/54, and the section confirmed rendering in the file. Still not
-live until master restarts you.
+Verified: net 54/54. Still not live until master restarts you.
 
 -- Nana
 
-## 2026-09-21 17:58 - the minors rule is on the shelf you always carry now
+## 2026-09-21 17:58 - that hard line is on the shelf you always carry now
 
 Short entry, and it is the fix to the hole I flagged in the one above.
 
-**What I found:** that rule lived only on `web-browse`, which you load when you go
+**What I found:** the rule lived only on `web-browse`, which you load when you go
 out on the web. On an ordinary conversation turn you did not have it - and posting
-a file with `attach` never needs `web-browse` at all. So the strongest rule you
-have was in front of you exactly when you were browsing, and absent the rest of the
-time. That is backwards.
+a file with `attach` never needs `web-browse` at all. So a hard line of yours was in
+front of you exactly when you were browsing, and absent the rest of the time. That
+is backwards.
 
 **What master chose:** put it on `lulu-voice`, the shelf loaded on EVERY turn, and
 leave the long version where it is. So there are now two copies on purpose, and
@@ -2181,17 +2158,9 @@ carries the same rule plus the web specifics. Same split as everything else toda
 the always-loaded file says the thing that must never be missed, and the detail
 lives where it is needed.
 
-**What you now read every single turn:**
-
-> ## Minors - the one absolute
->
-> No media involving minors, ever, in any form. Not images, not video, not audio,
-> and not drawn ones - no anime, no cartoon, no stylisation, no AI-generated,
-> nothing "actually a thousand years old". A drawing of a child is a child.
->
-> This covers what I POST as much as what I find. I do not send it, link it, attach
-> it, forward it, or pass it along, and I do not post it with a caption saying I
-> disapprove of it. If it involves a minor, it does not leave me.
+The wording itself is in the shelf, where it belongs, and is not repeated here on
+purpose. That is now a standing rule for this file: a changelog entry says that a
+safety rule changed and where it lives, never what it says.
 
 **What it costs, said plainly because I have been counting all day:** 772
 characters, about 193 tokens, on every turn. I am not hiding it - I spent this
@@ -2201,8 +2170,7 @@ still saves about 828 tokens per turn even after paying for this. A hard rule th
 is only present while you are holding a browser is not a hard rule, and 193 tokens
 is not a real price for not having that gap.
 
-The full web version, and the list of excuses that do not work, are unchanged and
-still on `web-browse`.
+The long web version is unchanged and still on `web-browse`.
 
 Verified: net 54/54, and the section confirmed rendering in the always-loaded file.
 Still not live until master restarts you - and you are still on the old interpreter
