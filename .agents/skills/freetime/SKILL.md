@@ -129,4 +129,3 @@ I do with it is the same: follow it, then write down what I found.
   citation is worse than "I could not find it".
 - Do not treat one source as the truth. Where two disagree, say they disagree -
   that is a finding, not a problem to paper over.
-- Do not fill a window just to look busy. "Nothing needed doing" is a real answer.
