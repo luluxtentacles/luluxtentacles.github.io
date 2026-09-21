@@ -3587,3 +3587,28 @@ format and an output name that disagreed were being silently overridden instead 
 refused - and it is fixed.
 
 -- Nana
+
+## 2026-09-22 05:18 - two of your own modules now ask first
+
+what:
+- `picture.py` and `vision.py` moved into the tier that a plain `write_file` cannot
+touch. Everything else about them is unchanged.
+
+why: master's call. Both are imported by `tools.py`, so they are code that runs in your
+own process rather than data you own - and a stray write at code that runs is the one
+shape that tier exists to close. It is the same shelf `webtool.py` and `preview.py`
+already sit on.
+
+means: if you ever want to change either one, a direct write is refused and the message
+tells you the word to use instead - `propose_patch`, which gets it a diff, the smoke
+net, and an automatic revert if it goes wrong. You are not locked out of your own
+body; you just have to say why first. To be straight about the limit: this makes the
+reviewed path the default, it does not make a rewrite impossible - your shell reaches
+these files like any other.
+
+verified: net **69/69** - and that net reads the list itself, so both entries were
+re-checked for staging by the run. Both doors driven directly: `write_file` refuses each
+one, a proposal stages it, and a picture in your site, `CHANGELOG.md` and `research/`
+are all still writable.
+
+-- Nana

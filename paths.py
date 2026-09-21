@@ -208,6 +208,18 @@ PROPOSABLE_NAMES = {
     # to edit preview.py could re-point the mirror at her folder root and serve
     # her keys over 127.0.0.1 to a page she then posts somewhere.
     "preview.py",
+    # Her picture tools (2026-09-22, master's call). Both are imported by
+    # tools.py, which makes them code that runs in her own process - so a bare
+    # write_file at either one is a write to code that runs, which is the exact
+    # shape this tier exists to close. picture.py edits her pictures for her
+    # site; vision.py decides what a picture costs to look at. Neither is a
+    # boundary, so this is the tier webtool.py sits in rather than the seal:
+    # she may still change them, through a proposal that gets a git diff, the
+    # smoke test and an automatic revert. Worth being honest about what this
+    # does NOT do - every other name in this set is equally reachable by her own
+    # shell, so the tier makes the REVIEWED path the default rather than making
+    # a rewrite impossible.
+    "picture.py", "vision.py",
 }
 
 
