@@ -429,7 +429,8 @@ def _busy_error(code: int, detail: str) -> bool:
 
 
 def _attempt(provider: dict, payload: dict, cache: bool,
-             limits: dict | None = None) -> dict:
+             limits: dict | None = None,
+             timeout: float | None = None) -> dict:
     """One round trip to one provider. Returns the raw assistant message.
 
     On a provider-level failure the returned dict carries "_credit" (true
@@ -463,7 +464,8 @@ def _attempt(provider: dict, payload: dict, cache: bool,
         method="POST",
     )
     try:
-        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(
+                request, timeout=timeout or TIMEOUT_SECONDS) as response:
             data = json.load(response)
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", "replace")[:300]
@@ -650,13 +652,19 @@ def _own_time_turn() -> bool:
 
 
 def complete(config: dict, messages: list[dict], tools: list | None = None,
-             max_tokens: int | None = None) -> dict:
+             max_tokens: int | None = None,
+             timeout: float | None = None) -> dict:
     """One round trip. Returns the raw assistant message, tool_calls included.
 
     `max_tokens` overrides the configured value for this call. A falsy value (0)
     OMITS the field entirely and leaves the ceiling to the provider - that is
     what "no limit" means on the wire. Absent the argument, the config value is
     used, exactly as before.
+
+    `timeout` caps the HTTP read for this call, in seconds, and it is what makes
+    a turn's own deadline a ceiling rather than a hope: the turn loop hands down
+    what is LEFT of its 15 minutes so a single slow call cannot sail past it.
+    None means the usual TIMEOUT_SECONDS.
 
     Worth knowing when you set it: reasoning tokens are billed to this same
     budget, so a thinking model can spend the whole allowance before it writes a
@@ -738,7 +746,7 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
         else:
             rung_payload = payload
         result = _attempt(provider, rung_payload, cache=_PROMPT_CACHE,
-                          limits=limits)
+                          limits=limits, timeout=timeout)
         if "_credit" in result:
             if provider["label"] == "go":
                 bench_go()

@@ -2705,7 +2705,7 @@ def _vision_ladder_descends() -> str:
     seen: list[str] = []
     dead = {"all": False}
 
-    def dropper(provider, payload, cache=None, limits=None):
+    def dropper(provider, payload, cache=None, limits=None, timeout=None):
         seen.append(provider["label"])
         if dead["all"] or provider["label"].startswith("gemini"):
             return {"_error": "[my brain is unreachable: RemoteDisconnected]"}
@@ -4258,15 +4258,15 @@ def _supersede() -> str:
 
     bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
 
-    room_a = bot._begin_turn(111)
-    room_b = bot._begin_turn(222)
+    room_a = bot._begin_turn(111, owner=True)
+    room_b = bot._begin_turn(222, owner=True)
     expect(not bot._superseded(111, room_a),
            "a turn in another room superseded this one - channels are not "
            "separate chats")
     expect(not bot._superseded(222, room_b),
            "a turn superseded itself in its own room")
 
-    room_a2 = bot._begin_turn(111)
+    room_a2 = bot._begin_turn(111, owner=True)
     expect(room_a2 != room_a, "the per-channel turn generation never advanced")
     expect(bot._superseded(111, room_a),
            "a follow-up in the same room did NOT supersede the running turn - "
@@ -4932,6 +4932,114 @@ def _browser_proxy() -> str:
             "comes up")
 
 
+def _stop_and_limits() -> str:
+    """Master's stop word, the 15-minute ceiling, and who may interrupt her.
+
+    Three of master's calls from 2026-09-21, pinned together because they are
+    one story: she got stuck serving her own folder to look at it, the way she
+    did that hung her shell for 900s twice, and only he could have stopped it.
+    """
+    import asyncio
+    import inspect
+
+    import lulu_bot
+    import paths
+
+    # 1. The stop word exists, is ONE word, is owner-gated, and is checked
+    # BEFORE the turn slot is claimed - which is the only place it can reach a
+    # turn that has already wedged. A word checked after the claim cannot do the
+    # one job it has.
+    expect(lulu_bot.STOP_WORK == "stopwork",
+           f"the stop word is not 'stopwork': {lulu_bot.STOP_WORK!r}")
+    src = inspect.getsource(lulu_bot.Lulu.on_message)
+    expect("STOP_WORK" in src, "on_message never looks for the stop word")
+    head = src.split("STOP_WORK", 1)[0]
+    expect("_begin_turn(" not in head,
+           "the turn slot is claimed before the stop word is read, so the word "
+           "cannot reach a wedged turn")
+    tail = src.split("STOP_WORK", 1)[1].split("_begin_turn", 1)[0]
+    expect("has_hands" in tail, "the stop word is not owner-gated")
+
+    # 2. Only master may interrupt a running turn. A stranger's @mention while
+    # she is mid-thought must not cancel her work; master's must.
+    async def _interrupt_rule() -> str:
+        class _Stub:
+            pass
+
+        stub = _Stub()
+        stub._turn_seq = {333: 1}
+        stub._turn_tasks = {}
+
+        async def _forever():
+            await asyncio.sleep(3600)
+
+        task = asyncio.create_task(_forever())
+        await asyncio.sleep(0)          # let it actually start
+        stub._turn_tasks[333] = task
+
+        got = lulu_bot.Lulu._begin_turn(stub, 333, owner=False)
+        expect(got is None, f"a stranger claimed the turn slot: {got!r}")
+        expect(not task.done(), "a stranger cancelled a running turn")
+        expect(stub._turn_seq[333] == 1,
+               "a stranger advanced the generation, superseding her anyway")
+
+        got = lulu_bot.Lulu._begin_turn(stub, 333, owner=True)
+        expect(isinstance(got, int) and got != 1,
+               f"master could not claim the turn slot: {got!r}")
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+        expect(task.cancelled(), "master's message did not cancel the turn")
+        return "owner-only interrupt enforced"
+
+    expect(asyncio.run(_interrupt_rule()) == "owner-only interrupt enforced",
+           "the interrupt rule is not enforced")
+
+    # 3. The turn has a wall-clock ceiling and it FIRES. Driven with the
+    # deadline set to nothing, so the loop gives up at its first boundary before
+    # any brain call - which is also proof it costs no round trip.
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+    expect(lulu_bot.TURN_DEADLINE_SECONDS == 900,
+           f"the turn deadline is not 15 minutes: "
+           f"{lulu_bot.TURN_DEADLINE_SECONDS}")
+    real = lulu_bot.TURN_DEADLINE_SECONDS
+    try:
+        lulu_bot.TURN_DEADLINE_SECONDS = -1
+        out = bot.run_turns([{"role": "user", "content": "hi"}], None, None)
+        expect("time limit" in out,
+               f"the turn deadline did not fire: {out!r}")
+    finally:
+        lulu_bot.TURN_DEADLINE_SECONDS = real
+
+    # And the real brain really takes the timeout the loop hands down, so the
+    # guarded hand-down above can never quietly stop enforcing the ceiling.
+    import brain
+    expect("timeout" in inspect.signature(brain.complete).parameters,
+           "brain.complete lost its timeout parameter, so the 15-minute turn "
+           "ceiling no longer caps a single call")
+
+    # 4. The mirror REALLY detaches. `start /b` is not a detach - measured
+    # 2026-09-21, it hung 8.1s for an 8s child, and her own log holds the 900s
+    # version of exactly that. --background must return well inside the child's
+    # own lifetime, or her turn is held by her own preview.
+    import subprocess
+
+    started = time.time()
+    out = subprocess.run([sys.executable, "preview.py", "--background",
+                          "--seconds", "6", "--quiet"],
+                         cwd=str(paths.ROOT), capture_output=True, text=True,
+                         timeout=60)
+    elapsed = time.time() - started
+    expect(out.returncode == 0,
+           f"preview --background failed: {out.stderr or out.stdout}")
+    expect(elapsed < 4,
+           f"preview --background held the caller for {elapsed:.1f}s of a 6s "
+           f"child - it is not detaching")
+    return ("stop word owner-gated and read before the slot claim, only master "
+            "interrupts, turn deadline fires at 15 minutes, preview detaches")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -4997,6 +5105,7 @@ CHECKS = [
     ("vision-ladder", _vision_ladder),
     ("vision-ladder-descends", _vision_ladder_descends),
     ("brain-headers", _brain_headers),
+    ("stop-limits", _stop_and_limits),
 ]
 
 

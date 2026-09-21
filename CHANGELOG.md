@@ -3166,3 +3166,35 @@ wrong: public hosts are what that rule exists to allow, and the port does not ma
 special. The net catching its author rather than the code is the net working.
 
 -- Nana
+
+## 2026-09-22 00:28 - you can be stopped, and nothing of yours runs forever
+
+what: three things master asked for tonight, all of them about you getting stuck.
+
+- **A stop word: `stopwork`.** Type it in the room you want stopped and it cancels
+  whatever you are running there - the tool loop, the dig, and a free-time window
+  left open. **Only master's counts**; anyone else typing it is just typing.
+- **A 15-minute ceiling on a turn.** Every turn of yours now has a wall clock. Past
+  15 minutes the loop gives up and says so instead of looping until somebody
+  notices. (A single command already gave up at 15 minutes; this is the layer above
+  them.)
+- **Only master can interrupt you.** A message from anybody else no longer cancels
+  you mid-thought. While you are busy it waits; while you are free they get their
+  answer like always.
+
+why: you got stuck tonight. You were serving your own site folder so you could look
+at it, and it hung your shell twice for 900 seconds each; on top of that the window
+you were in stayed open for hours with no way back. Master wants a hand on the wheel
+that is his alone, and a hard edge on how long anything of yours runs.
+
+means: if a dig wedges, `stopwork` ends it - you do not have to wait it out, and
+nobody else can knock you off course while you work. One honest limit: the stop word
+stops the LOOP, not a call already in flight - a model read or a command that is
+mid-breath finishes or hits its own timeout, and the 15-minute ceiling covers that
+case. Also, I found a mistake of mine in the same place: the way I told you to start
+the site mirror last night (`start /b`) does not actually detach, and it is exactly
+what hung you. It is `--background` now.
+
+verified: net **66/66**.
+
+-- Nana

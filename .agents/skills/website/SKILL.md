@@ -255,12 +255,17 @@ look at a page the moment I have written it. Looking often is the job, so this e
 window:
 
 ```
-run_command: start /b "" python preview.py --seconds 120
+run_command: python preview.py --background --seconds 120
 ```
 
-`--seconds` is not optional in my head even though the flag is. A preview that outlives
-its use is a door I left open, so I give it a window and let it close itself. Two minutes
-is plenty for the steps below.
+`--background` is not decoration, it is the whole thing. My shell waits for a command's
+output pipe to close, and a server holds that pipe open forever - so a server started
+WITHOUT it hangs my turn until it dies. I tried `start /b` once and it did exactly that:
+`start /b` does not detach when the shell is capturing output, and it burned the full
+900-second tool timeout, twice. `--background` actually detaches. `--seconds` is not
+optional in my head even though the flag is: a preview that outlives its use is a door I
+left open, so I give it a window and let it close itself. Two minutes is plenty for the
+steps below.
 
 Then, with my own tools:
 

@@ -776,6 +776,30 @@ async def maybe_run(bot) -> bool:
     return True
 
 
+def clear_stuck_window() -> bool:
+    """Close a window that is open and stale, so it stops blocking new ones.
+
+    Master's stop word calls this. A window left `in_progress` is not a turn
+    anybody can cancel - the flag lives on disk - so "stop" has to mean the flag
+    too, or her own time stays pinned with no way back. That is exactly the
+    stuck state found on 2026-09-21: `in_progress` true since 20:06, last turn
+    20:22, still true hours later, so no window could start and nothing said so.
+
+    Deliberately age-blind: if master says stop, it stops. A window genuinely
+    mid-turn is separately bounded by the turn deadline, so clearing the flag
+    ends the window rather than leaving work half-strung.
+
+    Returns True only when it actually closed something.
+    """
+    state = _state()
+    if not state.get("in_progress"):
+        return False
+    _save(in_progress=False,
+          report=str(state.get("report") or "stopped by master"))
+    LOG.warning("an open free-time window was closed by master's stop word")
+    return True
+
+
 async def watch(bot, poll_seconds: int = POLL_SECONDS) -> None:
     """Poll for a window. Cheap, and it never raises out into her event loop."""
     while True:

@@ -6,6 +6,7 @@ Every file path goes through paths.resolve(), so she cannot wander out.
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import logging
 import logging.handlers
@@ -164,6 +165,24 @@ PROGRESS_MAX_CHARS = 300         # per line
 # "stop talking" - and never posts it. The NUL prefix cannot occur in real model
 # output, so no genuine answer can be mistaken for this.
 SUPERSEDED = "\x00superseded"
+
+# Master's stop word, and only his. Typed bare in a channel or a DM, it cancels
+# whatever she is running there - a tool loop that has wedged, a dig going
+# nowhere - and it is deliberately a WORD he types rather than a tool she has to
+# be healthy enough to call, because the whole point is to reach a turn that has
+# already stuck. Owner-gated in on_message; a stranger typing it is a stranger
+# typing. See _stop_work for what it can and cannot cut.
+STOP_WORK = "stopwork"
+
+# How long ONE turn may run, wall-clock, before the tool loop gives up. Master,
+# 2026-09-21: "add a timeout to everything she runs maximum 15 minutes before
+# the tool gives up." Every SUBPROCESS was already bounded at 15 minutes by
+# runbox.TIMEOUT; this is the layer above it and the piece that was missing - a
+# turn is up to MAX_TOOL_ROUNDS (40) model calls plus their tool work, and no
+# per-call limit bounds the SUM. Checked at the top of each round, which is the
+# only place a looping call can be caught, and the remaining budget is handed
+# down to each model call so one slow call cannot sail past it either.
+TURN_DEADLINE_SECONDS = 900
 
 
 # A nickname is untrusted input.
@@ -2518,6 +2537,20 @@ class Lulu(discord.Client):
                 return
             LOG.info("DM from master")
 
+        # THE STOP WORD. Master only, and it is checked HERE - before the
+        # identity layer, before the address gate, before any turn slot is
+        # claimed - because the one thing it must do is work on a turn that has
+        # already wedged. It asks her to think nothing; it stops the thinking in
+        # progress. A stranger typing it is just a stranger typing.
+        if (message.content or "").strip().lower() == STOP_WORK:
+            if not self.has_hands(message.author.id):
+                LOG.info("%s typed the stop word - only master's counts",
+                         message.author)
+                return
+            LOG.warning("master called the stop word")
+            await self._stop_work(message)
+            return
+
         # Who this is, recorded on every message - the identity layer. It is why
         # a rename cannot turn a regular into a stranger: the old name becomes an
         # alias rather than being lost. Throttled internally, so most messages
@@ -2632,11 +2665,16 @@ class Lulu(discord.Client):
         answer = self.skill_command(text)
         if answer is None:
             channel_id = message.channel.id
-            # Claim the slot BEFORE the work starts. A newer message in this
-            # room bumps the generation and cancels whatever was running, so a
-            # follow-up interrupts her mid-dig - it does not queue behind it,
-            # and it no longer runs beside it either.
-            seq = self._begin_turn(channel_id)
+            # Claim the slot BEFORE the work starts. Only MASTER's message
+            # supersedes a running dig: he asked for both halves of that
+            # (2026-09-21) - his own follow-up interrupts her mid-dig, and
+            # nobody else can. A stranger addressed while she is mid-thought
+            # gets None and does not interrupt; idle, they are answered exactly
+            # as before. See _begin_turn.
+            seq = self._begin_turn(channel_id,
+                                   owner=self.has_hands(message.author.id))
+            if seq is None:
+                return
             async with message.channel.typing():
                 answer = await self.think_out_loud(message, text, parent,
                                                    parts, seq)
@@ -2829,22 +2867,40 @@ class Lulu(discord.Client):
         except Exception as exc:
             LOG.warning("could not note a channel line: %s", exc)
 
-    def _begin_turn(self, channel_id: int) -> int:
+    def _begin_turn(self, channel_id: int, *, owner: bool) -> int | None:
         """Claim the turn slot for a channel, superseding whatever holds it.
 
-        Returns this turn's generation. One message per channel is answered at a
-        time, and a follow-up does not queue behind the running one - it
-        REPLACES it, which is the point. Before this existed nothing tracked the
-        slot at all, so two messages in the same room ran side by side in two
-        worker threads and raced to reply twice and write memory twice.
+        Returns this turn's generation, or None when a turn may NOT begin at
+        all - the stranger case below.
+
+        One message per channel is answered at a time, and a follow-up does not
+        queue behind the running one - it REPLACES it, which is the point.
+        Before this existed nothing tracked the slot at all, so two messages in
+        the same room ran side by side in two worker threads and raced to reply
+        twice and write memory twice.
+
+        WHO may replace it is the `owner` flag, and it is deliberately narrow.
+        Master, 2026-09-21: "no one else should be able to interrupt her mid
+        inference when she's using tools apart from me." A turn of hers is up to
+        MAX_TOOL_ROUNDS model calls with her own work underneath, so letting a
+        stranger's @mention cancel it is a stranger reaching into the middle of
+        her thoughts. His message still replaces a running dig; anybody else's
+        does not claim the slot at all, and while she is busy gets nothing back
+        rather than cutting in. Idle, a stranger is answered exactly as before -
+        this only ever refuses to INTERRUPT.
         """
-        seq = self._turn_seq.get(channel_id, 0) + 1
-        self._turn_seq[channel_id] = seq
         running = self._turn_tasks.get(channel_id)
         if running is not None and not running.done():
+            if not owner:
+                LOG.info("someone who is not master is addressed in channel %s "
+                         "while a turn is running - not interrupting it",
+                         channel_id)
+                return None
             running.cancel()
-            LOG.info("new message in channel %s superseded the running turn",
-                     channel_id)
+            LOG.info("master's message in channel %s superseded the running "
+                     "turn", channel_id)
+        seq = self._turn_seq.get(channel_id, 0) + 1
+        self._turn_seq[channel_id] = seq
         return seq
 
     def _superseded(self, channel_id: int, seq: int) -> bool:
@@ -2913,6 +2969,51 @@ class Lulu(discord.Client):
         out the right words to ask with.
         """
         return author_id in set(self.config.get("owner_ids", []))
+
+    async def _stop_work(self, message: discord.Message) -> None:
+        """Stop whatever is running, because master said so.
+
+        Three things, and they are honestly three different things:
+
+        1. The asyncio task for any channel mid-turn is CANCELLED. That drops
+           whatever the turn still returns and stops the loop at its next round
+           boundary.
+        2. Every channel's generation is bumped, so a worker thread already
+           inside a blocking call abandons at the first check it reaches and its
+           words are dropped, not posted.
+        3. A free-time window left open is closed. That is not a turn and no
+           task cancel reaches it - it is a flag on disk - and it is the other
+           way she gets pinned, so stop has to mean the flag too.
+
+        What it does NOT do, said plainly rather than papered over: it cannot
+        cut a call that is already in flight. A model read or a tool subprocess
+        is a blocking call in a thread and nothing here can interrupt it. The
+        turn deadline (TURN_DEADLINE_SECONDS) bounds that case, and runbox's own
+        timeout bounds a subprocess. This stops the LOOP; the deadline stops the
+        CALL.
+        """
+        stopped: list[str] = []
+        for channel_id in list(self._turn_tasks):
+            task = self._turn_tasks.pop(channel_id, None)
+            if task is not None and not task.done():
+                task.cancel()
+                stopped.append(str(channel_id))
+        # Every generation anyone might be holding, plus this channel even if she
+        # has never spoken here. A worker thread can be mid-round with no task
+        # entry left, and the generation is what it checks.
+        for channel_id in set(self._turn_seq) | {message.channel.id}:
+            self._turn_seq[channel_id] = self._turn_seq.get(channel_id, 0) + 1
+        try:
+            if self_review.clear_stuck_window():
+                stopped.append("the free-time window")
+        except Exception as exc:
+            LOG.warning("could not check the review window: %s", exc)
+        LOG.warning("stop word: cancelled %s",
+                    ", ".join(stopped) if stopped else "nothing was running")
+        await self.send(
+            message,
+            ("stopped - " + ", ".join(stopped) + ".") if stopped
+            else "nothing was running, so there was nothing to stop.")
 
     def think(self, message: discord.Message, text: str,
               parent: discord.Message | None = None,
@@ -3204,7 +3305,21 @@ class Lulu(discord.Client):
         prompt_total = 0
         cached_total = 0
         prompt_this_round = None
+        # The turn's own wall-clock ceiling, started here and checked at the top
+        # of every round. Between rounds is the only place a looping call can be
+        # caught: an in-flight model read or tool subprocess cannot be cut short
+        # from here, which is exactly why the remaining budget is also handed
+        # DOWN to each call below.
+        started = time.monotonic()
         for round_index in range(MAX_TOOL_ROUNDS):
+            remaining = TURN_DEADLINE_SECONDS - (time.monotonic() - started)
+            if remaining <= 0:
+                LOG.warning("turn deadline reached (%ds) - giving up on the "
+                            "tool loop", TURN_DEADLINE_SECONDS)
+                return (answer or
+                        "i hit my own time limit on that one - i stopped "
+                        "rather than keep going. ask me again and i'll take a "
+                        "shorter run at it.")
             # Fold the prompt's middle BEFORE it can outgrow the window. From the
             # second round on this uses the exact number the provider reported for
             # the round just sent; on the first round, before anything has gone
@@ -3226,8 +3341,20 @@ class Lulu(discord.Client):
                 turns.append({"role": "user", "content":
                               "Enough looking - answer now, in your own words, using "
                               "only what you already gathered. Do not call another tool."})
-            reply = brain.complete(self.config["brain"], turns, schema,
-                                   max_tokens=max_tokens)
+            # What is LEFT of the turn, handed down as a per-call timeout so one
+            # slow call cannot sail past the loop's own ceiling - but offered
+            # ONLY to a brain that declares it. A test double or an older shim is
+            # called exactly as before, so adding the ceiling cannot break a
+            # caller that never heard of it. The real brain.complete DOES take
+            # it, and the net pins that, so this can never quietly stop
+            # enforcing the deadline.
+            _call = {"max_tokens": max_tokens}
+            try:
+                if "timeout" in inspect.signature(brain.complete).parameters:
+                    _call["timeout"] = max(remaining, 5.0)
+            except (TypeError, ValueError):
+                pass
+            reply = brain.complete(self.config["brain"], turns, schema, **_call)
             answer = (reply.get("content") or "").strip()
             calls = reply.get("tool_calls") or []
             # Both before the branch below: a round that ends in a tool call has

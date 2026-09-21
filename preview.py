@@ -50,18 +50,29 @@ No writes, no caching, no auth, no TLS. It is a mirror, not a server.
 
 How she starts it
 -----------------
-    python preview.py --seconds 120
+    python preview.py --background --seconds 120
 
-`--seconds` is the important part and it is not a convenience: a preview that
-outlives its use is a door left open, so it shuts itself. Started from her own
-shell it needs to be detached (the shell would otherwise wait on it) - `start /b
-"" python preview.py --seconds 120` - and that is documented on the `website`
-shelf where she will actually look for it.
+`--background` is the part that matters, and it is not cosmetic. Her shell
+captures stdout through a PIPE and waits for that pipe to close, so a server that
+holds it open hangs the caller for the server's whole life. `start /b` LOOKS like
+a detach and is not one - measured 2026-09-21, it took 8.1s for a child that lived
+8s, and her own log holds the 900s version of exactly that, twice, from her
+trying to serve this folder by hand with `start /b python -m http.server`. A
+process started with DETACHED_PROCESS and its streams on the null device returns
+in 0.1s and keeps running. That is what `--background` does: it re-launches this
+same command detached and returns at once. The shelf said `start /b` for exactly
+one day, and it was wrong for that whole day.
+
+`--seconds` is the other half and it is not a convenience either: a preview that
+outlives its use is a door left open, so it shuts itself. Both are documented on
+the `website` shelf, where she will actually look for them.
 """
 from __future__ import annotations
 
 import argparse
 import http.server
+import os
+import subprocess
 import sys
 import threading
 import urllib.parse
@@ -248,6 +259,50 @@ class Handler(http.server.BaseHTTPRequestHandler):
             pass
 
 
+# Windows process-creation flags. DETACHED_PROCESS is what actually detaches;
+# CREATE_NEW_PROCESS_GROUP keeps it out of ours so a Ctrl+C on our side cannot
+# take the mirror with it.
+_DETACHED_PROCESS = 0x00000008
+_CREATE_NEW_PROCESS_GROUP = 0x00000200
+
+
+def _relaunch_detached(argv: list[str]) -> int:
+    """Start this same command in a process that is not ours, and return now.
+
+    This exists because `start /b` does not do what it looks like it does, and I
+    shipped it as the documented way to start this file. Her shell waits for the
+    child's stdout pipe to close; a server never closes it; so the "detached"
+    launch blocked for the child's whole lifetime. Measured 2026-09-21: `start
+    /b` returned 8.1s for an 8s child, `start /b ... > NUL` returned 8.1s too,
+    and her live log has two 900s timeouts from serving her folder by hand. A
+    Popen with DETACHED_PROCESS, its streams on the null device and close_fds,
+    returned 0.1s with the child still running.
+
+    The child inherits nothing from us - not stdin, not stdout, not this pipe -
+    so nothing we do or close afterwards can reach it, and nothing it does can
+    hold us.
+    """
+    flags = 0
+    if os.name == "nt":
+        flags = _DETACHED_PROCESS | _CREATE_NEW_PROCESS_GROUP
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, str(Path(__file__).resolve()), *argv],
+            creationflags=flags,
+            close_fds=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            cwd=str(paths.ROOT),
+        )
+    except Exception as exc:
+        print(f"could not start the mirror in the background: {exc}")
+        return 4
+    print(f"preview running detached (pid {proc.pid}) at "
+          f"http://{BIND_HOST}:{PORT}/")
+    return 0
+
+
 def serve(root_relative: str = DEFAULT_ROOT, seconds: float | None = None,
           quiet: bool = False) -> int:
     """Mirror one folder until stopped, or until `seconds` elapses."""
@@ -310,11 +365,25 @@ def main(argv: list[str] | None = None) -> int:
                              "outlives its use is a door left open.")
     parser.add_argument("--quiet", action="store_true",
                         help="no per-request lines")
+    parser.add_argument("--background", action="store_true",
+                        help="re-launch detached and return at once, so a server "
+                             "never holds the calling shell")
     # There is deliberately no --port. The address rule is keyed to ONE port, so a
     # flag that moved it could only ever produce a mirror the browser is not
     # allowed to open - confusing and useless. Change webtool.LOCAL_PREVIEW_PORT
     # if the port has to move, and change it in one place.
     args = parser.parse_args(argv)
+    if args.background:
+        # Pass only what the caller changed, so the defaults stay defined in one
+        # place, and leave --background itself out or the child recurses forever.
+        child: list[str] = []
+        if args.root != DEFAULT_ROOT:
+            child += ["--root", args.root]
+        if args.seconds:
+            child += ["--seconds", str(args.seconds)]
+        if args.quiet:
+            child += ["--quiet"]
+        return _relaunch_detached(child)
     return serve(args.root, args.seconds, args.quiet)
 
 
