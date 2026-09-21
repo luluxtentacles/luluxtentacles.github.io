@@ -266,7 +266,8 @@ _DETACHED_PROCESS = 0x00000008
 _CREATE_NEW_PROCESS_GROUP = 0x00000200
 
 
-def _relaunch_detached(argv: list[str]) -> int:
+def _relaunch_detached(argv: list[str],
+                       _probe: list[str] | None = None) -> int:
     """Start this same command in a process that is not ours, and return now.
 
     This exists because `start /b` does not do what it looks like it does, and I
@@ -281,13 +282,23 @@ def _relaunch_detached(argv: list[str]) -> int:
     The child inherits nothing from us - not stdin, not stdout, not this pipe -
     so nothing we do or close afterwards can reach it, and nothing it does can
     hold us.
+
+    `_probe` is the TEST seam, and it is the only reason it exists: when given,
+    it is the exact command to run instead of this file. It is there so the net
+    can prove the DETACH - that a child outlives its launcher - using a sleeper,
+    without binding the real port. That matters because the first cut of the
+    check DID bind it, and a net check that leaves a server running outside the
+    test session wedges the next run. Nothing in normal use passes a probe.
     """
     flags = 0
     if os.name == "nt":
         flags = _DETACHED_PROCESS | _CREATE_NEW_PROCESS_GROUP
+    probed = _probe is not None
+    command = _probe if probed else [
+        sys.executable, str(Path(__file__).resolve()), *argv]
     try:
         proc = subprocess.Popen(
-            [sys.executable, str(Path(__file__).resolve()), *argv],
+            command,
             creationflags=flags,
             close_fds=True,
             stdin=subprocess.DEVNULL,
@@ -298,6 +309,8 @@ def _relaunch_detached(argv: list[str]) -> int:
     except Exception as exc:
         print(f"could not start the mirror in the background: {exc}")
         return 4
+    if probed:
+        return 0
     print(f"preview running detached (pid {proc.pid}) at "
           f"http://{BIND_HOST}:{PORT}/")
     return 0

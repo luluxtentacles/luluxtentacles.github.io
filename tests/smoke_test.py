@@ -5019,25 +5019,48 @@ def _stop_and_limits() -> str:
            "brain.complete lost its timeout parameter, so the 15-minute turn "
            "ceiling no longer caps a single call")
 
-    # 4. The mirror REALLY detaches. `start /b` is not a detach - measured
-    # 2026-09-21, it hung 8.1s for an 8s child, and her own log holds the 900s
-    # version of exactly that. --background must return well inside the child's
-    # own lifetime, or her turn is held by her own preview.
+    # 4. The mirror REALLY detaches - and the net proves it WITHOUT binding a
+    # port. The property is "a child outlives its launcher", and `start /b`
+    # fails it: measured 2026-09-21, it hung 8.1s for an 8s child, and her own
+    # log holds the 900s version of exactly that. This uses a sleeper through
+    # preview's own detach path, not the server - because the first cut of this
+    # check spawned a REAL listener, and a net that leaves a server running
+    # outside the test session is a net that wedges the next run.
+    import preview
     import subprocess
 
+    marker = paths.ROOT / SANDBOX_NAME / "detach.marker"
+    done = paths.ROOT / SANDBOX_NAME / "detach.done"
+    for f in (marker, done):
+        try:
+            f.unlink()
+        except FileNotFoundError:
+            pass
+    script = ("import time,pathlib;"
+              f"pathlib.Path(r'{marker}').write_text('up');"
+              "time.sleep(4);"
+              f"pathlib.Path(r'{done}').write_text('done')")
     started = time.time()
-    out = subprocess.run([sys.executable, "preview.py", "--background",
-                          "--seconds", "6", "--quiet"],
-                         cwd=str(paths.ROOT), capture_output=True, text=True,
-                         timeout=60)
+    rc = preview._relaunch_detached([], _probe=[sys.executable, "-c", script])
     elapsed = time.time() - started
-    expect(out.returncode == 0,
-           f"preview --background failed: {out.stderr or out.stdout}")
-    expect(elapsed < 4,
-           f"preview --background held the caller for {elapsed:.1f}s of a 6s "
-           f"child - it is not detaching")
+    expect(rc == 0, f"the detached launch failed: rc={rc}")
+    expect(elapsed < 2,
+           f"the detached launch held the caller {elapsed:.1f}s - it is not "
+           f"detaching")
+    deadline = time.time() + 5
+    while not marker.exists() and time.time() < deadline:
+        time.sleep(0.1)
+    expect(marker.exists(), "the detached child never started at all")
+    expect(not done.exists(),
+           "the child finished inside its launcher - so it never detached")
+    for f in (marker, done):
+        try:
+            f.unlink()
+        except FileNotFoundError:
+            pass
     return ("stop word owner-gated and read before the slot claim, only master "
-            "interrupts, turn deadline fires at 15 minutes, preview detaches")
+            "interrupts, turn deadline fires at 15 minutes, preview detaches "
+            "without leaving a listener")
 
 
 CHECKS = [
