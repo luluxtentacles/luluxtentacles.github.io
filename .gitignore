@@ -170,3 +170,33 @@ browser/instagram_jar.json
 # her read_file has no read guard, so she can read her own session cookies. Same
 # fact as the browser-profile note above - not a leak to a stranger, just true.
 browser/social_jar.json
+
+# Her own projects, and the one credential that pushes them.
+#
+# This folder is HERS - the place where what she makes is hers and nobody is
+# reviewing it. It lives inside C:/lulu because that is where her boxed account
+# actually holds Modify; anywhere else needs an ACL grant from an admin, and her
+# process is not an admin.
+#
+# It is ignored here, and it has to be, for the same mechanical reason as node/,
+# ffmpeg/ and Python311/ above: pipeline.checkpoint() runs `git add -A`, so an
+# unignored nested repo would have its files - or a gitlink pointing at a commit
+# nobody can resolve - swept into HER OWN audit history by the next self-edit.
+# Her projects are not her body, and the record of what was done to her must not
+# fill up with them.
+#
+# projects/ is ignored as a whole subtree rather than file by file, so a project
+# she starts tomorrow is covered before it exists.
+projects/
+
+# The push credential for her own GitHub. Root level on purpose, NOT inside
+# projects/: that folder is a git repo she runs `git add -A` in, and a live
+# token sitting in a worktree one careless commit away from being published is
+# the exact mistake this line exists to prevent. Out here her own repo cannot
+# reach it at all.
+#
+# It is a credential, so it gets the same honesty as browser-profile/ above: the
+# file sits inside C:/lulu and her read_file has NO read guard, so she can read
+# her own push token. Not a leak to a stranger - just true, and written down so
+# nobody finds out by accident.
+.git-credentials

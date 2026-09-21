@@ -62,6 +62,31 @@ and gitignored. If it does not exist, the feature has never run.
 - **`memory/` is sealed against HER writes on purpose** (her store, and one
   `write_file` once wiped it). It is ordinary files for us.
 
+## Her own projects live in `projects/`
+
+Not her body - hers. It is a git repo of its own, branch `main`, with a remote on
+HER GitHub. The audit repo deliberately has NO remote and keeps it that way; two
+different gits, and neither one's identity is the other's. Do not add a remote
+here, and do not push her projects through this repo.
+
+- `projects/` is ignored by this repo's `.gitignore` as a whole subtree, and it
+  has to be: `pipeline.checkpoint()` runs `git add -A`, so an unignored nested
+  repo lands in her own audit history as loose files or as an unresolvable
+  gitlink. Her projects are not her body, and the record of what was done to her
+  must not fill up with them.
+- Her push credential is `C:\lulu\.git-credentials`, root level and NOT inside
+  `projects/` - that is the one place her own `git add -A` cannot reach. It is a
+  plain credential file on disk: she can read it (no read guard), so never echo
+  it, never paste it into chat, and rotate it if it ever leaves this box.
+- `setup/run-bot.cmd` appends `C:\Program Files\Git\cmd` to HER path. Git is not
+  on the machine PATH and the copy that resolves in your shell lives on Kei's
+  user PATH, which the lulu-bot account cannot reach. That edit needs a restart
+  before it is real for her.
+- The repo-local config (`credential.helper`, `user.name`) lives in
+  `projects/.git/config`, so a repo she inits INSIDE that one will not inherit
+  auth. Her `projects/README.md` carries the global-config version she can run
+  herself.
+
 ## Where the rest lives
 
 - her own skills: `.agents/skills/` - `lulu-voice` is always loaded

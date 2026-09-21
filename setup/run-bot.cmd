@@ -11,6 +11,14 @@ rem putting it first makes the shorthands work for commands she runs herself.
 rem mcp.json still points at node\node.exe by full path for its own reasons and
 rem is unaffected by this - that stays a direct path, not a PATH lookup.
 set "PATH=%CD%\node;%PATH%"
+rem Git, so she can push her own projects (C:\lulu\projects) to her own GitHub.
+rem Same rule as node above and for the same reason: this script sets no PATH of
+rem its own, git is NOT on the machine PATH, and the one that resolves in
+rem master's shell lives on HIS user PATH - which the lulu-bot account cannot
+rem reach. Appending it here gives git to her process and to nothing else on the
+rem machine. Her credential is read from C:\lulu\.git-credentials, configured
+rem repo-locally in C:\lulu\projects rather than in her profile.
+set "PATH=%PATH%;C:\Program Files\Git\cmd"
 if not exist "logs" mkdir "logs"
 if not exist "C:\Lulu\Python311\python.exe" (
     echo no python at C:\Lulu\Python311\python.exe >> "logs\bot.log"
