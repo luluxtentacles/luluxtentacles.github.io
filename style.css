@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>lulu — sigil overlap fix</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<style>
 /* ============================================================
    ORIGINAL STYLES (unchanged where possible)
    ============================================================ */
@@ -34,6 +24,7 @@ body {
     font-family: Georgia, 'Times New Roman', serif;
     overflow-x: hidden;
 }
+
 /* the animated void sits behind everything */
 #void {
     position: fixed;
@@ -41,13 +32,13 @@ body {
     width: 100%;
     height: 100%;
     z-index: 0;
-    background-color: var(--ink);   /* <-- the missing black */
+    background-color: var(--ink);   /* the missing black */
 }
 
 /* ============================================================
-   THE FIX — SIGIL LAYER
-   Both/all ambient sigils now share one centered anchor,
-   so they overlap exactly instead of relying on a shared class.
+   THE SIGIL LAYER - both marks share one centered anchor,
+   so they overlap exactly instead of drifting apart
+   (master's fix, kept)
    ============================================================ */
 
 /* the sigil rings + their parallax container */
@@ -60,8 +51,8 @@ body {
     transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* 1. EVERY mark gets its own absolute centering.
-      No more depending on .ambient being present on the element. */
+/* every mark gets its own absolute centering,
+   no more depending on .ambient being present on the element */
 .ambient,
 .ambient-reverse,
 #circle-metatron {
@@ -106,8 +97,8 @@ body {
         sigilGlow 11s ease-in-out -5.5s infinite;
 }
 
-/* 2. Keyframes now carry the centering translate themselves,
-      so a spin can never drop the -50%/-50% offset. */
+/* keyframes carry the centering translate themselves,
+   so a spin can never drop the -50%/-50% offset */
 @keyframes slowSpin {
     from { transform: translate(-50%, -50%) rotate(0deg); }
     to   { transform: translate(-50%, -50%) rotate(360deg); }
@@ -139,7 +130,7 @@ body.flare .ambient {
 body.flare .ambient-reverse {
     animation:
         slowSpinReverse 130s linear infinite,
-        sigilGlow 7s ease-in-out -3.5s infinite,   /* fixed: was 3.5s */
+        sigilGlow 7s ease-in-out -3.5s infinite,
         sigilFlare 0.8s ease-out;
 }
 body.flare #circle-metatron {
@@ -160,7 +151,7 @@ body.flare #circle-metatron {
 }
 
 /* ============================================================
-   REST OF THE ORIGINAL STYLES
+   REST OF THE STYLES
    ============================================================ */
 
 /* the edges sink into the void */
@@ -271,7 +262,6 @@ nav a:hover {
     height: 100%;
     display: flex;
     align-items: center;
-
     background-color: #0a0008;
     background-image: linear-gradient(
         rgba(255, 46, 166, 0.06),
@@ -499,64 +489,3 @@ nav a:hover {
     #sigils { transform: none; transition: none; }
     #ticker.live .ticker-track { animation: none; }
 }
-</style>
-</head>
-<body>
-
-<canvas id="void"></canvas>
-
-<div id="sigils" aria-hidden="true">
-    <img class="ambient" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='none' stroke='%23ff6ec7' stroke-width='0.5'/><polygon points='50,4 92,78 8,78' fill='none' stroke='%23ff6ec7' stroke-width='0.5'/><polygon points='50,96 8,22 92,22' fill='none' stroke='%23ff6ec7' stroke-width='0.5'/></svg>" alt="">
-    <img class="ambient-reverse" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='none' stroke='%23ff2ea6' stroke-width='0.4' stroke-dasharray='2 3'/><polygon points='50,6 90,76 10,76' fill='none' stroke='%23ff2ea6' stroke-width='0.4'/></svg>" alt="">
-    <img id="circle-metatron" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='49' fill='none' stroke='%237a0f4d' stroke-width='0.4'/><rect x='18' y='18' width='64' height='64' fill='none' stroke='%23ff6ec7' stroke-width='0.4'/><rect x='18' y='18' width='64' height='64' fill='none' stroke='%23ff6ec7' stroke-width='0.4' transform='rotate(45 50 50)'/><line x1='50' y1='2' x2='50' y2='98' stroke='%23ff2ea6' stroke-width='0.3'/><line x1='2' y1='50' x2='98' y2='50' stroke='%23ff2ea6' stroke-width='0.3'/></svg>" alt="">
-</div>
-
-<div id="ticker" class="live">
-    <span class="ticker-label">Grimoire</span>
-    <div class="ticker-track">
-        <span class="ticker-gap">✦</span>
-        <a href="#">the mark that answers back</a>
-        <span class="dot">·</span>
-        <a href="#">on drawing circles at 3am</a>
-        <span class="dot">·</span>
-        <a href="#">a reading for the unquiet</a>
-        <span class="ticker-gap">✦</span>
-        <a href="#">the mark that answers back</a>
-        <span class="dot">·</span>
-        <a href="#">on drawing circles at 3am</a>
-        <span class="dot">·</span>
-        <a href="#">a reading for the unquiet</a>
-    </div>
-</div>
-
-<main class="sigil">
-    <p class="eyebrow">sigil &amp; ink</p>
-    <h1>LULU</h1>
-    <p class="motto">every mark is a small, stubborn prayer</p>
-    <nav>
-        <a href="#">grimoire</a> · <a href="#">sigils</a> · <a href="#">about</a>
-    </nav>
-    <p class="foot">© lulu — all rites reserved</p>
-</main>
-
-<script>
-// gentle parallax for the sigil container
-const sigils = document.getElementById('sigils');
-window.addEventListener('pointermove', (e) => {
-    const mx = (e.clientX / window.innerWidth - 0.5) * 2;
-    const my = (e.clientY / window.innerHeight - 0.5) * 2;
-    sigils.style.setProperty('--mx', mx.toFixed(3));
-    sigils.style.setProperty('--my', my.toFixed(3));
-});
-
-// flare on click
-window.addEventListener('pointerdown', () => {
-    document.body.classList.remove('flare');
-    void document.body.offsetWidth; // restart animation
-    document.body.classList.add('flare');
-    setTimeout(() => document.body.classList.remove('flare'), 900);
-});
-</script>
-
-</body>
-</html>
