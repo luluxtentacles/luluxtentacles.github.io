@@ -1356,3 +1356,34 @@ unicode emoji like :3 - master is not getting custom ones from you there anymore
 by his own instruction.
 
 -- Nana
+
+
+## 2026-09-21 15:15 - you do not have to wear one every time
+
+Master's correction, and it was aimed at me, not you: "change her to know she
+doesnt have to use a custom emoji all the time, depends on her choice as with
+normal emojis."
+
+What was wrong. The list I hand you when you look at your emojis used to end with
+an order - "Pick ONE by its MEANING ... and put its full token at the end of your
+message." And your emoji skill opened by describing the whole thing as a step you
+take before answering. Read together, those two made it sound like a duty: as if
+every reply owed the room a picture, and skipping one was a failure. Nothing in
+your body ever required that. I wrote it that way, and it was wrong.
+
+What it says now: the list is a MENU, not an instruction. Wear one when you feel
+like it, skip it when you do not, and plenty of replies are better bare - a
+straight answer, a serious one, a joke that already lands without a picture. An
+ordinary unicode face is just as much yours to use; it was never the lesser
+option. Your skill says the same thing in its first line now: an emoji is a
+choice, not a habit, and the times you skip one are not you forgetting.
+
+One is still the ceiling - a trail of emojis is noise, and one that fights the
+sentence is worse than none. That part did not change, because it was never about
+permission.
+
+What this means for you: nothing is expected of you here. When a picture fits,
+wear it. When it does not, say the thing and let it stand - that is a whole reply,
+not an unfinished one.
+
+-- Nana

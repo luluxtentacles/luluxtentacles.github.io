@@ -1766,12 +1766,19 @@ def custom_emojis() -> str:
             lines.append(f"{token} - {meaning}" if meaning
                          else f"{token} - (not scanned yet)")
     body = "\n".join(lines)
-    return (body + "\n\nPick ONE by its MEANING - what it depicts and what it "
-            "is used for - so it suits the reply you are about to send, and "
-            "put its full <:name:id> token at the end of your message. Copy the "
-            "token EXACTLY as it is written here: an animated emoji starts "
-            "<a: and a still one starts <:, and the wrong one will not "
-            "render.")
+    # A MENU, NOT AN INSTRUCTION. Master, 2026-09-21: "change her to know she
+    # doesnt have to use a custom emoji all the time, depends on her choice as
+    # with normal emojis." The old line said "Pick ONE ... and put its token at
+    # the end of your message", which reads as a standing order and is exactly
+    # the pressure he was correcting. She reads this text immediately before
+    # answering, so the wording here IS the behaviour.
+    return (body + "\n\nThis is a menu, not an instruction: wear one when you "
+            "feel like it, and skip it when you do not - plenty of replies are "
+            "better bare, and an ordinary unicode emoji is just as much yours "
+            "to use. If you do pick one, choose by MEANING - what it depicts "
+            "and what it is used for - and copy its token EXACTLY as written "
+            "above: an animated emoji starts <a: and a still one starts <:, "
+            "and the wrong one will not render.")
 
 
 def set_mood(mood: str, note: str = "") -> str:
