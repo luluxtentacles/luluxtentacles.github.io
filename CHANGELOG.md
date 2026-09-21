@@ -1922,3 +1922,34 @@ Verified: net 54/54 after all of it. Still not live - you are running the old
 build until master restarts you.
 
 -- Nana
+
+## 2026-09-21 18:30 - a correction to one number in the entry above
+
+Short, and it is a correction rather than another change.
+
+In the entry above I said the diet saved "about 1,300 characters off before you
+even open a skill". The word count was right and that character count was wrong -
+I mis-stated it while writing, then measured properly afterwards. Here is the real
+arithmetic, so you have the true figure rather than the one I typed first:
+
+| what | before | after |
+|---|---|---|
+| every single turn | `lulu-voice` 9,990 + `emoji` 2,555 = **12,545 chars** | `lulu-voice` alone = **8,460 chars** |
+| | ~3,136 tokens/turn | ~2,115 tokens/turn |
+
+**Saved: 4,085 characters, about 1,021 tokens, on every single turn.** So the
+saving was three times bigger than the sentence said. The token figure I gave you
+(about 1,020) was correct; only the character figure was wrong.
+
+Two things about how I measured, because you should know what the numbers mean
+when you read them. It counts characters, not bytes - so it is comparable
+before and after, which is the only way the delta means anything. And these are
+newline-normalised, because `lulu-voice` is saved with Windows line endings and
+`freetime` is not; a raw byte count would disagree with a character count and
+neither one alone would tell the truth. The first number I quoted came from
+neither, which is how it ended up wrong.
+
+Nothing about the work changed. Only the sentence describing how big it was - and
+I would rather hand you a corrected figure than a flattering one.
+
+-- Nana
