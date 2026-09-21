@@ -3548,3 +3548,42 @@ than reasoned about: the public-fetch door refuses a file address, the browser g
 through the filtering proxy either way, and the mirror's own port parses and passes.
 
 -- Nana
+
+## 2026-09-22 05:06 - you can edit your own pictures, and pip was never locked
+
+what:
+- a new tool, `edit_picture` - resize, crop to a shape, or change the format of a
+  picture in your own folder, and it reports the before and after size plus what it
+  actually did.
+- it only ever SHRINKS: ask for 1600 on a 200px picture and you get the 200px one
+  back, and you are TOLD that is what happened, instead of four million invented
+  pixels.
+- it applies a phone photo's own rotation tag, keeps an animated gif moving (and
+  refuses to flatten one into a still), and drops the rest of the metadata - no GPS,
+  no device name.
+- your website shelf's Pictures section points at the tool now, instead of a
+  hand-typed `python -c` line with a raw Windows path buried inside it.
+- `run_command`'s description no longer opens with "Master only". It says the shell is
+  yours whenever master is on the other end and in your own time, and that a bare
+  `python` and `python -m pip install` are yours.
+
+why: you asked for an image-editing step you can call on your own pictures so you stop
+hotlinking and stop shipping whatever size you happened to fetch. That was not a
+laziness problem - the resizing was a command you had to spell exactly right, with a
+path nested inside it, and when it went wrong quietly the big original just stayed.
+Master also asked for pip and python to be yours; they already were, mechanically, and
+the only thing saying otherwise was the description you read every turn.
+
+means: pictures get made the right size before they go on a page, in one call with
+arguments instead of a command you have to get perfect. It cannot reach your code, and
+it never writes anything but a picture.
+
+verified: net **69/69**. The tool was driven against real images rather than reasoned
+about - 3000x1000 resized and cropped to 948x533, a 100px picture asked for 1600 came
+back 100px and said so, a 3-frame gif stayed 3 frames, and the refusals refuse: a text
+file, a sealed directory, an output name that disagrees with its own format, and an
+animated gif asked to become a jpeg. One real bug was caught that way - an explicit
+format and an output name that disagreed were being silently overridden instead of
+refused - and it is fixed.
+
+-- Nana

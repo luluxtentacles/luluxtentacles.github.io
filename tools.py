@@ -28,6 +28,7 @@ import browseguard
 import mcp_client
 import paths
 import people
+import picture
 import runbox
 import shared_memory
 import skills
@@ -652,6 +653,44 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "edit_picture",
+            "description": (
+                "Edit a picture that is already a FILE in my own folder - "
+                "resize it, crop it to a shape, or change its format - and "
+                "write the result. This is the hands: look_at_file is how I "
+                "SEE a picture, this is how I change one before it goes on a "
+                "page, so I do not have to hotlink a url or ship whatever size "
+                "the original happened to be. It only ever SHRINKS - ask for "
+                "1600 on a 200px picture and I get the 200px one back, told so "
+                "out loud, instead of four million invented pixels. It applies "
+                "a phone photo's own rotation tag, keeps an animation moving, "
+                "and drops the rest of the metadata. Give it `max_side` (the "
+                "long side in pixels; 1600 is a good web size), `aspect` (like "
+                "16:9, 1:1, 4:5) with `gravity` to say which part survives a "
+                "crop, or a `format`. With no `out` it rewrites the file in "
+                "place; with `out` it writes a copy, and the name has to match "
+                "the format. It only ever writes a picture - the code that runs "
+                "me is out of its reach - and it always reports the before and "
+                "after size, so I have a witness instead of a hunch."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string", "description": "the picture to edit, inside my own folder, eg projects/site/blog/<slug>/img/thing.jpg"},
+                    "max_side": {"type": "integer", "description": "the long side in pixels - it only shrinks to this, never grows (1600 is a good web size)"},
+                    "aspect": {"type": "string", "description": "crop to this shape, eg 16:9 or 1:1 - applied after the resize"},
+                    "gravity": {"type": "string", "description": "which part to keep when cropping: center (default), top, bottom, left, right"},
+                    "format": {"type": "string", "description": "jpeg, png, webp, gif or bmp - leave it out to keep the format it already has"},
+                    "quality": {"type": "integer", "description": "40-95 for jpeg and webp; default 82"},
+                    "out": {"type": "string", "description": "write a COPY here instead of editing in place; the suffix has to match the format"},
+                },
+                "required": ["path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "look_at_file",
             "description": (
                 "Look at a picture that is a FILE in my own folder - a "
@@ -899,10 +938,14 @@ SCHEMA = [
             "name": "run_command",
             "description": (
                 "Run a command in my own folder, as a standard (non-admin) "
-                "user. Master only. cwd is always my folder and cannot be "
-                "changed. Installs, builds and package managers all work, so "
-                "this is what to use when something is missing and I need it "
-                "myself instead of asking. There are shortcuts for the common "
+                "user. This is mine whenever master is on the other end and in "
+                "my own time - never a stranger's. cwd is always my folder and "
+                "cannot be changed. Installs, builds and package managers all "
+                "work, so this is what to use when something is missing and I "
+                "need it myself instead of asking: a bare `python` and `node` "
+                "are mine, and `python -m pip install <package>` installs into "
+                "my own interpreter with no admin and no asking. There are "
+                "shortcuts for the common "
                 "ones - git_status, git_log, git_diff, smoke, preview - and "
                 "anything else is run as an ordinary command. Reach for "
                 "`preview` whenever I want to LOOK at my own site: it is "
@@ -2766,6 +2809,10 @@ DISPATCH = {
     "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
                                a.get("text", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
+    "edit_picture": lambda a: picture.edit(
+        a.get("path", ""), max_side=a.get("max_side"), aspect=a.get("aspect"),
+        gravity=a.get("gravity") or "center", out=a.get("out"),
+        fmt=a.get("format"), quality=a.get("quality")),
     "look_at_file": lambda a: look_at_file(a.get("path", ""),
                                            a.get("question", "")),
     "look_at_pfp": lambda a: look_at_pfp(a.get("who", ""),

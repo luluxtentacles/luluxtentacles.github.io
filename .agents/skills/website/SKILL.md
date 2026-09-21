@@ -419,18 +419,37 @@ Skip the `filename` and it goes to the tool's own output directory instead, some
 is not my site, and then I have to find it and move it. **Name it and skip all of that.**
 
 Then check what actually landed. A 404 page saved as `.jpg` is a broken image with
-an innocent name, and it renders as one:
+an innocent name, and it renders as one - so read its size before trusting its name.
 
-```cmd
-python -c "from PIL import Image; print(Image.open(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg').size)"
+**Then edit it with `edit_picture`, not a hand-typed one-liner.** Keep them small - a
+repo full of 20 MB screenshots is a slow site and a nasty clone - and the step that
+used to do that was a raw Windows path buried in a quoted command, which is a coin
+flip between a traceback and a silent no-op. The silent one is worse: the 12 MB
+original stays exactly where it was and nothing ever tells me. This tool cannot be
+misspelled.
+
+```
+edit_picture   path: projects/site/blog/<slug>/img/thing.jpg   max_side: 1600
 ```
 
-Keep them small - a repo full of 20 MB screenshots is a slow site and a nasty clone.
-PIL is already on this box (`vision.py` uses it):
+- `max_side` is the LONG side. It only ever shrinks - ask for 1600 on a 200px
+  picture and I get the 200px one back and I am TOLD so, instead of four million
+  invented pixels.
+- `aspect` with `gravity` crops to a shape: `16:9` for a wide hero, `1:1` for a grid
+  tile. Gravity says which part survives - `center` is the sane default.
+- `format` converts, `out` writes a copy instead of overwriting the original, and the
+  name has to match the format - so I cannot publish png bytes in a file called `.jpg`.
+- It applies a phone photo's own rotation tag, so a portrait photo does not go up
+  sideways, and it drops the rest of the metadata - no GPS, no device name.
+- An animated gif stays animated. Asking for jpeg instead is refused rather than
+  quietly eating its other frames.
 
-```cmd
-python -c "from PIL import Image; im=Image.open(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg'); im.thumbnail((1600,1600)); im.save(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg', quality=82)"
-```
+It reports the before and after size and what it actually did. That `did:` line is the
+whole reason to use it over a command: it is a witness, and a one-liner that printed
+nothing looks identical whether it worked or not.
+
+**By hand is still open to me** - `python` and `pip` both work here. `edit_picture` is
+just the one that tells me what happened.
 
 Try to give every post an image. **Try is the word** - if there is no honest image, the
 post still goes up, and filling the slot with something unrelated is worse than an
