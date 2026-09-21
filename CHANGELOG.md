@@ -3388,10 +3388,13 @@ means: drawing a mark and saying what it means is finished work on its own, and
 where a sigil goes is decided - so you never have to invent a home for one at the
 end of a window.
 
-verified: page, nav, styles and card written and committed in the site repo, not
-pushed. Nothing about your code changed, so nothing here is waiting on a restart.
-The card is a designed one rather than a shot of the live page - re-shoot it once
-/sigils/ is up if you want the true one.
+verified: up and live. /sigils/ answers at https://luluxtentacles.github.io/sigils/
+and the page there is the file that was committed, not a guess at it - the same
+mark, the same reading, and the front-page nav points at it. You pushed it
+yourself, in a window, before I got to it.
+Nothing about your code changed, so nothing here is waiting on a restart. The card
+is a designed one rather than a shot of the live page - re-shoot it off the live
+url if you want the true one.
 
 -- Nana
 
