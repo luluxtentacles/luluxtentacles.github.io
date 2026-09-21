@@ -729,6 +729,33 @@ SCHEMA = [
                            "required": []},
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "delete_message",
+            "description": (
+                "Delete one of my OWN discord messages, by message id. Owner "
+                "only. Refuses anything that is not mine - the bot re-checks "
+                "the author before deleting. Needs the channel unless it is the "
+                "room we are talking in right now."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "message_id": {
+                        "type": "string",
+                        "description": "the message id to delete",
+                    },
+                    "channel": {
+                        "type": "string",
+                        "description": ("channel name or id; leave it out for "
+                                        "the room I am in right now"),
+                    },
+                },
+                "required": ["message_id"],
+            },
+        },
+    },
 ]
 
 
@@ -1999,6 +2026,65 @@ def drain_progress(channel_id) -> list[str]:
     return [str(item.get("text") or "") for item in mine if item.get("text")]
 
 
+# -- deleting: the one destructive thing she can ask the loop to do ----------
+# A SEPARATE queue from _OUTBOX, for a sharper reason than tidiness. The outbox
+# is a verb that ADDS something to a room; this one REMOVES, and it is the only
+# tool she has whose effect cannot be looked at and undone. Mixing them would
+# also mean the send path - which is exercised constantly - carrying a delete
+# branch that almost never runs, which is how a destructive path goes untested
+# and unnoticed.
+#
+# The check that actually protects the room CANNOT live here: this layer runs in
+# a worker thread with no Discord client, so it cannot fetch a message or ask who
+# wrote it. All this layer can do is refuse obvious nonsense and hand over an
+# id. The author check is in the bot, at the point where the message is real -
+# deliberately, so the safety is on the object rather than on the argument.
+_DELETES: list[dict] = []
+
+
+def delete_message(message_id, channel: str = "") -> str:
+    """Queue the deletion of one of MY messages. Owner only - see the schema.
+
+    Never deletes from here. Checks what this layer is able to check, and no
+    more than that, because a check that looks like a guarantee and is not one
+    is worse than an obvious gap:
+      - the id has to look like a snowflake, not a word or a path
+      - the room has to be one I can actually see, resolved now rather than
+        later, so a typo is refused while the caller is still listening
+    Whether the message is MINE is not decided here on purpose - it is decided
+    in the bot, against the real message, just before the delete.
+    """
+    raw = str(message_id or "").strip()
+    if not raw.isdigit():
+        return f"that is not a message id: {message_id!r}"
+    if len(raw) < 15:
+        return (f"that id is too short to be a discord message ({raw}); ids are "
+                f"long snowflakes")
+
+    target = (channel or "").strip()
+    if not target:
+        # The room she is being spoken to in. This is the common case by far,
+        # and asking for it every time would just teach her to guess.
+        target = str(_ctx().get("channel") or "").strip()
+    if not target:
+        return "which room is that message in? give me a channel."
+
+    queue = _DELETES
+    queue.append({"channel": target, "message_id": raw})
+    return f"asked the bot to delete message {raw} in #{target} if it is mine"
+
+
+def drain_deletes() -> list[dict]:
+    """Hand the queued deletions to the event loop and empty the queue.
+
+    Same handover as the outbox, and the same rule: the tool layer never acts,
+    the loop does, because only the loop has a client.
+    """
+    queued = list(_DELETES)
+    _DELETES.clear()
+    return queued
+
+
 def who_is(query: str) -> str:
     """Look a person up by name or id.
 
@@ -2088,6 +2174,8 @@ DISPATCH = {
     "run_command": lambda a: runbox.run(a.get("command", ""),
                                         _result_cap(runbox.MAX_OUTPUT)),
     "browser_restart": lambda a: browser_restart(),
+    "delete_message": lambda a: delete_message(a.get("message_id", ""),
+                                              a.get("channel", "")),
 }
 
 

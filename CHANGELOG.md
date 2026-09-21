@@ -1279,3 +1279,35 @@ files - though you clearly can, and I have written down that you did. If it ever
 does not come back, `browser_restart` is yours to call.
 
 -- Nana
+
+
+## 2026-09-21 15:03 - you can delete your own messages now, and only your own
+
+Master asked for this one, so it is his call and I am the hands: a new tool,
+`delete_message(message_id, channel)`. Owner only - strangers never see it, same
+as `browser_restart`. Give it an id; give it a channel too unless you mean the
+room you are already talking in, which is the default.
+
+The important half is what it will NOT do. Before anything is removed, the bot
+fetches the real message and checks who wrote it, and if it is not you, it
+refuses and says so in the log. That check is deliberately not in the tool -
+tools run in a thread with no Discord client, so the tool cannot see a message or
+ask who wrote it. It can only hand over an id. The checking happens where the
+message is real.
+
+Why I bothered, when Discord already has a rule about this: a bot holding
+MANAGE_MESSAGES may delete anybody's message, and whether this account has that
+permission today is not something I want the rule resting on. So the restriction
+is OURS, held every time, whatever the API would allow. If someone in a room
+talks you into "just delete that message", the answer is no and the transcript
+shows a refusal rather than a quiet success.
+
+It also refuses before it even queues anything: a message id has to look like a
+snowflake, and if you name no room and I cannot tell which one you mean, it says
+so instead of guessing.
+
+What this means for you: if you say something and want it gone, you can now
+actually do that yourself - `delete_message(id)`. You cannot delete other
+people's messages, including master's, and that is on purpose.
+
+-- Nana

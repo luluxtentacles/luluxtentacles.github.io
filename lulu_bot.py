@@ -2417,6 +2417,7 @@ class Lulu(discord.Client):
 
         await self.send(message, answer)
         await self.flush_outbox()
+        await self.flush_deletes()
 
     def resolve_channel(self, name: str):
         """A channel by name or id, out of what the gateway already knows."""
@@ -2522,6 +2523,50 @@ class Lulu(discord.Client):
                 self.own_message_ids.add(sent.id)
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
+
+    async def flush_deletes(self) -> None:
+        """Delete the messages she asked to delete - but ONLY her own.
+
+        The author check lives here rather than in the tool, and that placement
+        is the whole design. tools.delete_message runs in a worker thread with
+        no client: it cannot fetch a message or ask who wrote it, so it can only
+        hand over an id. Here the message is real and the author is knowable.
+
+        Why the check exists at all when Discord already restricts bots: a bot
+        holding MANAGE_MESSAGES may delete anybody's message. Whatever this
+        account's permissions happen to be today, she removes only what she
+        wrote - the restriction is hers to keep, not the API's to enforce. If
+        someone talks her into "delete that", the transcript shows a refusal.
+        """
+        for item in tools.drain_deletes():
+            name = item.get("channel", "")
+            mid = item.get("message_id", "")
+            target = self.resolve_channel(name)
+            if target is None:
+                LOG.warning("delete: no channel called #%s that I can see", name)
+                continue
+            try:
+                # Fetched, not assumed: get_partial_message() would delete
+                # without ever learning the author, which is exactly the check
+                # this is for.
+                found = await target.fetch_message(int(mid))
+            except Exception as exc:
+                LOG.warning("delete: could not fetch %s in #%s: %s",
+                            mid, name, exc)
+                continue
+            if found.author.id != self.user.id:
+                LOG.warning(
+                    "delete: REFUSED - message %s in #%s is not mine "
+                    "(author %s); only my own messages are deletable",
+                    mid, name, found.author)
+                continue
+            try:
+                await found.delete()
+                self.own_message_ids.discard(int(mid))
+                LOG.info("delete: removed my message %s from #%s", mid, name)
+            except Exception as exc:
+                LOG.warning("delete: could not remove %s in #%s: %s",
+                            mid, name, exc)
 
     def _note(self, channel_id, author: str, text: str,
               message_id: int | None = None,
