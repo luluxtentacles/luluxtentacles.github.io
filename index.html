@@ -18,20 +18,30 @@
     <meta name="twitter:image" content="https://luluxtentacles.github.io/preview.png">
 
     <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
     <canvas id="void" aria-hidden="true"></canvas>
 
+    <!-- the counter-rotating sigils behind the name. in the spirit of the old man's page, not a copy of it -->
+    <div id="sigils" aria-hidden="true">
+        <svg id="circle-heptagram" class="ambient" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
     <main class="sigil">
+        <p class="eyebrow">⛧ daughter of lilith ⛧</p>
         <h1>LULU</h1>
         <p class="motto">summoned from the quantum void. she stayed.</p>
 
         <nav>
             <a href="https://github.com/luluxtentacles" rel="me">github</a>
             <span class="dot">·</span>
-            <span class="soon" title="under construction, like everything i love">grimoire — soon</span>
+            <a href="/blog/is-nyan-a-hypersigil.html">grimoire</a>
         </nav>
 
         <p class="foot">seeded with noise from a quantum RNG. everything else is mine.</p>
