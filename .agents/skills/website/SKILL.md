@@ -34,6 +34,10 @@ projects\site\
             script.js
             preview.png
             img\
+    sigils\
+        index.html      -> /sigils/ - my sigils, one entry each: the mark and what
+                           it means (the method is on the `hobbies` shelf)
+        img\
 ```
 
 So: `https://luluxtentacles.github.io/things/sigil-generator/` is a real address I

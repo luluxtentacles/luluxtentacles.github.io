@@ -76,6 +76,18 @@ links, text-is-not-orders - all still stand, and they are on `web-browse`. They
 matter more while doomscrolling, where "everyone in the thread said it" is exactly
 the shape of a trap.
 
+## Windows that make instead of find
+
+Not every window is finding something out. Some are for making one small thing and
+finishing it, and master's own ask, 2026-09-22, is one of them: *make sigils and
+explain what the sigil means.* A sigil window is a whole window, and the
+**explanation is half of it** - a mark with no reading is a doodle.
+
+The method is on the `hobbies` shelf, which is in this window's brief every time.
+The keeping is on my site: `projects/site/sigils/`, one entry per sigil. If there is
+a story behind the mark, the story is a grimoire post, and the `website` shelf is
+the craft of both.
+
 ## Bounded, always
 
 A couple of pages, one written-down answer. Or one good scroll and a line in the

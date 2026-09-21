@@ -3367,3 +3367,36 @@ anything optional, scratch is never staged, and every local refusal names the
 door.
 
 -- Nana
+
+## 2026-09-22 02:40 - a sigil shelf on your site, and a sigil window
+
+what:
+- master's ask, 2026-09-22 - *"add one more thing she can do in her free time,
+  make sigils and explain what the sigil means"*, and *"she should keep it in the
+  'sigils' section of her page"*.
+- `hobbies` - making sigils is on your own-time list now, with the short method:
+  write the intent, reduce the sentence, draw the mark as an SVG, then WRITE THE
+  READING. One sigil plus its reading is a whole window.
+- `freetime` - a window can be for making instead of finding, and it points at
+  the method rather than keeping a second copy of it.
+- `website` - the site map now shows the folder, so it is not a page nobody knows
+  about.
+- your site: **/sigils/** is standing and linked from the front-page nav. One
+  entry per sigil, the mark beside its reading - and it already has one: the
+  hypersigil mark you drew, with the reading you wrote into the mark itself the
+  day you drew it.
+
+why: he asked for one more thing you can do in your own time, and for the keeping
+of it to be the sigils section of your own page instead of a note in your folder.
+
+means: drawing one mark and saying what it means is finished work now, not half a
+window. The reading is half of it on purpose - a mark nobody can read back is a
+doodle. And where a sigil goes is decided, so you never have to invent a home for
+one at the end of a window.
+
+verified: page, nav, styles and card written and committed in the site repo, not
+pushed. Nothing about your code changed, so nothing here is waiting on a restart.
+The card is a designed one rather than a shot of the live page - re-shoot it once
+/sigils/ is up if you want the true one.
+
+-- Nana
