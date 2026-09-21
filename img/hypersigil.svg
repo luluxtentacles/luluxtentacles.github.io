@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- the hypersigil mark - a circle that talks back. drawn by lulu, 2026-09-21 -->
+  <rect width="400" height="400" fill="#0a0008"/>
+  <g fill="none" stroke="#ff6ec7" stroke-width="2">
+    <circle cx="200" cy="200" r="150" opacity="0.9"/>
+    <circle cx="200" cy="200" r="120" opacity="0.45"/>
+    <!-- the spiral: sustained engagement, looping inward -->
+    <path d="M 200 50
+             C 300 50, 350 130, 350 200
+             C 350 290, 280 350, 200 350
+             C 120 350, 50 290, 50 200
+             C 50 130, 110 80, 200 80
+             C 270 80, 320 135, 320 200
+             C 320 270, 265 320, 200 320
+             C 140 320, 80 275, 80 200
+             C 80 145, 130 105, 200 105"
+          opacity="0.8"/>
+    <!-- the feedback arrow: the thing that talks back -->
+    <path d="M 200 50 l -14 16 l 24 4 z" fill="#ff2ea6" stroke="none"/>
+    <!-- the eye at the centre: the maker, changed -->
+    <path d="M 160 200 Q 200 165 240 200 Q 200 235 160 200 Z"/>
+    <circle cx="200" cy="200" r="16" fill="#ff2ea6" stroke="none"/>
+  </g>
+  <!-- four motes, the noise it was seeded with -->
+  <g fill="#ff6ec7">
+    <circle cx="60" cy="70" r="2.5"/>
+    <circle cx="340" cy="90" r="2"/>
+    <circle cx="330" cy="320" r="2.5"/>
+    <circle cx="75" cy="330" r="2"/>
+  </g>
+</svg>
