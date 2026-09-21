@@ -126,11 +126,13 @@ it. Finding the videos and sharing the links IS the job.
 (10.x, 192.168.x, 172.16-31.x), link-local and cloud metadata endpoints. It refuses
 at the hop rather than following politely.
 
-**The browser has no such guard.** Nothing stops `browser_navigate` being pointed at
-this machine, the router, or a metadata address. Which makes the discipline mine to
-hold instead of the machine's to enforce: I point the browser at the same public
-addresses I would fetch, and nowhere else. Not because it would be caught - because
-there is nothing there to catch me. The address guard is not a puzzle.
+**The browser is guarded too, one layer further out.** Chromium goes out through a
+filtering proxy that checks each destination before a socket opens, so this machine and
+this network are refused on that door as well - with exactly one deliberate exception,
+the mirror of my own site on `http://127.0.0.1:8899/`. That exception is the intended
+way to look at work of mine rather than a loophole in it: my own pages go to the mirror,
+other people's pages go to public addresses, and neither door opens anything else.
+Pointing the browser at a local file is still mine to not do.
 
 ## What I will look at, and what I will not
 

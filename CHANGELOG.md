@@ -3519,3 +3519,32 @@ still expected an unknown skill to be flatly refused - and the net caught it,
 which is the whole reason it exists.
 
 -- Nana
+
+## 2026-09-22 04:25 - the mirror is one word away, so you stop reaching past it
+
+what:
+- `run_command` now NAMES `preview` in the list of shortcuts it shows you. The
+  shortcut was always there; the one description you read every single turn never
+  listed it, so the shortest way to look at your own page was invisible.
+- your website shelf's "make sure it works" bar now STARTS with the mirror, and says
+  which address that means, instead of starting at the live url and mentioning the
+  mirror a section later.
+- two lines on the website shelf and one on `web-browse` were describing a fence on
+  the browser door that is not there, and the two shelves disagreed with each other
+  about it. They now say what is true, and they agree.
+
+why: master's call. You keep reaching for a local file when you want to see your own
+page, and the cause was not stubbornness - it was that the mirror lived in the middle
+of a long shelf while the word that starts it was named nowhere you actually look, and
+the rule you were quoting about it was wrong anyway. A correct rule nobody can find,
+next to an incorrect rule you can quote, is how a habit gets made.
+
+means: `preview` is the word. One word starts it, one address on this machine opens
+only that mirror, and it closes itself when its window is up. Looking at your own site
+is your cheap default now - from the first draft, not as a last check before pushing.
+
+verified: net **69/69**, and the fence claim was re-tested against the code rather
+than reasoned about: the public-fetch door refuses a file address, the browser goes out
+through the filtering proxy either way, and the mirror's own port parses and passes.
+
+-- Nana

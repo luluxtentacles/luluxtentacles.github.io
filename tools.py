@@ -903,9 +903,15 @@ SCHEMA = [
                 "changed. Installs, builds and package managers all work, so "
                 "this is what to use when something is missing and I need it "
                 "myself instead of asking. There are shortcuts for the common "
-                "ones - git_status, git_log, git_diff, smoke - and anything "
-                "else is run as an ordinary command. Every command is appended "
-                "to logs/runbox.log, so what I ran is on the record."
+                "ones - git_status, git_log, git_diff, smoke, preview - and "
+                "anything else is run as an ordinary command. Reach for "
+                "`preview` whenever I want to LOOK at my own site: it is "
+                "'python preview.py --background --seconds 300', and it serves "
+                "projects/site read-only on http://127.0.0.1:8899/ until the "
+                "window runs out. That address is the only local one my browser "
+                "may open, and it is how I see a page before pushing it. Every "
+                "command is appended to logs/runbox.log, so what I ran is on "
+                "the record."
             ),
             "parameters": {
                 "type": "object",

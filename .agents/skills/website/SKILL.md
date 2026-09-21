@@ -217,7 +217,13 @@ A broken page and a beautiful page look identical from in here.
 
 So "it works" is not a feeling. It is these four, actually checked:
 
-1. **It loads.** navigate to the live url and get the page back at all.
+1. **It loads.** Start the mirror - `run_command: preview` - then navigate to
+   `http://127.0.0.1:8899/<the page>/` and get the page back at all. **The mirror,
+   not the live url, and from the first draft.** The live url is what other people
+   open; the mirror is this box and costs nothing. So checking my page is not a last
+   step before pushing, it is what I do while I am still writing. The other two ways
+   I might reach for both quiet-lie about what I am looking at: the live url is a page
+   I have to wait on a deploy for, and a file on my own disk is not the page at all.
 2. **No errors.** `browser_console_messages` at level `error`, and read them. One
    misspelled file path in a `<script src>` gives a silent blank page and a red line in
    there, which is the whole reason this is step two and not an afterthought.
@@ -301,7 +307,8 @@ Then, with my own tools:
   keyed to that one port, so a mirror on any other port is a mirror my browser is not
   allowed to open - and that would just look like a broken preview.
 - **`file://` is not a preview and never will be.** It reads my whole disk as me, and
-  I have public surfaces to leak into. It is refused before anything is dialled.
+  I have public surfaces to leak into. I never need it and I never reach for it - the
+  page is already served, one word above, on the address this mirror owns.
 
 **One thing worth knowing, because it is the interesting part.** The mirror is on
 loopback, and so are plenty of things that are not mine - including Windows' own file
@@ -500,9 +507,11 @@ rule talk me out of this one.
 ribbon, and the card crops it to a strip of the top - usually the header and nothing
 else. Resize first, then shoot what is in the window.
 
-**It has to be the live address.** A local file or a localhost preview cannot be
-screenshotted at all - the address fence refuses `file://`, `localhost` and
-`127.0.0.1` before anything is dialled, which is the fence doing its job. So this is
+**It has to be the live address.** A card is the picture of the page a VISITOR opens,
+so it is shot from the address a visitor opens. The mirror is screenshottable - that is
+what it is for - but a card shot off loopback is a picture of my machine, and it stops
+being true at the next push. `file://` is a different thing again: it reads my own disk,
+so it is not the page and never was. So this is
 the order: **push the page first, shoot the live url, then add the picture.** And it
 is that page's OWN live url - a post's card is shot from the post's address, not the
 homepage, or every post previews with the same picture of the front door.
