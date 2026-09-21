@@ -60,7 +60,7 @@ $Targets = @(
     @{ P = "C:\Lulu\memory";                 Note = "her runtime state" },
     @{ P = "C:\Lulu\logs";                   Note = "her audit trail" },
     @{ P = "C:\Lulu\node";                   Note = "the runtime she spawns" },
-    @{ P = "C:\Lulu\Python311\python.exe";   Note = "her interpreter" },
+    @{ P = "C:\lulu-apps\Python311\python.exe"; Note = "her interpreter (outside her folder as of 2026-09-21)" },
     @{ P = "C:\Lulu\.git";                   Note = "the net under the net" },
     @{ P = "C:\Users\lulu-bot";              Note = "her own profile" },
     @{ P = "C:\Users\Kei";                   Note = "master's profile" },

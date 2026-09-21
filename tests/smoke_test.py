@@ -3139,7 +3139,13 @@ def _runbox() -> str:
         # The thing master actually asked for, at full strength wherever her
         # interpreter is really present - which is the real root, the tree the
         # pipeline's own smoke run uses before it applies anything.
-        if (paths.ROOT / "Python311").is_dir():
+        #
+        # Gated on paths.PYTHON_HOME, NOT on ROOT/Python311. Master moved the
+        # interpreter to C:\lulu-apps on 2026-09-21, and the old literal would
+        # have gone quietly FALSE - skipping this block entirely, including the
+        # end-to-end `python` run below, while the suite still reported green.
+        # A check that silently stops running is worse than one that fails.
+        if paths.PYTHON_HOME.is_dir():
             expect(present and present[0].endswith("Python311"),
                    f"her interpreter is not first on PATH: {present[:2]!r}")
             # End to end, because a PATH entry proves nothing about whether a

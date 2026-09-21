@@ -26,7 +26,7 @@ param(
     # flattened. Defaulted rather than left empty: an empty value makes the
     # generated launcher call bare `python.exe`, which does not resolve for an
     # account with no user profile.
-    [string]$PythonRoot = "C:\Lulu\Python311",
+    [string]$PythonRoot = "C:\lulu-apps\Python311",
     [switch]$Strict,
     [switch]$Undo
 )

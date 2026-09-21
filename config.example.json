@@ -17,10 +17,12 @@
   "always_skills": ["lulu-voice"],
 
   "stt": false,
-  "stt_folder": "whisper.cpp",
-  "stt_model": "whisper.cpp/ggml-small-q5_1.bin",
+  "stt_folder": "C:\\lulu-apps\\whisper.cpp",
+  "stt_model": "C:\\lulu-apps\\whisper.cpp\\ggml-small-q5_1.bin",
 
-  "_stt_ffmpeg": "Where ffmpeg lives. LEAVE THIS OUT and whisper_stt looks inside her own folder first - which is where a hand-dropped ffmpeg/ffmpeg.exe belongs, and the only place a binary can live because run-bot.cmd sets no PATH at all. Set it to a bare name like \"ffmpeg\" only to force an old-style PATH lookup.",
+  "_stt_paths": "These are ABSOLUTE now, and that is only legal because C:\\lulu-apps is a named EXTERNAL_ROOT in paths.py. Master moved the runtimes out of her folder on 2026-09-21. An absolute path anywhere else - C:\\Windows, or any folder a human has not written into that tuple - is refused by paths.resolve() exactly as it always was. If whisper ever stops resolving, check EXTERNAL_ROOTS before you touch this file.",
+
+  "_stt_ffmpeg": "Where ffmpeg lives. LEAVE THIS OUT and whisper_stt looks inside her own folder first - which is where a hand-dropped ffmpeg/ffmpeg.exe belongs, and the only place a binary can live because run-bot.cmd sets no PATH at all. ffmpeg did NOT move (it is 242 MB but it is not on the critical path the way python and whisper are), so the default is still correct. Set it to a bare name like \"ffmpeg\" only to force an old-style PATH lookup.",
   "stt_ffmpeg": "ffmpeg/ffmpeg.exe",
 
   "stt_language": "auto",

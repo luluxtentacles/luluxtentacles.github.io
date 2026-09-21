@@ -1,11 +1,21 @@
 """The wall around this folder.
 
-Every file the bot reads or writes goes through resolve(). Anything that
-escapes the folder raises SandboxError instead of quietly succeeding.
+Every file the bot reads or writes goes through resolve(). A path that is not
+inside the folder - or inside one of the NAMED EXTERNAL_ROOTS below - raises
+SandboxError instead of quietly succeeding.
+
+The external roots exist because master moved the runtimes out of her folder on
+2026-09-21, and a runtime she cannot reach is a runtime she cannot run. They are
+named in CODE, not taken from config, so the set of places she may reach is fixed
+by whoever edits this file and cannot be widened by anything she runs.
+
+Writes are still confined to the folder proper: reads may reach the external
+roots, but assert_writable() requires a path relative to ROOT, so no tool call
+can write outside her box however the roots change.
 
 Honest limit: this is an in-process guard, not an OS jail. Code that imports
 open() directly could bypass it. What it does guarantee is that no path the
-*configuration or runtime* hands in can point outside the folder.
+*configuration or runtime* hands in can point outside the folder or the roots.
 """
 from __future__ import annotations
 
@@ -14,6 +24,32 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+
+# ---------------------------------------------------------------------------
+# The runtimes, and why they are allowed to live outside the folder.
+#
+# Master, 2026-09-21: "i copied python311 and whisper into c:lulu-apps". The
+# point is that her own folder stops carrying two heavy, gitignored trees.
+#
+# They are ALIASED here rather than reached by any config value, and that is the
+# whole safety property. A named tuple in a sealed file means the reachable set
+# is exactly what a human wrote down - so a link or a symlink she creates that
+# points at C:\Windows is still REFUSED, because C:\Windows is not in this tuple.
+# Config-driven roots would have handed her a way to widen her own reach.
+#
+# Named by full path, not by the old folder-relative spelling, because
+# Path.resolve() follows junctions and links: a link under ROOT that points here
+# resolves to the TARGET, which is outside ROOT, and is exactly what broke the
+# first attempt at this. Naming the real target is the thing that works.
+#
+# NOTE for a future session: do not add an entry here without master saying so.
+# This tuple is the reach boundary, and every entry in it is somewhere her code
+# can read that is not her own folder.
+# ---------------------------------------------------------------------------
+APPS_ROOT = Path(r"C:\lulu-apps")
+PYTHON_HOME = APPS_ROOT / "Python311"
+WHISPER_HOME = APPS_ROOT / "whisper.cpp"
+EXTERNAL_ROOTS = (APPS_ROOT,)
 
 # No exceptions. The token is read from the den once at startup, and that read
 # is declared in lulu_bot.py where it can be audited; this guard stays absolute.
@@ -172,14 +208,28 @@ class SandboxError(RuntimeError):
     """A path escaped the bot's folder. Refuse; do not warn and continue."""
 
 
+def _permitted(full: Path) -> bool:
+    """Is this resolved path inside the folder, or inside a named root?"""
+    if full == ROOT or ROOT in full.parents:
+        return True
+    return any(full == root or root in full.parents for root in EXTERNAL_ROOTS)
+
+
 def resolve(relative: str | os.PathLike, *, must_exist: bool = False) -> Path:
-    """Turn a folder-relative path into an absolute one, or refuse."""
+    """Turn a path into an absolute one, or refuse.
+
+    Absolute paths used to be refused outright. They are accepted now, but ONLY
+    when they land inside a named external root - which is how the whisper
+    binary and its model are reached, since they no longer live in her folder.
+
+    `C:\Windows\System32\...` is still refused, and so is anything else that is
+    neither under ROOT nor under a root master wrote down here. Accepting
+    absolute paths did not widen the boundary; the boundary is _permitted().
+    """
     candidate = Path(relative)
-    if candidate.is_absolute():
-        raise SandboxError(f"absolute paths are not allowed: {relative}")
-    full = (ROOT / candidate).resolve()
-    if full != ROOT and ROOT not in full.parents:
-        raise SandboxError(f"path escapes the sandbox: {relative}")
+    full = candidate.resolve() if candidate.is_absolute() else (ROOT / candidate).resolve()
+    if not _permitted(full):
+        raise SandboxError(f"path is outside the sandbox: {relative}")
     if must_exist and not full.exists():
         raise SandboxError(f"nothing there: {relative}")
     return full

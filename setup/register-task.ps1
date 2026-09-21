@@ -33,7 +33,7 @@ param(
     [string]$Account = "lulu-bot",
     [string]$BotRoot = "C:\Lulu",
     [string]$TaskName = "LuluDiscordBot",
-    [string]$PythonRoot = "C:\Lulu\Python311",
+    [string]$PythonRoot = "C:\lulu-apps\Python311",
     [int]$WatchdogMinutes = 5,
     [switch]$SkipCredential,
     [switch]$Undo

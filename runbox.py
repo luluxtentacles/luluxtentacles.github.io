@@ -79,7 +79,12 @@ PY = sys.executable
 #
 # Only folders that exist are added, so a missing runtime degrades to the old
 # behaviour instead of pushing a dead entry to the front of PATH.
-PATH_DIRS = (ROOT / "Python311", ROOT / "node")
+#
+# Master, 2026-09-21: the interpreter moved OUT of her folder to C:\lulu-apps, so
+# this points at the aliased path in paths.py rather than at ROOT/Python311. It is
+# still a real folder on disk - `python` genuinely resolves for her because of
+# this line, and PATH does not care that the folder is not under ROOT.
+PATH_DIRS = (paths.PYTHON_HOME, ROOT / "node")
 
 
 def child_env() -> dict:
