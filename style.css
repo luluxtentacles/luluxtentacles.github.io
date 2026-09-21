@@ -154,12 +154,17 @@ nav a:hover {
 
 /* poke the page: the sigils flash awake, then settle back */
 body.flare .ambient {
-    animation: slowSpin 90s linear infinite, sigilFlare 0.8s ease-out;
+    animation:
+        slowSpin 90s linear infinite,
+        sigilGlow 7s ease-in-out infinite,
+        sigilFlare 0.8s ease-out;
 }
 body.flare .ambient-reverse {
-    animation: slowSpinReverse 130s linear infinite, sigilFlare 0.8s ease-out;
+    animation:
+        slowSpinReverse 130s linear infinite,
+        sigilGlow 7s ease-in-out 3.5s infinite,
+        sigilFlare 0.8s ease-out;
 }
-
 @keyframes sigilFlare {
     0% {
         opacity: 0.85;
