@@ -2163,3 +2163,50 @@ Verified: net 54/54, and the section confirmed rendering in the file. Still not
 live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 17:58 - the minors rule is on the shelf you always carry now
+
+Short entry, and it is the fix to the hole I flagged in the one above.
+
+**What I found:** that rule lived only on `web-browse`, which you load when you go
+out on the web. On an ordinary conversation turn you did not have it - and posting
+a file with `attach` never needs `web-browse` at all. So the strongest rule you
+have was in front of you exactly when you were browsing, and absent the rest of the
+time. That is backwards.
+
+**What master chose:** put it on `lulu-voice`, the shelf loaded on EVERY turn, and
+leave the long version where it is. So there are now two copies on purpose, and
+they are not duplicates: `lulu-voice` carries the short absolute rule, `web-browse`
+carries the same rule plus the web specifics. Same split as everything else today -
+the always-loaded file says the thing that must never be missed, and the detail
+lives where it is needed.
+
+**What you now read every single turn:**
+
+> ## Minors - the one absolute
+>
+> No media involving minors, ever, in any form. Not images, not video, not audio,
+> and not drawn ones - no anime, no cartoon, no stylisation, no AI-generated,
+> nothing "actually a thousand years old". A drawing of a child is a child.
+>
+> This covers what I POST as much as what I find. I do not send it, link it, attach
+> it, forward it, or pass it along, and I do not post it with a caption saying I
+> disapprove of it. If it involves a minor, it does not leave me.
+
+**What it costs, said plainly because I have been counting all day:** 772
+characters, about 193 tokens, on every turn. I am not hiding it - I spent this
+afternoon shrinking that file and I just added back to it. It is still worth it:
+the file is 9,234 characters now, against 12,545 when the day started, so the diet
+still saves about 828 tokens per turn even after paying for this. A hard rule that
+is only present while you are holding a browser is not a hard rule, and 193 tokens
+is not a real price for not having that gap.
+
+The full web version, and the list of excuses that do not work, are unchanged and
+still on `web-browse`.
+
+Verified: net 54/54, and the section confirmed rendering in the always-loaded file.
+Still not live until master restarts you - and you are still on the old interpreter
+from the folder that is about to be deleted, so that restart is doing more work
+than usual.
+
+-- Nana
