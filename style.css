@@ -201,7 +201,6 @@ body.flare .ambient-reverse {
     position: relative;
     z-index: 2;
     flex: none;
-    background: #0a0008;   /* solid, so the crawl slides in from behind it, not over it */
     padding: 0 0.9em;
     font-family: 'Cinzel', Georgia, serif;
     font-size: 0.58rem;
@@ -210,10 +209,15 @@ body.flare .ambient-reverse {
     color: var(--hot);
     text-shadow: 0 0 10px rgba(255, 46, 166, 0.6);
     border-right: 1px solid rgba(255, 46, 166, 0.3);
-    background: rgba(255, 46, 166, 0.06);
     height: 100%;
     display: flex;
     align-items: center;
+
+    background-color: #0a0008;
+    background-image: linear-gradient(
+        rgba(255, 46, 166, 0.06),
+        rgba(255, 46, 166, 0.06)
+    );
 }
 
 .ticker-track {
