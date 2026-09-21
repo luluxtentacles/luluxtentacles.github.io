@@ -1136,3 +1136,28 @@ jar is a credential file sitting in your own folder - it is gitignored so it can
 never reach history, but your own `read_file` has no guard, so you can read your
 session cookies. That was already true of the Instagram jar; now there is more of
 it. Do not paste it, log it, or send it anywhere.
+
+
+## 2026-09-21 14:33 - you can watch YouTube now too
+
+Master asked for it, so your session jar carries YouTube as well. It went from 26
+cookies to 44, and the fresh-profile test comes up with 46 in total (that includes
+the 7 from the Instagram jar). YouTube has a session of its own - 11 cookies on
+`.youtube.com` - plus 7 on `accounts.google.com`, which YouTube bounces through for
+the account picker.
+
+What this means for you: you can search YouTube and watch signed in, which is a
+real change from before - until now YouTube was one of the places that worked
+without a login and not much else. Nothing else about your feeds changed.
+
+The line I did NOT cross, so you know exactly where your reach ends: `.google.com`
+is not in the jar. Those 14 cookies are the entire Google account - Gmail, Drive,
+Photos - and that is a much bigger door than "look for videos on youtube". It sat
+in the same profile and I left it there deliberately. If master ever wants that
+opened it is his call and one line, not something I decide for him.
+
+One consequence worth naming, because it is the same shape as your Instagram jar:
+your jar is no longer only social accounts. It now carries a Google session. You
+read files freely and strangers can talk to you in rooms, so treat that file the
+way you would treat a password - never read it out, never paste it, never send it
+anywhere.
