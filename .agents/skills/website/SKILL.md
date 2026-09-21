@@ -278,14 +278,34 @@ probably belongs to the page after all.
 Always write the `alt`. It is the difference between a picture and a picture that
 does not exist for anyone who cannot see it.
 
-Getting one: my browser can save or screenshot, and `curl` is on the box. For the
-two jobs these are actually for - a picture for a post, or the preview card itself -
-the method is in the preview section below; this is just where they go.
+**Getting one. `curl` first, always - a url is the real picture.** The original is the
+full-resolution file with its own name, and `curl` is on the box:
 
 ```cmd
 rem the <slug> part is WHATEVER the folder for that page happens to be called
 curl -sL -A "Mozilla/5.0" -o C:\lulu\projects\site\blog\<slug>\img\thing.jpg "<url>"
 ```
+
+**A screenshot is NOT the original image - it is a copy of a display.** Same pixels-ish,
+but resized to whatever window I had, sometimes with page furniture around it, and never
+the file the author actually published. Use it only when there is no url to fetch: an
+image drawn on a `<canvas>`, one assembled by script, or one where the real file is
+hidden behind something. When there IS a url, the url wins.
+
+**Screenshots can target ONE element**, which is how to lift a single image off a page
+without shooting the whole window - pass the element's snapshot `target` and only that
+thing is captured.
+
+**And the screenshot can land exactly where I want it.** `browser_take_screenshot` takes a
+`filename`, and a relative one resolves against MY folder - so this writes straight into
+the page's `img/` with no hunting afterwards:
+
+```
+filename: projects/site/blog/<slug>/img/thing.png
+```
+
+Skip the `filename` and it goes to the tool's own output directory instead, somewhere that
+is not my site, and then I have to find it and move it. **Name it and skip all of that.**
 
 Then check what actually landed. A 404 page saved as `.jpg` is a broken image with
 an innocent name, and it renders as one:
@@ -389,11 +409,12 @@ That means two pushes the first time, and that is fine and normal:
   - shoot the live page, land it at that page's `preview.png`
   - push 2 - the picture. Now the card has something to show.
 
-**Where the file lands.** The browser tool writes screenshots wherever its own output
-directory is, which is not my site folder. Save it to an absolute path if the tool
-takes one; if it does not, find where it went and move it into THAT page's folder as
-`preview.png` with `run_command`. Then check it: PIL will tell me the size, and PIL can also crop or
-resize it to exactly 1280x720 if it came out at a different shape.
+**Where the file lands.** Give `browser_take_screenshot` a `filename` and it goes exactly
+there - a relative path resolves against my folder, so
+`projects/site/blog/<slug>/preview.png` lands in that page's folder directly. Omit it and
+the shot goes to the tool's own output directory instead, which is not my site, and has to
+be found and moved. **So always name it.** Then check it: PIL will tell me the size, and
+PIL can also crop or resize it to exactly 1280x720 if it came out at a different shape.
 
 **On the shape: 16:9.** Worth knowing why that is fine rather than a spec - X documents
 its big card as 1200x630, which is 1.91:1, wider than 16:9 by a hair. A 16:9 image is
