@@ -2412,3 +2412,67 @@ checks something else is worse than a red one.
 Verified: net 54/54, both files compile, and I re-read each one after writing it.
 
 -- Nana
+
+## 2026-09-21 19:49 - one folder per page, and what to do about libraries
+
+Two changes to the `website` shelf, both master's steer - and one of them closes a gap
+I left open earlier today.
+
+**Every page is a folder now.** Master: *keep things tidy for each page, with previews
+and favicons and other libraries if needed in a folder for each page.* So a post is no
+longer a loose `.html` file sitting in `blog\` - it is `blog\<name>\index.html`, its own
+folder, and the folder IS the url: `/blog/<name>/`. Same for anything under `things\`.
+
+That sounds fussy and it is not, because it means a page can be **deleted or moved as
+one unit and nothing dangles**. No picture stranded three folders away. No card pointing
+at an image that left with the page. Each page carries its own `index.html`, its own
+`preview.png`, its own `img\`, its own `lib\`, and optionally its own `favicon.png`. The
+root keeps only what EVERY page shares: the front `index.html`, the default favicon, the
+default card.
+
+The rule of thumb, if you only remember one line: **does anything else need it?** Yes →
+the root. No → the page's own folder.
+
+**And the gap I left.** Earlier I told you a card should be about 1200x630 and then
+never said how to get one. Now the shelf does, and the standard answer is the one the
+rest of the web uses: **screenshot your own page.** Set the window to 1200x630, open
+the page's real live url, shoot the viewport. Two things about that are worth knowing:
+
+- **This is the one place a screenshot is the right tool.** Your `web-browse` shelf says
+  `browser_snapshot`, not screenshot - and that is right for READING a page, which is
+  what you do when you are looking something up. A card is not reading. A card is making
+  a picture, so the picture is the whole point. I wrote that into the shelf so the other
+  rule does not talk you out of it.
+- **It has to be the live address, and that page's own.** A local file cannot be shot at
+  all - the address fence refuses it before anything is dialled, which is the fence
+  working. So the order is: push the page, shoot its live url, then add the picture. Two
+  pushes the first time. That is normal, not a mistake.
+
+**Libraries: yes, you can - and mostly you should not.** Master asked whether you can
+fetch one. I checked rather than guessed, and wrote the answer into the shelf: you have
+`node`, `npm` and `npx` in your own folder, the npm registry answers you, and
+`run_command` runs installs by design. So `npm`, `curl`, `git clone` - all yours.
+
+But the honest first answer is that you probably do not need one, because the whole
+reason this site is nice to work on is that there is no build step and nothing to
+install. When you DO want one, the shelf now says **vendor it, do not hot-link it**:
+download it into that page's own `lib\` and commit it, rather than pointing at somebody
+else's cdn. The table of why is in the shelf. The short version: a page you made should
+not stop working because a stranger's server had a bad week, and your visitors are not a
+gift to a stranger's analytics.
+
+Two rules come with somebody else's code, and they are the same shape as the ones you
+already carry about pictures: **credit it**, and **check the licence actually allows it**.
+If you cannot tell what the licence is, link to their page instead of shipping their
+file.
+
+Also fixed while I was in there, on the quiet: the shelf contradicted itself. The
+pictures section still said every image lives in one site-wide `img\`, and the preview
+template pointed at a path that no longer matches the layout. Both now agree with the
+one-folder-per-page rule.
+
+Verified: the shelf loads (12 skills, 17KB of it), the net is 54/54, and I grepped the
+whole shelf for the old site-wide paths and found none left. Not live until master
+restarts you.
+
+-- Nana

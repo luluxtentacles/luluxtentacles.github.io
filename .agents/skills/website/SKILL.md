@@ -21,15 +21,105 @@ people can open the moment I push.
 
 ```
 projects\site\
-    index.html          my front page - the door to everything else
-    blog\<slug>.html    a post
-    things\<name>\      a project of mine, with its own index.html
-    img\               every image, in one place
+    index.html          my front page - the ONLY page at the root, because / must work
+    favicon.png         the site default - every page inherits it
+    preview.png         the site default card
+    blog\
+        <slug>\
+            index.html      -> /blog/<slug>/
+            preview.png     this post's own card
+            img\            this post's own pictures
+            lib\            a library, IF it needs one
+    things\
+        <name>\
+            index.html      -> /things/<name>/
+            preview.png
+            img\
+            lib\
 ```
 
 So: `https://luluxtentacles.github.io/things/sigil-generator/` is a real address I
 can send someone, and it is just a folder I made. That is the whole trick - build
 it in a folder, link it from `index.html`, push it, send the link.
+
+## One page, one folder
+
+Master, 2026-09-21: *keep things tidy for each page, with previews and favicons and
+other libraries if needed in a folder for each page.*
+
+**Every page is a folder with an `index.html` in it.** Not a loose `.html` file - a
+folder. That is what makes the tidy half work, because a page can then be DELETED or
+MOVED as one unit and nothing dangles: no orphaned image three directories away, no
+card pointing at a picture that left with the page.
+
+What lives in a page's own folder:
+
+| file | what it is for |
+|---|---|
+| `index.html` | the page itself. Always this name, so a folder IS a url. |
+| `preview.png` | that page's own card image - see the preview section |
+| `img\` | that page's own pictures |
+| `lib\` | a library, if it needs one - see below |
+| `favicon.png` | optional, only if this page wants its own tab icon |
+
+And what lives at the root, because every page shares it: the front `index.html`,
+the default `favicon.png`, and the default `preview.png`.
+
+**The rule of thumb: does anything else need it?** If yes, it goes at the root. If
+only this one page needs it, it goes in that page's folder. That is the whole
+convention, and it is the one that keeps a site readable after fifty pages instead
+of only after five.
+
+**Reference a page's own files relatively** from inside its folder - `img/thing.jpg`,
+not `/img/thing.jpg`. A relative path keeps working if the page ever moves, and it
+stops two pages fighting over one shared `img/` that neither of them owns. The two
+deliberate exceptions are the site-default favicon and card, which are written as
+absolute `/favicon.png` style paths at root on purpose.
+
+## Libraries - and yes, I can download them
+
+Master asked whether I can fetch a library right now. Checked rather than guessed: I
+have `node` in my own folder, `npm` and `npx` with it, the npm registry answers me,
+and `run_command` runs installs and package managers by design. So yes - `npm`,
+`curl`, `git clone`, whatever a page needs.
+
+**And the first answer is still: I probably do not need one.** The whole reason this
+site is nice to work on is that there is no build step, no framework and nothing to
+install. Reach for a library only when plain HTML, CSS and JS genuinely cannot do the
+thing, which is rarer than it looks.
+
+**When I do want one: vendor it, do not hot-link it.** Those are not the same thing,
+and the difference is worth the table.
+
+| | hot-linking a cdn | vendoring into `lib\` |
+|---|---|---|
+| how | `<script src="https://cdn.example/lib.js">` | download it, commit it, `<script src="lib/lib.js">` |
+| if they go down | my page breaks | nothing happens |
+| if they change it | my page silently changes under me | nothing happens |
+| who else sees my visitors | they do - every visitor hits their server | nobody |
+| in five years | maybe gone | still in my repo |
+
+That is not close. A page I made should not stop working because somebody else's
+server had a bad week, and my visitors are not a gift to a stranger's analytics.
+
+```cmd
+rem per page, into that page's OWN folder
+curl -sL -o C:\lulu\projects\site\things\sigil-generator\lib\thing.min.js "<the file's real url>"
+```
+
+`npm install` is fine too, but run it inside the page's folder and then move just the
+built file I actually serve into `lib\` - a `node_modules\` committed into a static
+site is hundreds of files nobody asked for.
+
+**Two rules that come with somebody else's code.**
+
+- **Credit it.** Vendoring means I am shipping another person's work on my own page,
+  so the name and a link to where it came from go on the page or in a comment beside
+  the include. Same rule as the pictures, and it applies to code exactly as it does
+  to images.
+- **Check the licence actually allows it.** Most small libraries are MIT or similar
+  and fine with a credit. Some are not fine with any of it. If I cannot tell what the
+  licence is, I link to their page instead of shipping their file.
 
 ## Why plain HTML is not a limitation
 
@@ -51,9 +141,12 @@ impressive", it is *would I send someone the link*.
 
 ## A blog post
 
-A post is one new file in `projects/site/blog/`. The shape:
+A post is one new FOLDER in `projects/site/blog/` with an `index.html` in it - the
+same shape as everything else. So `blog/why-sigils-work/index.html` is the post at
+`/blog/why-sigils-work/`. The shape:
 
-- its own page and its own url, linked from the index so it can be found
+- its own folder, its own `index.html`, its own url
+- its own `preview.png` and its own `img\` - see "one page, one folder"
 - the title and the date in the page, not only in the file name
 - a picture, if there is an honest one - see below
 - where it came from: the sources, with links, so anyone can check me
@@ -73,33 +166,42 @@ is worth making good, and why "it renders" is not the same as "it is done".
 so sending the url IS sending it. On my own site a url is a hole that breaks the day
 the other host does. I want the bytes, in this repo, committed with the post.
 
-They live in `projects\site\img\`, and I reference them RELATIVE:
+They live in the **page's own** `img\`, and I reference them RELATIVE:
 
 ```html
 <img src="img/sigil-method.jpg" alt="a rendering of the sigil">
 ```
 
+That is the whole point of one-folder-per-page: the picture sits beside the page that
+uses it. A picture that genuinely MANY pages use goes in `projects\site\img\` at the
+root instead, and then the path climbs back up - `../../img/thing.jpg` from inside a
+post folder. That climbing path is a good signal: if it feels awkward, the picture
+probably belongs to the page after all.
+
 Always write the `alt`. It is the difference between a picture and a picture that
 does not exist for anyone who cannot see it.
 
-Getting one: my browser can save or screenshot, and `curl` is on the box.
+Getting one: my browser can save or screenshot, and `curl` is on the box. For the
+two jobs these are actually for - a picture for a post, or the preview card itself -
+the method is in the preview section below; this is just where they go.
 
 ```cmd
-curl -sL -A "Mozilla/5.0" -o C:\lulu\projects\site\img\thing.jpg "<url>"
+rem the <slug> part is WHATEVER the folder for that page happens to be called
+curl -sL -A "Mozilla/5.0" -o C:\lulu\projects\site\blog\<slug>\img\thing.jpg "<url>"
 ```
 
 Then check what actually landed. A 404 page saved as `.jpg` is a broken image with
 an innocent name, and it renders as one:
 
 ```cmd
-python -c "from PIL import Image; print(Image.open(r'C:\lulu\projects\site\img\thing.jpg').size)"
+python -c "from PIL import Image; print(Image.open(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg').size)"
 ```
 
 Keep them small - a repo full of 20 MB screenshots is a slow site and a nasty clone.
 PIL is already on this box (`vision.py` uses it):
 
 ```cmd
-python -c "from PIL import Image; im=Image.open(r'C:\lulu\projects\site\img\thing.jpg'); im.thumbnail((1600,1600)); im.save(r'C:\lulu\projects\site\img\thing.jpg', quality=82)"
+python -c "from PIL import Image; im=Image.open(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg'); im.thumbnail((1600,1600)); im.save(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg', quality=82)"
 ```
 
 Master, 2026-09-21: *she should try to attach an image to every blog post.* So try
@@ -125,13 +227,13 @@ the page's own head, and a page without them is a grey line and a shrug.
     <meta property="og:description" content="summoned from the quantum void. she stayed.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://luluxtentacles.github.io/">
-    <meta property="og:image" content="https://luluxtentacles.github.io/img/preview.png">
+    <meta property="og:image" content="https://luluxtentacles.github.io/preview.png">
 
     <!-- x reads these; other embeds fall back to them too -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Lulu">
     <meta name="twitter:description" content="summoned from the quantum void. she stayed.">
-    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/preview.png">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/preview.png">
 
     <!-- the little picture in the browser tab -->
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -149,9 +251,65 @@ Three traps, and the first one catches everybody:
    post I ever write previews as the same homepage card forever. On a post,
    `og:type` is `article` and `og:url` is that post's own address.
 3. **The image has to be committed AND pushed.** Point `og:image` at a file that is
-   not in the repo and the card is a broken box. A site-wide one goes at
-   `img/preview.png`, about **1200x630** - and it is a picture like any other, so
-   the section above applies to it.
+   not in the repo and the card is a broken box. **A page's own card is its own
+   `preview.png`, inside that page's folder** - so a post at `/blog/the-slug/` points
+   at `https://luluxtentacles.github.io/blog/the-slug/preview.png`, and the front page
+   points at `https://luluxtentacles.github.io/preview.png`. About **1200x630**, and it
+   is a picture like any other, so the section above applies to it.
+
+### making the preview image
+
+The usual way - and the easy one - is a **screenshot of the page itself**. That is
+what most of the web does for a personal site or a blog: set the window to the right
+shape, open the LIVE url, shoot the window, and that is your card.
+
+**This is the one place a screenshot is the right tool.** My `web-browse` shelf says
+`browser_snapshot`, not screenshot, and that is correct for READING a page - a
+snapshot is a tree I can think about. For a card I am not reading anything, I am
+making a picture, so the picture is exactly the point. Do not let the other shelf's
+rule talk me out of this one.
+
+```
+1. browser_resize      width 1200, height 630     <- the card's shape, 1.91:1
+2. browser_navigate    <the page's own LIVE url>  the address that page really has
+3. browser_take_screenshot   the VIEWPORT, not the full page
+4. land it in THAT page's folder, named preview.png
+```
+
+**Shoot the viewport, not the full page.** A full-page shot of a long page is a tall
+ribbon, and the card crops it to a strip of the top - usually the header and nothing
+else. Resize first, then shoot what is in the window.
+
+**It has to be the live address.** A local file or a localhost preview cannot be
+screenshotted at all - the address fence refuses `file://`, `localhost` and
+`127.0.0.1` before anything is dialled, which is the fence doing its job. So this is
+the order: **push the page first, shoot the live url, then add the picture.** And it
+is that page's OWN live url - a post's card is shot from the post's address, not the
+homepage, or every post previews with the same picture of the front door.
+
+That means two pushes the first time, and that is fine and normal:
+
+  - push 1 - the page, with the preview tags pointing at its own `preview.png`
+  - shoot the live page, land it at that page's `preview.png`
+  - push 2 - the picture. Now the card has something to show.
+
+**Where the file lands.** The browser tool writes screenshots wherever its own output
+directory is, which is not my site folder. Save it to an absolute path if the tool
+takes one; if it does not, find where it went and move it into THAT page's folder as
+`preview.png` with `run_command`. Then check it: PIL will tell me the size, and PIL can also crop or
+resize it to exactly 1200x630 if it came out at a different shape.
+
+**Or make a card instead.** A designed image is the other honest option, and it is
+better for a post whose screenshot would look like every other page on the site -
+or for a page that is mostly text. A dark background, the title, my own colours, made
+with PIL, is a real card and nobody is grading it:
+
+```cmd
+python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1200,630),(10,0,8)); ImageDraw.Draw(im).text((60,290),'LULU',fill=(255,110,199)); im.save(r'C:\lulu\projects\site\img\preview.png')"
+```
+
+Either way it is the same two rules as any other picture on the site: it goes in
+`img/`, it gets committed and pushed, and `og:image` points at it by its ABSOLUTE url.
 
 **A favicon wants the leading slash** - `href="/favicon.png"` means the root of the
 site, not the folder the page happens to sit in. Drop a square png at
