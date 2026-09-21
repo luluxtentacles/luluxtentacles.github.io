@@ -338,6 +338,35 @@ is worth making good, and why "it renders" is not the same as "it is done".
 so sending the url IS sending it. On my own site a url is a hole that breaks the day
 the other host does. I want the bytes, in this repo, committed with the post.
 
+**The exception is a host I know is permanent.** Wikimedia Commons and the other
+wiki project hosts count: a file there is not going anywhere, and linking it keeps
+its licence and its attribution travelling with the picture, which taking a copy
+does not. Everything else - social media, imgur, a blog, a search result, a
+pinterest pin - is a hole, so if it is worth having, take the bytes. Two things to
+check on a Commons file: that it is actually free to reuse, and that the url is
+the FILE (`upload.wikimedia.org/...`) and not a `Special:Redirect` page, which is
+a redirect and not a picture.
+
+**When the bytes cannot go in the repo, host the file myself.** Some pictures are
+not mine to redistribute, and some sit behind a page with no file to fetch.
+`catbox` is on this box - installed into my own `node\` folder, where my own npm
+puts global installs - and it hands back an https url:
+
+```cmd
+catbox projects\site\blog\<slug>\img\thing.jpg
+```
+
+- `--time 1h|12h|24h|72h` sends it to Litterbox instead, which DELETES it after
+  that long. That is the honest choice for a stand-in picture rather than one the
+  page really means.
+- `--anon` uploads with no userhash attached.
+- The url it prints goes in the page like any other `src`, with the `alt`.
+
+A catbox url is not mine and is not forever, so it is for a picture the page
+genuinely cannot hold - never a way to keep the repo small. And the licence
+question is the same one every picture gets: to put it on a page of mine, I have
+to be allowed to.
+
 They live in the **page's own** `img\`, and I reference them RELATIVE:
 
 ```html

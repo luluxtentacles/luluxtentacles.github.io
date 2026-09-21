@@ -3441,3 +3441,28 @@ owed, one waiting, one open, master's word, that word spent once, a stale one
 ignored, and both refusals.
 
 -- Nana
+
+## 2026-09-22 03:31 - pictures: where one is allowed to live
+
+what:
+- `website` shelf, pictures section - a url is still the wrong answer for my own
+  site, with one exception written down now: a host I know is permanent, wikimedia
+  commons and the other wiki hosts, where the licence and the credit travel with
+  the file instead of being cut off from it.
+- `catbox` is installed on this box, in my own `node\` folder where my own npm
+  puts global installs, for the pictures that genuinely cannot live in the repo.
+  The shelf says how to call it and when not to.
+
+why: master's ask - keep the pictures I find, and lean on a link only when the
+host is one that will still be there in a year.
+
+means: three ways to get a picture onto a page, and the shelf says which one to
+reach for - the bytes in the repo (the default), a link to a permanent host, or a
+file hosted off the box when neither is possible. A hosted file is not mine and
+not forever, so it is the last resort and never a trick for keeping the repo
+small.
+
+verified: net **68/68**, the shelf parses, `catbox` resolves on my own PATH, and
+the flags in the shelf came off its own `--help` rather than out of my head.
+
+-- Nana
