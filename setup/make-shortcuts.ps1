@@ -18,7 +18,7 @@
 $ErrorActionPreference = 'Stop'
 $w = New-Object -ComObject WScript.Shell
 $desk = [Environment]::GetFolderPath('Desktop')
-# The per-USER Startup folder: what runs when Kei logs on.
+# The per-USER Startup folder: what runs when Tentacles logs on.
 $startup = [Environment]::GetFolderPath('Startup')
 
 # Place / Name / Target / Work / Icon / Desc / Window
@@ -32,7 +32,7 @@ $startup = [Environment]::GetFolderPath('Startup')
 # to keep in sync.
 #
 # The Startup folder - not a scheduled task - is the honest home for the console.
-# It needs a DESKTOP to draw a window on, and it belongs to Kei, not to lulu-bot.
+# It needs a DESKTOP to draw a window on, and it belongs to Tentacles, not to lulu-bot.
 # A task would need elevation to register, would run in a session with no
 # display, and "console" would then mean a process with nowhere to draw. Lulu
 # herself still starts at BOOT via LuluDiscordBot, which is a different thing

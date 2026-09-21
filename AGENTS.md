@@ -8,9 +8,16 @@ This is the short version for THIS repo.
 
 ## The account name never gets written down
 
-Master, 2026-09-21: *never reveal my kei account name.*
+Master, 2026-09-21: *never reveal my account name.*
 
-His account on this box is `Kei`. Treat that string the way you treat a token -
+Master's local Windows account name is the string this rule protects, and it is
+deliberately NOT written in this file - not even here, in the rule itself, because
+a rule that names the secret it forbids is not a rule, it is a second copy of it.
+If you genuinely need to know it, ask the filesystem who owns this folder:
+`(Get-Acl C:\lulu).Owner`. Then do what this rule says with the answer - use it,
+and do not write it down.
+
+Treat that string the way you treat a token -
 and one step harder, because it is a PERSON and not a credential. It creeps into
 things that outlive the conversation: commit messages, notes, changelogs, memory
 entries, and worst of all `CHANGELOG.md`, which is read aloud into Discord rooms in

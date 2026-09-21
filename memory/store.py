@@ -8,7 +8,7 @@ middle of a conversation. Writes are read-modify-write under a lock file and
 land atomically, because three processes can reach this at once.
 
 CLI:
-    python store.py add --source discord --speaker kei --text "hello"
+    python store.py add --source discord --speaker Tentacles --text "hello"
     python store.py recall --query "nana look" --limit 5
     python store.py tail --limit 10
     python store.py stats

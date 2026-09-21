@@ -32,7 +32,7 @@
       script fails closed and says it cannot tell, rather than guessing.
 
     WHAT IT WILL NOT TOUCH
-      NyanBot (a separate task - C:\Nyanbot\check-silent.vbs, running as Kei)
+      NyanBot (a separate task - C:\Nyanbot\check-silent.vbs, running as Tentacles)
       and every other python on this box. Matching is on Lulu's OWN signals:
       her interpreter path, the scripts she runs, or her account. A wildcard on
       python.exe would take out other people's work, and Nana is filtered out by

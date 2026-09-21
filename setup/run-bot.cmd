@@ -5,7 +5,7 @@ set PYTHONUNBUFFERED=1
 set PYTHONIOENCODING=utf-8
 rem Her own node first on PATH. Without this a bare `node`, `npm` or `npx`
 rem resolves to NOTHING for her: this script sets no PATH at all, and the
-rem machine's own node lives inside Kei's profile, which the lulu-bot account
+rem machine's own node lives inside Tentacles's profile, which the lulu-bot account
 rem cannot reach. node\ carries its own node.exe, npm.cmd and npx.cmd, so
 rem putting it first makes the shorthands work for commands she runs herself.
 rem mcp.json still points at node\node.exe by full path for its own reasons and

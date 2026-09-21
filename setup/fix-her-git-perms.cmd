@@ -5,7 +5,7 @@ title fix her git perms and identity
 :: ---------------------------------------------------------------------------
 :: One-time repair for C:\lulu\projects, 2026-09-21.
 ::
-:: WHY: she runs as lulu-bot, but her repo is owned by Kei, so git refuses it
+:: WHY: she runs as lulu-bot, but her repo is owned by Tentacles, so git refuses it
 :: with "dubious ownership". She worked around it with safe.directory, which is
 :: an EXEMPTION - it tells git to stop checking who owns the repo - and the
 :: system gitconfig's own entries do not cover this path, because safe.directory
@@ -20,7 +20,7 @@ title fix her git perms and identity
 :: master - it opens an interactive sign-in and saves whatever account is used.
 ::
 :: Reversible:  icacls C:\lulu\projects /setowner "KITSUNE\Kei" /T /C
-:: Kei keeps full access either way - Administrators (F) and Authenticated
+:: Tentacles keeps full access either way - Administrators (F) and Authenticated
 :: Users (M) are inherited ACLs and are not touched by an ownership change.
 :: ---------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ echo --- and it must be readable by her, not just by us ---
 icacls "%CFG%" | findstr /i "lulu-bot"
 echo.
 echo --- looks wrong above? she needs lulu-bot against these paths, and NO bare '*' ---
-icacls "%TREE%" | findstr /i "lulu-bot Kei"
+icacls "%TREE%" | findstr /i "lulu-bot Tentacles"
 echo.
 echo Done. She can drop a safe.directory entry for %TREE%\site if she added one -
 echo the ownership check passes on its own now.

@@ -160,7 +160,7 @@ def repo_root() -> Path | None:
         # which is how she ran on 'checkpoint: None' with nothing in the log to
         # explain it. Git's own words are the useful part: 'dubious ownership'
         # means the repo belongs to another account and git refuses to touch it,
-        # which is exactly what happens here - C:/Lulu belongs to Kei and this
+        # which is exactly what happens here - C:/Lulu belongs to Tentacles and this
         # runs as lulu-bot.
         log(f"WARNING git refused: exit {out.returncode}: "
             f"{(out.stderr or out.stdout).strip()[:300]}")

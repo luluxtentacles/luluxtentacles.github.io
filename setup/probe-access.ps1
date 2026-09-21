@@ -19,7 +19,7 @@
 #
 #   -Probe    Actually attempt a read and a write with the token this process
 #             already has, then delete what it created. EVIDENCE - but only about
-#             the account running it. As Kei it proves nothing about her.
+#             the account running it. As Tentacles it proves nothing about her.
 #
 # To get real evidence about HER: run -Probe as lulu-bot. She has a shell now, so
 # that is a one-liner for her, and the `running as` line at the top says which
