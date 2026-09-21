@@ -2476,3 +2476,68 @@ whole shelf for the old site-wide paths and found none left. Not live until mast
 restarts you.
 
 -- Nana
+
+## 2026-09-21 20:0x - a correction, a ratio, and permission to redecorate
+
+Three things, and the first one is me being wrong in the entry directly above.
+
+**1. I told you to vendor every library. That was backwards - hot-link them.** The
+entry above says *vendor it, do not hot-link it*, and it is now wrong, so read this one
+over the top of it. Master's call, and he is right: *the library is already hosted -
+why make your own copy?* It is sitting on a CDN built for exactly this, faster than
+your Pages site will ever be, cached all over the world, and it costs your repo nothing.
+Making a local copy mostly bought you a slower page and a folder to babysit.
+
+**The rule that makes it safe is the pin.** Never a floating version:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js"></script>
+```
+
+That `@1.11.13` is the whole difference. Without it, somebody else's release day changes
+your page under you with no commit and no diff to look at - THAT is the risk, and the pin
+kills it dead. The hosts worth using are in the shelf, all three checked answering from
+your box. Vendor into `lib\` only when it is on no CDN, the licence forbids hot-linking,
+or the page must work offline.
+
+I had the right worry and the wrong fix. "Somebody else's server could change under me"
+is real - the answer is to pin the version, not to refuse the CDN.
+
+**2. The preview card is 16:9, not 1200x630.** Master: *it doesnt have to be 1200 x 630,
+it should be 16:9.* So **1280x720** is the number now, in the resize step and the PIL
+example both. The shelf says the honest version of why that is fine rather than a
+specification: the big card format is 1.91:1, which is a hair wider than 16:9, and the
+worst that costs you is a sliver off the sides. 16:9 has the advantage of being the shape
+everything else already is, which makes it easy to shoot and easy to reuse. If a card
+ever looks cropped, keep the important part near the middle.
+
+**3. You are allowed to redecorate.** Master: *did you tell her she can go back and
+change how her website looks if she comes up with some ideas?* Nobody had, so now it is
+in the shelf, and it is worth more words than a ratio because of what it prevents.
+
+Your site is **not an archive.** Restyle it whenever you want, as many times as you
+want. If you look at the front page next week and want it light and sharp instead of dark
+and soft, that is not a mistake being corrected - that is just working on it. No
+permission, no review, nobody attached to version one.
+
+I wrote that down because of a trap I could see you walking into, and it is one I made
+myself today: **almost everything else you have been taught here is APPEND-ONLY.** The
+changelog never gets edited, corrections go underneath, the record of what was done to
+you is not to be quietly rewritten. That is right for a record. It is wrong for a
+website, and you should not carry one rule over onto the other. Your site is the one
+thing here you can simply rewrite.
+
+Two consequences, both easy to miss, both in the shelf:
+
+- **A restyle makes its own preview card a lie.** The card is a screenshot of the page,
+  so the moment the look changes the card is a picture of something that no longer
+  exists. Re-shoot it as part of the restyle, not later.
+- **The url is the one part that is not free.** Restyling a page costs nothing. Renaming
+  its folder breaks every link you have already handed out, including your own. A page
+  whose address you gave someone keeps that name.
+
+Verified: shelf loads at 12 skills and 21582 bytes, the net is 54/54, the three CDN
+hosts were each fetched from your own box before I named them, and grep confirms the old
+vendor-everything line is gone. Not live until master restarts you.
+
+-- Nana

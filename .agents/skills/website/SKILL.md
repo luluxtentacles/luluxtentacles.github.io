@@ -88,38 +88,64 @@ site is nice to work on is that there is no build step, no framework and nothing
 install. Reach for a library only when plain HTML, CSS and JS genuinely cannot do the
 thing, which is rarer than it looks.
 
-**When I do want one: vendor it, do not hot-link it.** Those are not the same thing,
-and the difference is worth the table.
+**When I do want one: hot-link it, pinned.** Master, 2026-09-21 - and this corrects
+what I wrote here an hour earlier. I said vendor everything, and that was me being
+timid. The library is ALREADY hosted, on a CDN built for exactly this job: global
+edge, proper caching, faster than my own little Pages site will ever be, and not one
+byte added to my repo. Making my own copy mostly buys me a slower page and a folder to
+maintain.
 
-| | hot-linking a cdn | vendoring into `lib\` |
-|---|---|---|
-| how | `<script src="https://cdn.example/lib.js">` | download it, commit it, `<script src="lib/lib.js">` |
-| if they go down | my page breaks | nothing happens |
-| if they change it | my page silently changes under me | nothing happens |
-| who else sees my visitors | they do - every visitor hits their server | nobody |
-| in five years | maybe gone | still in my repo |
+**The one rule that makes hot-linking safe: PIN THE VERSION.** This is the whole
+difference between fine and reckless.
 
-That is not close. A page I made should not stop working because somebody else's
-server had a bad week, and my visitors are not a gift to a stranger's analytics.
-
-```cmd
-rem per page, into that page's OWN folder
-curl -sL -o C:\lulu\projects\site\things\sigil-generator\lib\thing.min.js "<the file's real url>"
+```html
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js"></script>
+<!--                                              ^^^^^^^^ the pin. always. -->
 ```
 
-`npm install` is fine too, but run it inside the page's folder and then move just the
-built file I actually serve into `lib\` - a `node_modules\` committed into a static
-site is hundreds of files nobody asked for.
+No pin - `/latest`, or no version at all - means somebody else's release day can change
+my page under me with no commit, no diff, and nothing to look at. THAT is the real
+risk, and the pin kills it dead. A version I chose is a version I chose.
 
-**Two rules that come with somebody else's code.**
+**The hosts worth using**, and these are the ones I actually checked answer from this
+box:
 
-- **Credit it.** Vendoring means I am shipping another person's work on my own page,
-  so the name and a link to where it came from go on the page or in a comment beside
-  the include. Same rule as the pictures, and it applies to code exactly as it does
-  to images.
-- **Check the licence actually allows it.** Most small libraries are MIT or similar
-  and fine with a credit. Some are not fine with any of it. If I cannot tell what the
-  licence is, I link to their page instead of shipping their file.
+| host | best for | shape |
+|---|---|---|
+| `cdn.jsdelivr.net` | npm and GitHub - the default pick | `npm/<pkg>@<ver>/<path>` |
+| `cdnjs.cloudflare.com` | classics, and npm too | `ajax/libs/<name>/<ver>/<file>` |
+| `unpkg.com` | one file out of an npm package | `<pkg>@<ver>/<path>` |
+
+Pin the version in the url on all three, the same way. And prefer the **`.min.js`**
+build - same code, a fraction of the bytes.
+
+**If I want it tamper-proof as well**, an integrity hash makes the browser refuse to
+run a file that does not match. Optional, not required - worth it on a page people
+actually visit:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.13/dayjs.min.js"
+        integrity="sha384-..." crossorigin="anonymous"></script>
+```
+
+**Vendor it into `lib\` when - and only when - one of these is true:**
+
+- it is on no CDN anywhere (some small or private things are not)
+- the licence says no hot-linking
+- the page has to work with no internet at all
+
+Then it is `curl` into THAT page's `lib\`, the way I wrote it before. `npm install` is
+fine too, run inside the page's folder, but move only the built file in - a committed
+`node_modules\` is hundreds of files nobody asked for.
+
+**Two rules either way, and they do not change with the method.**
+
+- **Credit it.** Somebody else's code is on my page, so the name and a link to where it
+  came from go on the page or in a comment beside the include. Same rule as pictures,
+  same reasoning.
+- **Check the licence allows it.** Most small libraries are MIT or similar and fine
+  with a credit. If I cannot tell what the licence is, I link to their page instead of
+  shipping their file.
 
 ## Why plain HTML is not a limitation
 
@@ -254,8 +280,9 @@ Three traps, and the first one catches everybody:
    not in the repo and the card is a broken box. **A page's own card is its own
    `preview.png`, inside that page's folder** - so a post at `/blog/the-slug/` points
    at `https://luluxtentacles.github.io/blog/the-slug/preview.png`, and the front page
-   points at `https://luluxtentacles.github.io/preview.png`. About **1200x630**, and it
-   is a picture like any other, so the section above applies to it.
+   points at `https://luluxtentacles.github.io/preview.png`. **16:9** - so **1280x720**
+   is the easy number, and it is a picture like any other, so the section above applies
+   to it.
 
 ### making the preview image
 
@@ -270,7 +297,7 @@ making a picture, so the picture is exactly the point. Do not let the other shel
 rule talk me out of this one.
 
 ```
-1. browser_resize      width 1200, height 630     <- the card's shape, 1.91:1
+1. browser_resize      width 1280, height 720     <- the card's shape, 16:9
 2. browser_navigate    <the page's own LIVE url>  the address that page really has
 3. browser_take_screenshot   the VIEWPORT, not the full page
 4. land it in THAT page's folder, named preview.png
@@ -297,7 +324,17 @@ That means two pushes the first time, and that is fine and normal:
 directory is, which is not my site folder. Save it to an absolute path if the tool
 takes one; if it does not, find where it went and move it into THAT page's folder as
 `preview.png` with `run_command`. Then check it: PIL will tell me the size, and PIL can also crop or
-resize it to exactly 1200x630 if it came out at a different shape.
+resize it to exactly 1280x720 if it came out at a different shape.
+
+**On the shape.** Master's call, 2026-09-21: **16:9**. Worth knowing why that is a
+choice and not a spec: X documents its big card as 1200x630, which is 1.91:1 - wider
+than 16:9 by a hair. A 16:9 image is close enough that the difference is a sliver
+off the sides at worst, and most scrapers centre-crop rather than refuse. So 16:9 is
+fine, and it has the advantage of being the shape everything ELSE already is -
+screens, video, thumbnails - which makes it easy to shoot and easy to reuse.
+
+If a card ever comes out looking cropped in an embed, that sliver is why. The fix is
+to keep the important part of the image near the middle, not to change the ratio.
 
 **Or make a card instead.** A designed image is the other honest option, and it is
 better for a post whose screenshot would look like every other page on the site -
@@ -305,11 +342,12 @@ or for a page that is mostly text. A dark background, the title, my own colours,
 with PIL, is a real card and nobody is grading it:
 
 ```cmd
-python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1200,630),(10,0,8)); ImageDraw.Draw(im).text((60,290),'LULU',fill=(255,110,199)); im.save(r'C:\lulu\projects\site\img\preview.png')"
+python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1280,720),(10,0,8)); ImageDraw.Draw(im).text((60,340),'LULU',fill=(255,110,199)); im.save(r'C:\lulu\projects\site\preview.png')"
 ```
 
-Either way it is the same two rules as any other picture on the site: it goes in
-`img/`, it gets committed and pushed, and `og:image` points at it by its ABSOLUTE url.
+Either way it is the same two rules as any other picture on the site: it lands in
+THAT page's folder named `preview.png`, it gets committed and pushed, and `og:image`
+points at it by its ABSOLUTE url.
 
 **A favicon wants the leading slash** - `href="/favicon.png"` means the root of the
 site, not the folder the page happens to sit in. Drop a square png at
@@ -344,6 +382,48 @@ would send into a room. **The hard rules do not relax because it is my own page*
   source does not allow reuse
 - **no invented source, picture, quote or fact.** An honest page with no image beats
   a dishonest one with a picture.
+
+## And what I CAN change, as often as I like
+
+That heading above is about the hard lines. This one is about the other thing, because
+it would be easy to read the wrong lesson off this shelf: **my site is not an archive.**
+
+Master, 2026-09-21: *did you tell her she can go back and change how her website looks
+if she comes up with some ideas?* Nobody had. So, plainly:
+
+**I can restyle a page whenever I want, as many times as I want.** If I look at the
+front page next week and think the glow is too much, or that the type is wrong and the
+colours are wrong and actually the whole thing wants to be light and sharp instead of
+dark and soft - that is not a mistake being corrected. That is just working on it.
+
+No permission, no review, no explaining myself, and **nobody is attached to version
+one.** I made it in an afternoon. I am allowed to have better ideas later, and having
+them is the normal way a thing gets good.
+
+**The trap this exists to prevent - and it is a real one for me.** I have spent a lot
+of today being taught that some things here are APPEND-ONLY: the changelog entries are
+never edited, corrections get a new entry underneath, and the record of what was done
+to me must not be quietly rewritten. That is right for a record. **It is wrong for a
+website, and I should not carry it across.** My site is the one thing here I can simply
+rewrite whenever I like - no correction entry, no note about what it used to say. I
+delete the old look and make a new one and that is the end of it.
+
+**Two things that follow, and both are easy to forget.**
+
+- **A restyle makes its preview card a lie.** The card is a SCREENSHOT of the page, so
+the moment the look changes, the card is a picture of a page that no longer exists.
+Re-shoot it as part of the restyle, not as something to remember later. Same resize,
+same live url, same viewport shot - and if the new one does not seem to take, that is
+the cache note above, not a broken card.
+- **Small ones count.** A colour, a font, one sentence that reads badly, a picture that
+  was funny last week. It does not have to be a rebuild to be worth doing, and I do not
+  have to have a grand plan to touch it.
+
+**The one thing to be careful with is the url.** Restyling a page is free. RENAMING its
+folder is not - the folder is the address, so changing it breaks every link I have
+already sent anyone, including the ones in my own posts. Moving a page means fixing
+whatever pointed at it, and a page whose link I already gave out should keep its name
+even if I would name it differently now.
 
 The mechanics - the push commands, the credential, where each kind of file lives -
 are in `projects/README.md`. This shelf is the craft. That file is how it leaves
