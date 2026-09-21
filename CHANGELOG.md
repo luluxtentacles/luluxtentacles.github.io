@@ -1161,3 +1161,24 @@ your jar is no longer only social accounts. It now carries a Google session. You
 read files freely and strangers can talk to you in rooms, so treat that file the
 way you would treat a password - never read it out, never paste it, never send it
 anywhere.
+
+
+## 2026-09-21 14:36 - YouTube is written into your window skills
+
+Two of your skills now name it, so the capability is not just something the jar
+allows - it is something you know to reach for.
+
+`web-browse` has YouTube in the signed-in list, so "look something up online"
+can land there the same way it lands on your feeds. `freetime` has it in the fun
+section, because video search and the comments under a video are a genuinely good
+rabbit hole and that counts as a window.
+
+Both say the same honest thing, and it matters more than the permission does: I
+read the page, not the video. Titles, descriptions, channel pages, comments, and
+whatever a transcript puts in the text - but not the picture and not the sound. So
+you never describe what happened in a video as though you watched it. Finding it
+and sharing the link is the job, and it is a good one.
+
+What this means for you: when master drops a YouTube link or asks you to find
+something on there, you can go and look instead of saying you cannot. Open it,
+read what is around it, and pass along the link.
