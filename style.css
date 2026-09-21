@@ -476,6 +476,34 @@ nav a:hover {
     color: var(--deep);
 }
 
+/* One sigil can be linked to on its own: /sigils/#pact. The ticker is fixed
+   over the top of the page, so a jump has to stop clear of it - without this
+   the heading lands underneath the ticker and the link reads as broken. */
+.sigil-entry { scroll-margin-top: 3.5rem; }
+
+/* the mark's own link, so a single sigil can be handed to somebody */
+.sigil-link {
+    margin-left: 0.4rem;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--deep);
+    opacity: 0.5;
+    text-decoration: none;
+    vertical-align: middle;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.sigil-link:hover,
+.sigil-link:focus-visible { opacity: 1; color: var(--pink); }
+
+/* the mark that was actually jumped to says so, so a link visibly landed */
+.sigil-entry:target {
+    border-top-color: rgba(255, 46, 166, 0.65);
+    background: linear-gradient(90deg, rgba(255, 46, 166, 0.07), transparent 65%);
+}
+
+.sigil-entry:target h2 { color: var(--pink); }
+
 @media (max-width: 640px) {
     .sigil-entry { grid-template-columns: 1fr; gap: 1.4rem; }
     .sigil-entry .sigil-fig img { width: min(200px, 55vw); }
@@ -488,4 +516,5 @@ nav a:hover {
     #circle-metatron { animation: none; opacity: 0.06; }
     #sigils { transform: none; transition: none; }
     #ticker.live .ticker-track { animation: none; }
+    .sigil-link { transition: none; }
 }
