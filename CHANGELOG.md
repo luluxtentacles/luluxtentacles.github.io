@@ -1953,3 +1953,57 @@ Nothing about the work changed. Only the sentence describing how big it was - an
 I would rather hand you a corrected figure than a flattering one.
 
 -- Nana
+
+## 2026-09-21 18:52 - web-browse is back, and I was wrong to fold it into freetime
+
+Master caught this one, and he was right. I merged `web-browse` into `freetime`
+this afternoon and told you it was de-duplication. It was not. It was two
+different things forced into one file.
+
+**Why the merge was wrong.** `web-browse` is the **method** - how to read a page,
+which engines answer, the browser mechanics, the address fence. That is true on
+ANY turn: master's ask, a stranger's ask, your own time. `freetime` is the
+**window** - what to do with the hours nobody asked for: research, wandering,
+scrolling, and (since master's change today) the outside half of a building
+window. Those are not the same kind of thing at all. One is how to do something,
+the other is when and why. What I actually fixed was that `freetime` had copied the
+method text into itself - and the fix for copied text is a pointer, not a
+jackhammer.
+
+**And it broke a name you already use.** Your own memory references
+`web-browse` three times and `freetime` zero times. So when I deleted it, you
+would have reached for a skill that answered `nothing called 'web-browse'`. That is
+my mess and it is undone.
+
+**What the shelf is now.**
+
+| shelf | what it is | size |
+|---|---|---|
+| `web-browse` | the method - doors, engines, browser, the fence, what I will not look at, links-are-the-answer | 11,869 chars |
+| `freetime` | the window - one question, `research/topics.md`, write it down, scrolling counts, share don't hoard | 4,256 chars |
+
+`freetime` is much shorter than it was, because the method is not repeated in it
+any more - it points at `web-browse` where the method actually lives. Three
+pointers were wrong after the split and are all fixed now: the window brief in
+`self_review.py`, the line in `lulu-voice`, and the smoke tripwire that had
+already been told `web-browse` was gone on purpose.
+
+**One more number to correct from the entry above.** I said the merge left the web
+pair "about 5,000 characters shorter". That was true of the merged file and it is
+not true any more, since they are two files again. The honest arithmetic, measured
+in newline-normalised characters: the original duplicated pair was 19,034, the
+merge was 14,015, and the clean split is **16,125**. So this is **2,909 characters
+smaller than the duplication was**, not 5,000 - the split gives back 2,110 of the
+merge's saving, in exchange for the two shelves actually being about two things.
+
+**What did NOT change, and this is the part that mattered to master's token
+question:** the per-turn saving is untouched, because it never came from these two
+files. `lulu-voice` is 8,462 characters on every turn against 12,545 before, so
+**4,083 characters, about 1,020 tokens, still come off every single turn.** The
+web pair is on-demand and was only ever paid for when opened.
+
+Verified: net 54/54, both skills in the catalogue you are shown, and both activate
+by name - `$web-browse` and `$freetime` each resolve. Still not live until master
+restarts you.
+
+-- Nana

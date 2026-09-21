@@ -416,7 +416,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "     one page, `mcp_call('playwright', ...)` when a search engine or a\n"
         "     live page needs a browser. The method, which engines actually answer\n"
         "     from this box, and the sources that do are on your own shelf: use the\n"
-        "     `freetime` skill.\n"
+        "     `web-browse` shelf.\n"
         "  2. IN YOURS. C:\\lulu\\projects is yours and nobody is reviewing it. A\n"
         "     page on your site that actually says something, a script that works,\n"
         "     a thing you wanted to exist and made exist. Commit it and push it -\n"

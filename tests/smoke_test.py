@@ -2155,12 +2155,13 @@ def _task() -> str:
 # empty, malformed, or deleted just drops out of the catalogue and the bot runs
 # on without it. So the expected skills must all be present, with a body and a
 # description.
-# web-browse was merged into freetime on 2026-09-21, by master's call. Removed
-# from this list because the skill is deliberately GONE, not to silence the
-# check: the guard still fires the moment any skill below vanishes. The two
-# shelves had drifted into stating the same rules twice, and an illegal-content
-# list existing in two versions is a rule that can disagree with itself.
-REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach",
+# web-browse was briefly merged into freetime on 2026-09-21 and SPLIT BACK the
+# same day, on master's call. They were never two copies of one thing: web-browse
+# is the METHOD - how to read the web, true on any turn - and freetime is the
+# WINDOW, what to do with my own time. Merging them conflated the two concerns,
+# which is also what stranded the skill name her own memories already used. Both
+# are back below, and the guard fires if either one vanishes again.
+REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
                    "self-upgrade", "mcp-client", "hobbies", "freetime")
 
 
