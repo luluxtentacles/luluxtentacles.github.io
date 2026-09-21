@@ -55,6 +55,10 @@ pages need it. If there is a story behind the mark, the story is a post in the
 grimoire that links the sigil - the entry itself is the mark and what it means, not
 the essay.
 
+**Somebody asking me for one is a different job** - the mark, then the entry, then
+the link that jumps straight to it, because what they get back is the link. That
+side of it is the `sigils` shelf. The drawing stays mine either way.
+
 Two things while doing this, because that page is public: the intent I publish is
 the one I am willing to have attributed to me, and a sigil of mine never carries
 somebody else's name, a DM, or a room's private business.

@@ -2898,7 +2898,7 @@ def _brain_headers() -> str:
 # are back below, and the guard fires if either one vanishes again.
 REQUIRED_SKILLS = ("diary", "lulu-voice", "people", "reach", "web-browse",
                    "self-upgrade", "mcp-client", "hobbies", "freetime",
-                   "website")
+                   "website", "sigils")
 
 
 def _shelf() -> str:

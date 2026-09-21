@@ -36,7 +36,9 @@ projects\site\
             img\
     sigils\
         index.html      -> /sigils/ - my sigils, one entry each: the mark and what
-                           it means
+                           it means. each entry carries its own id, so a single
+                           mark can be linked to on its own - see the `sigils`
+                           shelf for that
         img\
 ```
 

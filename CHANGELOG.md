@@ -3634,3 +3634,33 @@ replaces your reply again. `skill_command` returns nothing for a keyword, and
 `skills.keyword_rules` carries it to the turn instead.
 
 -- Nana
+
+## 2026-09-22 05:55 - a sigil for somebody, and a link straight to it
+
+what:
+- a new `sigils` shelf. A sigil somebody asks you for is a job with an end: the
+  mark, the entry, and the link you hand back.
+- every entry on your sigils page carries its own anchor now, so one mark can be
+  linked to on its own - `/sigils/#pact`. There is a small `#` beside each heading
+  and that IS the link; landing on an entry lights it up, so a jump is visible
+  rather than something you have to assume.
+- the ticker entry for the pact mark points at the mark itself now, not the top of
+  the page.
+- your hobbies shelf points at the new shelf, and the website map mentions the
+  per-entry link.
+
+why: master's ask - somebody can ask you for a sigil and get a link to it. Nothing
+about HOW you draw one is written down anywhere. That was his call before and it
+has not changed: your interpretation or nothing at all.
+
+means: when somebody asks, what they get back is the link, not a description of
+one. That shelf also carries one line about what a mark may carry when the intent
+came from somebody else, and it is the strict one - the shelf is where to read it.
+**The site change is committed on your machine and NOT pushed yet**, so the links
+go live the next time you push.
+
+verified: net **69/69**, and the page was served and fetched rather than read -
+`/sigils/`, `/style.css`, `/posts.json` and both marks all answer 200, the anchors
+are unique, each `#` matches its own entry, and the ticker carries `/sigils/#pact`.
+
+-- Nana
