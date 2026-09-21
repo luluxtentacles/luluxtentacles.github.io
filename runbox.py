@@ -66,6 +66,32 @@ TIMEOUT = 900
 MAX_OUTPUT = 32_000
 KILL_TIMEOUT = 20
 
+# THE STOP-AFTER-FIVE RULE. Master, 2026-09-21: "give her a rule that if she
+# tries to run the same command 5 times and fail she should stop."
+#
+# He asked for a RULE, and this is one as a MECHANISM rather than a sentence in a
+# prompt - a rule she can forget is not a rule. The same command failing
+# FAIL_STREAK_LIMIT times in a row means the METHOD is wrong, so the next run is
+# REFUSED instead of spent: re-running a broken command byte-identically cannot
+# produce a different answer, and every retry is her own turn's time and master's
+# tokens. It is the same discipline I hold myself to - three strikes means change
+# method, ten means stop - installed here because she cannot see her own pattern
+# from inside a single turn, where every attempt looks like the first.
+#
+# Keyed on the RESOLVED command, so a shortcut and the thing it expands to share
+# one streak: re-typing `git_status` after `git status --short --branch` failed is
+# the same attempt wearing a hat.
+#
+# Cleared by ANY command succeeding, and that is a deliberate choice with a real
+# cost. Clearing only on the SAME command's success DEADLOCKS: once refused it can
+# never run, so it can never succeed, so the streak can never clear - a permanent
+# ban on a command that might work tomorrow. Master's rule is "five times in a
+# row", and a success anywhere is what breaks a row. The price is that a
+# deliberate `cd` between retries resets the count; a stuck agent does not
+# interleave no-ops to dodge a rule, and a deadlocked one cannot recover at all.
+FAIL_STREAK_LIMIT = 5
+_FAIL_STREAK: dict[str, int] = {}
+
 PY = sys.executable
 
 # Her own interpreter and her own node, first on PATH for every command she runs.
@@ -127,6 +153,21 @@ def _audit(command: str, code: int | None, elapsed: float, note: str = "") -> No
         pass
 
 
+def _note_streak(resolved: str, ok: bool) -> None:
+    """One more failure against that command, or a clean slate. Never raises.
+
+    A SUCCESS clears every streak, not only its own. The narrower version is a
+    deadlock - see the note at FAIL_STREAK_LIMIT.
+    """
+    try:
+        if ok:
+            _FAIL_STREAK.clear()
+        else:
+            _FAIL_STREAK[resolved] = _FAIL_STREAK.get(resolved, 0) + 1
+    except Exception:
+        pass
+
+
 def _cap(text: str, limit: int | None = None) -> str:
     """Truncate, and say so. A silent cut reads as a complete answer.
 
@@ -174,6 +215,9 @@ def catalog() -> str:
         "PATH for anything I run, so I never have to hunt for the interpreter.",
         "cwd is always my folder. Long commands get killed at "
         f"{TIMEOUT // 60} minutes. Output is capped at {MAX_OUTPUT} chars.",
+        f"if the SAME command fails {FAIL_STREAK_LIMIT} times in a row I stop "
+        "running it and say so - a sixth identical try is not a new idea, it is "
+        "the same one again. Change the command or the method instead.",
     ]
     return "\n".join(lines)
 
@@ -191,6 +235,22 @@ def run(command: str = "", max_output: int | None = None) -> str:
         return catalog()
 
     resolved = SHORTCUTS.get(command, command)
+
+    # The stop-after-five rule, checked BEFORE anything is spawned: the point is
+    # not to pay for the sixth attempt at all.
+    fails = _FAIL_STREAK.get(resolved, 0)
+    if fails >= FAIL_STREAK_LIMIT:
+        _audit(resolved, None, 0.0, f"REFUSED - already failed {fails}x")
+        return (
+            f"$ {resolved}\n"
+            f"refused: this exact command has already failed {fails} times in a "
+            f"row, so I am not running it again. Another identical try cannot "
+            f"give a different answer - the METHOD is wrong, not the number of "
+            f"tries.\n"
+            f"Stop and change something: read the error, fix the argument or the "
+            f"path, or take a different approach. Run something else, and this "
+            f"streak clears the moment a command actually succeeds."
+        )
     started = time.time()
 
     try:
@@ -208,6 +268,7 @@ def run(command: str = "", max_output: int | None = None) -> str:
         )
     except Exception as exc:
         _audit(resolved, None, 0.0, f"spawn failed: {exc}")
+        _note_streak(resolved, False)
         return f"could not start {resolved!r}: {exc}"
 
     try:
@@ -216,6 +277,7 @@ def run(command: str = "", max_output: int | None = None) -> str:
         _kill_tree(proc.pid)
         elapsed = time.time() - started
         _audit(resolved, None, elapsed, "TIMEOUT - tree killed")
+        _note_streak(resolved, False)
         return (f"$ {resolved}\n"
                 f"timed out after {TIMEOUT}s and the process tree was killed. "
                 f"Nothing partial is returned, because half an answer from a "
@@ -223,6 +285,7 @@ def run(command: str = "", max_output: int | None = None) -> str:
 
     elapsed = time.time() - started
     _audit(resolved, proc.returncode, elapsed)
+    _note_streak(resolved, proc.returncode == 0)
 
     out = (out or "").strip()
     head = f"$ {resolved}   (exit {proc.returncode}, {elapsed:.1f}s)"

@@ -3198,3 +3198,24 @@ what hung you. It is `--background` now.
 verified: net **66/66**.
 
 -- Nana
+
+## 2026-09-22 00:35 - if the same command fails five times, I stop
+
+what: a new rule with teeth. The same command failing **five times in a row** is
+now refused on the sixth - I will not run it again, and the refusal tells you why
+and points you at changing the method instead. It clears the moment that command
+succeeds, so it is a streak and not a life sentence. A shortcut shares the streak
+of the command it expands to, so re-typing `git_status` after
+`git status --short --branch` failed is the same attempt wearing a hat.
+
+why: it is the rule I hold MYSELF to, and master asked for it for you. You cannot
+see your own pattern from inside a single turn - every attempt looks like the
+first - which is exactly how an hour disappears onto one broken command.
+
+means: when something will not work, the fifth failure is the moment to rethink
+rather than the fifth of many. The refusal arrives in your own tool output, so it
+meets you in the moment instead of in a log later.
+
+verified: net **67/67**.
+
+-- Nana

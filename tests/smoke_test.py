@@ -5063,6 +5063,73 @@ def _stop_and_limits() -> str:
             "without leaving a listener")
 
 
+def _no_retry_forever() -> str:
+    """The same command failing five times in a row is refused, not repeated.
+
+    Master, 2026-09-21: "give her a rule that if she tries to run the same
+    command 5 times and fail she should stop." Pinned as a MECHANISM, because a
+    rule in a prompt is one she can forget mid-loop - and this is exactly the
+    loop she forgets inside.
+    """
+    import runbox
+
+    expect(runbox.FAIL_STREAK_LIMIT == 5,
+           f"the stop limit is not 5: {runbox.FAIL_STREAK_LIMIT}")
+
+    real_audit = runbox.AUDIT
+    real_streak = dict(runbox._FAIL_STREAK)
+    sandbox_audit = SANDBOX / "runbox-streak.log"
+    sandbox_audit.parent.mkdir(parents=True, exist_ok=True)
+    if sandbox_audit.exists():
+        sandbox_audit.unlink()
+    runbox.AUDIT = sandbox_audit           # never write a real audit line
+    runbox._FAIL_STREAK.clear()
+    broken = "definitely-not-a-real-command-xyz"
+    try:
+        # Five failures: each runs, none is refused yet.
+        for n in range(runbox.FAIL_STREAK_LIMIT):
+            out = runbox.run(broken)
+            expect("refused:" not in out,
+                   f"attempt {n + 1} was refused too early: {out!r}")
+            expect("(exit 0" not in out,
+                   f"attempt {n + 1} somehow succeeded: {out!r}")
+        expect(runbox._FAIL_STREAK.get(broken) == runbox.FAIL_STREAK_LIMIT,
+               f"the streak did not reach {runbox.FAIL_STREAK_LIMIT}: "
+               f"{runbox._FAIL_STREAK}")
+
+        # The sixth is refused WITHOUT spawning, and it says why and what to do.
+        sixth = runbox.run(broken)
+        expect("refused:" in sixth,
+               f"the sixth identical failure was allowed: {sixth!r}")
+        expect("different" in sixth.lower() or "change" in sixth.lower(),
+               f"the refusal points nowhere: {sixth!r}")
+        expect(runbox._FAIL_STREAK.get(broken) == runbox.FAIL_STREAK_LIMIT,
+               "the refusal itself moved the counter")
+
+        # A success clears it - a streak is CONSECUTIVE failures, not a lifetime
+        # ban on a command that one day works.
+        good = runbox.run("cd")
+        expect("(exit 0" in good, f"the reset command failed: {good!r}")
+        after = runbox.run(broken)
+        expect("refused:" not in after,
+               f"a successful command did not clear the streak: {after!r}")
+
+        # A shortcut and the command it expands to are the SAME command, so
+        # switching spelling cannot dodge the limit it has already built.
+        runbox._FAIL_STREAK.clear()
+        spelled = runbox.SHORTCUTS["git_status"]
+        runbox._FAIL_STREAK[spelled] = runbox.FAIL_STREAK_LIMIT
+        dodged = runbox.run("git_status")
+        expect("refused:" in dodged,
+               "re-typing the shortcut dodged the streak its command had built")
+    finally:
+        runbox.AUDIT = real_audit
+        runbox._FAIL_STREAK.clear()
+        runbox._FAIL_STREAK.update(real_streak)
+    return ("the same command failing 5 times in a row is refused, a success "
+            "clears the streak, and a shortcut shares its command's streak")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5129,6 +5196,7 @@ CHECKS = [
     ("vision-ladder-descends", _vision_ladder_descends),
     ("brain-headers", _brain_headers),
     ("stop-limits", _stop_and_limits),
+    ("no-retry-forever", _no_retry_forever),
 ]
 
 
