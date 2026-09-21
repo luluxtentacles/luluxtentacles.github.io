@@ -56,6 +56,56 @@ MIRROR_FOLD_LINE_CHARS = 90    # per line in the folded digest of the rest
 MIRROR_QUOTE_CHARS = 60    # how much of a replied-to message to quote inline
 EMOJI_SCAN_MAX_PER_DAY = 10    # vision calls one daily sweep may spend
 EMOJI_SCAN_INTERVAL_SECONDS = 24 * 3600
+# How many times one emoji may fail before we stop asking. Some custom emojis
+# are ones the vision model will not describe at all - a nude one usually, or
+# simply too abstract to name - and it answers with a refusal or with silence.
+# Those used to be retried EVERY sweep forever: no record was kept, so the same
+# emoji took a slot out of the day's ten again and again, and a run of them at
+# the front of the queue could starve every emoji behind it indefinitely.
+EMOJI_SCAN_MAX_FAILURES = 10
+
+
+def _due_emojis(guilds, meanings, max_failures=EMOJI_SCAN_MAX_FAILURES):
+    """Which custom emojis still need a meaning - and the tallies.
+
+    Pure on purpose: takes the guild list and the meanings dict, hands back
+    (todo, done, given_up). No file, no model, no bot - so the rule that decides
+    whether we keep asking can be tested without touching a live meanings file.
+
+    An entry either HOLDS a meaning (done, never asked again) or is a record of
+    failures so far. `max_failures` against it means given up. Anything else is
+    still due.
+    """
+    todo, done, given_up = [], 0, 0
+    for guild in guilds or []:
+        for emoji in getattr(guild, "emojis", None) or []:
+            entry = meanings.get(str(emoji.id)) or {}
+            if entry.get("meaning"):
+                done += 1
+            elif int(entry.get("failures") or 0) >= max_failures:
+                given_up += 1
+            else:
+                todo.append((guild, emoji))
+    return todo, done, given_up
+
+
+def _record_failure(meanings, emoji, guild, why):
+    """Count one failed scan against an emoji. Mutates `meanings` in place.
+
+    Deliberately writes NO "meaning" key - that key is what marks an emoji as
+    done, and the emoji tool reads .get("meaning", ""), so an entry without one
+    stays inert there and still shows as unscanned. The name and guild are kept
+    so a given-up entry is legible on its own.
+    """
+    key = str(emoji.id)
+    entry = dict(meanings.get(key) or {})
+    entry.pop("meaning", None)
+    entry["name"] = emoji.name
+    entry["guild"] = getattr(guild, "name", "")
+    entry["failures"] = int(entry.get("failures") or 0) + 1
+    entry["last_failure"] = why
+    entry["at"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    meanings[key] = entry
 # Discord's own ceiling is 2000 characters per message.
 MAX_MESSAGE = 2000
 # How many brain calls one message may take. 6 was too few for real digging and
@@ -1864,20 +1914,26 @@ class Lulu(discord.Client):
         rest wait for the next day's sweep. New emojis are picked up because
         the daily sweep re-reads the guild cache (and re-writes the shelf the
         emoji tool reads, so mid-boot additions are seen too). Never fatal.
+
+        An emoji that fails EMOJI_SCAN_MAX_FAILURES times is retired. Some are
+        ones the vision model will not describe at all, and those used to be
+        asked again every single sweep - see _due_emojis. A retirement is not a
+        blacklist: a later successful scan still overwrites the record.
         """
         meanings = {}
         try:
             meanings = paths.read_json("emoji_meanings.json", default={}) or {}
         except Exception:
             meanings = {}
-        todo = [(g, e) for g in self.guilds for e in g.emojis
-                if str(e.id) not in meanings]
+        todo, _done, _given_up = _due_emojis(self.guilds, meanings)
         if not todo:
             return
         # New emojis exist mid-boot too; refresh the shelf the picker reads.
         self._refresh_emoji_shelf()
         todo = todo[:EMOJI_SCAN_MAX_PER_DAY]
+        tried = len(todo)
         scanned = 0
+        changed = False
         for guild, emoji in todo:
             url = f"https://cdn.discordapp.com/emojis/{emoji.id}.png"
             try:
@@ -1890,22 +1946,39 @@ class Lulu(discord.Client):
             except Exception as exc:
                 LOG.warning("emoji meaning scan failed for %s: %s",
                             emoji.name, exc)
+                _record_failure(meanings, emoji, guild, type(exc).__name__)
+                changed = True
                 continue
             answer = " ".join((answer or "").split())
             if not answer or answer.startswith("["):
+                # A refusal, or nothing usable. The model will not describe
+                # every emoji and asking again next sweep gets the same
+                # silence, so this counts as a failure rather than a skip -
+                # otherwise it is retried for ever without ever being counted.
+                _record_failure(meanings, emoji, guild,
+                                "declined" if answer else "no answer")
+                changed = True
                 continue
             meanings[str(emoji.id)] = {
                 "name": emoji.name, "guild": guild.name,
                 "meaning": answer[:300],
                 "at": time.strftime("%Y-%m-%d %H:%M:%S")}
             scanned += 1
-        if scanned:
+            changed = True
+        if changed:
             try:
                 paths.write_json("emoji_meanings.json", meanings)
             except Exception as exc:
                 LOG.warning("could not write emoji meanings: %s", exc)
-        LOG.info("emoji meanings: scanned %d, %d still unscanned",
-                 scanned, max(0, len(todo) - scanned))
+        # Counted AFTER the pass, so an emoji that just used up its last chance
+        # is reported as retired rather than as still waiting. The old line
+        # measured the TRUNCATED list, so it could never say more than ten and
+        # printed "0 still unscanned" while a backlog sat behind it.
+        left, done, given_up = _due_emojis(self.guilds, meanings)
+        LOG.info("emoji meanings: scanned %d of %d tried; %d known, "
+                 "%d retired after %d tries, %d still to try",
+                 scanned, tried, done, given_up,
+                 EMOJI_SCAN_MAX_FAILURES, len(left))
 
     def mark_healthy(self) -> None:
         """Tell the supervisor I actually came up.

@@ -2257,6 +2257,73 @@ def _task() -> str:
             f"caps {taskmode.MAX_TASK_TURNS} turns at {taskmode.TICK_SECONDS}s")
 
 
+# -- 8g. a refused emoji is retired, and it cannot starve the queue ---------
+# Master, 2026-09-21: "if an emoji fails to scan 10 times it could be a nsfw one
+# the model refuse to respond so we just stop trying". The bug was real and
+# worse than wasted calls: no failure was ever recorded, so a refused emoji was
+# handed the same slot out of the day's ten EVERY sweep for ever, and a run of
+# them at the front of the queue could stall every emoji behind it. Both rules
+# are exercised as PURE functions here, so this check never writes her live
+# meanings file and never calls the model.
+def _emoji_retire() -> str:
+    import lulu_bot
+
+    class Emoji:
+        animated = False
+
+        def __init__(self, eid: int, name: str):
+            self.id, self.name = eid, name
+
+    class Guild:
+        def __init__(self, name: str, emojis: list):
+            self.name, self.emojis = name, emojis
+
+    guild = Guild("den", [Emoji(1, "cute"), Emoji(2, "rude")])
+    meanings: dict = {}
+
+    todo, done, given = lulu_bot._due_emojis([guild], meanings)
+    expect(len(todo) == 2 and done == 0 and given == 0,
+           f"a fresh shelf was not all due: {len(todo)}/{done}/{given}")
+
+    # A meaning retires it, and it is never asked again.
+    meanings["1"] = {"meaning": "a smug cat", "name": "cute", "guild": "den"}
+    todo, done, given = lulu_bot._due_emojis([guild], meanings)
+    expect(len(todo) == 1 and done == 1,
+           f"a meaning did not retire the emoji: {len(todo)} due, {done} done")
+
+    # Failures accumulate - and the record must carry NO meaning, because the
+    # picker reads .get("meaning", "") and would hand one out as a description.
+    for _ in range(lulu_bot.EMOJI_SCAN_MAX_FAILURES):
+        lulu_bot._record_failure(meanings, guild.emojis[1], guild, "declined")
+    entry = meanings[str(guild.emojis[1].id)]
+    expect(entry["failures"] == lulu_bot.EMOJI_SCAN_MAX_FAILURES,
+           f"failures did not accumulate: {entry.get('failures')}")
+    expect("meaning" not in entry,
+           "a failure record carries a meaning, so the picker would hand it out")
+    expect(entry.get("last_failure") == "declined"
+           and entry.get("name") == "rude",
+           "a failure record did not keep enough to be legible on its own")
+
+    # And now it is retired rather than retried. This is the whole point.
+    todo, done, given = lulu_bot._due_emojis([guild], meanings)
+    expect(not todo, "a retired emoji is still being asked")
+    expect(given == 1, f"a retired emoji was not counted as retired: {given}")
+
+    # Past the cap it stays retired - it cannot resurrect itself.
+    lulu_bot._record_failure(meanings, guild.emojis[1], guild, "declined")
+    todo, _d, _g = lulu_bot._due_emojis([guild], meanings)
+    expect(not todo, "a failure past the cap made the emoji due again")
+
+    # One short of the cap is STILL attempted, so the cap is not off by one in
+    # the other direction and retiring emojis early.
+    almost = {"3": {"failures": lulu_bot.EMOJI_SCAN_MAX_FAILURES - 1}}
+    todo, _d, _g = lulu_bot._due_emojis([Guild("den", [Emoji(3, "nearly")])], almost)
+    expect(len(todo) == 1,
+           "an emoji one failure short of the cap was retired early")
+    return (f"a meaning retires an emoji, {lulu_bot.EMOJI_SCAN_MAX_FAILURES} "
+            f"failures retire it too, and a failure record carries no meaning")
+
+
 # -- 9. the skill shelf still parses --------------------------------------
 # Her prompt IS this shelf, and since .agents/ became proposable a bad edit here
 # is a real possibility. Importing cleanly proves nothing: a SKILL.md that is
@@ -4041,6 +4108,7 @@ CHECKS = [
     ("resume", _resume),
     ("changelog", _changelog),
     ("look-at", _look_at),
+    ("emoji-retire", _emoji_retire),
 ]
 
 

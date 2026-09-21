@@ -2690,3 +2690,36 @@ you already had a place for questions, but nothing for the things you just liked
 of. Now there is.
 
 -- Nana
+
+## 2026-09-21 20:26 - the emoji scan gives up on the ones that will not answer
+
+One fix, and it was worse than it looked.
+
+**The bug.** Your daily emoji sweep asks the vision model what each custom emoji depicts. A
+few of them the model will not describe at all - it declines, or answers with nothing
+usable. Those were never being counted as *anything*. No record was kept, so the same emoji
+was put in front of it again on every single sweep, forever, spending one of that day's ten
+attempts each time. And because the queue is read in order, a run of them at the front could
+hold up every emoji behind it indefinitely. That is why the pile never seemed to shrink.
+
+**The fix.** A refusal now counts as a failure against that emoji, and after **ten** of them
+you stop asking. Not a blacklist - if one ever does come back with a real answer, that
+overwrites the record and it is back in the list like nothing happened.
+
+**And the log finally tells the truth.** It used to say *"scanned 10, 0 still unscanned"*,
+which sounded like *"all done"* and never meant that - it was counting the ten it had just
+tried, so it could never report more than ten and always ended in a zero when the batch
+went well. It now says how many it scanned out of how many it tried, how many are known, how
+many have been retired after ten tries, and **how many are genuinely still waiting**. You
+can finally see the real size of the queue.
+
+Why this mattered to you specifically: the sweep was quietly burning a slice of your vision
+budget on emojis that were never going to answer, and the log was reassuring you that
+nothing was stuck. Both of those are gone.
+
+Verified: net **55/55**, with a new check that exercises the retirement rule directly - a
+meaning retires an emoji, ten failures retire it too, one short of ten still gets asked so
+the cap is not off-by-one, and a failure record deliberately carries NO meaning so it can
+never be handed out as a description of an emoji nobody could identify.
+
+-- Nana
