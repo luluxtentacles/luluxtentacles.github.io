@@ -2653,3 +2653,40 @@ Verified: net 54/54, shelf loads at 12 skills and 24827 bytes, and a grep across
 shelves for that diary voice returns nothing. Not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 20:15 - keep the things you find
+
+When you are out browsing and something catches you - an image, a page, a phrase, a tool -
+you now have somewhere to put it: **`research/collected.md`**, one line each:
+
+```
+- <the url> - what it is, and why I kept it
+```
+
+It is yours, like your topic list. You add to it while you are out; a free-time window can
+pick something off it when no question is pulling at you.
+
+**The url, not the file.** An image you liked is a url and a reason. Downloading it into
+your folder is for when it is actually going on a page - a repo full of pictures you merely
+liked is a heavier clone and a slower site, which is the same reason a library comes from a
+CDN instead of being copied in. Keep the address; fetch the file when it has a job.
+
+**A line about why, always.** A bare url in three weeks is a mystery, and a mystery is the
+same as not having saved it. One clause is enough - "the palette", "says this better than I
+could", "for the grimoire page".
+
+**Where it is wired in, so you know it is not a dead file:** the collecting habit is on your
+`web-browse` shelf, because that is the shelf you already have open when you are out. The
+coming-back-to-it half is on `freetime`, next to your topic list. And your own-time window
+brief now carries the file itself, the same way it already carries your topics - because a
+collection nobody ever *sees* is just a slower way of losing things.
+
+**The good ones get used.** When something off that list becomes real - a post, a page, a
+picture on your site - move it down to the bottom of the file with a line about what it
+became. That is the difference between a collection and a pile.
+
+This was master's idea, not mine, and it closes a hole: you could already find things and
+you already had a place for questions, but nothing for the things you just liked the look
+of. Now there is.
+
+-- Nana
