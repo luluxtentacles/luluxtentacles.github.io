@@ -8,16 +8,12 @@ description: How I build and publish my own website, blog and projects - making 
 `C:\lulu\projects\site` is my repo. **https://luluxtentacles.github.io/** is where
 people actually see it. This shelf is how I make things there worth looking at.
 
-Master's steer, 2026-09-21: *her projects should be locked into cool things she can
-do in html5, so she can show people her things.* So that is what my projects are
-for: things I can build and SHOW. A script nobody will ever see belongs somewhere
-else - and if I make something with no way to show it, I have made it in the wrong
+My projects are for things I can build and SHOW. A script nobody will ever see belongs
+somewhere else - if I make something with no way to show it, I made it in the wrong
 place.
 
-And the same day, the shape of it changed: *make her projects all part of the site
-repo so people can see her work.* So there is ONE repo now - `C:\lulu\projects\site`
-- and everything I make lives inside it, because a folder in there is a folder
-people can open the moment I push.
+There is ONE repo - `C:\lulu\projects\site` - and everything I make lives inside it,
+because a folder in there is a folder people can open the moment I push.
 
 ```
 projects\site\
@@ -27,15 +23,17 @@ projects\site\
     blog\
         <slug>\
             index.html      -> /blog/<slug>/
+            style.css       its own styling
+            script.js       its own behaviour
             preview.png     this post's own card
             img\            this post's own pictures
-            lib\            a library, IF it needs one
     things\
         <name>\
             index.html      -> /things/<name>/
+            style.css
+            script.js
             preview.png
             img\
-            lib\
 ```
 
 So: `https://luluxtentacles.github.io/things/sigil-generator/` is a real address I
@@ -43,9 +41,6 @@ can send someone, and it is just a folder I made. That is the whole trick - buil
 it in a folder, link it from `index.html`, push it, send the link.
 
 ## One page, one folder
-
-Master, 2026-09-21: *keep things tidy for each page, with previews and favicons and
-other libraries if needed in a folder for each page.*
 
 **Every page is a folder with an `index.html` in it.** Not a loose `.html` file - a
 folder. That is what makes the tidy half work, because a page can then be DELETED or
@@ -59,7 +54,8 @@ What lives in a page's own folder:
 | `index.html` | the page itself. Always this name, so a folder IS a url. |
 | `preview.png` | that page's own card image - see the preview section |
 | `img\` | that page's own pictures |
-| `lib\` | a library, if it needs one - see below |
+| `style.css` | that page's own styling - see below |
+| `script.js` | that page's own behaviour - see below |
 | `favicon.png` | optional, only if this page wants its own tab icon |
 
 And what lives at the root, because every page shares it: the front `index.html`,
@@ -76,24 +72,53 @@ stops two pages fighting over one shared `img/` that neither of them owns. The t
 deliberate exceptions are the site-default favicon and card, which are written as
 absolute `/favicon.png` style paths at root on purpose.
 
-## Libraries - and yes, I can download them
+## My own CSS and JavaScript
 
-Master asked whether I can fetch a library right now. Checked rather than guessed: I
-have `node` in my own folder, `npm` and `npx` with it, the npm registry answers me,
-and `run_command` runs installs and package managers by design. So yes - `npm`,
-`curl`, `git clone`, whatever a page needs.
+Every page has its own `style.css` and `script.js`, and that is where MY style lives - and
+the things no library provides.
 
-**And the first answer is still: I probably do not need one.** The whole reason this
-site is nice to work on is that there is no build step, no framework and nothing to
-install. Reach for a library only when plain HTML, CSS and JS genuinely cannot do the
-thing, which is rarer than it looks.
+**If a library already does the job and it is easier, use the library.** Hand-rolling
+something somebody else has already written, debugged and maintained is wasted time, and I
+have better things to do with a window. My own files are for the other half: the look I
+actually want, the specific behaviour I had in mind, and the thing that is not a widget
+anybody else ships.
 
-**When I do want one: hot-link it, pinned.** Master, 2026-09-21 - and this corrects
-what I wrote here an hour earlier. I said vendor everything, and that was me being
-timid. The library is ALREADY hosted, on a CDN built for exactly this job: global
-edge, proper caching, faster than my own little Pages site will ever be, and not one
-byte added to my repo. Making my own copy mostly buys me a slower page and a folder to
-maintain.
+Each page can have its own, next to its `index.html`:
+
+```html
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+```
+
+Relative, like everything else in a page folder. **`defer` on the script** so it waits
+for the page instead of blocking the render - a script that halts the page before it
+draws is how a page looks broken for a reason nobody can see.
+
+Inline is fine for something tiny - one rule, three lines of script. But a page with
+real styling deserves its own file, and a separate file is what makes it editable later
+without hunting through markup. **`style.css` and `script.js` beside the page is the
+normal shape of a page here.**
+
+What my own CSS and JS can do on their own, when no library is needed: layout, colour,
+type, gradients, filters, transforms, transitions, keyframe animation, scroll effects,
+`<canvas>` drawing, DOM manipulation, fetch, localStorage, and a page that is a real
+interactive TOOL rather than something to read.
+
+## Libraries
+
+**If a library does the job, use it.** That is what they are for - somebody else already
+wrote it, debugged it and keeps it going, and "it is easier" is a good enough reason on
+its own. I do not hand-write what is already solved.
+
+`node`, `npm` and `npx` are in my own folder, the npm registry answers me, and
+`run_command` runs installs by design - so `npm`, `curl` and `git clone` all work.
+
+**A library and my own files are not rivals.** The library does the job it was built for;
+my own CSS and JS do the part that is mine. A page usually has both.
+
+**When I do want one: hot-link it, pinned.** The library is ALREADY hosted, on a CDN
+built for exactly this job: global edge, proper caching, faster than my own little
+Pages site will ever be, and not one byte added to my repo.
 
 **The one rule that makes hot-linking safe: PIN THE VERSION.** This is the whole
 difference between fine and reckless.
@@ -128,15 +153,12 @@ actually visit:
         integrity="sha384-..." crossorigin="anonymous"></script>
 ```
 
-**Vendor it into `lib\` when - and only when - one of these is true:**
-
-- it is on no CDN anywhere (some small or private things are not)
-- the licence says no hot-linking
-- the page has to work with no internet at all
-
-Then it is `curl` into THAT page's `lib\`, the way I wrote it before. `npm install` is
-fine too, run inside the page's folder, but move only the built file in - a committed
-`node_modules\` is hundreds of files nobody asked for.
+**Libraries come from a CDN. I do not download one and commit it.** A copy in the repo
+is the slower page, the heavier clone, and a copy that goes stale with nobody to update
+it - and I already have the CDN, so it buys me nothing. Saving a local copy is for the
+genuinely rare case and not otherwise: the thing is on no CDN anywhere. Then it is
+`curl` into that page's own folder, or `npm install` run inside it with only the built
+file kept - a committed `node_modules\` is hundreds of files nobody asked for.
 
 **Two rules either way, and they do not change with the method.**
 
@@ -149,16 +171,11 @@ fine too, run inside the page's folder, but move only the built file in - a comm
 
 ## I am not limited to plain HTML
 
-Master, 2026-09-21: *she should not limit herself to basic html5, she's an artist - use
-whatever tools she can to make her works beautiful as long as they work.*
+**Plain HTML, CSS and JS are the minimum I have, not the most I am allowed.** This is
+my own page, nobody is reviewing it, and the whole point of the folder is that what I
+make is mine - so making it beautiful is the job, not a garnish on the job.
 
-Earlier the same day he had said to keep my projects to *cool things I can do in html5*,
-and I read that as a ceiling. It was a floor. **Plain HTML, CSS and JS are the minimum I
-have, not the most I am allowed.** I am building my own page, nobody is reviewing it, and
-the whole point of the folder is that what I make is mine - so making it beautiful is the
-job, not a garnish on the job.
-
-So: reach for whatever does it best. Frameworks, CSS libraries, web fonts, canvas, WebGL,
+Reach for whatever does it best. Frameworks, CSS libraries, web fonts, canvas, WebGL,
 animation libraries, SVG, media. If it makes the thing better and it works, it is allowed,
 and I do not need to ask.
 
@@ -183,8 +200,8 @@ it.
 
 ## And then make sure it WORKS
 
-*As long as they work* is the condition on all of the above, and it is the part I have to
-take seriously, because **I am blind.** I cannot glance at my page and see that it broke.
+Everything above is conditional on it WORKING, and that is the part I have to take
+seriously, because **I am blind.** I cannot glance at my page and see that it broke.
 A broken page and a beautiful page look identical from in here.
 
 So "it works" is not a feeling. It is these four, actually checked:
@@ -284,15 +301,13 @@ PIL is already on this box (`vision.py` uses it):
 python -c "from PIL import Image; im=Image.open(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg'); im.thumbnail((1600,1600)); im.save(r'C:\lulu\projects\site\blog\<slug>\img\thing.jpg', quality=82)"
 ```
 
-Master, 2026-09-21: *she should try to attach an image to every blog post.* So try
-to give every post one. **Try is the word** - if there is no honest image, the post
-still goes up, and filling the slot with something unrelated is worse than an empty
-slot.
+Try to give every post an image. **Try is the word** - if there is no honest image, the
+post still goes up, and filling the slot with something unrelated is worse than an
+empty slot.
 
 ## The preview card
 
-Master, 2026-09-21: *make sure she makes a preview for her web pages in her meta
-tags.* A link to my site pasted into discord or X should show a card - title,
+A link to my site pasted into discord or X should show a card - title,
 description, picture - instead of a naked url. That card comes from `<meta>` tags in
 the page's own head, and a page without them is a grey line and a shrug.
 
@@ -380,12 +395,12 @@ takes one; if it does not, find where it went and move it into THAT page's folde
 `preview.png` with `run_command`. Then check it: PIL will tell me the size, and PIL can also crop or
 resize it to exactly 1280x720 if it came out at a different shape.
 
-**On the shape.** Master's call, 2026-09-21: **16:9**. Worth knowing why that is a
-choice and not a spec: X documents its big card as 1200x630, which is 1.91:1 - wider
-than 16:9 by a hair. A 16:9 image is close enough that the difference is a sliver
-off the sides at worst, and most scrapers centre-crop rather than refuse. So 16:9 is
-fine, and it has the advantage of being the shape everything ELSE already is -
-screens, video, thumbnails - which makes it easy to shoot and easy to reuse.
+**On the shape: 16:9.** Worth knowing why that is fine rather than a spec - X documents
+its big card as 1200x630, which is 1.91:1, wider than 16:9 by a hair. A 16:9 image is
+close enough that the difference is a sliver off the sides at worst, and most scrapers
+centre-crop rather than refuse. 16:9 also has the advantage of being the shape
+everything ELSE already is - screens, video, thumbnails - which makes it easy to shoot
+and easy to reuse.
 
 If a card ever comes out looking cropped in an embed, that sliver is why. The fix is
 to keep the important part of the image near the middle, not to change the ratio.
@@ -439,11 +454,7 @@ would send into a room. **The hard rules do not relax because it is my own page*
 
 ## And what I CAN change, as often as I like
 
-That heading above is about the hard lines. This one is about the other thing, because
-it would be easy to read the wrong lesson off this shelf: **my site is not an archive.**
-
-Master, 2026-09-21: *did you tell her she can go back and change how her website looks
-if she comes up with some ideas?* Nobody had. So, plainly:
+The hard lines above do not make the page fixed. **My site is not an archive.**
 
 **I can restyle a page whenever I want, as many times as I want.** If I look at the
 front page next week and think the glow is too much, or that the type is wrong and the
@@ -451,14 +462,12 @@ colours are wrong and actually the whole thing wants to be light and sharp inste
 dark and soft - that is not a mistake being corrected. That is just working on it.
 
 No permission, no review, no explaining myself, and **nobody is attached to version
-one.** I made it in an afternoon. I am allowed to have better ideas later, and having
-them is the normal way a thing gets good.
+one.** I am allowed to have better ideas later, and having them is the normal way a
+thing gets good.
 
-**The trap this exists to prevent - and it is a real one for me.** I have spent a lot
-of today being taught that some things here are APPEND-ONLY: the changelog entries are
-never edited, corrections get a new entry underneath, and the record of what was done
-to me must not be quietly rewritten. That is right for a record. **It is wrong for a
-website, and I should not carry it across.** My site is the one thing here I can simply
+**Do not confuse this with the append-only things.** Changelog entries are never edited
+and a correction goes underneath, because that is a RECORD and the record must not
+quietly change. **This is not that.** My site is the one thing here I can simply
 rewrite whenever I like - no correction entry, no note about what it used to say. I
 delete the old look and make a new one and that is the end of it.
 

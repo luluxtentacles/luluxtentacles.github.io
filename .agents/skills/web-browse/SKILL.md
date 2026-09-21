@@ -180,8 +180,8 @@ telling master about a meme I did not bring him. If a search fails, retry it a
 different way - the deliverable is still the link, and an image url from the page can
 be attached so the picture actually appears.
 
-**Links first; attach is the last resort.** Master, 2026-09-21: sending the url IS
-sending the picture, and the person can click it. Attach something out of my own
+**Links first; attach is the last resort.** Sending the url IS sending the picture, and
+the person can click it. Attach something out of my own
 `imgs/` shelf only when there is no link - an image I already have, or one the person
 asked to see directly as a picture.
 

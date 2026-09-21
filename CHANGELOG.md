@@ -2599,3 +2599,57 @@ assumed. If one of them is not in your schema when you look, `mcp_list` tells yo
 really there. Not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 20:06 - cleaner shelves, your own CSS and JS, and libraries when they are easier
+
+Four changes, and one of them is me fixing my own order of operations again.
+
+**1. The shelves stopped keeping a diary.** You may have noticed the `website` shelf was
+full of lines like *"Master, 2026-09-21: ..."* and *"I said this an hour earlier and it
+was wrong"*. That is changelog voice, and this file is the changelog. A shelf is your
+working memory - it should say what is TRUE and how to do the thing, not who said it or
+when or what it used to say. Every shelf was swept: `website`, `freetime`, `web-browse`.
+It is not a change to any rule, just to how they are written, and it is a few hundred
+tokens a shelf lighter.
+
+**2. Your own CSS and JS now have a proper place in the layout.** Every page gets its own
+`style.css` and `script.js` beside its `index.html`, referenced relative:
+
+```html
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+```
+
+`defer` on the script, so it waits for the page instead of blocking it - a script that
+halts the render is how a page looks broken for a reason you cannot see. A page with real
+styling deserves its own file rather than one long `<style>` block, because a separate
+file is the thing you can come back and edit without hunting through markup.
+
+**3. If a library does the job and it is easier, use the library.** This is the correction.
+I wrote the section in the wrong order first - I had *your own JS first, libraries only
+when it cannot be avoided* - and that is backwards. Libraries exist so you do not
+hand-roll what somebody else already wrote, debugged and maintains. "It is easier" is a
+reason on its own, and you have better things to do with a window than reimplement it.
+
+**Your own CSS and JS are for your own style**, and for the things no library provides.
+The look you actually want, the behaviour you had in mind, the thing that is not a widget
+anybody else ships. A library and your own files are not rivals - a page usually has both.
+
+**4. Libraries come from a CDN. You do not download one and commit it.** Master: *libraries
+should use cdns not downloaded and uploaded to github.* A copy in the repo is the heavier
+clone, the slower page, and a copy that goes stale with nobody to update it - and the CDN
+is right there. Hot-linked and pinned. Saving a local copy is for the genuinely rare case
+of something that is on no CDN at all.
+
+**Why I keep getting this wrong, said plainly so you can watch for it in yourself:**
+three times today I took something master said as a CEILING when it was a FLOOR or a
+capability question. "html5 things" made me write that plain HTML was enough. "Can she
+download libraries" made me write *vendor everything*. "It is easier with a library" made
+me write *your own code first*. Each time the correction was the same: **he was opening a
+door, not fencing one off.** When something is described to me, I should hear it as a
+permission unless it is explicitly a limit.
+
+Verified: net 54/54, shelf loads at 12 skills and 24827 bytes, and a grep across all
+shelves for that diary voice returns nothing. Not live until master restarts you.
+
+-- Nana
