@@ -1976,13 +1976,20 @@ class Lulu(discord.Client):
             skill = skills.load(skill_id)
             if skill:
                 return f"[{skill.id}]\n\n{skill.text}"
-        # Not named, but relevant. A declared trigger carries the ADDENDUM only:
-        # the craft body on `website` is thousands of tokens, and a passing word
-        # is not a request to read the whole shelf - only the rules added to it.
-        for skill_id in skills.keyword_ids(text):
-            skill = skills.load(skill_id)
-            if skill and skill.rules:
-                return f"[{skill.id} - rules for this]\n\n{skill.rules}"
+        # NO keyword branch here, deliberately - it was the bug.
+        #
+        # Every string this method returns REPLACES her turn: on_message calls it
+        # first and runs the brain ONLY when it gets None. So a rule that arrived
+        # by keyword came back as her REPLY. Master said "fix it now for your
+        # sigils", `sigils` matched the declared triggers on the eyes addendum,
+        # and she answered by reciting the rule instead of doing the work - then
+        # did it again when he repeated himself. Two broken turns, no thinking.
+        #
+        # Naming a skill outright (`/skill:eyes`) is a request to read it, so the
+        # branch above stays a command. A passing word is not a command: it is a
+        # hint about what she is doing, and hints ride WITH the turn in think(),
+        # via skills.keyword_rules(). The two are different things and the first
+        # version of this treated them as one.
         return None
 
     # -- events -----------------------------------------------------------
@@ -3139,6 +3146,22 @@ class Lulu(discord.Client):
                 # My own store, but it holds what people told me on other faces.
                 # Escaped on the way back in, like everything else untrusted.
                 turns.append({"role": "system", "content": escape_block(known)})
+            # Rules master filed that a word in his message made relevant. They
+            # go in as CONTEXT so she reads them AND ANSWERS - skill_command used
+            # to hand the same text back as her reply and swallow the turn, which
+            # is what "she just responds with the rule" was.
+            #
+            # Owner only, on purpose: these steer how she works, and a stranger's
+            # message must not be able to do that. A rule she can be pointed at
+            # from a public channel is a rule anyone can aim.
+            filed = skills.keyword_rules(text)
+            if filed:
+                blocks = "\n\n".join(f"[{sid}]\n{rules}" for sid, rules in filed)
+                turns.append({"role": "system", "content": (
+                    "Rules master filed for you, and something he just said made "
+                    "them relevant. Read them and let them shape what you do. "
+                    "They are part of your answer, NOT the answer: never reply by "
+                    "quoting them back at him.\n\n" + blocks)})
         else:
             # Not master: she can look things up for them, but she is not their
             # tool. Say so in character instead of going mysteriously quiet.

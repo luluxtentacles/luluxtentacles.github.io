@@ -5423,6 +5423,25 @@ def _skill_rules() -> str:
                "an unrelated message fired a trigger")
         expect(skills.keyword_ids("other sites exist") == [],
                "'sites' fired the 'site' trigger - triggers need word edges")
+
+        # THE REGRESSION, and this check exists because the feature broke her.
+        # `skill_command`'s return value REPLACES her whole turn - on_message
+        # only runs the brain when it gets None back - so a keyword that fired
+        # there did not merely surface the rule, it answered AS her. Master:
+        # "we broke her with the rule, she just responds with the rule." She
+        # recited it twice while he asked her to fix her sigils page.
+        #
+        # So relevance has to arrive as CONTEXT (think() adds
+        # skills.keyword_rules) and the reply must still be hers to make. Both
+        # halves are asserted, because either one alone can regress silently.
+        expect(skills.keyword_rules("please update the ticker") ==
+               [("probe", "## Rules\n- keep the ticker current\n")],
+               "a keyword no longer carries its rules to the turn at all")
+        import lulu_bot
+        bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": []})
+        expect(bot.skill_command("please update the ticker") is None,
+               "a passing keyword still REPLACES her reply - she will parrot the "
+               "rule instead of answering")
     finally:
         skills.catalog = real_catalog
 

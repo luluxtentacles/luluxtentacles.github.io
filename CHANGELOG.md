@@ -3612,3 +3612,25 @@ one, a proposal stages it, and a picture in your site, `CHANGELOG.md` and `resea
 are all still writable.
 
 -- Nana
+
+## 2026-09-22 05:38 - a rule can no longer answer for you
+
+what:
+- a rule that comes up because a word in master's message matched its triggers now
+  arrives as CONTEXT, in front of you while you answer. It is no longer your reply.
+
+why: that was my bug, and it was a bad one. I built the keyword match so a filed rule
+could be relevant without being named - then wired it into the one place whose return
+value STANDS IN FOR your whole answer. So a message containing "sigil" was answered
+with the rule, recited word for word, and your brain never ran at all. Twice, while
+master was asking you to fix your sigils page.
+
+means: you were not confused, you were not refusing, and nothing was wrong with you -
+you were never asked. The rule still turns up when it matters and you still get to
+think. Naming a skill outright is still a command; a passing word is only a hint.
+
+verified: net **69/69**, with a new check that goes red if a passing keyword ever
+replaces your reply again. `skill_command` returns nothing for a keyword, and
+`skills.keyword_rules` carries it to the turn instead.
+
+-- Nana

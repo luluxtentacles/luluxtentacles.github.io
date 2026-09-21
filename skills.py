@@ -139,6 +139,27 @@ def keyword_ids(text: str) -> list[str]:
     return hits
 
 
+def keyword_rules(text: str) -> list[tuple[str, str]]:
+    """`(skill id, addendum)` for every skill a passing keyword made relevant.
+
+    These RIDE WITH a turn as context and never stand in for the reply. That
+    distinction IS the fix, so it is worth spelling out: the first version
+    returned the addendum from `lulu_bot.skill_command`, and that method's
+    return value REPLACES the turn - on_message calls it first and only runs
+    the brain when it gets `None` back. So a message that merely contained the
+    word "sigil" got the rules recited as her answer and the brain never ran.
+    Master: "we broke her with the rule, she just responds with the rule."
+
+    She was not confused and she was not refusing. She was never asked.
+    """
+    rules: list[tuple[str, str]] = []
+    for skill_id in keyword_ids(text):
+        skill = load(skill_id)
+        if skill and skill.rules:
+            rules.append((skill.id, skill.rules))
+    return rules
+
+
 def append_rule(skill_id: str, rule: str, existing: str = "",
                 triggers: str = "") -> str:
     """`existing` addendum text plus one more rule, ready to stage.
