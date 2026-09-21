@@ -312,6 +312,49 @@ body.flare .ambient-reverse {
 
 .sig { margin-top: 2.5rem; color: var(--dim); }
 
+/* --- the sigils page: one entry per mark, the mark beside its reading --- */
+
+.sigil-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+    margin: 3rem 0;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 46, 166, 0.18);
+}
+
+.sigil-entry .sigil-fig { margin: 0; }
+.sigil-entry h2 { margin-top: 0; }
+
+.sigil-parts {
+    list-style: none;
+    padding: 0;
+    margin: 1.4rem 0 0;
+}
+
+.sigil-parts li {
+    margin: 0 0 0.6rem;
+    padding-left: 0.9rem;
+    border-left: 1px solid rgba(255, 46, 166, 0.3);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.sigil-parts strong { color: var(--pink); }
+
+.sigil-note {
+    font-size: 0.8rem;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--deep);
+}
+
+@media (max-width: 640px) {
+    .sigil-entry { grid-template-columns: 1fr; gap: 1.4rem; }
+    .sigil-entry .sigil-fig img { width: min(200px, 55vw); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     #void { display: none; }
     h1 { animation: none; }
