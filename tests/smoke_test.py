@@ -2324,6 +2324,54 @@ def _emoji_retire() -> str:
             f"failures retire it too, and a failure record carries no meaning")
 
 
+# -- 8h. a turn moved off the loop keeps its context ------------------------
+# tools.set_context is PER THREAD, and a worker thread starts empty. `origin` is
+# the one that bites: it is what the supervisor's daily patch budget counts, so a
+# self-review turn moved off the event loop with a bare asyncio.to_thread would
+# silently stop being counted as one - the fix would have quietly uncounted her
+# own time. tools.in_thread snapshots on the calling thread and restores on the
+# worker; this proves it, and proves a POOLED thread cannot hand the next turn
+# its predecessor's room.
+def _thread_context() -> str:
+    import asyncio
+
+    import tools
+
+    def _peek():
+        return dict(tools._ctx())
+
+    tools.set_context(101, "first", "room-a", channel_id=11,
+                      origin="self-review", master=True)
+    first = asyncio.run(tools.in_thread(_peek))
+    expect(first.get("origin") == "self-review",
+           f"the worker lost the origin: {first.get('origin')!r}")
+    expect(first.get("channel") == "room-a" and first.get("channel_id") == 11,
+           f"the worker lost the room: {first.get('channel')!r}")
+    expect(first.get("user_id") == 101 and first.get("master") is True,
+           f"the worker lost who, or whether master: {first!r}")
+
+    # A SECOND turn, to prove the executor's thread REUSE cannot leak the first
+    # one's channel into the next. Without the clear() inside in_thread this is
+    # exactly what happens, and it is the cross-talk the per-thread design
+    # exists to prevent.
+    tools.set_context(202, "second", "room-b", channel_id=22,
+                      origin="master", master=False)
+    second = asyncio.run(tools.in_thread(_peek))
+    expect(second.get("channel") == "room-b" and second.get("user_id") == 202,
+           f"a pooled thread handed back the previous turn: {second!r}")
+    expect(second.get("origin") == "master",
+           f"the second turn kept the first one's origin: {second.get('origin')!r}")
+
+    # And a turn that sets nothing must see the DEFAULTS, never the last room
+    # that happened to run in that pooled thread.
+    tools.set_context(None)
+    blank = asyncio.run(tools.in_thread(_peek))
+    expect(blank.get("origin") == "master" and blank.get("channel") == "",
+           f"a context-less turn did not fall back to the defaults: {blank!r}")
+    return ("a worker thread inherits the turn's context, and a pooled thread "
+            "cannot leak one turn's room into the next")
+
+
 # -- 9. the skill shelf still parses --------------------------------------
 # Her prompt IS this shelf, and since .agents/ became proposable a bad edit here
 # is a real possibility. Importing cleanly proves nothing: a SKILL.md that is
@@ -4109,6 +4157,7 @@ CHECKS = [
     ("changelog", _changelog),
     ("look-at", _look_at),
     ("emoji-retire", _emoji_retire),
+    ("thread-context", _thread_context),
 ]
 
 

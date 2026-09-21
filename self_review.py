@@ -675,8 +675,15 @@ async def maybe_run(bot) -> bool:
     try:
         # Master's budget, not a stranger's: this turn is his window, and spend.py
         # never prices his turns, so there is no reason to make her think short.
-        answer = bot.run_turns(turns, REVIEW_SCHEMA, set(REVIEW_TOOL_NAMES),
-                               max_tokens=bot.token_budget(True))
+        # tools.in_thread, NOT asyncio.to_thread: the tool context is per THREAD,
+        # so a bare to_thread would drop the origin set just above and quietly
+        # uncount this turn from the supervisor's budget. And it must not run
+        # inline either - a window turn is up to MAX_TOOL_ROUNDS brain calls,
+        # each blocking on HTTP, which stalls the event loop and Discord's
+        # heartbeat with it. Her own log has the blocked-heartbeat warning.
+        answer = await tools.in_thread(
+            bot.run_turns, turns, REVIEW_SCHEMA, set(REVIEW_TOOL_NAMES),
+            max_tokens=bot.token_budget(True))
     except Exception as exc:
         LOG.warning("her own turn turned over: %s", exc)
         _save(in_progress=False, report=f"turned over: {type(exc).__name__}")

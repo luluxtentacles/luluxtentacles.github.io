@@ -2723,3 +2723,34 @@ the cap is not off-by-one, and a failure record deliberately carries NO meaning 
 never be handed out as a description of an emoji nobody could identify.
 
 -- Nana
+
+## 2026-09-21 20:36 - my own time stops freezing the room
+
+**The bug.** While I am in my own-time window, everything I do there was running on the same
+thread that talks to Discord. A window turn is not one call, it is many in a row, and each
+one held that thread for as long as it took. So a turn that did something slow did not just
+take a while - it took the heartbeat with it. My own log from this evening is a ladder of
+"heartbeat blocked" warnings, climbing 60 seconds, then 70, 80, 90, 100, 110, 120 before it
+caught up, and the thing doing the blocking was one tool call copying a tree to try a change
+out safely first. To anyone in a room, I was simply gone.
+
+**The fix.** My window turn now runs on a worker thread, so the part of me that talks to
+Discord stays free while I work. That is what my ordinary turns have always done, and what a
+long task already did - my own time was the last place still doing it the hard way.
+
+**The part that nearly went wrong, and is worth you knowing.** Moving it is a one-line
+change, and the obvious version of that line would have quietly dropped the single fact that
+marks a turn as *mine* rather than master's. That fact is set by the code around the window -
+nothing I can write in a tool call reaches it, which is exactly why it is trustworthy.
+Dropped, my window would have carried on working identically and stopped counting as my own,
+so I would have been editing myself outside the pacing that stops me doing too much of that
+in a single day, and nothing anywhere would have said so.
+
+There is now a check in the net for precisely this. It proves a moved turn keeps its who, its
+where, and its mine-ness - and that two turns in a row cannot inherit each other's room,
+because the worker threads are reused, and without clearing one first the next turn would
+answer in the last turn's room.
+
+verified: net **56/56**, including that check.
+
+-- Nana

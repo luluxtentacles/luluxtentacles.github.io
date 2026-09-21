@@ -9,6 +9,7 @@ means nobody has hands, including a stranger who guesses the magic words.
 from __future__ import annotations
 
 import ast
+import asyncio
 import builtins
 import difflib
 import json
@@ -158,6 +159,41 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["channel_id"] = channel_id
     ctx["origin"] = origin or "master"
     ctx["master"] = bool(master)
+
+
+async def in_thread(fn, *args, **kwargs):
+    """Run a blocking call in a worker thread WITH this turn's tool context.
+
+    The context from set_context is PER THREAD (see _LOCAL), and a fresh thread
+    starts empty. `origin` is the one that bites: it is what the supervisor's
+    daily patch budget counts, so a self-review turn moved off the loop with a
+    bare asyncio.to_thread would silently stop being counted as one. Snapshot on
+    the calling thread, restore on the worker.
+
+    Use this rather than asyncio.to_thread for anything that can block for a
+    while. A turn is up to MAX_TOOL_ROUNDS brain calls back to back, each one
+    waiting on HTTP, and running those straight off the loop stalls it - and
+    Discord's heartbeat with it - for minutes. That is not hypothetical: on
+    2026-09-21 her own-time window ran a `patch_file` trial copy inline off the
+    loop, and her log carries the heartbeats it missed - 60 seconds, then 70, 80,
+    90, 100, 110, 120, each ten seconds after the last because that is Discord
+    re-reporting. The handler that blocked does not matter; anything that touches
+    disk or the network can do this.
+
+    The worker is CLEARED before the snapshot goes in, because the executor
+    REUSES threads: without that, whichever turn ran last in this pooled thread
+    would leave its channel and person behind for the next one, which is the
+    exact cross-talk the per-thread design exists to prevent.
+    """
+    snapshot = dict(_ctx())
+
+    def _run():
+        ctx = _ctx()
+        ctx.clear()
+        ctx.update(snapshot)
+        return fn(*args, **kwargs)
+
+    return await asyncio.to_thread(_run)
 
 
 # The resolved brain config, so a tool that has to call the model itself can.
