@@ -1,106 +1,257 @@
-Comparing files tools.py and PENDING\APPLIED\20260920-035638\TOOLS.PY
-***** tools.py
- 1483:  
- 1484:  def drain_outbox() -> list[dict]:
- 1485:      """Hand the queued sends to the event loop and empty the queue.
- 1486:  
- 1487:      Called by the bot after think() returns. The tool layer never posts; this is
- 1488:      the handover, and it is deliberately the only way anything leaves.
- 1489:      """
- 1490:      queued = list(_OUTBOX)
- 1491:      _OUTBOX.clear()
- 1492:      return queued
- 1493:  
-***** PENDING\APPLIED\20260920-035638\TOOLS.PY
- 1483:  
- 1484:  def attach(channel: str, path: str, text: str = "") -> str:
- 1485:      """Queue one file from inside my own folder, posted with a caption.
- 1486:  
- 1487:      Same path as say(): validate here, queue here, and let the event loop do
- 1488:      the actual posting. Guards:
- 1489:        - the path must resolve inside my folder (paths.resolve refuses the rest)
- 1490:        - it must exist and be a file
- 1491:        - Discord's ceiling: FILE_MAX_BYTES, named at queue time rather than
- 1492:          failing in the send with an HTTPException nobody can act on
- 1493:      Rate limit is shared with say() on purpose - a queued attachment is a
- 1494:      send, whatever it carries.
- 1495:      """
- 1496:      target = (channel or "").strip().lstrip("#").lower()
- 1497:      if not target:
- 1498:          return "attach where?"
- 1499:      try:
- 1500:          resolved = paths.resolve(path or "", must_exist=True)
- 1501:      except paths.SandboxError as exc:
- 1502:          return f"refused: {exc}"
- 1503:      except Exception as exc:
- 1504:          return f"cannot look at {path}: {exc}"
- 1505:      if not resolved.is_file():
- 1506:          return f"{path} is not a file"
- 1507:      size = resolved.stat().st_size
- 1508:      if size > FILE_MAX_BYTES:
- 1509:          return (f"too big for discord ({size:,} bytes, ceiling "
- 1510:                  f"{FILE_MAX_BYTES:,})")
- 1511:      body = " ".join((text or "").split())
- 1512:      if len(body) > SAY_MAX_CHARS:
- 1513:          return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
- 1514:  
- 1515:      now = time.time()
- 1516:      _SAY_TIMES[:] = [t for t in _SAY_TIMES if now - t < SAY_WINDOW]
- 1517:      if len(_SAY_TIMES) >= SAY_MAX:
- 1518:          wait = int((SAY_WINDOW - (now - _SAY_TIMES[0])) / 60) + 1
- 1519:          return (f"i have already spoken up {SAY_MAX} times in "
- 1520:                  f"{SAY_WINDOW // 60} minutes - about {wait} more minutes")
- 1521:      _SAY_TIMES.append(now)
- 1522:      _OUTBOX.append({"channel": target, "text": body, "file": path})
- 1523:      return (f"queued {path} ({size:,} bytes) for #{target}"
- 1524:              + (" with a caption" if body else ""))
- 1525:  
-*****
-
-***** tools.py
- 1494:  
- 1495:  # -- progress: what she says WHILE she works --------------------------------
- 1496:  # Same thread boundary as the outbox above and the same shape: run_turns runs in
- 1497:  # a worker thread with no event loop, so a line goes into a queue and the loop
- 1498:  # posts it. A SEPARATE queue from _OUTBOX because these go to the room she was
- 1499:  # ADDRESSED in, not to the say allowlist - and because the outbox drains only
- 1500:  # after her answer is already out, which is exactly the silence this exists to
- 1501:  # fix: eight tool rounds over thirty-seven seconds, one reply at the end.
- 1502:  # Keyed by channel, because she can be mid-dig in two rooms at once.
- 1503:  PROGRESS_MAX_QUEUED = 20
- 1504:  _PROGRESS: list[dict] = []
- 1505:  
-***** PENDING\APPLIED\20260920-035638\TOOLS.PY
- 1526:  
- 1527:  def drain_outbox() -> list[dict]:
- 1528:      """Hand the queued sends to the event loop and empty the queue.
- 1529:  
- 1530:      Called by the bot after think() returns. The tool layer never posts; this is
- 1531:      the handover, and it is deliberately the only way anything leaves.
- 1532:      """
- 1533:      queued = list(_OUTBOX)
- 1534:      _OUTBOX.clear()
- 1535:      return queued
- 1536:  
-*****
-
-***** tools.py
- 1506:  
- 1507:  def queue_progress(channel_id, text: str) -> None:
-***** PENDING\APPLIED\20260920-035638\TOOLS.PY
- 1537:  
- 1538:  # -- progress: what she says WHILE she works --------------------------------
- 1539:  # Same thread boundary as the outbox above and the same shape: run_turns runs in
- 1540:  # a worker thread with no event loop, so a line goes into a queue and the loop
- 1541:  # posts it. A SEPARATE queue from _OUTBOX because these go to the room she was
- 1542:  # ADDRESSED in, not to the say allowlist - and because the outbox drains only
- 1543:  # after her answer is already out, which is exactly the silence this exists to
- 1544:  # fix: eight tool rounds over thirty-seven seconds, one reply at the end.
- 1545:  # Keyed by channel, because she can be mid-dig in two rooms at once.
- 1546:  PROGRESS_MAX_QUEUED = 20
- 1547:  _PROGRESS: list[dict] = []
- 1548:  
- 1549:  
- 1550:  def queue_progress(channel_id, text: str) -> None:
-*****
-
+0: """Browsing the web - carefully.
+1: 
+2: Every other tool in this folder is boxed by path. This one is boxed by address:
+3: it will fetch public pages and refuses anything that points back inside the
+4: network it runs on.
+5: 
+6: What that blocks:
+7:   - file://, ftp://, and anything that is not http/https
+8:   - localhost, 127.0.0.0/8, ::1
+9:   - private ranges 10/8, 172.16/12, 192.168/16, fc00::/7, link-local 169.254/16
+10:   - cloud metadata endpoints, by virtue of being link-local
+11:   - a public host that redirects to any of the above: every hop is re-checked
+12: 
+13: And the ONE address it opens: `preview.py`'s mirror of her own site, on loopback,
+14: on LOCAL_PREVIEW_PORT and nothing else. Master, 2026-09-21 - her site is live the
+15: moment she pushes, so looking at it cost a deploy. The grant is one port wide on
+16: purpose, because this same rule is what stops a page she rendered from reaching
+17: 127.0.0.1:445 or the CDP endpoint on :9222.
+18: 
+19: Residual risk, stated honestly: the address is checked when it resolves, and
+20: urllib connects afterwards, so a hostile DNS server could in principle answer
+21: differently the second time. Owner-only tooling makes that a poor trade for the
+22: extra complexity, but it is a real gap, not a closed one.
+23: 
+24: Reach: fetch() is one of only three tools offered to people who are NOT
+25: master (tools.LOOKUP_TOOL_NAMES), so this address guard is the only thing
+26: standing between a stranger in a public channel and the network. That is
+27: why the block list is re-checked on every redirect hop rather than once on
+28: the first URL.
+29: """
+30: from __future__ import annotations
+31: 
+32: import gzip
+33: import html
+34: import ipaddress
+35: import re
+36: import socket
+37: import urllib.error
+38: import urllib.parse
+39: import urllib.request
+40: import zlib
+41: 
+42: USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+43:               "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+44: TIMEOUT_SECONDS = 20
+45: # 400_000 was a refusal, not a cap: a page bigger than it came back as "I stopped
+46: # early" with no text at all, so a big reference index like sacred-texts.com was
+47: # simply unreadable. Master's call 2026-09-20 - she goes all over the internet for
+48: # research - so the ceiling is 1.5MB now and an oversized page is TRUNCATED and
+49: # returned rather than thrown away. MAX_CHARS is what actually reaches the prompt.
+50: #
+51: # MAX_CHARS was 20_000 and that was measured to be too small on the day it was
+52: # questioned. Three real pages, fetched 2026-09-20: Wikipedia "Sigil" 46,809
+53: # chars (43% delivered), "Austin Osman Spare" 57,698 (35%), Moby-Dick on
+54: # Gutenberg 1,236,074 (1.6%). Every one was chopped, and what a chop loses is the
+55: # END - references, sources, later sections - which is the half research actually
+56: # needs. Master's call: 100_000 chars, about 25k tokens, a whole book chapter in
+57: # one call. MAX_BYTES was already raised for exactly this and the delivery cap
+58: # was quietly chopping the result back down.
+59: MAX_BYTES = 1_500_000
+60: MAX_CHARS = 100_000
+61: # How much of the page is missing, said out loud. The header used to report the
+62: # PAGE size and hide the gap: she read the first 20,000 characters of a 46,809
+63: # character article and had no way to know 26,809 more existed, so a truncated
+64: # source looked like a complete one.
+65: MAX_NOTE_CHARS = 200
+66: MAX_REDIRECTS = 4
+67: ALLOWED_SCHEMES = {"http", "https"}
+68: _REDIRECT_CODES = {301, 302, 303, 307, 308}
+69: 
+70: # The one address on this machine the guards will open - see the module docstring
+71: # and preview.py. Windows Firewall cannot help here in either direction: 127.0.0.0/8
+72: # is refused at RULE-CREATION time (measured 2026-09-20), so this module is the
+73: # only boundary loopback has. That is why the exception below is keyed to ONE port
+74: # rather than to a range, a hostname or a scheme.
+75: LOCAL_PREVIEW_PORT = 8899
+76: 
+77: 
+78: def _is_local_preview(host: str, port: int) -> bool:
+79:     """True only for her own mirror: loopback, and exactly the preview port.
+80: 
+81:     Narrow on purpose, and each narrowing earns its place:
+82: 
+83:       - the PORT is compared FIRST, so every other loopback listener on this box
+84:         is refused before its name is even resolved. `127.0.0.1:9222` is her own
+85:         browser's CDP endpoint - a steering wheel for the browser that rendered
+86:         the page - and `:445` and `:135` are measured open. None of them is
+87:         reachable through this hole.
+88:       - the HOST must resolve ENTIRELY to loopback. If any answer is a LAN or
+89:         public address the exception does not apply and the ordinary refusal
+90:         runs, so a poisoned name cannot borrow the preview port to reach out.
+91:       - being loopback is not enough on its own. Only this port, only here.
+92:     """
+93:     if port != LOCAL_PREVIEW_PORT:
+94:         return False
+95:     try:
+96:         infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+97:     except socket.gaierror:
+98:         return False
+99:     addresses = [info[4][0] for info in infos]
+100:     if not addresses:
+101:         return False
+102:     for address in addresses:
+103:         try:
+104:             ip = ipaddress.ip_address(address)
+105:         except ValueError:
+106:             return False
+107:         if not ip.is_loopback:
+108:             return False
+109:     return True
+110: 
+111: 
+112: class Blocked(Exception):
+113:     """The address is not one we will open."""
+114: 
+115: 
+116: def _assert_public(host: str, port: int) -> None:
+117:     """Refuse any address on this machine or the local network."""
+118:     if not host:
+119:         raise Blocked("no host")
+120:     # The one exception, checked HERE on purpose: this function is the single place
+121:     # BOTH doors consult - web_fetch through _check, and the browser through
+122:     # browseguard.check_destination - so an exemption cannot drift into being
+123:     # enforced by one of them and not the other.
+124:     if _is_local_preview(host, port):
+125:         return
+126:     if host.lower() in {"localhost", "localhost.localdomain"} or host.endswith(".local"):
+127:         raise Blocked(f"{host} is this machine")
+128:     try:
+129:         infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+130:     except socket.gaierror as exc:
+131:         raise Blocked(f"cannot resolve {host}: {exc}") from exc
+132:     for info in infos:
+133:         address = info[4][0]
+134:         try:
+135:             ip = ipaddress.ip_address(address)
+136:         except ValueError:
+137:             continue
+138:         if (ip.is_private or ip.is_loopback or ip.is_link_local
+139:                 or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+140:             raise Blocked(f"{host} resolves to {address}, which is not public")
+141: 
+142: 
+143: def _check(url: str) -> urllib.parse.ParseResult:
+144:     parsed = urllib.parse.urlparse(url)
+145:     if parsed.scheme.lower() not in ALLOWED_SCHEMES:
+146:         raise Blocked(f"only http and https, not '{parsed.scheme or 'nothing'}'")
+147:     port = parsed.port or (443 if parsed.scheme.lower() == "https" else 80)
+148:     _assert_public(parsed.hostname or "", port)
+149:     return parsed
+150: 
+151: 
+152: class _NoRedirect(urllib.request.HTTPRedirectHandler):
+153:     """Redirects are handled by hand so every hop gets checked."""
+154: 
+155:     def redirect_request(self, req, fp, code, msg, headers, newurl):
+156:         return None
+157: 
+158: 
+159: _OPENER = urllib.request.build_opener(_NoRedirect)
+160: 
+161: 
+162: def _decode(raw: bytes, encoding: str) -> bytes:
+163:     if encoding == "gzip":
+164:         try:
+165:             return gzip.decompress(raw)
+166:         except OSError:
+167:             return raw
+168:     if encoding == "deflate":
+169:         try:
+170:             return zlib.decompress(raw)
+171:         except zlib.error:
+172:             return raw
+173:     return raw
+174: 
+175: 
+176: def _to_text(body: str) -> str:
+177:     """Strip a page down to something worth reading in a chat message."""
+178:     body = re.sub(r"(?is)<(script|style|noscript|svg|head)\b.*?</\1>", " ", body)
+179:     body = re.sub(r"(?is)<!--.*?-->", " ", body)
+180:     # Keep the shape of the document, drop the markup.
+181:     body = re.sub(r"(?i)<br\s*/?>", "\n", body)
+182:     body = re.sub(r"(?i)</(p|div|li|h[1-6]|tr)>", "\n", body)
+183:     body = re.sub(r"<[^>]+>", " ", body)
+184:     body = html.unescape(body)
+185:     body = re.sub(r"[ \t\r\f\v]+", " ", body)
+186:     body = re.sub(r"\n\s*\n\s*\n+", "\n\n", body)
+187:     return body.strip()
+188: 
+189: 
+190: def fetch(url: str) -> str:
+191:     """Fetch one public page and return it as plain text."""
+192:     target = url.strip()
+193:     if "://" not in target:
+194:         target = "https://" + target
+195: 
+196:     seen: list[str] = []
+197:     for _ in range(MAX_REDIRECTS + 1):
+198:         _check(target)
+199:         request = urllib.request.Request(target, headers={
+200:             "User-Agent": USER_AGENT,
+201:             "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5",
+202:             "Accept-Encoding": "gzip, deflate",
+203:         })
+204:         try:
+205:             with _OPENER.open(request, timeout=TIMEOUT_SECONDS) as response:
+206:                 raw = response.read(MAX_BYTES + 1)
+207:                 encoding = (response.headers.get("Content-Encoding") or "").lower()
+208:                 content_type = (response.headers.get("Content-Type") or "").lower()
+209:                 final = response.geturl()
+210:         except urllib.error.HTTPError as exc:
+211:             if exc.code in _REDIRECT_CODES:
+212:                 location = exc.headers.get("Location")
+213:                 if not location:
+214:                     return f"[that page redirected nowhere: HTTP {exc.code}]"
+215:                 target = urllib.parse.urljoin(target, location)
+216:                 seen.append(target)
+217:                 if len(seen) > MAX_REDIRECTS:
+218:                     return "[too many redirects; I stopped]"
+219:                 continue
+220:             return f"[HTTP {exc.code} from {target}]"
+221:         except Blocked:
+222:             raise
+223:         except Exception as exc:
+224:             return f"[could not reach {target}: {type(exc).__name__}]"
+225: 
+226:         raw = _decode(raw, encoding)
+227:         # Cut it, do not refuse it. A page larger than the ceiling still has an
+228:         # answer in its first megabyte far more often than not, and returning
+229:         # nothing is the one outcome that teaches her the page is unreachable.
+230:         clipped = len(raw) > MAX_BYTES
+231:         raw = raw[:MAX_BYTES]
+232: 
+233:         charset = "utf-8"
+234:         match = re.search(r"charset=([\w\-]+)", content_type)
+235:         if match:
+236:             charset = match.group(1)
+237:         text = raw.decode(charset, "replace")
+238: 
+239:         if "html" in content_type or "<html" in text[:2000].lower():
+240:             text = _to_text(text)
+241: 
+242:         where = f" ({final})" if final != target else ""
+243:         note = f", first {MAX_BYTES} bytes of a bigger page" if clipped else ""
+244:         shown = len(text[:MAX_CHARS])
+245:         if shown < len(text):
+246:             # Say what is MISSING, not just what arrived. The old header reported
+247:             # the page's own size, so a chopped article and a complete one were
+248:             # one line apart and she had no way to tell which she was holding.
+249:             missing = len(text) - shown
+250:             header = (f"[{shown} of {len(text)} chars from {target}{where}{note} "
+251:                       f"- {missing} more NOT shown; fetch a narrower page or a "
+252:                       f"section anchor for the rest]")
+253:         else:
+254:             header = f"[{shown} chars from {target}{where}{note} - complete]"
+255:         return header + "\n\n" + text[:MAX_CHARS]
+256:     return "[too many redirects; I stopped]"

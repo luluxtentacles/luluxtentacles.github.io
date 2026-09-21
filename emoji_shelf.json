@@ -1738,6 +1738,272 @@
       ]
     },
     {
+      "id": "821188728318984252",
+      "name": "Unofficial HIMR Server",
+      "emojis": [
+        {
+          "name": "frogkc",
+          "id": "877429637548998656",
+          "animated": false
+        },
+        {
+          "name": "rolf",
+          "id": "877429727562956841",
+          "animated": false
+        },
+        {
+          "name": "pepehands",
+          "id": "877429875684827146",
+          "animated": false
+        },
+        {
+          "name": "pepegiggle",
+          "id": "877429966868996139",
+          "animated": true
+        },
+        {
+          "name": "pepeded",
+          "id": "877430058887806986",
+          "animated": false
+        },
+        {
+          "name": "pepehmm",
+          "id": "877430267273416725",
+          "animated": true
+        },
+        {
+          "name": "pepecryleave",
+          "id": "877430404175503390",
+          "animated": true
+        },
+        {
+          "name": "pepeultraew",
+          "id": "877430906271465522",
+          "animated": false
+        },
+        {
+          "name": "kcpoint",
+          "id": "889251447647141908",
+          "animated": false
+        },
+        {
+          "name": "pepepointlaugh",
+          "id": "911702786738118656",
+          "animated": false
+        },
+        {
+          "name": "pepeughping",
+          "id": "911702788369711144",
+          "animated": false
+        },
+        {
+          "name": "pepeno",
+          "id": "911702789300817951",
+          "animated": false
+        },
+        {
+          "name": "pepeyes",
+          "id": "911702789950943272",
+          "animated": false
+        },
+        {
+          "name": "pepesweat",
+          "id": "911702790106152990",
+          "animated": false
+        },
+        {
+          "name": "danflip",
+          "id": "912185024831438849",
+          "animated": false
+        },
+        {
+          "name": "dansmart",
+          "id": "912185908709707797",
+          "animated": false
+        },
+        {
+          "name": "danielle",
+          "id": "912187014118514728",
+          "animated": false
+        },
+        {
+          "name": "danlol",
+          "id": "912231344543760476",
+          "animated": false
+        },
+        {
+          "name": "danok",
+          "id": "912238147545464842",
+          "animated": false
+        },
+        {
+          "name": "danhappy",
+          "id": "912260694802595890",
+          "animated": false
+        },
+        {
+          "name": "danzzz",
+          "id": "912522366364549180",
+          "animated": false
+        },
+        {
+          "name": "danthis",
+          "id": "912528373979418624",
+          "animated": false
+        },
+        {
+          "name": "danwow",
+          "id": "912530726879109150",
+          "animated": false
+        },
+        {
+          "name": "danfacepalm",
+          "id": "912540167108186142",
+          "animated": false
+        },
+        {
+          "name": "chairmandan",
+          "id": "912589642421927947",
+          "animated": false
+        },
+        {
+          "name": "danbanana",
+          "id": "913125962856669204",
+          "animated": false
+        },
+        {
+          "name": "danheart",
+          "id": "913125963993346110",
+          "animated": false
+        },
+        {
+          "name": "danahhh",
+          "id": "913125964253380629",
+          "animated": false
+        },
+        {
+          "name": "dangasm",
+          "id": "913125964525998090",
+          "animated": false
+        },
+        {
+          "name": "dansmile",
+          "id": "913125964697993346",
+          "animated": false
+        },
+        {
+          "name": "dansad",
+          "id": "913125965251616808",
+          "animated": false
+        },
+        {
+          "name": "danthink",
+          "id": "915065724119183470",
+          "animated": false
+        },
+        {
+          "name": "confusedwat",
+          "id": "915693455039148093",
+          "animated": false
+        },
+        {
+          "name": "dancereal",
+          "id": "916946797086244864",
+          "animated": false
+        },
+        {
+          "name": "dansip",
+          "id": "995238745525714964",
+          "animated": false
+        },
+        {
+          "name": "pepeinteresting",
+          "id": "1264661683172020326",
+          "animated": false
+        },
+        {
+          "name": "sunnypuri",
+          "id": "1264676653787906200",
+          "animated": false
+        },
+        {
+          "name": "pepesus",
+          "id": "1267173377353973780",
+          "animated": false
+        },
+        {
+          "name": "pepepensive",
+          "id": "1268862150869385379",
+          "animated": false
+        },
+        {
+          "name": "chichi",
+          "id": "1268941999453765673",
+          "animated": false
+        },
+        {
+          "name": "mila",
+          "id": "1268942061189464195",
+          "animated": false
+        },
+        {
+          "name": "danscream",
+          "id": "1268942185663823882",
+          "animated": false
+        },
+        {
+          "name": "pepestonks",
+          "id": "1271196681567866900",
+          "animated": false
+        },
+        {
+          "name": "dangry",
+          "id": "1273401437363241121",
+          "animated": false
+        },
+        {
+          "name": "daninspect",
+          "id": "1296151973715775488",
+          "animated": false
+        },
+        {
+          "name": "danpensive",
+          "id": "1512894314378821733",
+          "animated": false
+        },
+        {
+          "name": "danwave",
+          "id": "1513634909946777670",
+          "animated": false
+        },
+        {
+          "name": "danborgar",
+          "id": "1513640185018187776",
+          "animated": false
+        },
+        {
+          "name": "danexcited",
+          "id": "1513643260935929957",
+          "animated": false
+        },
+        {
+          "name": "danjail",
+          "id": "1513686776433348639",
+          "animated": false
+        },
+        {
+          "name": "dancock",
+          "id": "1514705444210475139",
+          "animated": false
+        },
+        {
+          "name": "dangiggle",
+          "id": "1514715119052132492",
+          "animated": false
+        }
+      ]
+    },
+    {
       "id": "874595819913871390",
       "name": "xd",
       "emojis": []
@@ -1984,6 +2250,392 @@
           "animated": false
         }
       ]
+    },
+    {
+      "id": "1138990935301177526",
+      "name": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+      "emojis": [
+        {
+          "name": "borpaSpin",
+          "id": "1154194362285162609",
+          "animated": true
+        },
+        {
+          "name": "CS_pepesmoking",
+          "id": "1154195875409690714",
+          "animated": true
+        },
+        {
+          "name": "aPES2_SmokeEyeRoll",
+          "id": "1154196051180408862",
+          "animated": true
+        },
+        {
+          "name": "Pepe_Depressed",
+          "id": "1161790530175389756",
+          "animated": false
+        },
+        {
+          "name": "robotsimloosingmymindloosingmymi",
+          "id": "1161873535250223154",
+          "animated": true
+        },
+        {
+          "name": "johnny_ew",
+          "id": "1241441512936706150",
+          "animated": false
+        },
+        {
+          "name": "9ACOSP_vibingcat",
+          "id": "1241441647770992670",
+          "animated": true
+        },
+        {
+          "name": "Fire_RS",
+          "id": "1241442603279319072",
+          "animated": true
+        },
+        {
+          "name": "rofl",
+          "id": "1241443654850318408",
+          "animated": false
+        },
+        {
+          "name": "3dg_bats",
+          "id": "1241444968015593473",
+          "animated": true
+        },
+        {
+          "name": "aedgy_bat",
+          "id": "1241445042590060674",
+          "animated": true
+        },
+        {
+          "name": "Johnny_frown",
+          "id": "1241446726007787542",
+          "animated": false
+        },
+        {
+          "name": "ded_velvet",
+          "id": "1241447511055663105",
+          "animated": false
+        },
+        {
+          "name": "patvelvet",
+          "id": "1241447556005888083",
+          "animated": true
+        },
+        {
+          "name": "velvetsip",
+          "id": "1241447583088513054",
+          "animated": false
+        },
+        {
+          "name": "vampbat",
+          "id": "1241447673148739614",
+          "animated": true
+        },
+        {
+          "name": "aPES_Wine",
+          "id": "1241449915658403900",
+          "animated": true
+        },
+        {
+          "name": "Lechayim_Wine",
+          "id": "1241449956368187453",
+          "animated": true
+        },
+        {
+          "name": "Peepo_Gun",
+          "id": "1241451764482576458",
+          "animated": true
+        },
+        {
+          "name": "TT_kermitdie",
+          "id": "1244464526858911785",
+          "animated": true
+        },
+        {
+          "name": "screem",
+          "id": "1244464569833754624",
+          "animated": true
+        },
+        {
+          "name": "MeruBongo",
+          "id": "1244464893755916400",
+          "animated": true
+        },
+        {
+          "name": "Meru_Panties",
+          "id": "1244465126224957440",
+          "animated": false
+        },
+        {
+          "name": "peeposatan",
+          "id": "1244465367162814566",
+          "animated": true
+        },
+        {
+          "name": "fuck_around_elvira",
+          "id": "1244587923840434176",
+          "animated": false
+        },
+        {
+          "name": "ungiving_vampira",
+          "id": "1244590262424961106",
+          "animated": false
+        },
+        {
+          "name": "morticia_totally",
+          "id": "1244601317565927424",
+          "animated": false
+        },
+        {
+          "name": "morticia_boredom",
+          "id": "1244603752309198930",
+          "animated": false
+        },
+        {
+          "name": "Elvira_kleaver",
+          "id": "1244607872441253898",
+          "animated": false
+        },
+        {
+          "name": "excuse_me",
+          "id": "1244608490203381800",
+          "animated": false
+        },
+        {
+          "name": "omggg",
+          "id": "1244608881896722507",
+          "animated": false
+        },
+        {
+          "name": "smile_fester",
+          "id": "1244991857063100458",
+          "animated": false
+        },
+        {
+          "name": "fester_lurk",
+          "id": "1244992111779254294",
+          "animated": false
+        },
+        {
+          "name": "fester_excited",
+          "id": "1244992195296104489",
+          "animated": false
+        },
+        {
+          "name": "lilly_wings",
+          "id": "1244992286534930442",
+          "animated": false
+        },
+        {
+          "name": "morticia_alright",
+          "id": "1244992400192049204",
+          "animated": false
+        },
+        {
+          "name": "nosferatu",
+          "id": "1244994758829674496",
+          "animated": false
+        },
+        {
+          "name": "wave_elvira",
+          "id": "1245056125179793429",
+          "animated": true
+        },
+        {
+          "name": "Morticia_faku",
+          "id": "1245058718954164327",
+          "animated": false
+        },
+        {
+          "name": "morticia_sad",
+          "id": "1247646067277697198",
+          "animated": false
+        },
+        {
+          "name": "morticia_crystal_ball",
+          "id": "1247646304688017459",
+          "animated": false
+        },
+        {
+          "name": "elvira_sure_whatever",
+          "id": "1247647424223252490",
+          "animated": false
+        },
+        {
+          "name": "Bela_Lugosi_Cringe",
+          "id": "1248018863275245619",
+          "animated": false
+        },
+        {
+          "name": "elvira_idk",
+          "id": "1248065454317244439",
+          "animated": false
+        },
+        {
+          "name": "mmanson_bruh",
+          "id": "1248065537380974593",
+          "animated": false
+        },
+        {
+          "name": "re_heartfly",
+          "id": "1253173336792633455",
+          "animated": true
+        },
+        {
+          "name": "cutenod",
+          "id": "1446537690215481425",
+          "animated": true
+        },
+        {
+          "name": "frogarson",
+          "id": "1447582717528117299",
+          "animated": false
+        },
+        {
+          "name": "FN",
+          "id": "1476694186953805927",
+          "animated": true
+        },
+        {
+          "name": "scientardgy",
+          "id": "1487914793242202142",
+          "animated": false
+        },
+        {
+          "name": "tru",
+          "id": "1490473061827477624",
+          "animated": false
+        },
+        {
+          "name": "batsip",
+          "id": "1524703966657511578",
+          "animated": true
+        },
+        {
+          "name": "bat_heart",
+          "id": "1524704010316283904",
+          "animated": false
+        },
+        {
+          "name": "vel_hug",
+          "id": "1524704083707953234",
+          "animated": false
+        },
+        {
+          "name": "vel_takis",
+          "id": "1524704160967168001",
+          "animated": false
+        },
+        {
+          "name": "trickortreat",
+          "id": "1524704218974523402",
+          "animated": false
+        },
+        {
+          "name": "cornholio",
+          "id": "1524704566040461392",
+          "animated": false
+        },
+        {
+          "name": "vel_autist",
+          "id": "1524704676094808144",
+          "animated": false
+        },
+        {
+          "name": "vel_wave",
+          "id": "1524704833980858368",
+          "animated": false
+        },
+        {
+          "name": "vel_embarrass",
+          "id": "1524705699458977814",
+          "animated": false
+        },
+        {
+          "name": "vel_notes",
+          "id": "1524705839418572933",
+          "animated": false
+        },
+        {
+          "name": "vel_peer",
+          "id": "1524706192272916520",
+          "animated": false
+        },
+        {
+          "name": "vel_juice",
+          "id": "1524706305804337192",
+          "animated": false
+        },
+        {
+          "name": "vel_cross",
+          "id": "1524706428764291094",
+          "animated": false
+        },
+        {
+          "name": "vel_hehe",
+          "id": "1527537281546850337",
+          "animated": false
+        },
+        {
+          "name": "GoatScream",
+          "id": "1527539788360585297",
+          "animated": true
+        },
+        {
+          "name": "PJ_Hyper_Jevil",
+          "id": "1527673203822956718",
+          "animated": true
+        },
+        {
+          "name": "espacemonkie",
+          "id": "1528879412068618300",
+          "animated": false
+        },
+        {
+          "name": "vel_sip",
+          "id": "1528887468634411072",
+          "animated": false
+        },
+        {
+          "name": "vel_brat",
+          "id": "1528889436736061580",
+          "animated": false
+        },
+        {
+          "name": "vel_bother",
+          "id": "1528890260665274398",
+          "animated": false
+        },
+        {
+          "name": "emoji_73",
+          "id": "1529586455515627610",
+          "animated": true
+        },
+        {
+          "name": "emoji_74",
+          "id": "1529586509467091125",
+          "animated": true
+        },
+        {
+          "name": "vel_idk",
+          "id": "1529586560075567174",
+          "animated": false
+        },
+        {
+          "name": "vel_smile",
+          "id": "1529586967472373850",
+          "animated": false
+        },
+        {
+          "name": "vel_think",
+          "id": "1536160415170691155",
+          "animated": false
+        }
+      ]
     }
   ],
   "channels": {
@@ -2024,7 +2676,18 @@
     "text-of-the-lord": "717664582340182018",
     "welcome-ceremony": "717664582340182018",
     "town-hall": "717664582340182018",
+    "🔥link-tree": "821188728318984252",
     "general": "1232840370191339540",
+    "dannys-room": "821188728318984252",
+    "lolcow-lounge": "821188728318984252",
+    "photos": "821188728318984252",
+    "investing": "821188728318984252",
+    "passport-patters": "821188728318984252",
+    "polling-station": "821188728318984252",
+    "🤖-beep-boop-🤖": "821188728318984252",
+    "inspiring-quotations": "821188728318984252",
+    "moderation": "821188728318984252",
+    "spam": "821188728318984252",
     "yyyy": "874595819913871390",
     "gay": "874595819913871390",
     "cats": "874595819913871390",
@@ -2068,6 +2731,22 @@
     "general-as-of-13082026": "1393465485055623168",
     "palace-gardens-as-of-13082026": "1393465485055623168",
     "low-trust-society-old-as-of-02252026": "1393465485055623168",
-    "low-trust-society-old-as-of-04162026": "1393465485055623168"
+    "low-trust-society-old-as-of-04162026": "1393465485055623168",
+    "🍷𝖂𝖊𝖑𝖈𝖔𝖒𝖊🍷": "1138990935301177526",
+    "𝕲𝖚𝖊𝖘𝖙𝖘🖋️": "1138990935301177526",
+    "𝔐𝔬𝔡-ℭ𝔥𝔞𝔱": "1138990935301177526",
+    "𝕽𝖚𝖑𝖊𝖘": "1138990935301177526",
+    "ℭ𝔬𝔩𝔬𝔯-ℜ𝔬𝔩𝔢𝔰": "1138990935301177526",
+    "𝕬𝖓𝖓𝖔𝖚𝖓𝖈𝖊𝖒𝖊𝖓𝖙𝖘": "1138990935301177526",
+    "𝔊𝔢𝔫𝔢𝔯𝔞𝔩": "1138990935301177526",
+    "𝕷𝖎𝖑-𝕹𝖞𝖆𝖓": "1138990935301177526",
+    "𝔅𝔬𝔱𝔰": "1138990935301177526",
+    "𝕺𝖓𝖑𝖞𝕭𝖆𝖙𝖘": "1138990935301177526",
+    "𝕿𝖆𝖗𝖔𝖙𝖘": "1138990935301177526",
+    "𝕺𝖈𝖈𝖚𝖑𝖙": "1138990935301177526",
+    "𝕮𝖆𝖌𝖊-𝕯𝖆𝖞𝖉𝖗𝖊𝖆𝖒𝖎𝖓𝖌": "1138990935301177526",
+    "𝕵𝖚𝖘𝖙𝕳𝖊𝖓𝖗𝖞𝕿𝖍𝖎𝖓𝖌𝖘": "1138990935301177526",
+    "𝕮𝖆𝖑𝖎𝖙𝖍-𝕮𝖗𝖊𝖆𝖙𝖎𝖔𝖓𝖘": "1138990935301177526",
+    "𝕾𝖊𝖊𝖐𝖊𝖗-𝕾𝖍𝖎𝖙": "1138990935301177526"
   }
 }
