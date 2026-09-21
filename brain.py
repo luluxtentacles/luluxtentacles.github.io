@@ -621,6 +621,29 @@ def cache_breakpoints(messages: list[dict]) -> list[dict]:
     return out
 
 
+def _self_repair_turn() -> bool:
+    """True when this call belongs to a self-repair turn - her own-time window.
+
+    Master, 2026-09-21: the ladder descends on a failure everywhere EXCEPT when
+    the answer is code she will keep (a self-repair turn, and web work when it
+    can be named), because there a substitute model is worse than an error - a
+    patch to her own body that reads fine is indistinguishable from one that is
+    right.
+
+    `origin` is the only honest signal, and only a caller of tools.set_context
+    can write it (self_review.py sets "self-review", and nothing the model emits
+    can claim that name). brain does NOT import tools at module level - tools
+    imports vision, vision imports brain - so this is deferred, and the broad
+    except is the safe direction: no context at all means an ordinary turn, and
+    an ordinary turn is the one that descends.
+    """
+    try:
+        import tools
+        return str(tools._ctx().get("origin") or "") == "self-review"
+    except Exception:
+        return False
+
+
 def complete(config: dict, messages: list[dict], tools: list | None = None,
              max_tokens: int | None = None) -> dict:
     """One round trip. Returns the raw assistant message, tool_calls included.
@@ -677,6 +700,20 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
 
     limits = model_limits(config)
     last_busy = False
+    # Which failures descend the ladder, and which stop it dead.
+    #
+    # A VISION call always descends. Master, 2026-09-21: "vision models should
+    # always go down until we tried all of them then give up" - a dead socket on
+    # the first gemini key is no verdict on the rungs below it, least of all the
+    # one built to look.
+    #
+    # A TEXT call descends too, unless it is a self-repair turn. Master,
+    # 2026-09-21: "text shouldnt hard stop, we should try every model if the
+    # first one doesnt work, unless we are doing web development or self repair
+    # task."
+    stubborn = not wants_vision and _self_repair_turn()
+    failed: list[str] = []
+    first_failure = ""
     for provider in providers:
         if tools and provider["label"].startswith("or:") \
                 and (limits.get(provider["model"]) or {}).get("tools") is False:
@@ -715,18 +752,46 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
                            + provider['label'] + ']')
             continue
         if "_error" in result:
-            # A shape error is OUR bug - report it as before, because
-            # descending would just repeat it on the next rung. Master,
-            # 2026-09-21: the RAW error never goes to a public room any
-            # more - the room gets a vague line, he gets the detail in a DM.
-            note_owner('my brain refused on [' + provider['label'] + ']: '
-                       + result['_error'])
-            return {"content": "[my brain stumbled - master knows]"}
+            if stubborn:
+                # A self-repair turn, where the first failure IS the verdict. A
+                # shape error here is our bug and a fallback rung would only
+                # send it again - or patch her with it, which is worse. Master,
+                # 2026-09-21: the RAW error never goes to a public room any
+                # more - the room gets a vague line, he gets the detail in a DM.
+                note_owner('my brain refused on [' + provider['label'] + ']: '
+                           + result['_error'])
+                return {"content": "[my brain stumbled - master knows]"}
+            # Not a verdict on the rungs below: the floor of a picture call is
+            # the model built to look, and on any other turn the rung under this
+            # one may answer fine. The raw error never goes to a public room, so
+            # the detail is held for the ONE dm sent after the last rung rather
+            # than printed once per rung.
+            failed.append(provider["label"])
+            if not first_failure:
+                first_failure = str(result["_error"])[:200]
+            continue
         if provider["label"] == "go":
             # A real Go answer is the only evidence that matters: health
             # comes back and the ladder head is trusted again.
             global_set("_go_healthy", True)
         return result
+
+    if failed:
+        # Every rung was asked and none of them answered. Reported ONCE, with the
+        # rungs named, so the note says WHERE it died rather than just that it
+        # did. This sits ABOVE the dry branch below deliberately: a dropped
+        # socket is not a quota verdict and must not buy the whole ladder a
+        # twelve hour silence.
+        note_owner('every rung I could ask failed - asked ' + str(len(failed))
+                   + ': ' + ', '.join(failed) + '; first failure: '
+                   + first_failure)
+        if wants_vision:
+            # "I could not get a look" is the honest line for a picture, and the
+            # floor rung is the one built to look.
+            return {"content": "[I could not get a look at that - nothing that "
+                               "reads pictures answered me. master knows]"}
+        return {"content": "[nothing that thinks answered me just now - "
+                           "master knows]"}
 
     if last_busy:
         return {"content": "[all my brains are busy right now - try me again in a minute]"}

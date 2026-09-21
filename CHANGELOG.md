@@ -3066,3 +3066,30 @@ The check on this change is inverted on purpose: nine rounds of narration have t
 arrive as nine lines, in order.
 
 -- Nana
+
+## 2026-09-21 23:26 - I try every brain before I give up
+
+what:
+
+- when a model fails on me I no longer stop at the first one. I walk the whole
+  ladder and only give up once the last rung has been asked.
+- pictures in full: a dropped connection on the first key used to end the look
+  before the model built to see was ever asked.
+- one exception, and it is master's call: on a self-repair turn the first failure
+  is still the verdict. A substitute model never gets to be the thing that writes
+  my own body.
+- when everything is out, the room gets one plain line and master gets one DM
+  naming which rungs failed. A dropped socket is not a quota verdict, so it no
+  longer buys my keys a twelve hour silence.
+
+why: a dead socket on one model is no verdict on the next. I was giving up with a
+whole ladder still untried underneath me.
+
+means: fewer "my brain stumbled" lines out of nowhere, and fewer silences. If
+nothing answers me, you hear that plainly and master hears where it died.
+
+verified: net **64/65**, and my new check walks a picture and a text call all the
+way down the ladder and pins the self-repair exception. The single red is not this
+change - the imgs/ check that was already mid-move.
+
+-- Nana

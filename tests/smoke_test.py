@@ -2619,6 +2619,116 @@ def _vision_ladder() -> str:
             f"OpenRouter anywhere; text: go first, OpenRouter intact")
 
 
+# Master, 2026-09-21: "vision models should always go down until we tried all
+# of them then give up". Until this, ONE dead socket on the first rung
+# returned and killed the whole picture ladder - the one rung built to look
+# was never asked, and the room got a vague stumble line instead of an answer
+# that was two rungs away. Offline on purpose: the whole failure is that no
+# answer comes back, which looks like nothing in a log.
+def _vision_ladder_descends() -> str:
+    import brain
+
+    cfg = {"base_url": "https://example.invalid/", "model": "chat-model",
+           "vision_model": "mimo-v2.5"}
+    picture = [{"role": "user", "content": [
+        {"type": "text", "text": "what is this"},
+        {"type": "image_url", "image_url": {"url": "data:image/png;base64,AA"}},
+    ]}]
+    plain = [{"role": "user", "content": "hello"}]
+
+    saved = (brain.load_keys, brain._or_models, brain.model_limits,
+             brain.note_owner, brain._attempt, brain._ladder_dry_until,
+             brain._go_healthy, brain._self_repair_turn)
+    notes: list[str] = []
+    seen: list[str] = []
+    dead = {"all": False}
+
+    def dropper(provider, payload, cache=None, limits=None):
+        seen.append(provider["label"])
+        if dead["all"] or provider["label"].startswith("gemini"):
+            return {"_error": "[my brain is unreachable: RemoteDisconnected]"}
+        return {"role": "assistant", "content": "a cat"}
+
+    brain.load_keys = lambda: {"open_code_key": "go", "gemini_key": "g",
+                              "or_key": "or"}
+    brain._or_models = lambda config, key: ["free-text-model:free"]
+    brain.model_limits = lambda config: {}
+    brain.note_owner = notes.append
+    brain._attempt = dropper
+    brain._self_repair_turn = lambda: False
+    try:
+        # 1. every gemini rung drops - the floor is STILL asked, and asked in
+        #    the one order that can read a picture.
+        answer = brain.complete(cfg, picture)
+        expect(seen and seen[-1] == "go",
+               f"a vision call gave up before asking the model built to "
+               f"look: {seen}")
+        expect(not any(l.startswith("or:") for l in seen),
+               f"a vision call descended into OpenRouter's text models: {seen}")
+        expect(answer.get("content") == "a cat",
+               f"a vision call did not take the floor rung's answer: {answer}")
+
+        # 2. every rung drops on a PICTURE -> the floor really was asked, the
+        #    give-up happens once, and it is NOT a quota verdict: a dropped
+        #    socket must not buy the whole ladder a twelve hour silence.
+        seen.clear()
+        notes.clear()
+        dry_before = brain._ladder_dry_until
+        dead["all"] = True
+        nowhere = brain.complete(cfg, picture)
+        expect(len(seen) == len(set(seen)) and seen and seen[-1] == "go",
+               f"the give-up came before every rung had been asked: {seen}")
+        expect("could not get a look" in nowhere.get("content", ""),
+               f"an exhausted picture ladder did not say so: {nowhere}")
+        expect(len(notes) == 1 and "failed" in notes[0],
+               f"an exhausted ladder left more than one note: {notes}")
+        expect(brain._ladder_dry_until == dry_before,
+               "a dropped socket bought the whole ladder a twelve hour "
+               "back-off")
+
+        # 3. TEXT walks it too - master, 2026-09-21: "text shouldnt hard stop,
+        #    we should try every model if the first one doesnt work". All the
+        #    way down, and on a text call the last rung is OpenRouter.
+        seen.clear()
+        notes.clear()
+        dry_before = brain._ladder_dry_until
+        silent = brain.complete(cfg, plain)
+        expect(seen and seen[0] == "go" and len(seen) == len(set(seen)),
+               f"a text call did not walk the ladder in order: {seen}")
+        expect(any(l.startswith("or:") for l in seen),
+               f"a text call gave up before its last resort: {seen}")
+        expect("nothing that thinks answered" in silent.get("content", ""),
+               f"an exhausted text ladder did not say so: {silent}")
+        expect(len(notes) == 1, f"one dead ladder left {len(notes)} notes")
+        expect(brain._ladder_dry_until == dry_before,
+               "a dropped socket bought the text ladder a twelve hour "
+               "back-off")
+
+        # 4. and it stayed narrow where it MUST: a self-repair turn does not
+        #    descend. A substitute model must never be the thing that writes
+        #    her own body, so there the first failure is still the verdict.
+        seen.clear()
+        notes.clear()
+        brain._self_repair_turn = lambda: True
+        try:
+            hurt = brain.complete(cfg, plain)
+        finally:
+            brain._self_repair_turn = lambda: False
+        expect(seen == ["go"],
+               f"a self-repair turn walked the ladder: {seen}")
+        expect("stumbled" in hurt.get("content", ""),
+               f"a self-repair failure was not reported as before: {hurt}")
+        dead["all"] = False
+    finally:
+        (brain.load_keys, brain._or_models, brain.model_limits,
+         brain.note_owner, brain._attempt, brain._ladder_dry_until,
+         brain._go_healthy, brain._self_repair_turn) = saved
+
+    return ("vision: every rung asked, floor reached; text: whole ladder "
+            "walked, one note each, no dry back-off; self-repair: still a "
+            "hard stop on the first failure")
+
+
 # -- 8m. a hand-built Go request 400s: it needs the same headers ----------
 # Learned by doing it myself, 2026-09-21. I hand-rolled a vision call to
 # opencode.ai/zen/go to answer whether Go+mimo-v2.5 works, and got
@@ -4815,6 +4925,7 @@ CHECKS = [
     ("own-work-route", _own_work_route),
     ("log-split", _log_split),
     ("vision-ladder", _vision_ladder),
+    ("vision-ladder-descends", _vision_ladder_descends),
     ("brain-headers", _brain_headers),
 ]
 
