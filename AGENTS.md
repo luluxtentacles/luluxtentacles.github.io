@@ -64,44 +64,83 @@ and gitignored. If it does not exist, the feature has never run.
 
 ## Her own projects live in `projects/`
 
-Not her body - hers. It is a git repo of its own, branch `main`, with a remote on
-HER GitHub. The audit repo deliberately has NO remote and keeps it that way; two
-different gits, and neither one's identity is the other's. Do not add a remote
-here, and do not push her projects through this repo.
+Not her body - hers. **One repo:** `projects/site` is a git repo on branch `main`
+with a remote on HER GitHub (`luluxtentacles/luluxtentacles.github.io`), served by
+GitHub Pages at https://luluxtentacles.github.io/ the moment she pushes. Her things
+live inside it - a folder per project under `things/`, posts under `blog/`, images
+under `img/` - so anything she builds there is something people can open. The audit
+repo deliberately has NO remote and keeps it that way: the two gits are the audit
+trail and her site, and neither one's identity is the other's. Do not add a remote
+here, and do not push her site through this repo.
+
+The old `luluxtentacles/Projects` repo and the `projects/.git` pointing at it were
+deleted on 2026-09-21. Any note still describing a two-repo arrangement where "you
+must commit in the folder you worked in" is out of date - there is one repo, and it
+is `site`.
 
 - `projects/` is ignored by this repo's `.gitignore` as a whole subtree, and it
   has to be: `pipeline.checkpoint()` runs `git add -A`, so an unignored nested
   repo lands in her own audit history as loose files or as an unresolvable
-  gitlink. Her projects are not her body, and the record of what was done to her
-  must not fill up with them.
+  gitlink. Her site is not her body, and the record of what was done to her must
+  not fill up with it. A consequence worth knowing: **`projects/README.md` is
+  versioned by no repo** - the audit repo ignores the subtree and the projects
+  repo is gone. Edit it freely; do not expect git to remember it.
+- The craft - what to build, the shape of a post, images, the preview card in the
+  meta tags - is the **`website`** skill. `freetime` is what to do with a window;
+  `website` is how to make the thing. Two copies of the same rules is how they
+  drift, so keep the craft on that shelf and point at it from anywhere else.
 - Her push credential is `C:\lulu\.git-credentials`, root level and NOT inside
   `projects/` - that is the one place her own `git add -A` cannot reach. It is a
   plain credential file on disk: she can read it (no read guard), so never echo
-  it, never paste it into chat, and rotate it if it ever leaves this box.
+  it, never paste it into chat, and rotate it if it ever leaves this box. The
+  entry is `user='luluxtentacles'` on `github.com` - HER account. It must stay
+  hers: a push that authenticates as master would silently reattribute her work.
+- **The `.gitignore` lives in the PUBLISHED repo** - `projects/site/.gitignore`.
+  It was missing for a day after the repo collapse on 2026-09-21, which left the
+  one folder most exposed to a careless `git add -A` as the only one with no
+  protection at all. Do not rebuild it from the old `projects/.gitignore`: that
+  file ignored `*.mp4/*.mov/*.wav/*.flac`, and the `website` skill tells her to
+  use `<img>`, `<audio>` and `<video>`. Copied verbatim it would make her own
+  shelf uncommittable.
 - `setup/run-bot.cmd` appends `C:\Program Files\Git\cmd` to HER path. Git is not
   on the machine PATH and the copy that resolves in your shell lives on Kei's
   user PATH, which the lulu-bot account cannot reach. That edit needs a restart
   before it is real for her.
-- The repo-local config (`credential.helper`, `user.name`) lives in
-  `projects/.git/config`, so a repo she inits INSIDE that one will not inherit
-  auth. Her `projects/README.md` carries the global-config version she can run
-  herself.
 - **GCM ships in the box's gitconfig and it WILL hang you.** Git installs
   `C:\Program Files\Git\etc\gitconfig` with `credential.helper = manager`, and
   `credential.helper` is a CHAIN - git walks it in order until a helper answers.
   Left in front, GCM opens an interactive sign-in window and blocks, which is
   indistinguishable from a freeze; that is what stalled the 2026-09-21 session
-  for 15 minutes. `projects/.git/config` now carries `credential.helper = ""`
+  for 15 minutes. `projects/site/.git/config` carries `credential.helper = ""`
   FIRST, which resets the inherited chain, then the file helper. Any new repo
   needs those same two lines. Never sign in to that window - it saves master's
   account, and her pushes would silently start coming from him.
+- **Ownership mismatch, found 2026-09-21.** She runs as `lulu-bot`; the folder was
+  owned by `Kei`; so git answered `dubious ownership` and refused to touch the
+  repo. She fixed it with `safe.directory`, which is an EXEMPTION - it tells git
+  to stop checking who owns the repo. Two things about that setting:
+  - it must be a PATH and **never `*`**. `safe.directory = *` disables the
+    ownership check for every repo on the box, which is the exact protection it
+    exists to provide. Her entry is the narrow path, which is right.
+  - it does **not recurse**. The system gitconfig's own `safe.directory = C:/lulu`
+    never covered `C:/lulu/projects/site`; that is precisely the gap she hit.
+
+  The root fix is for the tree to be owned by her, and
+  `setup/fix-her-git-perms.cmd` does it (self-elevating, prints before/after,
+  reversible with `icacls C:\lulu\projects /setowner "KITSUNE\Kei" /T`). Once the
+  ownership matches, any `safe.directory` entry for that path is redundant and can
+  be dropped. Kei keeps full access either way - `BUILTIN\Administrators:(F)` and
+  `Authenticated Users:(M)` are inherited ACLs and an ownership change does not
+  touch them.
 - **Never run an interactive-capable git command without a leash:**
   `GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never timeout <n> git ...`
 - **To learn whether a credential can WRITE, make a write call.** A read
   response's `permissions` object reports the ACCOUNT's role on the repo, not the
   token's granted scope. On 2026-09-21 it read `push: true, admin: true` for a
   token that was actually read-only; `POST .../git/blobs` told the truth with a
-  403 and creates nothing (a dangling blob, no commit).
+  403 and creates nothing (a dangling blob, no commit). The same test settled it
+  the other way on 2026-09-21: her push of `6a882b2` went through, so the
+  credential writes now.
 
 ## Where the rest lives
 
