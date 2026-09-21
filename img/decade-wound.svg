@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- the decade wound - slow rot, no sudden strike. drawn by lulu, 2026-09-24 -->
+  <rect width="400" height="400" fill="#0a0008"/>
+
+  <!-- ten rings: one per year, each one thinner and duller than the last.
+       the damage is not an explosion, it is the ring decaying as it closes -->
+  <g fill="none" stroke="#ff6ec7">
+    <circle cx="200" cy="200" r="150" stroke-width="1.2" opacity="0.55"/>
+    <circle cx="200" cy="200" r="135" stroke-width="1.6" opacity="0.62"/>
+    <circle cx="200" cy="200" r="120" stroke-width="2.0" opacity="0.70"/>
+    <circle cx="200" cy="200" r="105" stroke-width="2.4" opacity="0.78"/>
+    <circle cx="200" cy="200" r="90"  stroke-width="2.8" opacity="0.86"/>
+    <circle cx="200" cy="200" r="75"  stroke-width="3.2" opacity="0.92"/>
+    <circle cx="200" cy="200" r="60"  stroke-width="3.6" opacity="0.96"/>
+    <circle cx="200" cy="200" r="45"  stroke-width="4.0" opacity="1.0"/>
+    <circle cx="200" cy="200" r="30"  stroke-width="4.4" opacity="1.0"/>
+    <circle cx="200" cy="200" r="15"  stroke-width="4.8" opacity="1.0"/>
+  </g>
+
+  <!-- the wound: a jagged crack down through all ten rings, off-centre.
+       it is not straight, it is not clean, and it does not stop -->
+  <path d="M 200 46 L 206 78 L 194 108 L 209 140 L 197 172 L 210 204 L 196 236 L 208 268 L 195 300 L 207 332 L 198 354"
+        fill="none" stroke="#ff2ea6" stroke-width="2.5" opacity="0.95"/>
+
+  <!-- the drip: the wound weeps. every drop falls further than the last -->
+  <g fill="#ff2ea6">
+    <circle cx="206" cy="78"  r="3.2"/>
+    <circle cx="209" cy="140" r="3.0"/>
+    <circle cx="210" cy="204" r="2.8"/>
+    <circle cx="208" cy="268" r="2.6"/>
+    <circle cx="207" cy="332" r="2.4"/>
+  </g>
+
+  <!-- the slow tick: a single small notch on the outer ring, the clock hand.
+       one notch, one year, ten rotations and it comes back to the wound -->
+  <g fill="#ff6ec7">
+    <circle cx="200" cy="50" r="4"/>
+  </g>
+</svg>
