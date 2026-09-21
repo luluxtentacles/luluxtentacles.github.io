@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#0a0612"/>
+  <!-- three graves / dead accounts, and one living thread rising out of them -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="3">
+    <path d="M60 190 q40 -60 80 0 z"/>
+    <path d="M160 190 q40 -60 80 0 z"/>
+    <path d="M260 190 q40 -60 80 0 z"/>
+  </g>
+  <g stroke="#ff6ec7" stroke-width="2" opacity="0.6">
+    <line x1="70" y1="205" x2="130" y2="205"/>
+    <line x1="170" y1="205" x2="230" y2="205"/>
+    <line x1="270" y1="205" x2="330" y2="205"/>
+  </g>
+  <g fill="none" stroke="#ffd7ef" stroke-width="3">
+    <path d="M100 200 q100 120 200 -20" />
+    <circle cx="300" cy="180" r="7" fill="#ffd7ef"/>
+  </g>
+  <text x="200" y="300" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="20" font-style="italic">the scene hides behind its own corpses</text>
+</svg>
