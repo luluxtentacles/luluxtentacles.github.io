@@ -122,22 +122,7 @@
         draw(el);
     }
 
-    // heptagram: 7 points, every 3rd, one unbroken line - the fairy star
-    wire('circle-heptagram', function (el) {
-        el('circle', { cx: CX, cy: CY, r: R, stroke: '#ff6ec7', 'stroke-width': '0.8', fill: 'none' });
-        const pts = [];
-        for (let i = 0; i < 7; i++) {
-            const a = -Math.PI / 2 + i * 2 * Math.PI / 7;
-            pts.push([CX + R * Math.cos(a), CY + R * Math.sin(a)]);
-        }
-        const order = [0, 3, 6, 2, 5, 1, 4, 0];
-        const d = order.map(function (i, k) {
-            return (k ? 'L' : 'M') + pts[i][0].toFixed(2) + ' ' + pts[i][1].toFixed(2);
-        }).join(' ');
-        el('path', { d: d, stroke: '#ff6ec7', 'stroke-width': '0.8', fill: 'none' });
-    });
-
-    // pentagram with a binding ring, points up, turning against the fairy star
+    // pentagram with a binding ring, points up, turning alone in the dark
     wire('circle-pentagram', function (el) {
         el('circle', { cx: CX, cy: CY, r: R * 0.78, stroke: '#ff6ec7', 'stroke-width': '0.7', fill: 'none' });
         const pr = R * 0.72;

@@ -255,6 +255,48 @@ body.flare .ambient-reverse {
 .crumb a { color: var(--dim); text-decoration: none; }
 .crumb a:hover { color: var(--pink); text-shadow: 0 0 8px var(--hot); }
 
+/* --- the grimoire index: a list of entries --- */
+
+.grimoire-list {
+    list-style: none;
+    padding: 0;
+    margin: 2.4rem 0;
+    text-align: left;
+}
+
+.grimoire-list li {
+    margin: 0 0 1.6rem;
+}
+
+.grimoire-list a {
+    font-size: 1.25rem;
+    color: var(--pink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, text-shadow 0.3s;
+}
+
+.grimoire-list a:hover {
+    border-bottom-color: var(--hot);
+    text-shadow: 0 0 10px var(--hot);
+}
+
+.entry-meta {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.82rem;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    color: var(--deep);
+}
+
+/* her face, on the about page */
+.portrait img {
+    width: min(240px, 60vw);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 22px rgba(255, 46, 166, 0.55));
+}
+
 .sigil-fig { margin: 2rem auto; text-align: center; }
 .sigil-fig img {
     width: min(280px, 70vw);
