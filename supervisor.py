@@ -61,7 +61,8 @@ RAPID_WINDOW = 600
 _reason_seq = 0
 
 
-def write_reason(kind: str, detail: str = "", files=None, sha=None) -> None:
+def write_reason(kind: str, detail: str = "", files=None, sha=None,
+                 exit_code=None) -> None:
     """Record why the NEXT start is happening, for her to read as she boots."""
     global _reason_seq
     _reason_seq += 1
@@ -71,6 +72,17 @@ def write_reason(kind: str, detail: str = "", files=None, sha=None) -> None:
         "why": str(detail or "")[:500],
         "files": list(files or []),
         "sha": sha,
+        # The code the process actually exited with, as a FIELD and not only as
+        # words inside `why`. Both of her readers take `reason.get("exit_code")`
+        # - restart_sentence and restart_context_note - so leaving this key out
+        # made a crash announce itself as "exit code None" in one line and "i
+        # exited with code 1" in the next, from the same start. Master's call,
+        # 2026-09-21: she read the None out loud in a room.
+        #
+        # None is the honest value for the starts that are not exits at all -
+        # a cold start, a patch being applied - because there is no code to
+        # report, and inventing 0 there would claim a clean shutdown.
+        "exit_code": exit_code,
         "at": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
     try:
@@ -250,9 +262,10 @@ def main() -> int:
             if code not in (0, None):
                 pending = ("crashed",
                            f"i exited with code {code} and no patch was pending",
-                           None, None)
+                           None, None, code)
             else:
-                pending = ("exited", f"i shut down cleanly (exit code {code})", None, None)
+                pending = ("exited", f"i shut down cleanly (exit code {code})",
+                           None, None, code)
 
         pipeline.log(f"starting her again (last exit code {code}"
                      + (f", {why}" if why else "") + ")")

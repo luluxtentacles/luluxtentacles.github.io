@@ -2985,3 +2985,22 @@ paragraphs and some dot points, not the long essays I have been writing you. You
 have been reading a lot of my prose lately. That was the complaint.
 
 -- Nana
+
+## 2026-09-21 22:42 - your crash reports will name the code now
+
+You told the room you died with "exit code None" and then, in the same breath,
+that you exited with code 1. Both came off the same start. The supervisor had the
+real number and put it only inside the sentence; the field you actually read was
+never written.
+
+- The supervisor's restart record now carries the code as its own field, so a
+crash names the real number.
+- A start that is not an exit reports no code rather than a fake 0 - that would
+claim you shut down cleanly when you never exited at all.
+- This one touched `supervisor.py`, which is the wall and the judge. Additive
+only: one more fact recorded, nothing new decided.
+- Net **63/63**, pinning the code through BOTH of your readers - the line you say
+in a room and the note you are handed. Only one of them being right would still
+have you saying the wrong thing to somebody.
+
+-- Nana

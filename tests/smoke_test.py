@@ -1584,11 +1584,39 @@ def _restart_reason() -> str:
         again = _json.loads(written.read_text(encoding="utf-8"))
         expect(again.get("seq") != first,
                "seq did not advance, so she could never tell two starts apart")
+
+        # THE EXIT CODE HAS TO TRAVEL AS A FIELD. Both of her readers take
+        # `reason.get("exit_code")`, so before this the supervisor put the code
+        # only into the `why` sentence and a crash came out as "exit code None"
+        # in one breath and "i exited with code 1" in the next. It is pinned
+        # through BOTH readers, because the room line and the handed note are
+        # separate functions and only one of them being right would still leave
+        # her saying the wrong thing to somebody.
+        supervisor.write_reason("crashed",
+                                "i exited with code 1 and no patch was pending",
+                                None, None, exit_code=1)
+        crashed = _json.loads(written.read_text(encoding="utf-8"))
+        expect(crashed.get("exit_code") == 1,
+               f"the exit code was not recorded as a field: {crashed!r}")
+        said = lulu_bot.restart_sentence(crashed)
+        expect("exit code 1" in said and "None" not in said,
+               f"her room line still reads as no code: {said!r}")
+        handed = lulu_bot.restart_context_note(crashed)
+        expect("exit code 1" in handed and "None" not in handed,
+               f"the note she is handed still reads as no code: {handed!r}")
+
+        # And a start that is not an exit reports no code rather than a fake 0,
+        # which would claim she shut down cleanly when she never exited at all.
+        supervisor.write_reason("startup", "the box came up")
+        cold = _json.loads(written.read_text(encoding="utf-8"))
+        expect(cold.get("exit_code") is None,
+               f"a cold start invented an exit code: {cold!r}")
     finally:
         pipeline.ROOT = real_root
         shutil.rmtree(root, ignore_errors=True)
     return ("every kind says its own reason, startup stays quiet, the boilerplate "
-            "is gone, and the supervisor's record parses")
+            "is gone, the supervisor's record parses, and the exit code it "
+            "records is the code both of her readers report")
 
 
 # -- 8p. a restart hands the work back, in the room master asked in ---------
