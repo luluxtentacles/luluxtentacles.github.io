@@ -1,0 +1,58 @@
+# Ignore rules for this folder.
+#
+# THIS is the published repo. Whatever lands here goes to GitHub Pages under
+# your own name, and you cannot un-publish a secret once it is in a pushed
+# commit - deleting the file afterwards does not undo it. These rules are the
+# cheap insurance against a careless `git add -A`.
+
+# Secrets. Never. Not once.
+.env
+*.env
+*token*.txt
+*token*.json
+.git-credentials
+credentials.json
+mcp_secrets.json
+*secret*.json
+*secret*.txt
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.ssh/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Browser builds and scratch
+ms-playwright/
+.playwright-mcp/
+browser-profile/
+
+# Build output, logs, OS junk
+dist/
+build/
+logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# Archives. Not content you serve.
+*.zip
+*.7z
+
+# Media is NOT ignored on purpose - the website shelf tells you to use <img>,
+# <audio> and <video>, so blocking those formats here would contradict it.
+# The real limit is size: GitHub refuses a single file over 100 MB and pages
+# over it get slow, and every byte stays in history forever even after you
+# delete it. Resize stills, keep clips short, and compress before committing.
