@@ -145,22 +145,26 @@ def _providers(config: dict, wants_vision: bool) -> list[dict]:
     separate quota bucket, so exhaustion on one does not touch the next), then
     OpenRouter's free models.
 
-    A VISION call: Gemini first, then Go+mimo LAST, and OpenRouter not at all.
-    Master, 2026-09-21: "we should cycle through gemini for vision before
-    finally usuing open code go mimo" and "it should be open code go.. not open
-    router". That is the right order for a reason of its own, not just his
-    preference:
+    A VISION call: Go+mimo FIRST, then the Gemini ladder, and OpenRouter not at
+    all. Master, 2026-09-21: "actually change lulu to use opencode go mimo first
+    for vision, the others are too unreliable". That supersedes the order he
+    asked for earlier the same evening ("we should cycle through gemini for
+    vision before finally usuing open code go mimo") - he has now watched the
+    gemini rungs fail often enough that he does not want to lead with them.
 
-      - Gemini flash is natively multimodal, so it is the natural first reader
-        of a picture;
+      - Go is the endpoint configured with vision_model, so rung one is the
+        model actually chosen for looking at pictures;
+      - Gemini flash stays on the ladder behind it: natively multimodal, and
+        each key is its own quota bucket, so it is a real second reader rather
+        than a repeat of the same attempt;
       - and the OpenRouter ladder is free TEXT models by construction
         (_or_models, and _OR_DENYLIST drops image-capable ids), so a rung down
         there handed an image can only fail or INVENT one. A made-up
         description of a picture is the worst answer available, because it is
         indistinguishable from a real one - and she would believe it.
 
-    So a vision call never descends into OpenRouter at all, and the floor is the
-    Go endpoint with vision_model - the one rung actually built to look.
+    So a vision call never descends into OpenRouter at all, whatever happens on
+    the rungs above it.
 
     A provider with no key configured is skipped, so a missing brain_keys.json
     degrades to exactly the old behaviour.
@@ -205,7 +209,9 @@ def _providers(config: dict, wants_vision: bool) -> list[dict]:
                                    "model": model, "label": f"or:{model}"})
 
     if wants_vision:
-        return gemini + go
+        # Go+mimo first, master's call - see the docstring. The gemini ladder is
+        # still the backup, not a replacement.
+        return go + gemini
     return go + gemini + openrouter
 
 

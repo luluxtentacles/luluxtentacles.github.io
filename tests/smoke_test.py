@@ -2649,9 +2649,10 @@ def _log_split() -> str:
     return "the launcher keeps out of bot.log, so hers can roll at midnight"
 
 
-# -- 8l. the vision ladder: gemini first, go last, never openrouter ------
-# Master, 2026-09-21: "we should cycle through gemini for vision before finally
-# usuing open code go mimo" and "it should be open code go.. not open router".
+# -- 8l. the vision ladder: go+mimo first, gemini behind it, no openrouter --
+# Master, 2026-09-21: "actually change lulu to use opencode go mimo first for
+# vision, the others are too unreliable" - which supersedes the gemini-first
+# order he asked for earlier the same evening.
 # A check rather than a comment because the failure is SILENT and nasty: the
 # OpenRouter rungs are free TEXT models, so a vision call that descends into
 # them either errors or INVENTS a description - and an invented one is
@@ -2678,12 +2679,12 @@ def _vision_ladder() -> str:
     expect(order, "a vision call has no rungs at all")
     expect(not any(l.startswith("or:") for l in order),
            f"a vision call can still descend into OpenRouter's text models: {order}")
-    expect(all("gemini" in l for l in order[:-1]),
-           f"something other than gemini sits above the last rung: {order[:-1]}")
-    expect(order[0].startswith("gemini"),
-           f"vision does not try gemini first: {order[0]}")
-    expect(order[-1] == "go" and vision[-1]["model"] == "mimo-v2.5",
-           f"the vision ladder does not END on go+mimo: {order[-2:]}")
+    expect(order[0] == "go" and vision[0]["model"] == "mimo-v2.5",
+           f"the vision ladder does not START on go+mimo: {order[:2]}")
+    expect(len(order) > 1,
+           "the gemini backup rungs are gone - one rung is not a ladder")
+    expect(all("gemini" in l for l in order[1:]),
+           f"something other than gemini sits below the first rung: {order[1:]}")
 
     # And the text ladder must come out of this untouched: go is still primary
     # there, and OpenRouter is still its last resort. A ladder fix that quietly
@@ -2693,8 +2694,8 @@ def _vision_ladder() -> str:
            f"the text ladder lost go as primary: {torder[:3]}")
     expect(any(l.startswith("or:") for l in torder),
            "the text ladder lost its OpenRouter fallbacks")
-    return (f"vision: {len(order) - 1} gemini rungs then go+mimo last, no "
-            f"OpenRouter anywhere; text: go first, OpenRouter intact")
+    return (f"vision: go+mimo first, then {len(order) - 1} gemini backup "
+            f"rungs, no OpenRouter anywhere; text: go first, OpenRouter intact")
 
 
 # Master, 2026-09-21: "vision models should always go down until we tried all
@@ -2735,27 +2736,28 @@ def _vision_ladder_descends() -> str:
     brain._attempt = dropper
     brain._own_time_turn = lambda: False
     try:
-        # 1. every gemini rung drops - the floor is STILL asked, and asked in
-        #    the one order that can read a picture.
+        # 1. go+mimo leads, and a picture is answered from there. The stub fails
+        #    every gemini rung, so seen == ["go"] is what proves go was FIRST:
+        #    nothing below it got a turn once go answered.
         answer = brain.complete(cfg, picture)
-        expect(seen and seen[-1] == "go",
-               f"a vision call gave up before asking the model built to "
-               f"look: {seen}")
-        expect(not any(l.startswith("or:") for l in seen),
-               f"a vision call descended into OpenRouter's text models: {seen}")
+        expect(seen == ["go"],
+               f"a vision call did not ask go+mimo first and only: {seen}")
         expect(answer.get("content") == "a cat",
-               f"a vision call did not take the floor rung's answer: {answer}")
+               f"a vision call did not take go's answer: {answer}")
 
-        # 2. every rung drops on a PICTURE -> the floor really was asked, the
-        #    give-up happens once, and it is NOT a quota verdict: a dropped
-        #    socket must not buy the whole ladder a twelve hour silence.
+        # 2. every rung drops on a PICTURE -> go AND the gemini backup were both
+        #    asked before giving up, the give-up happens once, and it is NOT a
+        #    quota verdict: a dropped socket must not buy the whole ladder a
+        #    twelve hour silence.
         seen.clear()
         notes.clear()
         dry_before = brain._ladder_dry_until
         dead["all"] = True
         nowhere = brain.complete(cfg, picture)
-        expect(len(seen) == len(set(seen)) and seen and seen[-1] == "go",
-               f"the give-up came before every rung had been asked: {seen}")
+        expect(seen and seen[0] == "go" and len(seen) == len(set(seen)),
+               f"the give-up did not start on go+mimo, or repeated a rung: {seen}")
+        expect(any(l.startswith("gemini") for l in seen),
+               f"a vision call gave up without trying the gemini backup: {seen}")
         expect("could not get a look" in nowhere.get("content", ""),
                f"an exhausted picture ladder did not say so: {nowhere}")
         expect(len(notes) == 1 and "failed" in notes[0],
