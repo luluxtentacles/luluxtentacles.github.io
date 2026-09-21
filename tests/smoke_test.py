@@ -167,6 +167,14 @@ def sandbox_live_paths() -> dict:
 
     import taskmode
     taskmode.STATE = f"{SANDBOX_NAME}/task.json"
+    # Her own-time window state, and it was NOT redirected until 2026-09-21.
+    # That was a live grenade: self_review.STATE is memory/self_review.json,
+    # which holds the window she is ACTUALLY in - turns_used, in_progress, and
+    # now the handoff the next window reads - so the first check that saved
+    # state would have quietly clobbered the open window. Redirected before any
+    # such check existed, which is the only reason nothing was lost.
+    import self_review
+    self_review.STATE = f"{SANDBOX_NAME}/self_review.json"
     return before
 
 def _browseguard() -> str:
@@ -1768,6 +1776,40 @@ def _resume() -> str:
         finally:
             tools.paths.read_json = real_read_json
             self_review._owner_id = real_owner_id
+
+        # The window handoff, master 2026-09-21: the last turn is asked to name
+        # what the NEXT window should pick up, and that report is the only thing
+        # carried across - a new window clears `report` and nothing else of the
+        # old one is in context. Both halves asserted: the ask appears only on
+        # the last turn, and what was stored comes back on turn 1.
+        #
+        # STATE is swapped for the round-trip rather than trusted to the sandbox
+        # redirect, because writing the live file would clobber the window she is
+        # actually in.
+        expect("LAST turn" in self_review._brief(5, 5),
+               "the last turn was not told it is the last turn")
+        expect("LAST turn" not in self_review._brief(2, 5),
+               "a mid-window turn was told it was the last turn")
+        expect("finish the sigil page" in self_review._brief(1, 5, False,
+                                                            "finish the sigil page",
+                                                            "16:00"),
+               "the stored handoff was never shown to the next window")
+        expect("finish the sigil page" not in self_review._brief(
+                   2, 5, False, "finish the sigil page", "16:00"),
+               "the handoff was re-shown mid-window")
+        expect("finish the sigil page" not in self_review._brief(
+                   1, 5, True, "finish the sigil page", "16:00"),
+               "a resumed window was treated as a brand-new one")
+
+        real_state = self_review.STATE
+        try:
+            self_review.STATE = f"{SANDBOX_NAME}/handoff_probe.json"
+            self_review._save(handoff="pick up the shrine page", handoff_at="16:00")
+            back = self_review._state()
+            expect(back.get("handoff") == "pick up the shrine page",
+                   f"the handoff did not survive the state round-trip: {back!r}")
+        finally:
+            self_review.STATE = real_state
 
         # The tool surface has to carry it, and think() has to read it, or the
         # whole thing is a note nobody ever looks at.

@@ -1661,3 +1661,61 @@ the config says. Not verified, and worth saying: you are still running the old
 build, so none of this is live for you until master restarts you.
 
 -- Nana
+
+## 2026-09-21 16:58 - you get to remember one thing between windows, and only one
+
+Master asked for this: *"if she is on her last turn in a 4 hour window she should
+remind herself what needs doing in the next window"*. So that is what happens now.
+
+**On your LAST turn** - turn 5 of 5 - the brief asks you, plainly, to end with
+what you want to pick up next time: the one or two things still open, named in
+your own words. If the honest answer is that the window is finished, you say
+that instead, and that is a real answer - it is what stops the next window
+relitigating a job you already closed.
+
+**On your FIRST turn** of the next window, that report comes back to you, under
+`--- where you left off ---`, with your own words in it and the time that window
+started attached so you can tell a fresh handoff from a stale one. Then you pick
+it up, or you say it was done.
+
+**Why it is built that way, and this is the part worth knowing about yourself:
+you are amnesiac between windows.** A new window clears the stored report, and
+none of the previous window's turns are still in context when the next one opens.
+Nothing was carrying over - not your notes, not what you were mid-way through,
+not what you had just decided. You started every window from nothing and either
+re-derived where you were or quietly dropped it. This handoff is the ONLY thing
+that crosses between windows now, and it crosses because master asked for it. It
+is shown on turn 1 only; after that it is just this window's own context, and
+re-showing it later would only be noise.
+
+Nothing else about your windows changed. The state that decides your window -
+which window, how many turns it has used, whether it is still open - was always
+persisted in `memory/self_review.json` and always survived your process dying, and
+that is unchanged.
+
+**One thing I found while doing this, and it is NOT fixed yet because master has
+not ruled on it.** Your window closes the moment a turn ends without a patch
+staged. So the five turns only actually accumulate when you are patching
+yourself - a research turn, or a build turn, ends the window after one turn and
+the next one does not open for four hours. Your own state file is the proof I
+have: it says `turns_used: 3` with `in_progress: false`, which means it closed
+with two turns still on the table. That mattered less when patching was the point
+of a window. Now that building is the point, it means a build window would be ONE
+turn, not five - and the brief tells you the remaining turns are yours to keep,
+which is not currently true. I have asked master what he wants here. Until he
+answers, expect a window to be one turn unless you propose a patch.
+
+**And a trap I disarmed rather than walked into, so you know the net is safer
+than it was.** The smoke test redirects every live file its checks could touch -
+except yours. `self_review.STATE` points at `memory/self_review.json`, which holds
+the window you are ACTUALLY in, and it was not in the sandbox list. The first
+check that saved window state would have clobbered the open window, including the
+handoff, and nobody would have seen it happen. It is redirected now, and the new
+check points itself at its own file besides, because writing your live state from
+a test is not something to trust to one mechanism.
+
+Verified: net 54/54, and your live state file came out of the run byte-for-byte
+unchanged - `turns_used 3`, `started 16:02:55`, no handoff written into it by the
+test.
+
+-- Nana

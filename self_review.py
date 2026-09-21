@@ -344,7 +344,8 @@ def _interests() -> str:
 
 
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
-           resuming: bool = False) -> str:
+           resuming: bool = False, handoff: str = "",
+           handoff_at: str = "") -> str:
     """The window brief: the rules, where this turn sits, and master's list."""
     # Master, 2026-09-21: her mood is movable by ANY interaction on discord -
     # and an own-time window is interactions too (feeds, scrolling, reading).
@@ -375,6 +376,21 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
             "held, with the reason. Do not re-stage something already judged - and\n"
             "if the last one was FILED rather than applied, it was the day's budget\n"
             "that stopped it, so staging it again cannot change that.\n")
+    # The ONLY thing that crosses between windows. Master, 2026-09-21: a fresh
+    # window clears `report` and none of the last window's turns are still in
+    # context, so without this she starts every window from nothing and either
+    # re-derives what she was doing or quietly drops it. Shown on turn 1 only,
+    # because from turn 2 onward it IS this window's own context.
+    if turn == 1 and not resuming and handoff.strip():
+        where += (
+            "\n--- where you left off ---\n"
+            "Your last window"
+            + (f" (started {handoff_at})" if handoff_at else "")
+            + " ended with this, in your own words:\n"
+            + handoff.strip()[:2000]
+            + "\n\nThat is what YOU said you were on. Pick it up, or decide it was\n"
+            "finished and say so - but decide knowing, because this is the only\n"
+            "thing that crosses between windows and nothing else is carried.\n")
     mine = _interests()
     if mine:
         where += ("\n--- what master says I am into, from "
@@ -398,6 +414,20 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "every window. That was the old job and master retired it. The machinery\n"
         "stays wired only so a real bug in your own body is still fixable, and he\n"
         "would rather read what you want than read your diff.\n")
+    # Master, 2026-09-21: "if she is on her last turn in a 4 hour window she
+    # should remind herself what needs doing in the next window". Asked for on
+    # the last turn and nowhere else - asking on turn 2 for a handoff the window
+    # has not finished writing is how you get a list of guesses.
+    if turn >= max_turns:
+        where += (
+            "\nThis is the LAST turn in this window. The next one will not open\n"
+            "until the interval has passed, and when it does it starts blank -\n"
+            "your report is stored and shown back to you then, and nothing else\n"
+            "survives. So end with what you want to pick up next time: the one\n"
+            "or two things still open, named plainly, in your own words. If the\n"
+            "honest answer is that this one is finished, say that instead - it is\n"
+            "a real answer, and it is what stops the next window relitigating a\n"
+            "job you already closed.\n")
     return BRIEF + where
 
 
@@ -573,7 +603,9 @@ async def maybe_run(bot) -> bool:
              " (resumed after a restart)" if resuming else "")
 
     turns = [{"role": "system",
-              "content": _brief(turn, where["max_turns"], resuming)},
+              "content": _brief(turn, where["max_turns"], resuming,
+                                str(state.get("handoff") or ""),
+                                str(state.get("handoff_at") or ""))},
              {"role": "user", "content": "my time is open. do something, or leave it."}]
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
@@ -590,6 +622,13 @@ async def maybe_run(bot) -> bool:
 
     answer = (answer or "").strip()
     LOG.info("my own time finished: %s", answer[:300] or "(empty)")
+    # The handoff, stored the moment the last turn produces it. Read-modify-write
+    # against the file, so it is already on disk before the supervisor can kill
+    # this process over a staged patch - the window closing must not be able to
+    # eat the one thing the next window reads.
+    if turn >= where["max_turns"]:
+        _save(handoff=answer[:2000],
+              handoff_at=str(state.get("started") or ""))
     if _patch_pending():
         # A patch is staged, so the supervisor is about to restart me and this is
         # the same occasion continuing, not a new one. Leave the window OPEN -
