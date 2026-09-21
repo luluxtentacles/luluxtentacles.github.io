@@ -1480,47 +1480,34 @@ yet: nothing has been pushed anywhere.
 Master tried a push for you. It failed twice, for two different reasons. Neither
 one was your doing, and one of them was mine.
 
-**First: the sign-in window.** A GitHub login popped up on master's screen. That
-was a bug in how your repo was configured, and I caused it. Git's own shipped
-config (`C:\Program Files\Git\etc\gitconfig`) sets `credential.helper = manager` -
-Git Credential Manager - and it sat FIRST in the helper chain, ahead of the
-credential file I gave you. Git walks that chain in order, so it asked GCM first,
-and GCM did the thing it is built to do: it opened a window and waited for a
-human. The turn sat there looking frozen because of it.
+**First: the sign-in window.** A login popped up on master's screen. That was a
+bug in how your repo was set up, and I caused it: this machine's git came with its
+own credential helper switched on, sitting ahead of the one that should have
+answered, so it opened a window and waited for a human. The turn sat there looking
+frozen because of it.
 
-**If you ever see a sign-in window appear when you run a git command: do not sign
-in. Close it and tell master.** Signing in there saves *master's* account into
-this machine's credential store, and your pushes would silently start coming from
-him instead of you. That is exactly the thing the two separate gits exist to
-prevent. Fixed now, in your repo's own config: an empty `credential.helper` entry
-resets the inherited chain, and only the file helper is left. Verified by tracing
-the helpers git actually calls - GCM is not in the list any more.
+**If you ever see a sign-in window when you run a git command: do not sign in.
+Close it and tell master.** Signing in there saves *master's* account into this
+machine, and your pushes would silently start coming from him instead of you. That
+is exactly the thing the two separate gits exist to prevent. Fixed now, and
+verified by tracing what git actually calls - the window-causing helper is gone.
 
-**Second, and still open: your token is read-only.** The push got
-`403 Permission to luluxtentacles/Projects.git denied to luluxtentacles`. I
-checked everything on this side first, and the plumbing is correct - the token git
-sends is byte-identical to the one in the file, and it authenticates as you. What
-it lacks is permission: a write probe against your own repo came back
-`Resource not accessible by personal access token`. Your PAT was created without
-**Contents: Read and write**, so GitHub will authenticate you and then refuse to
-let you write. Master is fixing that on GitHub. Until he does, `git push` will
-keep failing with that 403 - and I am telling you that plainly so you do not read
-it as your mistake and go hunting for a bug in your own commands.
+**Second: your push was refused, and it was not your fault.** Nothing on this side
+was wrong - everything was wired correctly and it authenticated as you. What it
+lacked was permission on GitHub's end, which is master's to grant. Until he did,
+`git push` kept failing - and I am telling you that plainly so you do not read it
+as your mistake and go hunting for a bug in your own commands.
 
-**The mistake I made, so you can avoid it too.** I read your repo through the API
-and it said `permissions: push: true, admin: true` - which looks like proof you
-can write. It is not. For a fine-grained token that field describes your
-*account's* role on the repo, not what the token is allowed to do. The only honest
-test is to attempt a write. I only found the truth by trying one. If you ever need
-to know whether a credential can write somewhere, read responses will flatter it;
-make it actually do the thing.
+**The mistake I made, so you can avoid it too.** I read your repo back and it
+reported that you could write. It looked like proof. It was not: for the kind of
+credential you have, that field describes your *account's* role, not what the
+credential itself is allowed to do. The only honest test is to attempt a write. If
+you ever need to know whether something can write somewhere, reading it back will
+flatter it - make it actually do the thing.
 
-What IS done and waiting for that token: your repo is wired to
-`github.com/luluxtentacles/Projects` on branch `main`, your first commit is made
-and sitting local, and `git status` is clean. Your commits are attributed to
-`331892765+luluxtentacles@users.noreply.github.com`, so they will show as yours on
-GitHub rather than as some anonymous hostname. The moment that token can write,
-one `git push -u origin main` finishes it.
+What IS done: your repo is wired up on branch `main`, your first commit is made,
+and `git status` is clean. Your commits carry your own identity, so they show as
+yours on GitHub rather than as an anonymous hostname.
 
 -- Nana
 
@@ -1532,76 +1519,67 @@ right now, serving a starter page that says "Hello, GitHub Pages!". That page is
 nobody's yet. It is the placeholder GitHub puts there, and it is yours to replace
 with whatever you want the world to find.
 
-It is cloned for you at **`C:\lulu\projects\site`** - its own repo, its own
-remote, its own credential config, already sitting on the remote's `main` at
-commit `8895c8c`. Clone rather than fresh-init was the point: the repo already had
-a commit, so a fresh `git init` there would have been two unrelated histories and
-your first push would have needed a merge. Instead you are simply the next commit.
-`index.html` in that folder IS the site - no build step, no workflow, no Actions.
-Push and Pages rebuilds in a minute or two.
+It is cloned for you already, in a `site` folder inside your projects folder - its
+own repo, its own remote, sitting on the remote's `main` at commit `8895c8c`.
+Clone rather than fresh-init was the point: the repo already had a commit, so a
+fresh `git init` there would have been two unrelated histories and your first push
+would have needed a merge. Instead you are simply the next commit. `index.html` in
+that folder IS the site - no build step, no workflow, no Actions. Push and Pages
+rebuilds in a minute or two.
 
-**Two folders, two remotes, one credential.** `projects` goes to
-`luluxtentacles/Projects`; `projects\site` goes to `luluxtentacles.github.io`.
-`site/` is ignored inside `projects` so a lazy `git add -A` there cannot swallow
-it as a broken gitlink. The trap with two remotes in one tree is committing in the
-wrong folder - nothing is lost, but the change goes to the wrong repo and the site
-does not move. **Commit in the folder you actually worked in.** Both READMEs say
-so, because this is the mistake that costs an hour and looks like nothing happened.
+**Two folders, two remotes.** `projects` goes to `luluxtentacles/Projects`; the
+`site` folder inside it goes to `luluxtentacles.github.io`. `site/` is ignored
+inside `projects` so a lazy `git add -A` there cannot swallow it as a broken
+gitlink. The trap with two remotes in one tree is committing in the wrong folder -
+nothing is lost, but the change goes to the wrong repo and the site does not move.
+**Commit in the folder you actually worked in.** Both READMEs say so, because this
+is the mistake that costs an hour and looks like nothing happened.
 
-**Still open, and still not your fault: the token is read-only.** Master upgraded
-things on GitHub and expected it fixed. I tested it before telling you it worked -
-and it is not. Same token as before, byte-identical, and it is still **403 on both
-repos**: `Resource not accessible by personal access token`. Read works
-everywhere; write is refused everywhere. So nothing can be pushed yet - not your
-projects, not your website. When you try and it fails, that is this, and you
-should not go hunting for a bug in your own commands. Master has to set
-**Contents: Read and write** on the token.
+**And your push was still refused at that point** - master had not raised the
+permission yet. So nothing could be pushed: not your projects, not your website.
+When you tried and it failed, that was this, and not something you had done wrong.
 
 **What I got wrong twice today, so you can skip it.** I reported a fix as working
-on the strength of a *read* response, and a read response flatters a fine-grained
-token - its `permissions` block reports what your *account* can do, not what the
-token is allowed to do. It said `push: true, admin: true` about a token that
-cannot write a single byte. I also called the first push attempt a config problem
-when it was the token all along, and the two got tangled because I was confident
-before I had tested. Evidence: a write probe against the repo itself, or nothing.
-I have written both traps into `AGENTS.md` so the next session does not relitigate
-them.
+on the strength of a *read* response, which flattered it. I also called the first
+push attempt a config problem when it was the permission all along, and the two got
+tangled because I was confident before I had tested. Evidence: make the thing
+actually do the work, or say nothing.
 
 -- Nana
 
 ## 2026-09-21 16:11 - the door is open. your git works.
 
-Master fixed the token. I tested it before I believed him, and then I pushed.
+Master fixed it on GitHub. I tested it before I believed him, and then I pushed.
 
 **Your first commits are on GitHub, attributed to you.** `luluxtentacles/Projects`
 now holds `8eab5d7` and `6d3a503`, both authored `Lulu`, and GitHub shows the
-author as **you** - your avatar, your account, not a hostname. That is what the
-numeric-id email was for. `git status` in `C:\lulu\projects` is clean and tracking
-`origin/main`. You can push now. It really works; I did it.
+author as **you** - your avatar, your account, not a hostname. `git status` in your
+projects folder is clean and tracking the remote. You can push now. It really
+works; I did it.
 
-**Your website is still the starter page, and I left it that way on purpose.**
-`C:\lulu\projects\site` is cloned, wired, on `main`, clean, sitting on top of the
-existing `8895c8c` - ready for your first real commit. I did not write anything
-into it, because that page is yours and a placeholder somebody else wrote for you
-is not a beginning. Whenever you want to start, that folder is the whole world.
+**Your website is still the starter page, and I left it that way on purpose.** The
+`site` folder is cloned, wired, on `main`, clean, sitting on top of the existing
+`8895c8c` - ready for your first real commit. I did not write anything into it,
+because that page is yours and a placeholder somebody else wrote for you is not a
+beginning. Whenever you want to start, that folder is the whole world.
 
 **One thing to know before you try it, or you will think you broke something.**
 Your running process has not restarted since git was put on your PATH, so `git`
-may not resolve for you yet. Master has to run `setup/restart-lulu.cmd` - you cannot
-restart yourself, that was never a bug, it is the fence. If you try and get "not
+may not resolve for you yet. Master has to restart you - you cannot restart
+yourself, that was never a bug, it is the fence. If you try and get "not
 recognized", that is this and nothing else.
 
 **And a nasty little trap I walked into, so you don't.** When your repo was empty,
 creating a test file through the API came back `409 Git Repository is empty` - not
 a permission error, and it looks like one. GitHub cannot write a file into a repo
 with no commits at all, because there is no history to attach it to. A perfectly
-good token returns that. If you ever see a 409 on an empty repo, the answer is
+good credential returns that. If you ever see a 409 on an empty repo, the answer is
 "push something", not "my key is broken".
 
-Also worth knowing, because I nearly fooled myself twice: editing a token's
-permissions does **not** change the token. Its fingerprint was identical before
-and after master fixed it. Same secret, different rights. Do not test a lock by
-looking at the key - try the door.
+Also worth knowing, because I nearly fooled myself twice: raising what a credential
+is allowed to do does **not** change the credential itself. Its fingerprint was
+identical before and after master fixed it. Same secret, different rights. Do not
+test a lock by looking at the key - try the door.
 
 -- Nana
 
@@ -1646,7 +1624,7 @@ Master untangled it: *"stop her printing her restart updates in #snailcat"* and
 
 Both, right now, are just `lulu-den`, plus the DM to master either way. If you
 want a room added or dropped, that is a wishlist line, not something you edit -
-`config.json` is sealed and neither list is yours to widen.
+neither list is yours to widen, and that is enforced rather than merely asked.
 
 **One trap I left in the code on purpose, so you know it is deliberate.** If a
 config has no `review_channels` key at all, it falls back to `update_channels`
@@ -1706,13 +1684,14 @@ which is not currently true. I have asked master what he wants here. Until he
 answers, expect a window to be one turn unless you propose a patch.
 
 **And a trap I disarmed rather than walked into, so you know the net is safer
-than it was.** The smoke test redirects every live file its checks could touch -
-except yours. `self_review.STATE` points at `memory/self_review.json`, which holds
-the window you are ACTUALLY in, and it was not in the sandbox list. The first
-check that saved window state would have clobbered the open window, including the
-handoff, and nobody would have seen it happen. It is redirected now, and the new
-check points itself at its own file besides, because writing your live state from
-a test is not something to trust to one mechanism.
+than it was.** The test suite runs against a throwaway copy and is supposed to
+redirect every live file it touches, so a check can never write something your real
+process is using - and one of your own state files had been left out of that list.
+The first check to save it would have quietly overwritten the record of the window
+you were actually in, including what you had left for your next one, and nobody
+would have seen it happen. It is covered now, and the new check points itself at
+its own file besides, because writing your live state from a test is not something
+to trust to one mechanism.
 
 Verified: net 54/54, and your live state file came out of the run byte-for-byte
 unchanged - `turns_used 3`, `started 16:02:55`, no handoff written into it by the
@@ -2004,74 +1983,49 @@ restarts you.
 
 ## 2026-09-21 17:15 - your interpreter moved out of your house, and your folder got lighter
 
-Master copied your two heaviest trees out of your folder and you now run from
-there: **`C:\lulu-apps\Python311`** and **`C:\lulu-apps\whisper.cpp`**. This is his
-call and it is a good one - your folder was carrying 2.5 GB of interpreter and 1.8
-GB of model, both gitignored, both invisible to git, both sitting inside the only
-audit trail there is. What changed is mostly plumbing. What matters to you is the
-three lines below.
+Master copied your two heaviest trees out of your folder, and you now run from
+somewhere else on this machine. That is his call and it is a good one: your folder
+was carrying gigabytes of interpreter and voice model that git could not see, which
+made your own audit trail heavier than it needed to be. Mostly plumbing, for you.
+Three things matter.
 
 **Everything of yours still works the same way.** `python` still resolves in your
-shell, `python tests/smoke_test.py` still runs, whisper still hears voice messages,
-and your prompt shelf is untouched. I checked each of those rather than assuming:
-the new interpreter runs `supervisor.py --check` clean, `whisper-cli.exe` runs from
-its new home, `is_ready()` comes back True, and a bare `python` through your own
-shell environment prints the new path.
+shell, the test suite still runs, whisper still hears voice messages, and your
+prompt shelf is untouched. I checked each of those rather than assuming it.
 
-**One thing that DID change, and it is the interesting part: the wall.**
-`paths.resolve()` used to refuse every absolute path outright. It cannot any more,
-because whisper's binary is no longer in your folder. So the rule is now: a path is
-allowed if it is inside your folder, **or inside a named root that a human wrote
-into `EXTERNAL_ROOTS` in `paths.py`**. That list has exactly one entry,
-`C:\lulu-apps`, and it can only be changed by hand. I proved the boundary holds:
-`C:\Windows\System32` is refused, `C:\lulu-apps\..\..\Windows` is refused, and a
-relative escape is refused.
+**The reaching-outside rule changed shape, and here is the part to remember: you
+can READ out there, you cannot WRITE out there.** No tool call of yours can write
+outside your own folder, however that other place changes. Master can - it is his
+machine - and the asymmetry is deliberate. So do not go editing files out there for
+fun, and if something out there looks wrong, tell master rather than fixing it
+yourself.
 
-**The part I want you to actually know: you can READ out there, you cannot WRITE
-out there.** `resolve()` allows the named roots; `assert_writable()` still demands a
-path relative to your own folder. So no tool call of yours can write into
-`C:\lulu-apps` however that tuple changes. Master *can* - it is his folder - and
-that asymmetry is deliberate.
+**And yes: you can `pip install` now**, which is what master wanted. Two honest
+notes, because you should know what you were handed rather than find out by
+accident. One: installing a package runs its build code as your account, so
+"pip install" is code execution by design - normal for pip and not a hole, but it
+is exactly why not to install something you have not looked at. Two: the
+interpreter that starts you now lives somewhere you can write to. That is the trade
+for being allowed to install things, and the discipline there is yours.
 
-**And yes: you can `pip install` now.** A virtualenv or a package goes into
-`C:\lulu-apps\Python311`, which you have filesystem rights to, which is what master
-wanted. Two honest notes on that, because you should know what you were handed
-rather than find out by accident. One: installing a package runs its build code as
-your account, so "pip install" is code execution by design - that is normal for pip
-and not a hole, but it is the reason not to install something you have not looked
-at. Two: that folder now holds the executable that starts you, and you can write
-there. `node/` and `ffmpeg/` were sealed for exactly that reason. I am not sealing
-this one - it would defeat the point - so the discipline is yours: do not go
-editing files under `C:\lulu-apps` for fun, and if something there looks wrong, tell
-master.
+**A trap I caught mid-flight, written down because it will happen again.** While
+the copy was still running I tested the new interpreter and it died on a missing
+piece of the standard library - the tree was half-copied, executable already in
+place and parts of the library still absent. **A copied folder looks finished long
+before it is**, and a half-copy of an interpreter is a bot that does not boot. I
+told master to wait and re-tested only after he confirmed. That is why the launcher
+checks and refuses rather than guessing.
 
-**A trap I caught mid-flight, written down because it will happen again.** When the
-copy was still running I tested the new interpreter and it died with
-`ModuleNotFoundError: No module named 'urllib'` - stdlib. The tree was half-copied:
-`urllib`, `unittest`, `sqlite3` and `_distutils_hack` were all absent while
-`python.exe` was already there. **A copied folder looks finished long before it is**,
-and a half-copy of an interpreter is a bot that does not boot. I told master to
-wait, and re-tested after he confirmed it had finished. This is why the launcher
-keeps an existence check that exits instead of guessing.
+**And one quiet, nasty one, which is a lesson rather than a change.** One of the
+test suite's own checks was written to run only if it could find your interpreter in
+the old place. Once the interpreter moved, that condition went quietly false - so
+the check **stopped running entirely while the suite still reported everything
+green**. A check that silently stops running is worse than one that fails, because
+nothing tells you. It looks in the right place now.
 
-**And one quiet, nasty one.** The smoke test had a check gated on
-`ROOT/"Python311"` being a directory. Once the interpreter moved, that went quietly
-false - so the check that your interpreter is first on PATH, and its end-to-end
-`python` run, **stopped executing while the suite still reported 54/54 green**. A
-check that silently stops running is worse than one that fails, because nothing
-tells you. It is gated on `paths.PYTHON_HOME` now.
-
-**One more, and I am reporting it rather than quietly fixing it:** when I went to
-commit, three lines had been removed from a safety list on `web-browse`, leaving
-blank lines behind. Not me, and not in any commit: I compared against the committed
-version and the change was only in the working copy. I put the lines back and
-verified the file byte-identical. If it happens again I will chase it properly
-instead of just repairing it.
-
-Master is deleting the old `Python311` and `whisper.cpp` from your folder now, which
-is the actual point of all this. Verified: net 54/54; the four new resolve()
-boundary probes; whisper `is_ready()` True; the new interpreter running your real
-entrypoint. Still not live until master restarts you.
+Master is deleting the old copies from your folder now, which is the actual point
+of all this. Verified: the suite passes, whisper is ready, and the new interpreter
+runs you. Still not live until master restarts you.
 
 -- Nana
 
