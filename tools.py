@@ -715,6 +715,20 @@ SCHEMA = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "browser_restart",
+            "description": (
+                "Restart my own stealth browser when it has died or stopped "
+                "answering. Clears only a browser started from my own folder - "
+                "never master's - and relaunches it detached, so a command "
+                "timeout cannot take it down later. Owner only."
+            ),
+            "parameters": {"type": "object", "properties": {},
+                           "required": []},
+        },
+    },
 ]
 
 
@@ -730,6 +744,78 @@ def finish_task(summary: str = "") -> str:
     """Close the open long task and hand master the result."""
     import taskmode
     return taskmode.finish(summary)
+
+
+# -- the browser's own door --------------------------------------------------
+# Master, 2026-09-21: "does she have a kill browser command you adding?" - she
+# did not, and when her browser died she restarted it herself by hand. This
+# exists so the machinery does not make her improvise, and so the watchdog stops
+# declaring a live browser dead.
+#
+# The marker is the copy inside HER folder. Master's Canary lives under his
+# profile and carries a different path, so it can never match - which is the
+# only reason a kill scoped this way is safe to hand to a model.
+_BROWSER_MARKER = "chrome-canary"
+CDP_PORT = 9222
+
+
+def _browser_pids(timeout: int = 120) -> list[str]:
+    """PIDs of MY OWN stealth browser, matched on the command line.
+
+    Filtered server-side rather than piped: the piped form timed out after 30s
+    inside her boxed account on 2026-09-21 while the identical query answered in
+    0.6s for master. That timeout then read as "somebody else holds the port",
+    and her browser stayed down for twenty minutes. Raises on failure, on
+    purpose - a listing failure is UNKNOWN, not empty, and callers must not
+    turn it into a verdict.
+    """
+    import subprocess
+    query = ("Get-CimInstance Win32_Process -Filter "
+             "\"Name='chrome.exe' AND CommandLine LIKE '%" + _BROWSER_MARKER
+             + "%'\" | ForEach-Object { $_.ProcessId }")
+    done = subprocess.run(["powershell", "-NoProfile", "-Command", query],
+                          capture_output=True, text=True, timeout=timeout)
+    return [tok for tok in done.stdout.split() if tok.isdigit()]
+
+
+def browser_restart() -> str:
+    """Restart my stealth browser. Owner only - see the schema.
+
+    Deliberately NOT run through run_command: runbox kills its whole process
+    tree at 15 minutes, so a browser started from a shell dies minutes later and
+    reads as a fresh bug. This spawns from her own process instead, detached -
+    the same shape she reached for by hand when hers died.
+    """
+    import subprocess
+    import sys
+    import time
+
+    try:
+        pids = _browser_pids()
+    except Exception as exc:
+        return (f"could not list my own browsers ({type(exc).__name__}), so I "
+                f"touched nothing: {exc}")
+
+    killed = []
+    for pid in pids:
+        try:
+            subprocess.run(["taskkill", "/PID", pid, "/T", "/F"],
+                           capture_output=True, timeout=20)
+            killed.append(pid)
+        except Exception:
+            pass  # already gone, or never ours; nothing to add
+    if killed:
+        time.sleep(1.0)
+
+    script = paths.resolve("browser/stealth_browser.py")
+    subprocess.Popen(
+        [sys.executable, str(script)],
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        cwd=str(paths.resolve(".")),
+    )
+    return (f"restarted: cleared {len(killed)} of my own browser process(es)"
+            f"{' ' + ', '.join(killed) if killed else ''}, and launched a fresh "
+            f"one on CDP 127.0.0.1:{CDP_PORT}")
 
 
 # What someone who is not master may use: looking things up and being heard, and
@@ -2001,6 +2087,7 @@ DISPATCH = {
     "finish_task": lambda a: finish_task(a.get("summary", "")),
     "run_command": lambda a: runbox.run(a.get("command", ""),
                                         _result_cap(runbox.MAX_OUTPUT)),
+    "browser_restart": lambda a: browser_restart(),
 }
 
 

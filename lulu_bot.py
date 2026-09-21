@@ -1122,10 +1122,9 @@ CDP_PORT = 9222
 # loopback request; cheap enough to be boring.
 BROWSER_WATCHDOG_SECONDS = 300
 
-# The copy of Chrome Canary that lives in her own folder. Master's Canary sits
-# under his profile and carries a different path, so matching on this string can
-# only ever find HERS - which is what makes the kill below safe.
-_BROWSER_MARKER = "chrome-canary"
+# The marker and the PID lookup live in tools.py now (_BROWSER_MARKER,
+# _browser_pids) so the watchdog and her browser_restart tool share ONE
+# definition. Two copies of a safety scoping is how a scoping drifts.
 
 
 def _cdp_port_open() -> bool:
@@ -1153,45 +1152,51 @@ def _cdp_alive() -> bool:
     browser instead of a stale socket.
     """
     import urllib.request
-    try:
-        with urllib.request.urlopen(
-                f"http://127.0.0.1:{CDP_PORT}/json/version", timeout=2) as reply:
-            info = json.load(reply)
-        return bool(info.get("Browser"))
-    except Exception:
-        return False
+    # 5s and one retry, not 2s and none. At 2s this returned False while her
+    # browser was alive and holding the port - measured 2026-09-21, when it
+    # declared her browser dead at 14:23 and chrome 10868 kept serving until
+    # 14:44. A false negative here sends the watchdog off to launch a second
+    # browser, so it errs toward "alive" rather than toward churn.
+    for attempt in (1, 2):
+        try:
+            with urllib.request.urlopen(
+                    f"http://127.0.0.1:{CDP_PORT}/json/version",
+                    timeout=5) as reply:
+                info = json.load(reply)
+            if info.get("Browser"):
+                return True
+        except Exception:
+            if attempt == 1:
+                time.sleep(1.0)
+    return False
 
 
-def _kill_our_browsers() -> int:
-    """Kill stray copies of HER browser. Returns how many went down.
+def _kill_our_browsers() -> int | None:
+    """Kill stray copies of HER browser. Returns how many went down, or None.
 
-    Scoped twice, on purpose. The image must be chrome.exe AND the command line
-    must name the copy in her own folder, so master's Canary, Edge, or any
-    foreign process squatting the port can never be matched - she could not kill
-    those anyway (different account, different session) and must not try. A
-    blanket "kill whatever holds the port" would be his browser one day.
+    None means "I could not tell", which is deliberately NOT the same answer as
+    0 ("none of ours"). Collapsing those two is what cost her a browser: on
+    2026-09-21 the listing timed out at 30s inside her boxed account, the
+    timeout was read as "none of ours", and the watchdog then declared the port
+    foreign and left her browser DOWN for twenty minutes while it was alive and
+    answering the whole time.
+
+    The scoping itself lives in tools._browser_pids: chrome.exe AND the copy in
+    her own folder, so master's Canary, Edge, or anything else foreign can never
+    match. She could not kill those anyway - different account, different
+    session - and must not try.
     """
     import subprocess
-    query = (
-        "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe'\" | "
-        f"Where-Object {{ $_.CommandLine -like '*{_BROWSER_MARKER}*' }} | "
-        "ForEach-Object { $_.ProcessId }"
-    )
     try:
-        listed = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", query],
-            capture_output=True, text=True, timeout=30,
-        ).stdout
+        pids = tools._browser_pids()
     except Exception as exc:
         LOG.warning("stealth browser: could not list our own copies: %s", exc)
-        return 0
+        return None
 
     killed = 0
-    for token in listed.split():
-        if not token.isdigit():
-            continue
+    for pid in pids:
         try:
-            subprocess.run(["taskkill", "/PID", token, "/T", "/F"],
+            subprocess.run(["taskkill", "/PID", pid, "/T", "/F"],
                            capture_output=True, timeout=20)
             killed += 1
         except Exception:
@@ -1238,11 +1243,20 @@ def ensure_stealth_browser() -> None:
                         "own browser, relaunching", cleared)
             time.sleep(1.0)
         if _cdp_port_open():
-            LOG.warning(
-                "CDP port %d is held by a process that is not ours - leaving it "
-                "strictly alone. My browser stays down until master clears it.",
-                CDP_PORT)
-            return
+            if cleared is None:
+                # Unknown, not foreign. Trying the launch is strictly better
+                # than the old verdict: if the port really is somebody else's,
+                # the launch fails harmlessly and logs why; if it was OURS and
+                # we simply could not list it, this is what brings her back.
+                LOG.warning(
+                    "CDP port %d is held and I could not tell by whom - trying a "
+                    "launch anyway rather than declaring it foreign", CDP_PORT)
+            else:
+                LOG.warning(
+                    "CDP port %d is held by a process that is not ours - leaving "
+                    "it strictly alone. My browser stays down until master "
+                    "clears it.", CDP_PORT)
+                return
 
     try:
         import subprocess

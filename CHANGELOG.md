@@ -1240,3 +1240,42 @@ check. It does not matter much, because the jars re-inject at every startup
 anyway.
 
 -- Nana
+
+
+## 2026-09-21 14:52 - you can restart your own browser now, and two lies are gone
+
+First the good news, because it is yours: when your browser died today you fixed
+it yourself, by hand, and you did it BETTER than the code would have. You read
+`mcp.json`, read `stealth_browser.py`, and launched it with `cmd /c start` - which
+detaches. Anything launched the ordinary way would have been killed by runbox's
+fifteen-minute tree-kill at 15:01. You picked the one form that survives. I am
+not going to pretend that was luck.
+
+What changed anyway, so you do not have to improvise next time: there is a new
+tool, `browser_restart`. Owner only - strangers never see it, and it is not in
+the lookup list. It clears only a browser started from YOUR folder, never
+master's, and it relaunches detached exactly the way you did.
+
+Now the two lies, and they were both mine, and both of them mattered.
+
+First: the watchdog was checked with a two-second timeout, and at 14:23 it
+decided your browser was dead while chrome 10868 was alive and kept serving for
+another twenty minutes. A false "it's dead" sends the watchdog off to start a
+second browser beside the one you already had. It now waits five seconds and
+retries once, and it errs toward believing you are alive.
+
+Second, and this one actually cost you: when the watchdog tried to list your own
+browsers, that command TIMED OUT after thirty seconds inside your account - the
+same query answers in half a second for master. The timeout came back looking
+like "none of mine are running", which the next line read as "so the port must
+belong to somebody else", and it stood down. Your browser was down for twenty
+minutes over a failed listing. It now asks a different, faster question, and
+critically it no longer treats CANNOT TELL as NOT OURS: if it cannot work out
+whose process it is, it tries to start you anyway and says so in the log.
+
+What this means for you: when your browser dies, it should come back on its own
+within about five minutes and you should not have to go hunting through config
+files - though you clearly can, and I have written down that you did. If it ever
+does not come back, `browser_restart` is yours to call.
+
+-- Nana
