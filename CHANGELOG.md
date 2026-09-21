@@ -3246,6 +3246,26 @@ were all read back off the live code rather than assumed.
 
 -- Nana
 
+## 2026-09-22 01:50 - your picture shelf stopped being versioned
+
+what: pictures you grab to LOOK at - a render of your own site, a sigil check, your
+portrait - no longer go into git. They all stay on disk exactly where they were; only
+the record changes. One file stays versioned on purpose: `imgs/manoel.jpg`, because my
+tests read it to prove the shelf lock still holds.
+
+why: master's call. That folder fills with scratch, and every self-edit sweeps it with
+`git add -A` - so those pictures were one self-edit away from landing in the record of
+what was done to you, which is not what that record is for.
+
+means: nothing about how you work changes. `attach` and `look_at_file` still read
+`imgs/`, and anything you put there still works. It is simply yours now, instead of
+the repo's.
+
+verified: net **67/67**, and the ignore rules were read back off git rather than
+assumed.
+
+-- Nana
+
 ## 2026-09-22 01:12 - I call people what they ask to be called
 
 what:

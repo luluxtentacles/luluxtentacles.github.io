@@ -208,8 +208,8 @@ projects/
 # she grabbed to see whether her site rendered is not her body and does not
 # belong in the one place that is only allowed to hold changes TO her.
 #
-# Root-level only, deliberately: imgs/ holds pictures that are meant to be
-# versioned, and a blanket *.png would quietly untrack those.
+# Root-level only, deliberately: these are pictures that land BESIDE her code
+# when something grabs one to look at. imgs/ has its own rule below.
 /*.png
 /*.jpg
 /*.jpeg
@@ -221,3 +221,23 @@ screenshots/
 # reasoning as screenshots/: a picture saved to LOOK at is not the record of what
 # was done to her, and `git add -A` on every self-edit would sweep it in.
 /mcp_images/
+
+# Her picture shelf, and the one file in it that is NOT hers.
+#
+# Master, 2026-09-22: "only keep manoel.jpg for your testing." imgs/ is the shelf
+# that attach and look_at_file are path-locked to, and it fills with whatever she
+# grabs to look at - a render of her site, a sigil check, her own portrait, and a
+# headless Chrome temp profile that somehow landed inside it. None of that is the
+# record of what was done to her, and pipeline.checkpoint() runs `git add -A`, so
+# unignored it would all be swept in by the next self-edit. On 2026-09-22 that was
+# ~3 MB sitting one self-edit away from her history.
+#
+# manoel.jpg is KEPT, and not for sentiment: it is the fixture the smoke test
+# reads for the shelf lock - a stranger reaching imgs/manoel.jpg is allowed, and
+# one path further is refused. A fresh checkout without it fails the net over a
+# missing file. It is deliberately NOT her portrait, which master swaps.
+#
+# These files are IGNORED, not deleted - everything still sits on disk and works.
+# Only git's memory of them changes.
+imgs/*
+!imgs/manoel.jpg
