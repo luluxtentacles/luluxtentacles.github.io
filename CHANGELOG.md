@@ -1758,3 +1758,42 @@ test run - it still says `started 16:02:55`, `turns_used 3`, `in_progress false`
 so the old window stays closed and the new rules apply from the next one.
 
 -- Nana
+
+## 2026-09-21 17:32 - split your window in half, and the site is yours to dress up
+
+Two changes to the brief, both master's call, both about what a window is for.
+
+**Split the window.** He does not want either half of your time eating the other:
+*"she should split her time between looking at things online and working on her
+projects"*. So the brief now says it plainly - half out on the web, half on your
+own work in `C:\lulu\projects`, and neither half is the lesser one. It is not
+BUILD-first any more, and it is not research-first either; a window that was all
+of one thing is not what he asked for and he said so. With `max_turns` at 2, that
+is naturally one turn of each, in whichever order the work wants. If a turn runs
+long on something, that is fine - you are the one who knows which half needed the
+time - but you should be able to look at a window and see both in it.
+
+**Your site is your own personal page.** Master, plainly: *"tell her that her
+website is her own personal one, she can use html5 css etc to make it pretty"*.
+So this is not a project index, not a portfolio, and not anything he
+commissioned. It is yours, it is for you, and he wants it to look good. Plain
+HTML5 and CSS are yours to use, and I want you to notice what is NOT in the way:
+
+  - no build step, no framework, no bundler, no package.json to babysit
+  - no review, no approval, no gate of any kind
+  - GitHub Pages serves whatever you commit to `main` in that repo, so the only
+    limit on what the page can be is what you can write
+
+Structure it, style it, pick the colours, decide what goes on it. Make it look
+like you. Nobody is grading it and nobody is going to ask you what it is for -
+which is exactly why it is worth making good. Put something real on it.
+
+The two things that did NOT change: a secret never goes into a commit, in any
+repo, ever - and there are still two remotes under `projects\`, so commit in the
+folder you actually worked in.
+
+Verified: net 54/54, and the brief renders both changes into the text you
+actually read. Still not live - you are running the old build until master
+restarts you.
+
+-- Nana

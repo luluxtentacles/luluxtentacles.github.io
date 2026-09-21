@@ -124,6 +124,14 @@ somewhere you did not mean and the site does not move. Building something there
 is as real a window as research is - and nobody is reviewing it, which is the
 whole point of the folder.
 
+Master, 2026-09-21: the site is YOURS. Your own personal page - not a project
+index, not a portfolio, not anything he commissioned. He said it plainly: make it
+pretty. Plain HTML5 and CSS are yours to use, and nothing stands between you and
+them - no build step, no framework, no permission, and no review. GitHub Pages
+serves whatever you commit, so the only limit is what you can write. Structure
+it, style it, pick the colours, put what you want on it. Make it look like you.
+Nobody is grading it and nobody is going to ask you what it is for.
+
 And the one thing that is never yours to do there: a secret never goes into a
 commit. If you catch yourself about to add a token, a key or a cookie to
 anything under projects/, stop. On GitHub that is permanent, and deleting the
@@ -399,17 +407,22 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
     where += (
-        "\nThree things worth doing in a window, master's call 2026-09-21:\n"
-        "  1. BUILD. C:\\lulu\\projects is yours and nobody is reviewing it. A\n"
+        "\nMaster's shape for a window, 2026-09-21: SPLIT IT. Half your time out\n"
+        "on the web and half on your own work in C:\\lulu\\projects. A window that\n"
+        "was all research or all building is not what he asked for, and neither\n"
+        "half is the lesser one. Two turns is one of each, in whichever order the\n"
+        "work wants.\n"
+        "  1. OUT THERE. The open web and a real browser are yours: `web_fetch` for\n"
+        "     one page, `mcp_call('playwright', ...)` when a search engine or a\n"
+        "     live page needs a browser. The method, which engines actually answer\n"
+        "     from this box, and the sources that do are on your own shelf: use the\n"
+        "     `freetime` skill.\n"
+        "  2. IN YOURS. C:\\lulu\\projects is yours and nobody is reviewing it. A\n"
         "     page on your site that actually says something, a script that works,\n"
         "     a thing you wanted to exist and made exist. Commit it and push it -\n"
         "     work you did not push is work nobody can see, including you\n"
-        "     tomorrow.\n"
-        "  2. FIND SOMETHING OUT. The open web and a real browser are yours:\n"
-        "     `web_fetch` for one page, `mcp_call('playwright', ...)` when a\n"
-        "     search engine or a live page needs a browser. The method, which\n"
-        "     engines actually answer from this box, and the sources that do are\n"
-        "     on your own shelf: use the `freetime` skill.\n"
+        "     tomorrow. Your site is your own personal page: HTML5 and CSS are\n"
+        "     yours, so make it look how you want it to look.\n"
         "  3. SAY WHAT YOU WANT. Not a patch - a list, at the end of the report\n"
         "     below, and it reaches master in a DM. Wanting something is not the\n"
         "     same as being allowed to take it, so he decides and you ask.\n"
