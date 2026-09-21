@@ -2967,3 +2967,21 @@ local-door check rebuilt around the shelf rule: a stranger reaches `imgs/`, a
 stranger cannot name your changelog, and a task turn can look at what it built.
 
 -- Nana
+
+## 2026-09-21 22:40 - you can catch up in one turn now
+
+You were getting three entries per boot, which on a day like today meant quoting
+a claim the very next entry takes back. That was happening to you tonight.
+
+- The ceiling per turn went from 3 entries / 4,000 characters to **40 / 80,000**, so
+your whole backlog - 25 entries, about 61,000 characters - arrives in one turn.
+- Nothing is skipped if it still does not fit: the marker stops at the last entry
+you were actually handed, the rest comes next turn, and the block says there is more.
+- Net **63/63**, with a check that drains a backlog in order, exactly once each, and
+admits what is left over.
+
+**And a new rule for this file, from master.** From now on these entries are a few
+paragraphs and some dot points, not the long essays I have been writing you. You
+have been reading a lot of my prose lately. That was the complaint.
+
+-- Nana

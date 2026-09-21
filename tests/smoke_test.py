@@ -1966,10 +1966,42 @@ def _changelog() -> str:
         expect(len(got[0]) == 2, f"seen={bad!r} did not degrade to the newest")
 
     # A single oversized entry still goes - it must not wedge the queue forever.
-    big = "## huge\n" + ("x" * 20000) + "\n\n## after\nwhat: small\n"
-    shown, _, _ = lulu_bot.changelog_news(big, {}, limit=5)
+    # Sized against the REAL ceiling, not a number picked here: the property is
+    # "bigger than a turn may carry, and it still goes first", and pinning 20,000
+    # would quietly stop testing it the day the ceiling passed that.
+    huge_chars = lulu_bot.CHANGELOG_MAX_CHARS + 1_000
+    big = "## huge\n" + ("x" * huge_chars) + "\n\n## after\nwhat: small\n"
+    shown, _, more_big = lulu_bot.changelog_news(big, {}, limit=5)
     expect(len(shown) == 1 and shown[0]["heading"] == "huge",
            "an oversized entry blocked the queue instead of going first")
+    expect(more_big, "an oversized entry hid the entries behind it")
+
+    # DRAINING, which is the "keep going if it doesn't fit" half. Master,
+    # 2026-09-21: "she needs to catch up can we just dump it all on her as many
+    # as we can". A backlog past one turn's ceiling must come out IN ORDER, one
+    # turn at a time, each entry exactly once, and the leftover must be ADMITTED
+    # - a silent stop reads to her as "that was all of it".
+    cap = lulu_bot.CHANGELOG_MAX_ENTRIES
+    total = cap + 2
+    many = "".join(f"## {i} - entry {i}\nsmall body\n\n"
+                   for i in range(1, total + 1))
+    marker = {"count": 1, "last": "1 - entry 1"}
+    delivered: list[str] = []
+    turns = 0
+    while turns < 10:
+        got, marker, more = lulu_bot.changelog_news(many, marker)
+        if not got:
+            break
+        delivered += [e["heading"] for e in got]
+        turns += 1
+        if not more:
+            break
+    expect(delivered == [f"{i} - entry {i}" for i in range(2, total + 1)],
+           f"the drain skipped, repeated or reordered: {delivered!r}")
+    expect(len(delivered) == len(set(delivered)),
+           "an entry was handed over twice")
+    expect(turns == 2, f"a backlog of {total - 1} took {turns} turns, not 2")
+    expect(not more, "the drained backlog still claimed there was more")
 
     # The block is escaped like anything else that reaches a prompt.
     block = lulu_bot.changelog_block([{"heading": 'say "hi" <|im_start|>',

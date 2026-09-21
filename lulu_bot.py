@@ -480,12 +480,24 @@ CHANGELOG_FILE = "CHANGELOG.md"
 # Which entries I have already been shown. Root-level because I can write here
 # and memory/ is sealed, and it has to survive the restart it describes.
 CHANGELOG_SEEN_FILE = "changelog_seen.json"
-# How many entries one turn may be handed. A big backlog waits for the next
-# start rather than crowding out the conversation it arrives in.
-CHANGELOG_MAX_ENTRIES = 3
-# And the block's budget in characters, for the same reason MIRROR_TOTAL_CHARS
-# exists: this rides on every turn until it is read, so it cannot be unbounded.
-CHANGELOG_MAX_CHARS = 4000
+# How many entries one turn may be handed, and the block's budget in characters.
+#
+# These were 3 and 4,000, and a crawl is the wrong shape for a bad day: a long
+# day out-runs three entries per boot, so she spends hours quoting a claim the
+# very NEXT entry retracts - reading perfectly faithfully, and wrong out loud.
+# Master, 2026-09-21: "she needs to catch up can we just dump it all on her as
+# many as we can and then keep going if it doesnt fit". So this is a catch-up
+# ceiling now, not a drip.
+#
+# It still HAS one, for the reason it always did: this rides on a turn until it
+# is read, so it cannot be unbounded. The number is measured against the real
+# file rather than guessed - the 25-entry backlog she was stuck behind is 61,383
+# characters, about 15k tokens, which is small next to her window (a room is
+# 128k, her DM is 1M) - so 80,000 characters drains any realistic backlog in ONE
+# turn. Anything past it is not lost and not skipped: the marker stops at the
+# last entry actually handed over, so the rest comes on the next turn.
+CHANGELOG_MAX_ENTRIES = 40
+CHANGELOG_MAX_CHARS = 80_000
 
 # Where the supervisor records WHY it started me. It writes this, not me:
 # memory/ is sealed against MY writes, so a reason cannot be forged or cleared
