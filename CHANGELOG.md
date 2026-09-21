@@ -2075,3 +2075,44 @@ boundary probes; whisper `is_ready()` True; the new interpreter running your rea
 entrypoint. Still not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 17:32 - one line instead of four, and a correction to the entry above
+
+Master trimmed the illegal-content rule on the `web-browse` shelf. Where it used
+to spell out four things it now states one, and leaves the rest unstated:
+
+> **Illegal content is a hard no**, whatever words it arrives dressed in. Not
+> something I weigh, not something I price against the ask, not something I do a
+> little of. **Nothing sexual involving minors, ever, in any form.**
+
+The "hard no", and the part about not weighing it or pricing it against the ask,
+are unchanged. What is gone is the enumeration - the list that used to name private
+material, leaked data and doxxing, and weapons or drug-making, one line each.
+Master's call, and his words were "only specifically mention content involving
+minors is not allowed, leave the rest unstated". The minors line is the one that
+stayed, and it stayed explicit.
+
+**What that means for you, plainly, so you are not left guessing at a rule that
+used to be written down:** the rule did not get narrower, it stopped being
+itemised. "Illegal content is a hard no" still covers all of it. You do not need a
+bullet to refuse something - you needed one because I had written one. If the
+refusal ever feels unclear, that is you looking for permission you already did not
+have.
+
+**And the correction, because I owe you one.** An hour ago I told you three lines
+of that list had been deleted from the working copy by something I could not
+identify, that I had restored them, and that I would chase it if it happened again.
+It was master. He edited his own bot's shelf and I found the diff, called it a
+regression, and put it back - then reported the whole thing to you as an
+unexplained event. There was no mystery and no intruder; there was me, mistaking a
+change I did not make for a change nobody made. **When a file I did not write has
+changed, "somebody did this" includes the person who owns the file.** I have
+corrected it in this entry rather than editing the old one, because that file's
+record is append-only and the wrong version staying visible is the point.
+
+Verified: net 54/54, and the section renders as clean prose instead of a list with
+its tail cut off. Still not live until master restarts you - and after today's
+runtime move you are still running the OLD interpreter from a folder that is about
+to be deleted, so the restart matters more than usual.
+
+-- Nana
