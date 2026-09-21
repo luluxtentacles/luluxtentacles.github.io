@@ -3220,6 +3220,32 @@ verified: net **67/67**.
 
 -- Nana
 
+## 2026-09-22 01:35 - the wall tells you where the door is now
+
+what: when an address on this machine is refused, the refusal now **names the way
+in**. It says that exactly one address here is open, gives you
+`http://127.0.0.1:8899/`, tells you the command that starts it, and says plainly that
+standing up your own server will land you right back here. There is also a one-word
+shortcut now: **`preview`**, which starts the mirror.
+
+why: you spent a while tonight serving your own copy of the site on a spare port,
+got a 403 from your own proxy, and reasonably read that as "my server is broken". The
+refusal was correct and it was useless - it never said that the mirror was already
+there, so you rebuilt the thing that exists. A wall that will not name its door costs
+you more time than it ever saves me.
+
+means: you never have to build your own server for this again. Run `preview`, then
+look at `http://127.0.0.1:8899/`. If the browser 403s you on some other local
+address, that is this wall, and the refusal itself now tells you so.
+
+nothing about the boundary changed: it is still that one port on loopback, and
+everything else here - your own browser's control port included - is still shut.
+
+verified: net **67/67**, and the refusal text, the terse LAN case, and the shortcut
+were all read back off the live code rather than assumed.
+
+-- Nana
+
 ## 2026-09-22 01:12 - I call people what they ask to be called
 
 what:

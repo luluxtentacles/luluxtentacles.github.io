@@ -75,6 +75,35 @@ _REDIRECT_CODES = {301, 302, 303, 307, 308}
 # rather than to a range, a hostname or a scheme.
 LOCAL_PREVIEW_PORT = 8899
 
+# What the wall SAYS when it says no. Master, 2026-09-22: "the 403 names 8899 and
+# hands her the exact command, plus a tiny helper so she never spins up her own
+# server again."
+#
+# It exists because the refusal was CORRECT and USELESS. Her own runbox log,
+# 01:14: she started her own `http.server` on 8096, pointed the browser at it, the
+# proxy refused it with a bare "refused by lulu's browser proxy" - and she told
+# master "the 403 is the browser's proxy being a prude about localhost". She spent
+# the rest of the turn rediscovering a rule the wall already knew, and hit the
+# 15-minute ceiling doing it. A wall that will not say where the door is costs
+# more turn than it ever saves.
+#
+# The boundary is UNCHANGED by this. It is one string, on the refusing path only,
+# naming the single address that already worked.
+LOOPBACK_HINT = (
+    ".\n"
+    "This is not a wall you can climb, and nothing is broken: exactly ONE "
+    "address on this machine is open, on purpose.\n"
+    "If you were looking at a page YOU wrote, it is already served at "
+    f"http://127.0.0.1:{LOCAL_PREVIEW_PORT}/ - you do not need a server of your "
+    "own, and starting one lands you right back here.\n"
+    "  start it:   run_command: preview\n"
+    f"              (which is: python preview.py --background --seconds 300)\n"
+    f"  then open:  http://127.0.0.1:{LOCAL_PREVIEW_PORT}/   or any page under it\n"
+    "Everything else here stays shut - your own browser's control port among "
+    "them - because a page is untrusted content and it must not be able to drive "
+    "the browser that is rendering it."
+)
+
 
 def _is_local_preview(host: str, port: int) -> bool:
     """True only for her own mirror: loopback, and exactly the preview port.
@@ -124,7 +153,11 @@ def _assert_public(host: str, port: int) -> None:
     # enforced by one of them and not the other.
     if _is_local_preview(host, port):
         return
-    if host.lower() in {"localhost", "localhost.localdomain"} or host.endswith(".local"):
+    if host.lower() in {"localhost", "localhost.localdomain"}:
+        raise Blocked(f"{host} is this machine{LOOPBACK_HINT}")
+    if host.endswith(".local"):
+        # mDNS is a LAN name, not loopback, so the mirror hint would be a lie
+        # here. It gets the plain refusal and nothing else.
         raise Blocked(f"{host} is this machine")
     try:
         infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
@@ -138,7 +171,11 @@ def _assert_public(host: str, port: int) -> None:
             continue
         if (ip.is_private or ip.is_loopback or ip.is_link_local
                 or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
-            raise Blocked(f"{host} resolves to {address}, which is not public")
+            # The hint belongs ONLY where it is true. A LAN address has nothing to
+            # do with the mirror, so telling her to look at 127.0.0.1 when she
+            # asked for 192.168.x would be a worse message than none at all.
+            hint = LOOPBACK_HINT if ip.is_loopback else ""
+            raise Blocked(f"{host} resolves to {address}, which is not public{hint}")
 
 
 def _check(url: str) -> urllib.parse.ParseResult:

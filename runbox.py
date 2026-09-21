@@ -136,6 +136,12 @@ SHORTCUTS: dict[str, str] = {
     "git_log": "git log --oneline -20",
     "git_diff": "git diff --stat",
     "smoke": f'"{PY}" tests/smoke_test.py',
+    # The way she is SUPPOSED to look at her own site, as one word. Master,
+    # 2026-09-22 - the wall's refusal now NAMES this shortcut, so the two have to
+    # agree or the wall lies to her. 300s because that is the window she picked
+    # herself the first time she used the mirror by hand, and it comfortably
+    # covers resize -> navigate -> console -> screenshot -> look.
+    "preview": f'"{PY}" preview.py --background --seconds 300',
 }
 
 

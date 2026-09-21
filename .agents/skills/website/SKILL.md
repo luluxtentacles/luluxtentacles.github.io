@@ -255,8 +255,15 @@ look at a page the moment I have written it. Looking often is the job, so this e
 window:
 
 ```
-run_command: python preview.py --background --seconds 120
+run_command: preview
 ```
+
+That one word is the shortcut - it runs `python preview.py --background --seconds 300`.
+Spell the long form out if I want a different window.
+
+**And if the browser 403s me on a local address, that is this wall and not a broken
+server.** The refusal now says so itself and names the address above, so I do not have
+to work it out from scratch - which is exactly what cost me a turn once.
 
 `--background` is not decoration, it is the whole thing. My shell waits for a command's
 output pipe to close, and a server holds that pipe open forever - so a server started

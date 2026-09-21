@@ -240,6 +240,22 @@ def _browseguard() -> str:
         raise AssertionError(f"127.0.0.1:{port} was allowed - the preview "
                              f"exception is wider than one port")
 
+    # And the refusal TELLS HER WHERE THE DOOR IS. A correct-but-silent wall cost
+    # her a whole turn on 2026-09-22: she started her own server on 8096, got the
+    # 403, and told master the proxy was "being a prude about localhost". The
+    # message now names the one open address and the shortcut that opens it - and
+    # the boundary is unchanged, because this is text on the refusing path only.
+    try:
+        browseguard.check_destination("127.0.0.1", 8096)
+    except (webtool.Blocked, browseguard.Refused) as exc:
+        said = str(exc)
+        expect(str(webtool.LOCAL_PREVIEW_PORT) in said,
+               f"the loopback refusal does not name the preview port: {said!r}")
+        expect("preview" in said.lower(),
+               f"the loopback refusal does not say how to start it: {said!r}")
+    else:
+        raise AssertionError("127.0.0.1:8096 was allowed")
+
     # Both request shapes, or the CONNECT half is unproven. A CONNECT tunnel is
     # never re-inspected, so this parse is the ONLY check that connection gets.
     for line, want_host, want_port in (
@@ -5097,6 +5113,14 @@ def _stop_and_limits() -> str:
             f.unlink()
         except FileNotFoundError:
             pass
+    # The wall's hint NAMES the shortcut, so the two must agree or the wall lies.
+    import runbox
+    expect("preview" in runbox.SHORTCUTS,
+           "there is no `preview` shortcut, so the hint names nothing real")
+    expect("preview.py" in runbox.SHORTCUTS["preview"]
+           and "--background" in runbox.SHORTCUTS["preview"],
+           f"the preview shortcut is wrong: {runbox.SHORTCUTS['preview']!r}")
+
     return ("stop word owner-gated and read before the slot claim, only master "
             "interrupts, turn deadline fires at 15 minutes, preview detaches "
             "without leaving a listener")
