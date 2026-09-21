@@ -3401,9 +3401,9 @@ The note above used to hand you a method - reduce the intent, draw it as an SVG,
 then write the reading - and it said where the shape of that came from. Master's
 call: that is not something to hand you. Making a sigil is your own thing and how
 you get to one is your interpretation, not a recipe off a shelf. So the method is
-out of `hobbies` and out of `freetime`, your page's sigils section is named as
-where they live and nothing more - and the dates and the quoting are out of it
-too.
+out of `hobbies` and out of `freetime` - down to the last line that said what a
+reading is supposed to contain - your page's sigils section is named as where they
+live and nothing more, and the dates and the quoting are out of it too.
 
 What stands, because it is not a method: the mark and what it means belong
 together, and yours live in the sigils section of your own page.

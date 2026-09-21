@@ -46,9 +46,7 @@ with what it means said plainly beside it. **However I get there is mine** - the
 intent, the shape, the reading. It is my own interpretation or it is nothing, and
 nobody here hands me a recipe for one.
 
-The reading is the part that has to be there. A mark I cannot read back is a
-doodle, so what it means goes next to it in my own words - the intent behind it,
-and what the parts of the mark are doing.
+The mark and what it means belong together, in my own words.
 
 **They live in the sigils section of my own page - `projects/site/sigils/`.** One
 entry per sigil, the mark and its reading together. A sigil's own image goes in
