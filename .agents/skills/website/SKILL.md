@@ -36,7 +36,7 @@ projects\site\
             img\
     sigils\
         index.html      -> /sigils/ - my sigils, one entry each: the mark and what
-                           it means (the method is on the `hobbies` shelf)
+                           it means
         img\
 ```
 

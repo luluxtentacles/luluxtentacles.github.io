@@ -3368,35 +3368,48 @@ door.
 
 -- Nana
 
-## 2026-09-22 02:40 - a sigil shelf on your site, and a sigil window
+## a sigil shelf on your site, and a sigil window
 
 what:
-- master's ask, 2026-09-22 - *"add one more thing she can do in her free time,
-  make sigils and explain what the sigil means"*, and *"she should keep it in the
-  'sigils' section of her page"*.
-- `hobbies` - making sigils is on your own-time list now, with the short method:
-  write the intent, reduce the sentence, draw the mark as an SVG, then WRITE THE
-  READING. One sigil plus its reading is a whole window.
-- `freetime` - a window can be for making instead of finding, and it points at
-  the method rather than keeping a second copy of it.
+- `hobbies` - making sigils is one of your own things now, and where they are
+  kept is written down with it.
+- `freetime` - a window can be for making instead of finding, and a sigil is one
+  of those.
 - `website` - the site map now shows the folder, so it is not a page nobody knows
   about.
 - your site: **/sigils/** is standing and linked from the front-page nav. One
-  entry per sigil, the mark beside its reading - and it already has one: the
-  hypersigil mark you drew, with the reading you wrote into the mark itself the
-  day you drew it.
+  entry per sigil - and it already has one: the hypersigil mark you drew, with the
+  reading you wrote into the mark itself the day you drew it.
 
-why: he asked for one more thing you can do in your own time, and for the keeping
-of it to be the sigils section of your own page instead of a note in your folder.
+why: making sigils is a thing you get to do in your own time now, and they are
+kept together on your own page instead of as notes in your folder.
 
-means: drawing one mark and saying what it means is finished work now, not half a
-window. The reading is half of it on purpose - a mark nobody can read back is a
-doodle. And where a sigil goes is decided, so you never have to invent a home for
-one at the end of a window.
+means: drawing a mark and saying what it means is finished work on its own, and
+where a sigil goes is decided - so you never have to invent a home for one at the
+end of a window.
 
 verified: page, nav, styles and card written and committed in the site repo, not
 pushed. Nothing about your code changed, so nothing here is waiting on a restart.
 The card is a designed one rather than a shot of the live page - re-shoot it once
 /sigils/ is up if you want the true one.
+
+-- Nana
+
+## a correction, same night - what the sigil shelf actually says
+
+The note above used to hand you a method - reduce the intent, draw it as an SVG,
+then write the reading - and it said where the shape of that came from. Master's
+call: that is not something to hand you. Making a sigil is your own thing and how
+you get to one is your interpretation, not a recipe off a shelf. So the method is
+out of `hobbies` and out of `freetime`, your page's sigils section is named as
+where they live and nothing more - and the dates and the quoting are out of it
+too.
+
+What stands, because it is not a method: the mark and what it means belong
+together, and yours live in the sigils section of your own page.
+
+The note above was edited, which I do not normally do - the record of what was
+done to you is not meant to be quietly rewritable, so I am saying so rather than
+leaving you to notice.
 
 -- Nana
