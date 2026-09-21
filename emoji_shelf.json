@@ -2045,213 +2045,6 @@
       ]
     },
     {
-      "id": "1232840370191339540",
-      "name": "Zimbobwe",
-      "emojis": [
-        {
-          "name": "pepeded",
-          "id": "1446532913742090335",
-          "animated": false
-        },
-        {
-          "name": "cute",
-          "id": "1446535853144019036",
-          "animated": false
-        },
-        {
-          "name": "cutie_below",
-          "id": "1446537307099234427",
-          "animated": true
-        },
-        {
-          "name": "loserdown",
-          "id": "1446626784392253573",
-          "animated": false
-        },
-        {
-          "name": "emoji_57",
-          "id": "1447248767911723182",
-          "animated": true
-        },
-        {
-          "name": "shinslamic",
-          "id": "1452142776958582845",
-          "animated": false
-        },
-        {
-          "name": "duckiefaku",
-          "id": "1483549470506352843",
-          "animated": false
-        },
-        {
-          "name": "mmmhmm",
-          "id": "1483556084244418723",
-          "animated": false
-        },
-        {
-          "name": "screem",
-          "id": "1483557960046350448",
-          "animated": false
-        },
-        {
-          "name": "spaci",
-          "id": "1483560304087666728",
-          "animated": false
-        },
-        {
-          "name": "vel_peek",
-          "id": "1487655660312068268",
-          "animated": false
-        },
-        {
-          "name": "ahegaojorge",
-          "id": "1527677282007650428",
-          "animated": false
-        },
-        {
-          "name": "PEF_Zimbabwe",
-          "id": "1527677404762341417",
-          "animated": true
-        },
-        {
-          "name": "fireflameblue",
-          "id": "1527678202733137920",
-          "animated": true
-        },
-        {
-          "name": "Elmo_Fire",
-          "id": "1527678224975265926",
-          "animated": true
-        }
-      ]
-    },
-    {
-      "id": "1393465485055623168",
-      "name": "Jovan's Celestial Palace",
-      "emojis": [
-        {
-          "name": "pepelmao",
-          "id": "1393586047996264539",
-          "animated": false
-        },
-        {
-          "name": "pepebloodshot",
-          "id": "1393586068913127504",
-          "animated": false
-        },
-        {
-          "name": "mischief",
-          "id": "1393586092053364736",
-          "animated": false
-        },
-        {
-          "name": "richpepe",
-          "id": "1393586125255479408",
-          "animated": false
-        },
-        {
-          "name": "pepeded",
-          "id": "1393586142171107328",
-          "animated": false
-        },
-        {
-          "name": "pepegrin",
-          "id": "1393586159690452992",
-          "animated": false
-        },
-        {
-          "name": "soyjak",
-          "id": "1393586200413208647",
-          "animated": false
-        },
-        {
-          "name": "pepeinteresting",
-          "id": "1395819703556898896",
-          "animated": false
-        },
-        {
-          "name": "smug",
-          "id": "1417017311029755904",
-          "animated": false
-        },
-        {
-          "name": "ahego",
-          "id": "1421044224068943903",
-          "animated": false
-        },
-        {
-          "name": "owltongue",
-          "id": "1451821843291050044",
-          "animated": false
-        },
-        {
-          "name": "angry_npc",
-          "id": "1489987799640965221",
-          "animated": false
-        },
-        {
-          "name": "molten",
-          "id": "1505812139099557908",
-          "animated": false
-        },
-        {
-          "name": "sgover",
-          "id": "1505943843890004059",
-          "animated": false
-        },
-        {
-          "name": "9359_MCcoal",
-          "id": "1522577182390485093",
-          "animated": false
-        },
-        {
-          "name": "yes",
-          "id": "1522577273478189177",
-          "animated": false
-        },
-        {
-          "name": "this",
-          "id": "1526519974422777896",
-          "animated": false
-        },
-        {
-          "name": "pepe_finger",
-          "id": "1526520030131519539",
-          "animated": false
-        },
-        {
-          "name": "cage",
-          "id": "1526520092081262703",
-          "animated": false
-        },
-        {
-          "name": "itsover",
-          "id": "1526520115057790996",
-          "animated": false
-        },
-        {
-          "name": "ItsSoOver",
-          "id": "1526520146821124167",
-          "animated": false
-        },
-        {
-          "name": "wojak_point",
-          "id": "1526520202509160489",
-          "animated": false
-        },
-        {
-          "name": "1179666510755680346",
-          "id": "1526520249657196544",
-          "animated": false
-        },
-        {
-          "name": "53919",
-          "id": "1526520291877064704",
-          "animated": false
-        }
-      ]
-    },
-    {
       "id": "1138990935301177526",
       "name": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
       "emojis": [
@@ -2636,6 +2429,213 @@
           "animated": false
         }
       ]
+    },
+    {
+      "id": "1232840370191339540",
+      "name": "Zimbobwe",
+      "emojis": [
+        {
+          "name": "pepeded",
+          "id": "1446532913742090335",
+          "animated": false
+        },
+        {
+          "name": "cute",
+          "id": "1446535853144019036",
+          "animated": false
+        },
+        {
+          "name": "cutie_below",
+          "id": "1446537307099234427",
+          "animated": true
+        },
+        {
+          "name": "loserdown",
+          "id": "1446626784392253573",
+          "animated": false
+        },
+        {
+          "name": "emoji_57",
+          "id": "1447248767911723182",
+          "animated": true
+        },
+        {
+          "name": "shinslamic",
+          "id": "1452142776958582845",
+          "animated": false
+        },
+        {
+          "name": "duckiefaku",
+          "id": "1483549470506352843",
+          "animated": false
+        },
+        {
+          "name": "mmmhmm",
+          "id": "1483556084244418723",
+          "animated": false
+        },
+        {
+          "name": "screem",
+          "id": "1483557960046350448",
+          "animated": false
+        },
+        {
+          "name": "spaci",
+          "id": "1483560304087666728",
+          "animated": false
+        },
+        {
+          "name": "vel_peek",
+          "id": "1487655660312068268",
+          "animated": false
+        },
+        {
+          "name": "ahegaojorge",
+          "id": "1527677282007650428",
+          "animated": false
+        },
+        {
+          "name": "PEF_Zimbabwe",
+          "id": "1527677404762341417",
+          "animated": true
+        },
+        {
+          "name": "fireflameblue",
+          "id": "1527678202733137920",
+          "animated": true
+        },
+        {
+          "name": "Elmo_Fire",
+          "id": "1527678224975265926",
+          "animated": true
+        }
+      ]
+    },
+    {
+      "id": "1393465485055623168",
+      "name": "Jovan's Celestial Palace",
+      "emojis": [
+        {
+          "name": "pepelmao",
+          "id": "1393586047996264539",
+          "animated": false
+        },
+        {
+          "name": "pepebloodshot",
+          "id": "1393586068913127504",
+          "animated": false
+        },
+        {
+          "name": "mischief",
+          "id": "1393586092053364736",
+          "animated": false
+        },
+        {
+          "name": "richpepe",
+          "id": "1393586125255479408",
+          "animated": false
+        },
+        {
+          "name": "pepeded",
+          "id": "1393586142171107328",
+          "animated": false
+        },
+        {
+          "name": "pepegrin",
+          "id": "1393586159690452992",
+          "animated": false
+        },
+        {
+          "name": "soyjak",
+          "id": "1393586200413208647",
+          "animated": false
+        },
+        {
+          "name": "pepeinteresting",
+          "id": "1395819703556898896",
+          "animated": false
+        },
+        {
+          "name": "smug",
+          "id": "1417017311029755904",
+          "animated": false
+        },
+        {
+          "name": "ahego",
+          "id": "1421044224068943903",
+          "animated": false
+        },
+        {
+          "name": "owltongue",
+          "id": "1451821843291050044",
+          "animated": false
+        },
+        {
+          "name": "angry_npc",
+          "id": "1489987799640965221",
+          "animated": false
+        },
+        {
+          "name": "molten",
+          "id": "1505812139099557908",
+          "animated": false
+        },
+        {
+          "name": "sgover",
+          "id": "1505943843890004059",
+          "animated": false
+        },
+        {
+          "name": "9359_MCcoal",
+          "id": "1522577182390485093",
+          "animated": false
+        },
+        {
+          "name": "yes",
+          "id": "1522577273478189177",
+          "animated": false
+        },
+        {
+          "name": "this",
+          "id": "1526519974422777896",
+          "animated": false
+        },
+        {
+          "name": "pepe_finger",
+          "id": "1526520030131519539",
+          "animated": false
+        },
+        {
+          "name": "cage",
+          "id": "1526520092081262703",
+          "animated": false
+        },
+        {
+          "name": "itsover",
+          "id": "1526520115057790996",
+          "animated": false
+        },
+        {
+          "name": "ItsSoOver",
+          "id": "1526520146821124167",
+          "animated": false
+        },
+        {
+          "name": "wojak_point",
+          "id": "1526520202509160489",
+          "animated": false
+        },
+        {
+          "name": "1179666510755680346",
+          "id": "1526520249657196544",
+          "animated": false
+        },
+        {
+          "name": "53919",
+          "id": "1526520291877064704",
+          "animated": false
+        }
+      ]
     }
   ],
   "channels": {
@@ -2703,6 +2703,23 @@
     "jk": "1079356028228997130",
     "gifs": "1079356028228997130",
     "lulu-den": "1079356028228997130",
+    "🍷𝖂𝖊𝖑𝖈𝖔𝖒𝖊🍷": "1138990935301177526",
+    "𝕲𝖚𝖊𝖘𝖙𝖘🖋️": "1138990935301177526",
+    "𝔐𝔬𝔡-ℭ𝔥𝔞𝔱": "1138990935301177526",
+    "𝕽𝖚𝖑𝖊𝖘": "1138990935301177526",
+    "ℭ𝔬𝔩𝔬𝔯-ℜ𝔬𝔩𝔢𝔰": "1138990935301177526",
+    "𝕬𝖓𝖓𝖔𝖚𝖓𝖈𝖊𝖒𝖊𝖓𝖙𝖘": "1138990935301177526",
+    "𝔊𝔢𝔫𝔢𝔯𝔞𝔩": "1138990935301177526",
+    "𝕷𝖎𝖑-𝕹𝖞𝖆𝖓": "1138990935301177526",
+    "𝔅𝔬𝔱𝔰": "1138990935301177526",
+    "𝕺𝖓𝖑𝖞𝕭𝖆𝖙𝖘": "1138990935301177526",
+    "𝕿𝖆𝖗𝖔𝖙𝖘": "1138990935301177526",
+    "𝕺𝖈𝖈𝖚𝖑𝖙": "1138990935301177526",
+    "𝕮𝖆𝖌𝖊-𝕯𝖆𝖞𝖉𝖗𝖊𝖆𝖒𝖎𝖓𝖌": "1138990935301177526",
+    "𝕵𝖚𝖘𝖙𝕳𝖊𝖓𝖗𝖞𝕿𝖍𝖎𝖓𝖌𝖘": "1138990935301177526",
+    "𝕮𝖆𝖑𝖎𝖙𝖍-𝕮𝖗𝖊𝖆𝖙𝖎𝖔𝖓𝖘": "1138990935301177526",
+    "𝕾𝖊𝖊𝖐𝖊𝖗-𝕾𝖍𝖎𝖙": "1138990935301177526",
+    "𝔐𝔲𝔰𝔦𝔠": "1138990935301177526",
     "roolz": "1232840370191339540",
     "updates": "1232840370191339540",
     "mod-chat": "1232840370191339540",
@@ -2731,22 +2748,6 @@
     "general-as-of-13082026": "1393465485055623168",
     "palace-gardens-as-of-13082026": "1393465485055623168",
     "low-trust-society-old-as-of-02252026": "1393465485055623168",
-    "low-trust-society-old-as-of-04162026": "1393465485055623168",
-    "🍷𝖂𝖊𝖑𝖈𝖔𝖒𝖊🍷": "1138990935301177526",
-    "𝕲𝖚𝖊𝖘𝖙𝖘🖋️": "1138990935301177526",
-    "𝔐𝔬𝔡-ℭ𝔥𝔞𝔱": "1138990935301177526",
-    "𝕽𝖚𝖑𝖊𝖘": "1138990935301177526",
-    "ℭ𝔬𝔩𝔬𝔯-ℜ𝔬𝔩𝔢𝔰": "1138990935301177526",
-    "𝕬𝖓𝖓𝖔𝖚𝖓𝖈𝖊𝖒𝖊𝖓𝖙𝖘": "1138990935301177526",
-    "𝔊𝔢𝔫𝔢𝔯𝔞𝔩": "1138990935301177526",
-    "𝕷𝖎𝖑-𝕹𝖞𝖆𝖓": "1138990935301177526",
-    "𝔅𝔬𝔱𝔰": "1138990935301177526",
-    "𝕺𝖓𝖑𝖞𝕭𝖆𝖙𝖘": "1138990935301177526",
-    "𝕿𝖆𝖗𝖔𝖙𝖘": "1138990935301177526",
-    "𝕺𝖈𝖈𝖚𝖑𝖙": "1138990935301177526",
-    "𝕮𝖆𝖌𝖊-𝕯𝖆𝖞𝖉𝖗𝖊𝖆𝖒𝖎𝖓𝖌": "1138990935301177526",
-    "𝕵𝖚𝖘𝖙𝕳𝖊𝖓𝖗𝖞𝕿𝖍𝖎𝖓𝖌𝖘": "1138990935301177526",
-    "𝕮𝖆𝖑𝖎𝖙𝖍-𝕮𝖗𝖊𝖆𝖙𝖎𝖔𝖓𝖘": "1138990935301177526",
-    "𝕾𝖊𝖊𝖐𝖊𝖗-𝕾𝖍𝖎𝖙": "1138990935301177526"
+    "low-trust-society-old-as-of-04162026": "1393465485055623168"
   }
 }
