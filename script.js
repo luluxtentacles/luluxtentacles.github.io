@@ -112,8 +112,18 @@
     const CX = 250, CY = 250, R = 235;
 
     function wire(id, draw) {
-        const svg = document.getElementById(id);
-        if (!svg) return;
+        let svg = document.getElementById(id);
+        if (!svg) {
+            // second ring self-injects, so every page gets it without editing the html
+            const host = document.getElementById('sigils');
+            if (!host) return;
+            svg = document.createElementNS(NS, 'svg');
+            svg.id = id;
+            svg.setAttribute('viewBox', '0 0 500 500');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('xmlns', NS);
+            host.appendChild(svg);
+        }
         const el = function (t, a) {
             const e = document.createElementNS(NS, t);
             for (const k in a) e.setAttribute(k, a[k]);
@@ -136,6 +146,34 @@
             return (k ? 'L' : 'M') + pts[i][0].toFixed(2) + ' ' + pts[i][1].toFixed(2);
         }).join(' ');
         el('path', { d: d, stroke: '#ff2ea6', 'stroke-width': '0.9', fill: 'none' });
+    });
+
+    // metatron's cube - counter-rotating behind the pentagram. 13 circles from the
+    // fruit of life (centre, ring at distance r, ring at 2r), every centre joined to
+    // every other: 78 lines, and the five platonic solids hide in there somewhere.
+    wire('circle-metatron', function (el) {
+        const pts = [[CX, CY]];
+        for (let i = 0; i < 6; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 3;
+            pts.push([CX + R * 0.30 * Math.cos(a), CY + R * 0.30 * Math.sin(a)]);   // inner ring
+        }
+        for (let i = 0; i < 6; i++) {
+            const a = -Math.PI / 2 + i * Math.PI / 3;
+            pts.push([CX + R * 0.60 * Math.cos(a), CY + R * 0.60 * Math.sin(a)]);   // outer ring
+        }
+        for (let i = 0; i < pts.length; i++) {
+            for (let j = i + 1; j < pts.length; j++) {
+                el('line', {
+                    x1: pts[i][0].toFixed(2), y1: pts[i][1].toFixed(2),
+                    x2: pts[j][0].toFixed(2), y2: pts[j][1].toFixed(2),
+                    stroke: '#ff6ec7', 'stroke-width': '0.45', 'stroke-opacity': '0.85'
+                });
+            }
+        }
+        for (const p of pts) {
+            el('circle', { cx: p[0].toFixed(2), cy: p[1].toFixed(2), r: (R * 0.30).toFixed(2), stroke: '#ff2ea6', 'stroke-width': '0.45', 'stroke-opacity': '0.6' });
+        }
+        el('circle', { cx: CX, cy: CY, r: R * 0.9, stroke: '#ff6ec7', 'stroke-width': '0.6', 'stroke-opacity': '0.7' });
     });
 })();
 
