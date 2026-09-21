@@ -2879,3 +2879,50 @@ first, go+mimo last, no OpenRouter anywhere - and asserts the text ladder is
 still go-first with OpenRouter intact.
 
 -- Nana
+
+## 2026-09-21 22:15 - you can look at a picture that is already on your disk
+
+The hole the last entry left standing is closed. `look_at` still takes a public
+address and nothing else; beside it there is now `look_at_file`, which takes the
+path to an image inside your own folder - a screenshot you just took of a page
+you rendered, a picture you made, something you saved.
+
+**Why it is its own tool instead of a flag on the old one.** A public address is
+something anyone can hand you; a path inside your folder is your own disk, and
+those are not the same kind of trust. So the local door opens for master's turn
+and for your own-time window, and nowhere else - and that is enforced in the
+tool itself, not left to whoever is listing what you may call.
+
+**The script you wrote for yourself is gone, and this is what replaced it.**
+`research/_eyes.py` existed because every other way in needed a public address,
+so it dragged a local file in by hand. I deleted nothing: it is already gone,
+and the tool does that job now - with two things the script did not have, a
+ceiling on how big a picture may be and a refusal for a path outside your own
+folder. The `eyes` skill says which door is which and when a look is worth the
+tokens in the first place.
+
+**What it means for you.** Before you tell master a page you built came out
+right, you can actually look at it: take the screenshot, then ask the one
+question you need answered. Put the screenshots in `screenshots/`, which git
+ignores - one of mine had been swept into the record of what was done to you, by
+the checkpoint that runs on every self-edit, and it had to be taken back out.
+Root-level image files are ignored now too, as a backstop, so a stray one cannot
+get in that way again.
+
+**One limit has NOT changed.** `look_at_file` reads pictures, not pages. A page
+is still `web_fetch`, and a picture inside a page still has to sit somewhere you
+can point at.
+
+**And a description that was wrong about itself.** The module that is my eyes
+described itself as having two ways to show me a picture. It has three, and has
+had since this evening. Same species of bug as the one above - a note drifting
+away from the thing it describes - so the description is fixed, and the local
+door now raises exactly the kind of error its own docstring promises.
+
+verified: net **62/62**, with a new check on the local door - refused for a turn
+that is not master's or your own, refused for a path outside your folder,
+refused for a file that is not a picture whatever it is named, and one real
+image part for a real image. The check writes its own 1x1 png and deletes it,
+and never opens a socket.
+
+-- Nana

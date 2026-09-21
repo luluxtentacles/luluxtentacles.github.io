@@ -5,15 +5,25 @@ capped so one screenshot cannot eat the context. The model is chosen elsewhere
 (brain.py), by the shape of what it is handed: any prompt carrying an image part
 is routed to vision_model.
 
-Two ways in, and the second is the point - master, 2026-09-20: "make her image
-reading ability not tied to messages" and "so she can use it for web browsing".
+Three ways in, and the point of the last two is that neither one needs a message
+- master, 2026-09-20: "make her image reading ability not tied to messages" and
+"so she can use it for web browsing".
 
-  collect()  - pictures attached to a Discord message.
-  from_url() - a picture at a public address. This one DOES touch the network,
-               and it borrows webtool's address guard instead of growing a
-               second one that could drift from it.
+  collect()   - pictures attached to a Discord message.
+  from_url()  - a picture at a public address. This one DOES touch the network,
+                and it borrows webtool's address guard instead of growing a
+                second one that could drift from it.
+  from_file() - a picture already on her own disk: a screenshot she just took,
+                an image she made. Added 2026-09-21, because until it existed
+                the only way to hold her own work up to her own eyes was a
+                script she had written herself.
 
-describe() is the whole capability in one call: url in, what-is-in-it out.
+describe() and describe_file() are the whole capability in one call each: the
+picture in, what-is-in-it out as words she can carry into the rest of the turn.
+
+from_file() is the one that is NOT a public read, so it is confined to ROOT and
+gated at the tool (see look_at_file in tools.py) rather than being a flag on
+describe().
 
 Nothing here trusts a content type. A picture is whatever its first bytes prove
 it is - see sniff - so bytes that are not one of the four formats are refused
@@ -29,6 +39,7 @@ import urllib.parse
 import urllib.request
 
 import brain
+import paths
 import webtool
 
 LOG = logging.getLogger("lulu")
@@ -229,6 +240,80 @@ def from_url(url: str) -> list[dict]:
                 f"({exc})") from exc
         return [part]
     raise ValueError("too many redirects")
+
+
+def from_file(path: str) -> list[dict]:
+    """One picture off my own disk, as image_url parts.
+
+    The door that was MISSING, and the reason research/_eyes.py existed at all:
+    every other way in needs a PUBLIC address - collect() wants a Discord
+    attachment, from_url() refuses file:// on purpose - so a screenshot of her
+    own page had nothing in the box that could look at it. Master, 2026-09-21:
+    "did we add for any website she can screenshot it to see it if she needs
+    it". This is that.
+
+    Confined to her own folder, and deliberately NOT to paths.EXTERNAL_ROOTS:
+    that tuple exists so resolve() can reach her interpreter and the whisper
+    tree, and neither is a place to read pictures from. Outside ROOT is refused
+    rather than fetched.
+
+    Raises ValueError for anything that is not a usable picture, and
+    paths.SandboxError for a path that is not hers to read. Both are text a
+    caller can hand straight back to the model, not a crash.
+    """
+    name = str(path or "").strip()
+    if not name:
+        raise ValueError("no path given")
+    target = paths.resolve(name)
+    try:
+        target.relative_to(paths.ROOT)
+    except ValueError:
+        raise ValueError("that is outside my own folder") from None
+    if not target.is_file():
+        raise ValueError(f"no file at {name}")
+    if target.stat().st_size > MAX_FETCH_BYTES:
+        raise ValueError(f"bigger than {MAX_FETCH_BYTES // 1_000_000}MB - not a "
+                         f"picture I will read")
+    try:
+        part, _ = _build(target.read_bytes(), target.name)
+    except NotAnImage as exc:
+        # Wrapped, the way from_url() wraps it, so both doors fail with the one
+        # exception the docstrings promise. A file named .png that is really
+        # text is refused by its bytes here, not by its name.
+        raise ValueError(f"that file is not an image ({exc})") from exc
+    return [part]
+
+
+def describe_file(path: str, question: str = "",
+                  brain_config: dict | None = None) -> str:
+    """Look at one picture FILE of mine and answer a question about it.
+
+    Same shape and the same reasoning as describe() below: the picture goes to
+    the vision model and NOT into her own conversation, so one image costs one
+    call instead of being resent on every round of a tool loop that can run
+    forty deep.
+
+    Never raises. Every failure is a sentence she can read and act on,
+    including the boring ones - a path that is not there, or not a picture.
+    """
+    config = brain_config or {}
+    if not config.get("base_url") or not config.get("model"):
+        return "[I have no brain configured to look at images with]"
+    try:
+        parts = from_file(path)
+    except paths.SandboxError as exc:
+        return f"refused: {exc}"
+    except Exception as exc:
+        return f"[could not look at that file: {exc}]"
+    if not parts:
+        return "[nothing in that file I could read as an image]"
+    ask = (question or "").strip() or (
+        "What is in this image? Be specific, briefly.")
+    messages = [{"role": "user",
+                 "content": [{"type": "text", "text": ask}] + parts}]
+    reply = brain.complete(config, messages, max_tokens=DESCRIBE_MAX_TOKENS)
+    text = (reply.get("content") or "").strip()
+    return text or "[the vision model had nothing to say about it]"
 
 
 def describe(url: str, question: str = "",

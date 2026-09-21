@@ -200,3 +200,19 @@ projects/
 # her own push token. Not a leak to a stranger - just true, and written down so
 # nobody finds out by accident.
 .git-credentials
+
+# Screenshots and images taken to LOOK at, never the record of what was done to
+# her. Checkpoint runs `git add -A` on every self-edit, and on 2026-09-21 that
+# swept lulu-front.png and pripara_check.png straight into her audit history -
+# committed by the very checkpoint that applied her own _eyes.py patch. A picture
+# she grabbed to see whether her site rendered is not her body and does not
+# belong in the one place that is only allowed to hold changes TO her.
+#
+# Root-level only, deliberately: imgs/ holds pictures that are meant to be
+# versioned, and a blanket *.png would quietly untrack those.
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.gif
+screenshots/

@@ -3276,7 +3276,7 @@ def _say_guard() -> str:
             expect(name in tools.LOOKUP_TOOL_NAMES,
                    f"{name} was not offered to strangers - master opened it")
         for name in ("run_command", "write_file", "patch_file", "write_diary",
-                     "learn_person", "start_task"):
+                     "learn_person", "start_task", "look_at_file"):
             expect(name not in tools.LOOKUP_TOOL_NAMES,
                    f"{name} is offered to people who are not master")
         # the attach lock is in the tool, not the palette: a non-master path
@@ -4272,6 +4272,115 @@ def _look_at() -> str:
             "total cap is real, and a non-image is dropped rather than "
             "relabelled and forwarded")
 
+def _look_at_file() -> str:
+    """The other door: a picture that is already on her own disk.
+
+    Master, 2026-09-21: "did we add for any website she can screenshot it to see
+    it if she needs it" - and the answer was no, which is why the only way to
+    hold her own work up to her own eyes was a throwaway script in research/
+    that called vision._build by hand. This pins the door that replaced it.
+
+    The load-bearing part is WHICH TURN may open it. A public url is something
+    anyone can hand her; a path in her own folder is her disk, so a local read
+    is master's turn or her own window and nothing else - refused in the tool,
+    not left to the palette to enforce.
+
+    Nothing here opens a socket. Every failure below happens before the model
+    is reached, and the one real picture is written by this check and removed
+    by it.
+    """
+    import base64
+
+    import paths
+    import tools
+    import vision
+
+    # 1. registered in both halves, so the schema and what runs cannot drift
+    names = {t["function"]["name"] for t in tools.SCHEMA}
+    expect("look_at_file" in names and "look_at_file" in tools.DISPATCH,
+           "look_at_file is not consistently registered")
+    # and it is NOT in the stranger palette - that half is pinned by the
+    # say-guard check, where the shut doors are enumerated in one place.
+
+    real = dict(tools._BRAIN)
+    try:
+        # A brain, so describe_file() gets past its own gate and reaches the
+        # part being tested. It is never called: everything below fails first.
+        tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
+
+        # 2. the gate, on a turn that is neither master's nor her own window
+        tools.set_context("stranger-probe", master=False)
+        got = tools.look_at_file("CHANGELOG.md", "anything")
+        expect(got.startswith("refused:"),
+               f"a turn that is not master's read a local file: {got}")
+
+        # 3. master's turn, and the file is not hers to read
+        tools.set_context("1", master=True)
+        for label, path in (("a path outside her folder", "../master-notes.txt"),
+                            ("a path that is not there", "nope/not-here.png"),
+                            ("no path at all", "")):
+            got = tools.look_at_file(path, "")
+            expect(got.startswith(("refused:", "[could not")),
+                   f"{label} was not refused: {got}")
+
+        # 4. a file that is named like a picture and is really text is refused
+        # by its BYTES - the label is earned, never taken from the filename
+        liar = paths.ROOT / "_smoke_eyes.png"
+        liar.write_text("this is not a picture", encoding="utf-8")
+        try:
+            got = tools.look_at_file("_smoke_eyes.png", "")
+            expect("not an image" in got,
+                   f"a non-picture was handed to the vision model: {got}")
+        finally:
+            liar.unlink()
+
+        # 5. and the door OPENS on a genuine picture: one image_url part, by the
+        # same route a screenshot of her own page takes. A real 1x1 png, written
+        # and removed here. The mime is deliberately not pinned to png: _shrink
+        # re-encodes anything Pillow can open, so this one arrives as jpeg, and
+        # what is pinned is that it is a picture and not base64 of something
+        # else wearing an image/png label.
+        png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4"
+            "z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC")
+        shot = paths.ROOT / "_smoke_eyes.png"
+        shot.write_bytes(png)
+        try:
+            parts = vision.from_file("_smoke_eyes.png")
+            expect(len(parts) == 1, f"a local png gave {len(parts)} parts")
+            url = parts[0]["image_url"]["url"]
+            expect(parts[0]["type"] == "image_url"
+                   and url.startswith("data:image/"),
+                   f"a local picture came back mislabelled: {url[:40]}")
+        finally:
+            shot.unlink()
+
+        # 6. no brain must be said BEFORE the file is read, for the same reason
+        # the url door stops first. The file is gone by now, so a read would say
+        # so - this passing is what proves the order.
+        tools.set_brain({})
+        quiet = tools.look_at_file("_smoke_eyes.png", "")
+        expect("no brain configured" in quiet,
+               f"with no brain it got as far as the disk: {quiet}")
+
+        # 7. and the gate OPENS in her own window, which is the whole point of
+        # the tool - she is the one looking at her own screenshots. Proved with
+        # a path that fails AFTER the gate, so no model call is made.
+        tools.set_brain({"base_url": "http://127.0.0.1:1/v1", "model": "probe"})
+        tools.set_context(1, "self-review", "", origin="self-review")
+        got = tools.look_at_file("nope/not-here.png", "")
+        expect(not got.startswith("refused:"),
+               f"her own window could not open the local door: {got}")
+        expect("could not look at that file" in got,
+               f"that was not the gate opening, it was something else: {got}")
+    finally:
+        tools.set_brain(real)
+        tools.set_context(None)
+    return ("a local read is master's turn or her own window only, confined to "
+            "her folder, refused for a non-picture by its bytes, and it gives "
+            "one image_url part for a real one")
+
+
 def _browser_proxy() -> str:
     """The gap between "tested" and "works", closed.
 
@@ -4402,6 +4511,7 @@ CHECKS = [
     ("resume", _resume),
     ("changelog", _changelog),
     ("look-at", _look_at),
+    ("look-at-file", _look_at_file),
     ("emoji-retire", _emoji_retire),
     ("thread-context", _thread_context),
     ("restart-context", _restart_context),
