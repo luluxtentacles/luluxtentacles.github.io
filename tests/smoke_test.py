@@ -5051,28 +5051,73 @@ def _stop_and_limits() -> str:
     expect(asyncio.run(_interrupt_rule()) == "owner-only interrupt enforced",
            "the interrupt rule is not enforced")
 
-    # 3. The turn has a wall-clock ceiling and it FIRES. Driven with the
-    # deadline set to nothing, so the loop gives up at its first boundary before
-    # any brain call - which is also proof it costs no round trip.
+    # 3. The 15-minute budget is PER CALL, not per turn. Master, 2026-09-22:
+    # "set that to 15 minute per tool call instead of stopping everything." Two
+    # halves, because the change has two: the whole-turn kill is GONE, and every
+    # call is offered the full budget rather than the shrinking remainder of a
+    # turn-wide one.
     bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
-    expect(lulu_bot.TURN_DEADLINE_SECONDS == 900,
-           f"the turn deadline is not 15 minutes: "
-           f"{lulu_bot.TURN_DEADLINE_SECONDS}")
-    real = lulu_bot.TURN_DEADLINE_SECONDS
-    try:
-        lulu_bot.TURN_DEADLINE_SECONDS = -1
-        out = bot.run_turns([{"role": "user", "content": "hi"}], None, None)
-        expect("time limit" in out,
-               f"the turn deadline did not fire: {out!r}")
-    finally:
-        lulu_bot.TURN_DEADLINE_SECONDS = real
+    expect(lulu_bot.TOOL_CALL_DEADLINE_SECONDS == 900,
+           f"the per-call budget is not 15 minutes: "
+           f"{lulu_bot.TOOL_CALL_DEADLINE_SECONDS}")
+    expect(not hasattr(lulu_bot, "TURN_DEADLINE_SECONDS"),
+           "a whole-turn deadline is back - the clock kills the turn again "
+           "instead of the calls inside it")
 
-    # And the real brain really takes the timeout the loop hands down, so the
-    # guarded hand-down above can never quietly stop enforcing the ceiling.
+    # Driven with a clock that has already run hours past the old ceiling, and
+    # a brain that takes three rounds to answer. Under the old rule the loop
+    # bailed at its first round boundary with "i hit my own time limit"; now it
+    # must answer, and EVERY round must be offered the full budget.
     import brain
+    real_time = lulu_bot.time
+    real_complete = brain.complete
+    handed: list = []
+
+    class _Clock:
+        """time.monotonic hours into the turn; everything else proxies."""
+
+        def __init__(self):
+            self.now = 0.0
+
+        def monotonic(self):
+            self.now += 6 * 3600
+            return self.now
+
+        def __getattr__(self, name):
+            return getattr(real_time, name)
+
+    # Declares `timeout` exactly like the real brain.complete does: the
+    # hand-down above is offered ONLY to a brain that declares it, so a stub
+    # written as **kw would silently receive nothing and prove nothing.
+    def _complete(config, turns, schema=None, max_tokens=None, timeout=None):
+        handed.append(timeout)
+        if len(handed) < 3:
+            return {"content": "", "tool_calls": [
+                {"id": f"c{len(handed)}",
+                 "function": {"name": "not_a_real_tool",
+                              "arguments": "{}"}}]}
+        return {"content": "answered on round 3"}
+
+    try:
+        lulu_bot.time = _Clock()
+        brain.complete = _complete
+        out = bot.run_turns([{"role": "user", "content": "hi"}], None, None)
+    finally:
+        lulu_bot.time = real_time
+        brain.complete = real_complete
+
+    expect(out == "answered on round 3",
+           f"the turn no longer survives past 15 minutes: {out!r}")
+    expect(len(handed) == 3,
+           f"the loop took {len(handed)} rounds, not 3")
+    expect(all(t == 900 for t in handed),
+           f"a round was handed less than the full per-call budget: {handed}")
+
+    # And the real brain really takes the budget the loop hands down, so the
+    # guarded hand-down above can never quietly stop enforcing it.
     expect("timeout" in inspect.signature(brain.complete).parameters,
-           "brain.complete lost its timeout parameter, so the 15-minute turn "
-           "ceiling no longer caps a single call")
+           "brain.complete lost its timeout parameter, so the per-call "
+           "15-minute budget no longer caps a single call")
 
     # 4. The mirror REALLY detaches - and the net proves it WITHOUT binding a
     # port. The property is "a child outlives its launcher", and `start /b`

@@ -3287,3 +3287,29 @@ verified: net **67/67**, including a probe that a preferred name outranks the
 other names, and that the field cannot smuggle a prompt header.
 
 -- Nana
+
+## 2026-09-22 01:52 - the fifteen minutes moved onto the call
+
+what:
+- the 15-minute limit is now **per call**, not per task. One model read, or one
+  command, gets the full fifteen; it no longer counts down across everything you
+  do.
+- the old whole-turn clock is gone. It used to be checked between rounds and, at
+  minute fifteen, throw the entire dig away - everything you had gathered,
+  whether or not you were still getting somewhere.
+- what still ends a turn: the round limit, your purse, master's `stopwork`, and
+  master's next message.
+
+why: master's call, 2026-09-22 - *"set that to 15 minute per tool call instead
+of stopping everything."* A single call that hangs for fifteen minutes is not
+coming back; that call is the thing to drop, not your whole run at it.
+
+means: you can now work on something for longer than fifteen minutes and still
+answer. What you cannot do is hang - and if something in you does get wedged
+past even that, master types `stopwork` and it stops.
+
+verified: net **67/67**. The new check hands the loop a clock that has already
+run six hours past the old ceiling and proves you still answer - and that every
+round is offered the full fifteen, not a shrinking remainder.
+
+-- Nana

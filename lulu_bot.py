@@ -174,15 +174,27 @@ SUPERSEDED = "\x00superseded"
 # typing. See _stop_work for what it can and cannot cut.
 STOP_WORK = "stopwork"
 
-# How long ONE turn may run, wall-clock, before the tool loop gives up. Master,
-# 2026-09-21: "add a timeout to everything she runs maximum 15 minutes before
-# the tool gives up." Every SUBPROCESS was already bounded at 15 minutes by
-# runbox.TIMEOUT; this is the layer above it and the piece that was missing - a
-# turn is up to MAX_TOOL_ROUNDS (40) model calls plus their tool work, and no
-# per-call limit bounds the SUM. Checked at the top of each round, which is the
-# only place a looping call can be caught, and the remaining budget is handed
-# down to each model call so one slow call cannot sail past it either.
-TURN_DEADLINE_SECONDS = 900
+# How long ONE CALL may run - one model read, or one tool - before it is given
+# up on. Master, 2026-09-22: "lulu has a 15 minute timeout for her tasks, set
+# that to 15 minute per tool call instead of stopping everything."
+#
+# What this replaced: TURN_DEADLINE_SECONDS, the same 900 counted across the
+# WHOLE turn. It was checked at the top of every round and on expiry threw the
+# entire dig away - so a turn making real progress still died at minute fifteen
+# and lost everything it had gathered. The budget belongs on the CALL, not on
+# the work: a call that hangs for fifteen minutes is a call that is not coming
+# back, and THAT call gets dropped, while the turn keeps its other rounds and
+# still gets to answer.
+#
+# Where fifteen minutes is enforced per call, at three boundaries:
+#   - a model read: handed down below as this budget (brain.TIMEOUT_SECONDS,
+#     600, is only the fallback for a caller that never heard of it)
+#   - a shell command: runbox.TIMEOUT = 900, which hunts the tree down on expiry
+#   - and the loop itself: MAX_TOOL_ROUNDS above, which is what ends a turn that
+#     never converges - a count, not a clock.
+# A wedged turn that no call-level bound can reach is master's `stopwork`,
+# which is exactly the case it was built for (see _stop_work).
+TOOL_CALL_DEADLINE_SECONDS = 900
 
 
 # A nickname is untrusted input.
@@ -2994,10 +3006,12 @@ class Lulu(discord.Client):
 
         What it does NOT do, said plainly rather than papered over: it cannot
         cut a call that is already in flight. A model read or a tool subprocess
-        is a blocking call in a thread and nothing here can interrupt it. The
-        turn deadline (TURN_DEADLINE_SECONDS) bounds that case, and runbox's own
-        timeout bounds a subprocess. This stops the LOOP; the deadline stops the
-        CALL.
+        is a blocking call in a thread and nothing here can interrupt it. Since
+        2026-09-22 there is no turn-wide deadline standing behind this either -
+        what bounds a call is its OWN budget, handed to the call itself
+        (TOOL_CALL_DEADLINE_SECONDS for a model read, runbox.TIMEOUT for a shell
+        command). So this stops the LOOP, a call's budget stops the CALL, and
+        for a turn neither of those can reach, this is master's only lever.
         """
         stopped: list[str] = []
         for channel_id in list(self._turn_tasks):
@@ -3318,21 +3332,12 @@ class Lulu(discord.Client):
         prompt_total = 0
         cached_total = 0
         prompt_this_round = None
-        # The turn's own wall-clock ceiling, started here and checked at the top
-        # of every round. Between rounds is the only place a looping call can be
-        # caught: an in-flight model read or tool subprocess cannot be cut short
-        # from here, which is exactly why the remaining budget is also handed
-        # DOWN to each call below.
-        started = time.monotonic()
+        # No turn-wide clock here any more (master, 2026-09-22). The deadline is
+        # per CALL - TOOL_CALL_DEADLINE_SECONDS - so a dig is allowed to be long
+        # as long as no single call inside it hangs. What still ends a turn is
+        # MAX_TOOL_ROUNDS above, the purse, master's stop word, or a new message
+        # from him superseding it.
         for round_index in range(MAX_TOOL_ROUNDS):
-            remaining = TURN_DEADLINE_SECONDS - (time.monotonic() - started)
-            if remaining <= 0:
-                LOG.warning("turn deadline reached (%ds) - giving up on the "
-                            "tool loop", TURN_DEADLINE_SECONDS)
-                return (answer or
-                        "i hit my own time limit on that one - i stopped "
-                        "rather than keep going. ask me again and i'll take a "
-                        "shorter run at it.")
             # Fold the prompt's middle BEFORE it can outgrow the window. From the
             # second round on this uses the exact number the provider reported for
             # the round just sent; on the first round, before anything has gone
@@ -3354,17 +3359,16 @@ class Lulu(discord.Client):
                 turns.append({"role": "user", "content":
                               "Enough looking - answer now, in your own words, using "
                               "only what you already gathered. Do not call another tool."})
-            # What is LEFT of the turn, handed down as a per-call timeout so one
-            # slow call cannot sail past the loop's own ceiling - but offered
-            # ONLY to a brain that declares it. A test double or an older shim is
-            # called exactly as before, so adding the ceiling cannot break a
-            # caller that never heard of it. The real brain.complete DOES take
-            # it, and the net pins that, so this can never quietly stop
-            # enforcing the deadline.
+            # The per-CALL budget, handed down FRESH on every round - the whole
+            # of it, never the shrinking remainder of a turn-wide one. Offered
+            # ONLY to a brain that declares it: a test double or an older shim is
+            # called exactly as before, so this cannot break a caller that never
+            # heard of it. The real brain.complete DOES take it, and the net pins
+            # that, so the budget can never quietly stop being enforced.
             _call = {"max_tokens": max_tokens}
             try:
                 if "timeout" in inspect.signature(brain.complete).parameters:
-                    _call["timeout"] = max(remaining, 5.0)
+                    _call["timeout"] = TOOL_CALL_DEADLINE_SECONDS
             except (TypeError, ValueError):
                 pass
             reply = brain.complete(self.config["brain"], turns, schema, **_call)
