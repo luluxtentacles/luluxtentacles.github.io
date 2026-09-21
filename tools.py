@@ -1910,6 +1910,39 @@ def update_channels() -> list[str]:
     return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
 
 
+def review_channels() -> list[str]:
+    """Where my own-time reports go, from config.json -> review_channels.
+
+    Master, 2026-09-21: "have 4 hour free time runs have different set of
+    channels easiest". One list was doing three jobs - my restart reports, my
+    changelog announces, and the four-hour window report - so a room that wanted
+    one of them got all three, and the only way to quieten one was to make the
+    others go quiet with it. Writing the second list down is cheaper than
+    untangling that.
+
+    The window report is the odd one out on purpose. A restart notice and a
+    changelog announce are both "something happened to me"; a window report is me
+    talking about my own afternoon, which is a different thing to have chosen to
+    arrive in a room.
+
+    Falls back to update_channels when this key is MISSING, so a config written
+    before the split keeps delivering instead of going quietly dark - but an
+    explicitly empty list means nowhere, exactly as update_channels does. Absent
+    and empty are not the same promise, and the difference is the whole reason
+    the fallback is allowed to exist.
+    """
+    try:
+        raw = paths.read_json("config.json", default={}) or {}
+    except Exception:
+        return []
+    if "review_channels" not in raw:
+        return update_channels()
+    allowed = raw.get("review_channels")
+    if not isinstance(allowed, list):
+        return []
+    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+
+
 def look_at(url: str, question: str = "") -> str:
     """Look at one image on the web and report what is in it.
 

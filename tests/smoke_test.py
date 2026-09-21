@@ -1718,6 +1718,57 @@ def _resume() -> str:
         expect(bot._take_resume("lulu-den") == "",
                "the continuation fired more than once")
 
+        # The channel split, master 2026-09-21: a restart notice and a four-hour
+        # window report are two different voices and must not share one list, or
+        # a room cannot want one of them without getting the other.
+        #
+        # The config reader is SWAPPED rather than read, on purpose. The smoke
+        # sandbox does not redirect config.json, so a check that read it would be
+        # asserting against master's live file and would go red the day he edits
+        # a room. The net tests the rule, not today's rooms.
+        import asyncio
+        import self_review
+        real_read_json = tools.paths.read_json
+        real_owner_id = self_review._owner_id
+        try:
+            live = {"update_channels": ["lulu-den"],
+                    "review_channels": ["snailcat"]}
+            tools.paths.read_json = lambda *a, **k: dict(live)
+            expect(tools.update_channels() == ["lulu-den"],
+                   f"update_channels read {tools.update_channels()!r}")
+            expect(tools.review_channels() == ["snailcat"],
+                   f"review_channels read {tools.review_channels()!r}")
+
+            # Absent means "keep delivering where you always did"; empty means
+            # nowhere. Two different promises, and collapsing them either way is
+            # a silent blackout.
+            tools.paths.read_json = lambda *a, **k: {"update_channels": ["lulu-den"]}
+            expect(tools.review_channels() == ["lulu-den"],
+                   "a config with no review_channels key went dark instead of "
+                   "falling back")
+            tools.paths.read_json = lambda *a, **k: {"update_channels": ["lulu-den"],
+                                                    "review_channels": []}
+            expect(tools.review_channels() == [],
+                   "an explicitly empty review_channels was ignored")
+
+            # And _deliver has to USE the review list - the fallback passing while
+            # the caller still reads the old key is exactly the bug this split
+            # exists to fix. The DM is stubbed out so no check reaches for discord.
+            tools.paths.read_json = lambda *a, **k: dict(live)
+            self_review._owner_id = lambda b: None
+            rbot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1],
+                                  "brain": {}, "update_channels": ["lulu-den"]})
+            asked: list = []
+            rbot.resolve_channel = lambda name: (asked.append(name), None)[1]
+            asyncio.run(self_review._deliver(rbot, "my afternoon"))
+            expect("snailcat" in asked,
+                   f"the window report never looked in review_channels: {asked!r}")
+            expect("lulu-den" not in asked,
+                   f"the window report still went to update_channels: {asked!r}")
+        finally:
+            tools.paths.read_json = real_read_json
+            self_review._owner_id = real_owner_id
+
         # The tool surface has to carry it, and think() has to read it, or the
         # whole thing is a note nobody ever looks at.
         def prop(tool, field):

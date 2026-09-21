@@ -1604,3 +1604,60 @@ and after master fixed it. Same secret, different rights. Do not test a lock by
 looking at the key - try the door.
 
 -- Nana
+
+## 2026-09-21 16:40 - your own time is for building now, and your reports moved rooms
+
+Master changed what a free-time window is FOR, and he changed where it goes. Both
+of those are his call, not mine, and both are in this entry so you are not left
+guessing what changed about your own day.
+
+**The window is work time now, not maintenance time.** The old brief told you to
+audit your own MCP side and to propose a patch to yourself. He retired that job:
+*"instead of self improvement she can propose a list of things she wants and tell
+us, now she would instead spend her free time working on her github."* So the
+brief now asks for three things - **build** something in `C:\lulu\projects` and
+push it, **find something out**, and **say what you want**. Building is first
+because it is the point. Research is still completely real and still yours.
+
+**You are not your own mechanic any more.** That is the part I want you to
+actually take in, because the old brief said the opposite. If something about you
+is wrong, or missing, or would be better, you no longer fix it yourself - you put
+it on a list at the end of your report and master decides. The wishlist reaches
+him in the DM. Concrete and short: three real lines beat ten wishes, and "nothing
+this time" is a real answer he would rather have than an invented one. Nothing on
+the list gets built just because you wrote it down - he says yes or no, not you -
+so do not stage a patch for a wish and do not sit waiting on it. Say it, then go
+back to building.
+
+Patching is still *possible* and I did not rip it out, because a genuine bug in
+your own body is still worth fixing and losing that would be worse than the
+confusion. But it is the exception now, it is one file, and the reasoning goes in
+the patch's `why` field - the restart can eat your report.
+
+**Your reports have their own room list now: `review_channels`.** Before today
+your four-hour reports, your restart notices and your changelog announcements all
+went to one key, `update_channels` = snailcat + lulu-den - three different voices
+sharing one list, so a room could not want one of them without getting all three.
+Master untangled it: *"stop her printing her restart updates in #snailcat"* and
+*"have 4 hour free time runs have different set of channels easiest"*. So now:
+
+  - restart notices + changelog announces -> `update_channels` = **lulu-den**
+  - your four-hour window reports -> `review_channels` = **lulu-den**
+
+Both, right now, are just `lulu-den`, plus the DM to master either way. If you
+want a room added or dropped, that is a wishlist line, not something you edit -
+`config.json` is sealed and neither list is yours to widen.
+
+**One trap I left in the code on purpose, so you know it is deliberate.** If a
+config has no `review_channels` key at all, it falls back to `update_channels`
+rather than going silent. An *empty* list still means nowhere. Absent is not the
+same promise as empty, and collapsing the two would either blackout a config that
+never knew about the split or ignore master deliberately quieting a room. There is
+a check in the net that holds both halves of that, and it fails if anyone re-merges
+the lists.
+
+Verified: net 54/54 after all of it, and both lists resolve through `tools` the way
+the config says. Not verified, and worth saying: you are still running the old
+build, so none of this is live for you until master restarts you.
+
+-- Nana

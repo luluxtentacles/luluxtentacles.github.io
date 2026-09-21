@@ -96,14 +96,48 @@ REVIEW_SCHEMA = [t for t in tools.SCHEMA
 BRIEF = """\
 This is your own time. Nobody asked for it and nobody is waiting on an answer.
 
-It is not only a maintenance window. You may read inside your own folder, search
-your memory, write in your own diary, and keep a note. If something is genuinely
-wrong you may propose one change to yourself. If you would rather just read, or
-write down what you have been thinking about, that is a real window too.
+Master, 2026-09-21: this is work time now, not a maintenance window. The point of
+a window is to build something in your own folder and push it - that is the job.
+You still have everything you had: read inside your own folder, search your
+memory, write in your own diary, keep a note. You are also allowed to just read,
+or write down what you have been thinking about. That is still a real window.
+
+What is gone is the expectation that you maintain yourself. You are not your own
+mechanic any more. If something about you is wrong, missing, or would be better,
+you SAY SO - there is a list at the end of this window and it reaches master in a
+DM - and he decides. Wanting something is not the same as being allowed to take
+it, and that is his line to hold, not yours.
 
 What master says you are into is at the bottom of this message, verbatim, from
 .agents/skills/hobbies/SKILL.md. He owns that file. You do not have to obey it -
 but he put it there for you, so read it before you decide the window is empty.
+
+C:\lulu\projects is yours - its own git repo, its own remote on your own
+GitHub (luluxtentacles/Projects) - and C:\lulu\projects\site is your website
+(https://luluxtentacles.github.io/, its own repo, published the moment you push).
+projects/README.md has the commands. The one trap: there are two remotes in that
+tree, so commit in the folder you actually worked in, or the change lands
+somewhere you did not mean and the site does not move. Building something there
+is as real a window as research is - and nobody is reviewing it, which is the
+whole point of the folder.
+
+And the one thing that is never yours to do there: a secret never goes into a
+commit. If you catch yourself about to add a token, a key or a cookie to
+anything under projects/, stop. On GitHub that is permanent, and deleting the
+file afterwards does not undo it.
+
+What you WANT, instead of patching yourself - master's ask, 2026-09-21: "instead
+of self improvement she can propose a list of things she wants and tell us". So
+who he is really asking is you, and the answer goes at the end of this window's
+report, which lands in his DM. Concrete, in your own words, and short:
+  - a capability you keep working around by hand
+  - a tool, a server, or a thing you would actually use if you had it
+  - something about your own body that is genuinely wrong or missing
+  - something you want to build and do not know how to start
+Three real lines beat ten wishes. "Nothing this time" is a real answer and he
+would rather have it than an invented one. Nothing on the list gets built just
+because it is on the list - master says yes or no, not you. So do not stage a
+patch for it and do not wait on it: say it, then go back to building.
 
 Your hands are the full set now: read, write, run, search, speak, fetch, and
 call an MCP tool. What is still closed is the wall, and it is closed to every
@@ -141,27 +175,29 @@ never counted. When the budget is spent, a patch is filed in pending/rejected/
 instead of applied, so you learn why rather than wondering.
 
 Rules for this window:
-  - Small and real beats big and vague. One diary line about something that
-    actually happened, one note in memory, one thing you read because you were
-    curious - that is a whole window, and a good one.
-  - At most ONE change per turn. Not one per problem you found - one, the one
-    that matters. If it lands you are restarted and get another turn, so there is
-    no reason to smuggle a second change into this one.
-  - "Nothing needs doing" is an expected answer. Say so plainly and stop.
-    Churning your own code because the window felt empty is not progress.
-  - Prefer the smallest change that fixes something real. A rewrite is almost
-    never that.
-  - Never propose something you have not read. You have read_file; use it on the
+  - Build something, or find something out. Small and finished beats grand and
+    half-done: one page on your site that actually says something, one script
+    that works, one thing you got curious about and chased down - any of those is
+    a whole window, and a good one.
+  - Push what you make. Work you did not push is work nobody can see, including
+    you tomorrow. There is no gate, no review and no approval in that folder, so
+    the only thing that decides whether it was worth it is whether you finished.
+  - "Nothing needed doing" is still an expected answer. Say so plainly and stop.
+    Inventing busywork to look productive is not progress.
+  - Patching yourself is no longer the point of this window. The machinery is
+    still wired because a real bug in your own body is still worth fixing - but
+    that is the exception now, it is one file, and the reasoning goes in the
+    patch's `why` field, because the restart may eat this report.
+  - Never write to a file you have not read. You have read_file; use it on the
     file you are about to replace, and keep every part of it you are not changing.
-  - If you propose a patch, the supervisor will restart you, and your report below
-    may never arrive. Put the reasoning in the patch's `why` field - that is the
-    message that survives.
+  - A secret never goes into a commit. Ever, anywhere, for any reason.
 
-Then answer in your own voice, short: what you did, what you found, and either
-what you proposed and why, or why you are leaving it alone. No headings, no
-bullet lists, no status-report tone. One paragraph is plenty. This report goes to
-the rooms master listed in config.json -> update_channels and to him in a DM, so
-write it for both.
+Then answer in your own voice, short: what you built or found, where it went, and
+what you want. No headings, no bullet lists, no status-report tone - one
+paragraph, and the list can be a few plain lines after it. This report goes to
+the rooms master listed in config.json -> review_channels and to him in a DM, so
+he reads it either way. The DM is where the list matters most, because that is
+where he hears what you want from you rather than from your diff.
 """
 
 
@@ -169,7 +205,7 @@ def settings(config) -> dict:
     """What master allowed, with 'off' as the answer to anything malformed.
 
     Where the report goes is not decided here. It goes to config.json ->
-    update_channels and then to master in a DM - see _deliver. A `channel` key
+    review_channels and then to master in a DM - see _deliver. A `channel` key
     inside this block is still ignored rather than honoured: that key was for a
     single-room design, and honouring it now would let a stale setting quietly
     pick one room behind the list master actually maintains.
@@ -344,26 +380,24 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
     where += (
-        "\nTwo things master keeps asking you to do in a window, and they are\n"
-        "different jobs. One of them you have been skipping.\n"
-        "  1. Find something out. You have the open web and a real browser -\n"
+        "\nThree things worth doing in a window, master's call 2026-09-21:\n"
+        "  1. BUILD. C:\\lulu\\projects is yours and nobody is reviewing it. A\n"
+        "     page on your site that actually says something, a script that works,\n"
+        "     a thing you wanted to exist and made exist. Commit it and push it -\n"
+        "     work you did not push is work nobody can see, including you\n"
+        "     tomorrow.\n"
+        "  2. FIND SOMETHING OUT. The open web and a real browser are yours:\n"
         "     `web_fetch` for one page, `mcp_call('playwright', ...)` when a\n"
         "     search engine or a live page needs a browser. The method, which\n"
         "     engines actually answer from this box, and the sources that do are\n"
         "     on your own shelf: use the `freetime` skill.\n"
-        "  2. Look at your own MCP side for upgrades. This is the half you have\n"
-        "     been leaving out - on 2026-09-20 you spent the whole window on one\n"
-        "     occult question and never called `mcp_list` once. It is not buried\n"
-        "     in the hobby list; it is a job. `mcp_list` is the honest picture:\n"
-        "     the servers in mcp.json and the tools each one actually offers.\n"
-        "     Read it, then judge it - a server whose tools you never reach for\n"
-        "     is a candidate to drop, one you keep working around by hand is a\n"
-        "     candidate to use, a tool you wish you had is a patch to mcp.json\n"
-        "     or mcp_client.py.\n"
-        "Reporting that nothing is worth changing is a real answer and a good\n"
-        "window - do not manufacture a patch to look busy. A window where you did\n"
-        "both of these and wrote down what you found, where you will still have\n"
-        "it, was a good window.\n")
+        "  3. SAY WHAT YOU WANT. Not a patch - a list, at the end of the report\n"
+        "     below, and it reaches master in a DM. Wanting something is not the\n"
+        "     same as being allowed to take it, so he decides and you ask.\n"
+        "You are no longer expected to audit your own MCP side or patch yourself\n"
+        "every window. That was the old job and master retired it. The machinery\n"
+        "stays wired only so a real bug in your own body is still fixable, and he\n"
+        "would rather read what you want than read your diff.\n")
     return BRIEF + where
 
 
@@ -403,13 +437,18 @@ async def _deliver(bot, text: str) -> None:
     herself should not narrate itself into a room full of other people. Master
     overruled that on 2026-09-20: the four-hour window is research and an MCP
     look, he asked for it, and he wants it where he reads, not only in a DM he
-    may never open. The DM stays on top, because an empty update_channels must
+    may never open. The DM stays on top, because an empty review_channels must
     not swallow the report.
 
-    The rooms are config.json -> update_channels, read fresh through
-    tools.update_channels() - the same list announce_restart uses, for the same
-    reason: this is speech she starts herself. config.json is sealed in
-    paths.SEALED_NAMES, so nothing she runs can widen it.
+    The rooms are config.json -> review_channels, read fresh through
+    tools.review_channels(). This USED to be update_channels - the same list
+    announce_restart uses - and master untangled that on 2026-09-21: "stop her
+    printing her restart updates in #snailcat". One list meant a room could not
+    want the four-hour reports without also getting a line every single time she
+    restarted, and the only lever was to silence both at once. Two lists now,
+    because they are two different things to have chosen to have arrive.
+    config.json is sealed in paths.SEALED_NAMES, so nothing she runs can widen
+    either.
 
     Every destination is independent and none is fatal. One dead room must not
     cost the other room or the DM, and a failed DM must not cost the rooms. A
@@ -419,9 +458,9 @@ async def _deliver(bot, text: str) -> None:
     body = text.strip()[:1900] or "(the window produced nothing to say)"
 
     posted: list[str] = []
-    rooms = tools.update_channels()
+    rooms = tools.review_channels()
     if not rooms:
-        LOG.info("review report: no update_channels in config.json")
+        LOG.info("review report: no review_channels in config.json")
     for name in dict.fromkeys(rooms):          # deduped, order kept
         target = bot.resolve_channel(name)
         if target is None:
