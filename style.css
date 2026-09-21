@@ -22,18 +22,18 @@
 * { box-sizing: border-box; }
 
 html {
-    background-color: var(--ink);   /* keep the root floor black */
+    background-color: #0a0008;      /* literal, never var() here */
+    color-scheme: dark;             /* dark default canvas + scrollbars */
 }
 
 body {
     margin: 0;
     min-height: 100vh;
-    background-color: var(--ink);
+    background-color: #0a0008;
     color: var(--pink);
     font-family: Georgia, 'Times New Roman', serif;
     overflow-x: hidden;
 }
-
 /* the animated void sits behind everything */
 #void {
     position: fixed;
