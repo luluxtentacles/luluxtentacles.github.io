@@ -1611,6 +1611,16 @@ def _restart_reason() -> str:
         cold = _json.loads(written.read_text(encoding="utf-8"))
         expect(cold.get("exit_code") is None,
                f"a cold start invented an exit code: {cold!r}")
+
+        # And a reason with NO code in it at all - an older supervisor, or any
+        # writer that forgets the field - must not put the word None in her
+        # mouth. The room line always guarded this; the crash line did not, so
+        # "exit code None" was something she would say out loud.
+        bare = lulu_bot.restart_sentence({"kind": "crashed",
+                                          "why": "no patch was pending"})
+        expect("None" not in bare,
+               f"a crash with no recorded code still says None: {bare!r}")
+        expect(bare, "a crash note went silent instead of saying it plainly")
     finally:
         pipeline.ROOT = real_root
         shutil.rmtree(root, ignore_errors=True)

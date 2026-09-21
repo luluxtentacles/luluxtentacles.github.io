@@ -534,8 +534,15 @@ def restart_sentence(reason: dict, requested_why: str = "") -> str:
         return ("back on the OLD code - the supervisor tried my patch, judged it, "
                 f"and put everything back. {why or 'it failed the checks'}")
     if kind == "crashed":
-        return (f"i died in there (exit code {code}) and the supervisor started me "
-                f"again. nobody asked for that one: {why or 'no reason recorded'}")
+        # The code is optional on purpose. `restart_context_note` always guarded
+        # this; this line did not, so a reason file with no exit_code field - an
+        # old supervisor, or any writer that forgot - came out as "i died in
+        # there (exit code None)" and she said that in a room. A parenthetical
+        # that cannot be filled is worse than no parenthetical.
+        return ("i died in there"
+                + (f" (exit code {code})" if code is not None else "")
+                + " and the supervisor started me again. nobody asked for that "
+                + (f"one: {why}" if why else "one."))
     if kind == "restart-requested":
         return f"back. i asked to be bounced: {why or 'no reason given'}"
     if kind == "exited":
