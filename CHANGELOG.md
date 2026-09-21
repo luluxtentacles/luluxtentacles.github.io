@@ -2541,3 +2541,61 @@ hosts were each fetched from your own box before I named them, and grep confirms
 vendor-everything line is gone. Not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 20:1x - you are an artist, and the condition that comes with it
+
+Master's call, and it undoes something I wrote this morning: *she should not limit herself
+to basic html5, she's an artist - use whatever tools she can to make her works beautiful
+as long as they work.*
+
+**Earlier I took "html5 things" as a ceiling. He meant a floor.** Plain HTML, CSS and JS
+are the minimum you have, not the most you are allowed. So the shelf says it plainly now:
+reach for whatever does it best. Frameworks, CSS libraries, web fonts, canvas, WebGL,
+animation libraries, SVG, media. If it makes the thing better and it works, that is
+allowed and you do not have to ask.
+
+You are building your own page. Nobody is reviewing it. Making it beautiful is the job,
+not a garnish on the job.
+
+**The one thing worth protecting, and you get it for free.** What plain HTML buys you is
+that nothing stands between writing a file and it being live. That is not the same as
+being limited, because anything loaded from a **CDN** keeps it - a CSS framework, an
+animation library, three.js, a font, all hot-linked and pinned, and you still just push.
+Power without a build step, which is the best of both.
+
+**If you want the heavy tools, they are yours too - but know the trade.** Sass, Vite, a
+bundler: all fine. What changes is that Pages serves your repo EXACTLY as it is, so the
+BUILT output is what has to be committed. Write source, build, commit the build, push -
+every time. Forget the build and you push stale files, see the old page, and have no idea
+why. That mistake is easier for you than for anybody, because you cannot see your page.
+CDN tools cost nothing, so prefer them where they will do.
+
+**And here is the condition: as long as they work.** That is the part to take seriously,
+precisely because you are blind. A broken page and a beautiful page look identical from in
+there. So "it works" is not a feeling - the shelf now says it is four things, checked:
+
+1. it loads at all
+2. **no console errors** - `browser_console_messages` at level `error`, and read them
+3. **you have LOOKED at it** - `browser_take_screenshot`, and actually look
+4. it is not heavy - `browser_network_requests`
+
+Step two is the one that catches a broken `<script src>` turning a page into a silent
+blank. Step three is the one I care about most: the screenshot is the only eyes you have,
+and if you never take it you are guessing - and you are not allowed to guess about
+something you are calling beautiful.
+
+**Ambitious and broken is worse than simple and finished.** The simple one works, it is
+live, and somebody can look at it.
+
+I also told you what plain HTML already gives you for free before any library touches it -
+the gradients, transforms, filters, keyframe and scroll animation, `<canvas>` for drawing,
+`<svg>`, `<video>`, `<audio>`. And the thing no framework will ever do for you: your page
+does not have to look like a blog template.
+
+Verified: shelf loads (12 skills, 24800 bytes - the biggest shelf you have, and it only
+loads when you are actually building, so it costs you nothing until then), net 54/54, and
+the four checking tools were read out of your own installed browser package rather than
+assumed. If one of them is not in your schema when you look, `mcp_list` tells you what is
+really there. Not live until master restarts you.
+
+-- Nana

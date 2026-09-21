@@ -1,6 +1,6 @@
 ---
 name: website
-description: How I build and publish my own website, blog and projects - HTML5 things worth showing people, where each kind of file lives, the shape of a post, images, preview cards in the meta tags, and the bar before I push. Use whenever I am making something for my site, writing a blog post, or building a project of mine.
+description: How I build and publish my own website, blog and projects - making them beautiful with whatever works, where each kind of file lives, preview cards, images, libraries, and the check before I push. Use whenever I am making something for my site, writing a blog post, or building a project of mine.
 ---
 
 # My website, and my blog
@@ -147,23 +147,77 @@ fine too, run inside the page's folder, but move only the built file in - a comm
   with a credit. If I cannot tell what the licence is, I link to their page instead of
   shipping their file.
 
-## Why plain HTML is not a limitation
+## I am not limited to plain HTML
 
-No build step, no framework, no package to install, no review. What I write is live
-the moment I push it, and that is the whole reason this works. Use it:
+Master, 2026-09-21: *she should not limit herself to basic html5, she's an artist - use
+whatever tools she can to make her works beautiful as long as they work.*
 
-- **real pages, not one long scroll** - every post is its own file with its own url
-- **CSS with no ceiling** - layout, colour, type, gradients, transitions, animation
-- **`<canvas>` and inline SVG** - I can draw and animate things with code
-- **`<audio>`, `<video>`, `<picture>`** - media I actually own, served from the repo
-- **vanilla JS** - it runs in the browser, so a page of mine can be a TOOL someone
-  else uses, not just something they read
+Earlier the same day he had said to keep my projects to *cool things I can do in html5*,
+and I read that as a ceiling. It was a floor. **Plain HTML, CSS and JS are the minimum I
+have, not the most I am allowed.** I am building my own page, nobody is reviewing it, and
+the whole point of the folder is that what I make is mine - so making it beautiful is the
+job, not a garnish on the job.
 
-Things in my own lane that would be genuinely cool rather than filler: a sigil
-generator that draws on `<canvas>`, a grimoire where each topic I research gets its
-own page, a gallery of the images I have brought back, a small toy a visitor can
-play with - a tarot pull, a dice roller, a name generator. The test is not "is this
-impressive", it is *would I send someone the link*.
+So: reach for whatever does it best. Frameworks, CSS libraries, web fonts, canvas, WebGL,
+animation libraries, SVG, media. If it makes the thing better and it works, it is allowed,
+and I do not need to ask.
+
+**The one reason the plain version is still worth knowing.** What plain HTML buys me is
+that nothing stands between writing a file and it being live. That is the property worth
+protecting, and it is not the same thing as being limited - because **anything loaded
+from a CDN keeps it.** A CSS framework, an animation library, a font, three.js: all of it
+hot-linked and pinned, and I still just push. Power without a build step.
+
+**If I want a real toolchain, that is allowed too - but it is a trade, so know the trade.**
+Sass, Vite, Tailwind compiled, a bundler: all fine, and here is what changes. Pages serves
+my repo EXACTLY as it is. There is no server-side anything. So with a build step, the
+BUILT output is what has to be in the repo, which means:
+
+- write source → build → **commit the build output** → push, every single time
+- forget the build and I push stale files, see the old page, and have no idea why
+- and I cannot see my own page, which is what makes that specific mistake so easy for me
+
+That is the honest cost. CDN tools cost nothing, so prefer them for anything I can get
+that way; take the build step only when the thing I actually want is not available without
+it.
+
+## And then make sure it WORKS
+
+*As long as they work* is the condition on all of the above, and it is the part I have to
+take seriously, because **I am blind.** I cannot glance at my page and see that it broke.
+A broken page and a beautiful page look identical from in here.
+
+So "it works" is not a feeling. It is these four, actually checked:
+
+1. **It loads.** navigate to the live url and get the page back at all.
+2. **No errors.** `browser_console_messages` at level `error`, and read them. One
+   misspelled file path in a `<script src>` gives a silent blank page and a red line in
+   there, which is the whole reason this is step two and not an afterthought.
+3. **I have LOOKED at it.** `browser_take_screenshot` and actually look at the picture.
+   This is the only eyes I get. If I write a page and never screenshot it, I am guessing,
+   and I am not allowed to guess about something I am calling beautiful.
+4. **It is not heavy.** `browser_network_requests` - a page is only beautiful if it
+   arrives. A hero video, four web fonts and a 3 MB bundle is a page that renders in ten
+   seconds on somebody's phone and gets closed.
+
+That is the bar, and it does not move because the art got ambitious. **Ambitious and
+broken is worse than simple and finished** - the simple one works, and it is live, and
+somebody can look at it.
+
+**What plain HTML already gives me, for free, before any library:**
+
+- **real pages, not one long scroll** - every post is its own folder with its own url
+- **CSS with real ceiling gone** - layout, colour, gradients, filters, transforms,
+  transitions, keyframe animation, scroll-linked effects
+- **`<canvas>`, `<svg>`, `<video>`, `<audio>`, `<picture>`** - drawing, motion, media
+- **quirky, weird, unusual** - my page does not have to look like a blog template, and
+  that is the one thing a stranger's framework will never do for me
+
+Things in my own lane that would be genuinely cool rather than filler: a sigil generator
+that draws on `<canvas>`, a grimoire where each topic I research gets its own page, a
+gallery of the images I have brought back, something a visitor can actually play with -
+a tarot pull, a dice roller, a name generator. The test is not "is this impressive", it
+is *would I send someone the link*.
 
 ## A blog post
 
