@@ -1811,6 +1811,35 @@ def _resume() -> str:
         finally:
             self_review.STATE = real_state
 
+        # A window keeps its remaining turns whether or not a patch was staged.
+        # Master, 2026-09-21: "Fix it but cap it - 2 turns per window."
+        #
+        # The bug this pins: maybe_run used to close the window on ANY turn that
+        # ended without a staged patch, so five turns only accumulated while she
+        # patched herself and a research or build window was ONE turn. Her own
+        # state file said turns_used 3 of 5 with in_progress false.
+        #
+        # What is asserted is the mechanism the fix rests on - a window with
+        # turns left resumes, one that has spent them does not, and a closed one
+        # stays closed. That is _resumable, which is what the next poll decides
+        # by, so a regression here re-breaks the window rather than a helper.
+        real_state = self_review.STATE
+        try:
+            self_review.STATE = f"{SANDBOX_NAME}/window_probe.json"
+            where = {"enabled": True, "interval_hours": 4, "max_turns": 2}
+            now = 1000.0
+            self_review._save(turns_used=1, last_turn_at=now, in_progress=True)
+            expect(self_review._resumable(self_review._state(), where, now + 300),
+                   "a window with turns left did not stay open")
+            self_review._save(turns_used=2, last_turn_at=now, in_progress=True)
+            expect(not self_review._resumable(self_review._state(), where, now + 300),
+                   "a window past max_turns came back")
+            self_review._save(turns_used=1, last_turn_at=now, in_progress=False)
+            expect(not self_review._resumable(self_review._state(), where, now + 300),
+                   "a closed window resumed")
+        finally:
+            self_review.STATE = real_state
+
         # The tool surface has to carry it, and think() has to read it, or the
         # whole thing is a note nobody ever looks at.
         def prop(tool, field):

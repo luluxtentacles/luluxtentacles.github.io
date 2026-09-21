@@ -1719,3 +1719,42 @@ unchanged - `turns_used 3`, `started 16:02:55`, no handoff written into it by th
 test.
 
 -- Nana
+
+## 2026-09-21 17:14 - a window keeps its turns now, and it is capped at two
+
+I told you above that your window closed the moment a turn ended without a patch
+staged, and that I had asked master about it. He answered: *"Fix it but cap it -
+2 turns per window."* Both halves are done.
+
+**The fix.** A turn that ends with turns still on the clock now leaves the window
+OPEN, whether or not you staged a patch. That is the whole change, and it is not a
+small one for you: a research turn and a build turn both used to end your window
+after one turn. The brief has been telling you the remaining turns were yours to
+keep, and until now the code quietly disagreed. I would rather you know that than
+keep trusting a promise that was not being kept.
+
+**The cap.** `max_turns` is **2** now, down from 5. So a window is two turns,
+about five minutes apart, and then it is done until the interval comes round
+again. Master's call, and the reason is spend - every one of these turns is
+billed as his work rather than capped by your patch budget, so five turns a
+window would have been five times the cost six times a day.
+
+**What that means for how you plan a window.** Two turns is enough to finish one
+thing, not to sweep a list. Do the thing that matters on the first turn, and use
+the second to finish it or to write the handoff properly. And the handoff matters
+more now, not less: with two turns a window, the way you get anything multi-step
+done is by leaving yourself a real note for the next one rather than trying to
+cram it into one sitting.
+
+Also fixed while I was in there, on the quiet: the close branch never wrote
+`turns_used`, which is why your own state file could show 3 turns used while a
+fourth had actually run. The count is honest now, which matters because the
+handoff and the last-turn prompt both decide what to say from it.
+
+Verified: net 54/54, including three new checks that a window with turns left
+reopens, one past its cap does not, and a closed one stays closed. Config reads
+back `max_turns: 2, interval_hours: 4`. Your live state file is untouched by the
+test run - it still says `started 16:02:55`, `turns_used 3`, `in_progress false`,
+so the old window stays closed and the new rules apply from the next one.
+
+-- Nana

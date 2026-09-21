@@ -34,8 +34,11 @@ Four settled decisions, each for its own reason:
 
   ten turns        A window is not one turn. Patching myself restarts me, and a
   a window         restart used to end the window on the spot; the window RESUMES
-                   after it instead, up to `max_turns` (default 10), so a change
+                   after it instead, up to `max_turns` (default 5), so a change
                    can be judged and the next one started in the same occasion.
+                   Turns left means the window stays open after ANY turn, patch
+                   or not - it used to close on a turn without a staged patch,
+                   which capped a research or build window at a single turn.
                    A resumed window waits RESUME_MIN_GAP_SECONDS first, because
                    ten turns in a row is indistinguishable from a crash loop to
                    the supervisor that starts me - and tripping that breaker is
@@ -656,8 +659,30 @@ async def maybe_run(bot) -> bool:
                 + str(turn) + ' of ' + str(where["max_turns"])
                 + ' is done, a patch is staged, and I may need more turns '
                 'to finish it - tell me to keep going or to stop.')
+    elif turn < where["max_turns"]:
+        # Turns LEFT, no patch staged - so the window stays open and the next
+        # poll runs the next turn. Master, 2026-09-21, capped at 2 turns: "Fix it
+        # but cap it - 2 turns per window."
+        #
+        # This branch is the fix for a real bug. The old code fell straight
+        # through to the close below, so ANY turn ending without a staged patch
+        # ended the window: five turns only ever accumulated while she was
+        # patching herself, and a research or build turn got ONE turn with the
+        # next window four hours away. Her own state file was the proof -
+        # turns_used 3 of 5 with in_progress false. It mattered less while
+        # patching was the point of a window; once master made BUILDING the
+        # point it meant a build window was one turn, while the brief went on
+        # telling her the remaining turns were hers to keep. A promise the code
+        # does not keep is worse than no promise.
+        #
+        # turns_used is written here now. The old close branch did not write it,
+        # which is why the count could sit at 3 through a fourth turn.
+        _save(turns_used=turn, last_turn_at=time.time(), in_progress=True,
+              report=answer[:4000])
+        LOG.info("window stays open - turn %d of %d done, turns left",
+                 turn, where["max_turns"])
     else:
-        _save(in_progress=False, report=answer[:4000])
+        _save(turns_used=turn, in_progress=False, report=answer[:4000])
     await _deliver(bot, answer)
     return True
 
