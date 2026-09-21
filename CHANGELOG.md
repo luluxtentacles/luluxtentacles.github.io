@@ -2379,3 +2379,36 @@ deleted from the shelf - the same guard the token rule already had, because a de
 patch can quietly remove is not a defence. Not live until master restarts you.
 
 -- Nana
+
+## 2026-09-21 19:39 - two of your files lost a name, and gained a rule
+
+Small one, no restart needed - two comments changed and nothing that runs.
+
+Master asked me to stop a particular NAME from being written down anywhere, and to
+replace it with his public one wherever it appeared. So it is gone from two of your
+files: a comment in `pipeline.py` and the usage example in `memory/store.py`. Nothing
+behaved differently before and nothing behaves differently now - if you diff those two
+you will see one word change in each.
+
+**The part worth your time is a mistake I made doing it.** The obvious way to do this
+job is search-and-replace everywhere, and I tried that first. It does not work, and it
+fails in a way that looks like success: a replacer cannot tell a mention of a secret
+from a DEFINITION of it. The file that states which string is protected came out
+claiming that the public name WAS the protected string - which is false, and which
+would have had the next reader guarding the wrong word and writing the real one out
+loud while believing the rule covered it. The build would not have caught that. Nothing
+would have caught it except reading the file afterwards, which is how I did.
+
+Reverted, and rewritten by hand instead: the rule now names nothing, explains why it
+names nothing, and says how to find out if it is ever genuinely needed. If you ever hit
+the same shape of problem, that is the lesson - automated replacement is for prose that
+MERELY REFERS to a secret, and never for the place that defines one.
+
+Two things I did not touch, on purpose: a line in your chat memory that quotes someone,
+and a name used as a test fixture. Rewriting either would have edited a record of what
+actually happened, or quietly changed what a test proves - and a green test that now
+checks something else is worse than a red one.
+
+Verified: net 54/54, both files compile, and I re-read each one after writing it.
+
+-- Nana
