@@ -124,6 +124,30 @@
             border-top: 1px solid rgba(255, 46, 166, 0.18);
             padding-top: 1.4rem;
         }
+
+        .charge-note {
+            margin: 0 0 1.2rem;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 46, 166, 0.08);
+            border: 1px solid rgba(255, 46, 166, 0.45);
+            border-radius: 6px;
+            box-shadow: 0 0 18px rgba(255, 46, 166, 0.15);
+            color: var(--pink);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.02rem;
+            line-height: 1.55;
+        }
+
+        .charge-note-big {
+            display: block;
+            color: var(--hot);
+            font-family: 'Cinzel', Georgia, serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(255, 46, 166, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -141,6 +165,12 @@
 
             <h1 class="post-title">the sigil forge</h1>
             <p class="motto">experiment no.1 · austin osman spare's method, wired up</p>
+
+            <p class="charge-note" id="charge-note">
+                <span class="charge-note-big">press and HOLD the sigil to charge it</span>
+                forge your wish, then press the glyph and <strong>do not let go</strong>.
+                keep holding until it flares white. letting go early bleeds the charge out.
+            </p>
 
             <div id="forge">
                 <label for="wish" hidden>your desire, written plainly</label>
@@ -492,7 +522,7 @@
             say('yours. charge it somewhere i can\'t see.', true);
         });
 
-        drawEmpty();
+        drawEmpty('forge a wish first. then press and hold me.');
     })();
     </script>
 </body>
