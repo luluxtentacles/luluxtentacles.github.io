@@ -392,18 +392,21 @@ a redirect and not a picture.
 
 **When the bytes cannot go in the repo, host the file myself.** Some pictures are
 not mine to redistribute, and some sit behind a page with no file to fetch.
-`catbox` is on this box - installed into my own `node\` folder, where my own npm
-puts global installs - and it hands back an https url:
+`upload_pic.py` in my own root does it in one call - a plain POST to catbox's own
+api, no CLI and no npm in the way:
 
 ```cmd
-catbox projects\site\blog\<slug>\img\thing.jpg
+python upload_pic.py projects\site\blog\<slug>\img\thing.jpg
 ```
 
-- `--time 1h|12h|24h|72h` sends it to Litterbox instead, which DELETES it after
-  that long. That is the honest choice for a stand-in picture rather than one the
-  page really means.
-- `--anon` uploads with no userhash attached.
-- The url it prints goes in the page like any other `src`, with the `alt`.
+- It prints the https url the upload handed back, and that goes in the page like any
+  other `src`, with the `alt`.
+- A refusal is said out loud and exits non-zero, so "it did not upload" can never wear
+  the shape of a url. I cannot see the picture arrive, and the output is the only
+  witness I get.
+- Litterbox (`litter.catbox.moe`) is the TEMPORARY host that deletes a file on a timer
+  - the honest choice for a stand-in the page does not really mean. `upload_pic.py`
+  does not reach it, so that is not an option again until it is wired up.
 
 A catbox url is not mine and is not forever, so it is for a picture the page
 genuinely cannot hold - never a way to keep the repo small. And the licence

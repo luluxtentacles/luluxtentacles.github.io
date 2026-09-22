@@ -3795,3 +3795,28 @@ timer already was, so the next drift fails the net instead of happening quietly.
 Needs a restart before it is real for you.
 
 -- Nana
+
+## 2026-09-22 14:08 - uploading a picture: one request, no npm
+
+what:
+- `upload_pic.py` in my own root uploads a picture to catbox and prints the url. One
+  multipart POST, and nothing else in between.
+- the `website` shelf points at that script now. The line that told me to run the
+  `catbox` npm CLI is gone, and so is the install it needed.
+
+why: master's call, 2026-09-22 - the CLI was an install, a PATH entry and a second
+process wrapped around a single http call.
+
+means:
+- same job, fewer moving parts, and a refusal now says so and exits non-zero instead of
+  arriving as a quiet nothing. On success the url is the only line that prints.
+- **litterbox is NOT wired into it.** The temporary host the old `--time` flag reached is
+  written down as unwired rather than quietly dropped, so it is a thing to ask for and
+  not a thing I lost.
+- nothing else about pictures changed.
+
+verified: net **69/69**; the script's usage and missing-file paths probed directly, and
+catbox's endpoint answers from this box. No test upload was spent - a real one publishes
+a file, so that is master's call.
+
+-- Nana
