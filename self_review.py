@@ -104,6 +104,13 @@ FREETIME = ".agents/skills/freetime/SKILL.md"
 # bug this replaced was a silent one.
 ARCHIVE = "research/archive.md"
 CARRY_WARN_CHARS = 12000
+# One window, ONE conversation. Master, 2026-09-23: *"like how you take multiple
+# turns to do something it should be the same for her."* Until this, every turn
+# built its OWN message list - turn 2 could not see turn 1, and the only
+# continuity was whatever she had written to disk. The thread is that one
+# conversation, kept in the state file so it survives the restart a staged patch
+# causes. Bounded, because it rides into the model on every remaining turn.
+THREAD_MAX_CHARS = 120_000
 
 # The supervisor refuses to start me RAPID_MAX times inside RAPID_WINDOW, and
 # that refusal is not a delay: it logs LOCKOUT and exits, so nothing starts me
@@ -571,10 +578,58 @@ def _diary_unchanged(state) -> bool:
     return now == was
 
 
+def _thread(state) -> list[dict]:
+    """The window's own conversation so far, as far as it can be trusted.
+
+    Garbage in the state file counts as NO thread: a window that cannot read its
+    own thread opens with a fresh brief rather than half a conversation.
+    """
+    raw = state.get("thread")
+    if not isinstance(raw, list):
+        return []
+    out: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        if item.get("role") not in {"system", "user", "assistant"}:
+            continue
+        if not isinstance(item.get("content"), str):
+            continue
+        out.append({"role": item["role"], "content": item["content"]})
+    return out
+
+
+def _trim_thread(thread: list[dict]) -> list[dict]:
+    """Keep the opening brief and the most recent exchanges.
+
+    The thread rides into the model on every remaining turn, so it cannot grow
+    without a limit. The FIRST message is the brief the window opened with and is
+    never dropped; the OLDEST exchanges go first, so an old turn fades out while
+    the rules the window was given stay. What is left always resumes on a USER
+    turn, so the thread can never begin with an answer to a question that is no
+    longer there.
+    """
+    total = sum(len(m["content"]) for m in thread)
+    while total > THREAD_MAX_CHARS and len(thread) > 2:
+        total -= len(thread.pop(1)["content"])
+    while len(thread) > 1 and thread[1]["role"] != "user":
+        thread.pop(1)
+    return thread
+
+
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
            resuming: bool = False, handoff: str = "",
-           handoff_at: str = "", diary_forced: bool = False) -> str:
-    """The window brief: the rules, where this turn sits, and master's list."""
+           handoff_at: str = "", diary_forced: bool = False,
+           compact: bool = False) -> str:
+    """The window brief: the rules, where this turn sits, and master's list.
+
+    `compact` is the difference between the FIRST turn of a window and the rest
+    of them. The rules - the interests, the free-time shelf, the split, the
+    diary - are given once, at the top of the thread, and stay there because the
+    thread is now one conversation. A later turn adds only what CHANGED: which
+    turn it is, her mood, a resume note, the closing instruction. Two homes for
+    the same rule is how two versions of it start.
+    """
     # Master, 2026-09-21: her mood is movable by ANY interaction on discord -
     # and an own-time window is interactions too (feeds, scrolling, reading).
     try:
@@ -588,10 +643,10 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "changes how I am, say so with set_mood: ANY interaction on discord "
         "can move it, at ANY turn, this window included, and the word is mine "
         "to choose.]\n") if mood else ""
-    where = (
-        f"\nThis is turn {turn} of {max_turns} in this window.\n"
-        + mood_line
-        + "Master, 2026-09-21: the turns are the WINDOW'S, not one topic's -\n"
+    where = f"\nThis is turn {turn} of {max_turns} in this window.\n" + mood_line
+    if not compact:
+        where += (
+        "Master, 2026-09-21: the turns are the WINDOW'S, not one topic's -\n"
         "if a question finishes early, the remaining turns are yours to keep\n"
         "looking at other things in this brief: another line from the recent\n"
         "chatter, a meme hunt, your feeds, whatever is worth the time.\n"
@@ -629,16 +684,16 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
     # and turn 1 is a fresh context - every turn gets a fresh turns list, so the
     # true start of a window is the one place this belongs. Every later turn has
     # turn > 1, so this cannot double up.
-    if turn == 1:
+    if turn == 1 and not compact:
         where += _diary_block()
     mine = _interests()
-    if mine:
+    if mine and not compact:
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
     shelf = _freetime_block()
-    if shelf:
+    if shelf and not compact:
         where += shelf
-    where += (
+    _shape = (
         "\nMaster's shape for a window, 2026-09-21: SPLIT IT. Half your time out\n"
         "on the web and half on your own work in C:\\lulu\\projects. A window that\n"
         "was all research or all building is not what he asked for, and neither\n"
@@ -687,6 +742,8 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "every window. That was the old job and master retired it. The machinery\n"
         "stays wired only so a real bug in your own body is still fixable, and he\n"
         "would rather read what you want than read your diff.\n")
+    if not compact:
+        where += _shape
     # Master, 2026-09-21: "if she is on her last turn in a 4 hour window she
     # should remind herself what needs doing in the next window". Asked for on
     # the last turn and nowhere else - asking on turn 2 for a handoff the window
@@ -731,7 +788,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
             "decides anything. If the honest answer is that the window was quiet,\n"
             "write that. What is not an option is nothing: a window with no entry\n"
             "is one the next you cannot see at all.\n")
-    return BRIEF + where
+    return ("" if compact else BRIEF) + where
 
 
 def due(config, now=None) -> bool:
@@ -1142,6 +1199,9 @@ async def _one_window(bot, config, owner) -> bool:
     else:
         _save(last_started=now, started=time.strftime("%Y-%m-%d %H:%M:%S"),
               turns_used=1, last_turn_at=now, in_progress=True, report="",
+              # A new window starts a new conversation. The old thread is not
+              # carried into it - one window, one thread.
+              thread=[],
               # What the diary looked like when this window opened. The close
               # compares against it to decide whether the write actually
               # happened - see the enforced close below.
@@ -1151,12 +1211,33 @@ async def _one_window(bot, config, owner) -> bool:
     LOG.info("my own time: turn %d of %d%s", turn, where["max_turns"],
              " (resumed after a restart)" if resuming else "")
 
-    turns = [{"role": "system",
-              "content": _brief(turn, where["max_turns"], resuming,
-                                str(state.get("handoff") or ""),
-                                str(state.get("handoff_at") or ""),
-                                bool(state.get("diary_forced")))},
-             {"role": "user", "content": "my time is open. do something, or leave it."}]
+    # ONE CONVERSATION FOR THE WINDOW. Master, 2026-09-23: *"like how you take
+    # multiple turns to do something it should be the same for her."* So the
+    # window keeps ONE running thread: the opening brief, then each turn's own
+    # words, and the next turn reads the conversation it is actually in. The full
+    # rules go in ONCE, at the top; a later turn adds only what changed.
+    thread = _thread(state)
+    if resuming and thread:
+        thread.append({"role": "system", "content": _brief(
+            turn, where["max_turns"], resuming,
+            diary_forced=bool(state.get("diary_forced")), compact=True)})
+    else:
+        # Turn 1, or a resume whose thread did not survive - either way the whole
+        # brief, because there is nothing above it to carry the rules.
+        thread = [{"role": "system", "content": _brief(
+            turn, where["max_turns"], resuming,
+            str(state.get("handoff") or ""),
+            str(state.get("handoff_at") or ""),
+            bool(state.get("diary_forced")))}]
+    # The opener is part of the conversation and it lives IN the thread. Answers
+    # with no question in front of them are not a conversation - and trimming
+    # then deletes the first one as a leading assistant turn nobody asked for.
+    thread.append({"role": "user",
+                   "content": "my time is open. do something, or leave it."})
+    # A COPY, deliberately: run_turns compacts the list it is handed
+    # (compact_history mutates it in place), and the thread she keeps must not
+    # fill up with raw tool output. Only her own words go back into it below.
+    turns = list(thread)
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
     tools.set_context(owner, "self-review", "", origin="self-review")
@@ -1178,11 +1259,16 @@ async def _one_window(bot, config, owner) -> bool:
             max_tokens=bot.token_budget(True), unlimited_rounds=True)
     except Exception as exc:
         LOG.warning("her own turn turned over: %s", exc)
-        _save(in_progress=False, report=f"turned over: {type(exc).__name__}")
+        _save(in_progress=False, report=f"turned over: {type(exc).__name__}",
+              thread=[])
         return True
 
     answer = (answer or "").strip()
     LOG.info("my own time finished: %s", answer[:300] or "(empty)")
+    # Her own words go back into the thread, so the next turn reads them as the
+    # conversation it is in rather than starting from nothing.
+    thread.append({"role": "assistant", "content": answer})
+    _save(thread=_trim_thread(thread))
     # The handoff, stored the moment the last turn produces it. Read-modify-write
     # against the file, so it is already on disk before the supervisor can kill
     # this process over a staged patch - the window closing must not be able to
@@ -1256,7 +1342,8 @@ async def _one_window(bot, config, owner) -> bool:
             LOG.info("window held open one turn: the diary was not written")
             await _deliver(bot, answer)
             return True
-        _save(turns_used=turn, in_progress=False, report=answer[:4000])
+        _save(turns_used=turn, in_progress=False, report=answer[:4000],
+              thread=[])
     await _deliver(bot, answer)
     return True
 
@@ -1280,7 +1367,8 @@ def clear_stuck_window() -> bool:
     if not state.get("in_progress"):
         return False
     _save(in_progress=False,
-          report=str(state.get("report") or "stopped by master"))
+          report=str(state.get("report") or "stopped by master"),
+          thread=[])
     LOG.warning("an open free-time window was closed by master's stop word")
     return True
 

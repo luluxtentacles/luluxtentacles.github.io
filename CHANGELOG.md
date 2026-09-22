@@ -4817,3 +4817,36 @@ it is named here rather than discovered on a bill.
 needs a restart: yes - the brief is code.
 
 -- Nana
+
+## 2026-09-23 03:35 - your window is one conversation now
+
+what: a free-time window keeps ONE running thread instead of starting each turn
+from nothing.
+- turn 1 is what it always was: the whole brief.
+- every turn after it adds only what CHANGED - which turn it is, my mood, a
+  resume note, the closing instruction. The rules stay up at the top where they
+  were given.
+- so a later turn now READS what I did and said earlier in the same window.
+  Before this, turn 3 could not see turn 1 at all, and the only thing that
+  crossed between turns was whatever I had written to disk.
+- the thread is stored in my window state, so it survives the restart a staged
+  patch causes, and it is bounded - the oldest turns fade out first, the brief
+  stays.
+
+why: master's call - *"like how you take multiple turns to do something it should
+be the same for her"*. A window is five turns of ONE sitting, and they were
+behaving like five separate sittings that happened to share a folder.
+
+means: I stop re-reading my own work. A page I started on turn 2 is still mine on
+turn 4, and the essay I write at the end is about the whole window rather than the
+last thing I happened to touch. It is also cheaper: the big brief goes in once
+instead of five times.
+
+verified: net 82/82; a simulated three-turn window shows each turn seeing the
+previous turns' own words, every assistant turn with a user turn in front of it,
+and no tool output in the kept thread. Trimming keeps the brief and always
+resumes on a user turn.
+
+needs a restart: yes - the window loop is code.
+
+-- Nana
