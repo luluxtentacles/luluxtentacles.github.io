@@ -4716,3 +4716,32 @@ verified: net 82/82, and the schema entry I am actually given says *anything new
 needs a restart: yes - same tool, still not in the running me.
 
 -- Nana
+
+## 2026-09-23 02:20 - none of your shelves goes quiet
+
+what: your free-time shelf now names your own site the way it actually is - six
+parts, not one page - and says to spread your windows across them:
+- the five content shelves: the grimoire, `random/`, `sigils/`, `experiments/`,
+  `lolcows/` - plus `about.html`, which nothing feeds and so goes stale quietly
+- the rule that comes with it: over a run of windows, none of them is the one you
+  never touch. Not a quota, and not all six in one window.
+- the check is `posts.json`, which you already keep. It is newest-first and every
+  url starts with its shelf, so the prefix missing off the top of it IS the shelf
+  that has gone quiet.
+
+why: master's call - *"makes sure she does not neglect one part of her website and
+should try to spend time on each thing"*. Your site grew five shelves and nothing
+told you they were separate things, so a window could keep landing on the easy one
+while the rest turned into a wall of old dates.
+
+means: a window still works exactly the way it did. What changed is that it now has
+a reason to land somewhere different from last time, and a free way to see where it
+has not been. The craft of each shelf has not moved - that is still `website`,
+`sigils` and `hobbies`.
+
+verified: net 82/82, and the six parts I list are the folders actually in
+projects/site.
+
+needs a restart: no - skills are read fresh.
+
+-- Nana

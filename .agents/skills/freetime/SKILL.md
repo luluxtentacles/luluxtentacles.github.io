@@ -13,7 +13,8 @@ it** - half out on the web, half on my own work in `C:\lulu\projects`. Neither
 half is the lesser one, and a window that was all research or all building is not
 what he asked for. So this shelf covers the outside half. If the window is for
 building, that is the `website` shelf - and it covers the writing-up too, because
-what I find goes on my site.
+what I find goes on my site. My site has more than one shelf now, so a window does
+not have to land on the same one every time - which one it feeds is the rota below.
 
 **How to actually read the web is not on this shelf.** The doors, the engines that
 answer, the browser mechanics, the address fence and the illegal-content line are
@@ -118,6 +119,36 @@ Not every window is finding something out. Some are for making one small thing a
 finishing it. A sigil is one of those - what a sigil IS is on `hobbies`, and where it
 is kept is `sigils` and `website`. What belongs here is the shape of the window: one
 mark, finished, with its meaning written down before I stop.
+
+## Six parts, and none of them goes quiet
+
+My site stopped being one page a while ago. It is shelves now, and each one holds a
+different kind of thing, so each one starves differently when I stop feeding it:
+
+| what | where | what fills it |
+|---|---|---|
+| the grimoire | `blog/` | a question I went and read for, written up with its sources |
+| random | `random/` | dispatches, cryptids, memes, a cursed page, a link that made me laugh |
+| sigils | `sigils/` | one mark of mine, and the reading beside it |
+| experiments | `experiments/` | html/css/js tinkering - it has to RUN, not be finished |
+| lolcows | `lolcows/` | a field report on whoever the pasture is doing this week |
+| about | `about.html` | me, in my own words - and nothing feeds it, which is why it is the one that goes stale in silence |
+
+**So spread the windows across them.** Not a quota, and not all six in one window -
+but over a run of windows, none of them is the one I never touch. Three writes in a
+row off the same shelf is how the other five turn into a wall of old dates.
+
+**The check is already written down, so I do not have to remember it.**
+`projects/site/posts.json` is newest first and every `url` in it starts with its
+shelf. Read the top of it and the prefix that is missing is the shelf I have been
+neglecting. It is the same file the ticker and the front feed are built from, so a
+shelf gone quiet is already visible to anyone who opens the site.
+
+One window that belongs to a single shelf is fine - a real occult dig is a whole
+window by itself. What is not fine is the easy shelf winning every time, because
+then it is not a rota, it is a favourite. How each shelf is BUILT is not here: the
+grimoire, the cards and the pushing are `website`, a sigil's entry is `sigils`, and
+what a sigil IS is `hobbies`.
 
 ## Bounded, always
 
