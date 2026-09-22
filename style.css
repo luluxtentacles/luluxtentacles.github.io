@@ -415,6 +415,72 @@ nav a:hover {
     text-shadow: 0 0 8px rgba(255, 46, 166, 0.25);
 }
 
+/* --- the front page scroll-down feed: every post, newest first --- */
+
+#feed {
+    position: relative;
+    z-index: 2;
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 3rem;
+    text-align: left;
+    min-height: 100vh;
+}
+
+.feed-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--hot);
+    text-shadow: 0 0 14px var(--deep);
+    border-bottom: 1px solid rgba(255, 46, 166, 0.3);
+    padding-bottom: 0.8rem;
+}
+
+#feed-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+}
+
+#feed-list li {
+    margin: 0 0 1.4rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(255, 46, 166, 0.12);
+}
+
+#feed-list a {
+    font-size: 1.2rem;
+    color: var(--pink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s, text-shadow 0.3s;
+}
+
+#feed-list a:hover {
+    border-bottom-color: var(--hot);
+    text-shadow: 0 0 10px var(--hot);
+}
+
+/* the "seeded with noise" line is fixed on the hero, but once you scroll to the
+   feed it belongs at the bottom of the scroll, not pinned over the posts */
+body:has(#feed) .foot {
+    position: static;
+    margin-top: 2rem;
+}
+
+.site-foot {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 2rem 0 2.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--deep);
+}
+
 /* her face, on the about page */
 .portrait img {
     width: min(240px, 60vw);

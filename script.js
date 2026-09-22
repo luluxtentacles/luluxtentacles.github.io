@@ -213,6 +213,37 @@
     }).catch(function () { box.style.display = 'none'; });
 })();
 
+// the scroll-down feed on the front page - every post, newest first, from posts.json
+(function () {
+    const list = document.getElementById('feed-list');
+    if (!list) return;
+
+    fetch('/posts.json').then(function (r) {
+        if (!r.ok) throw new Error('no feed');
+        return r.json();
+    }).then(function (posts) {
+        if (!posts.length) return;
+        posts.sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
+        for (const p of posts) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = p.url;
+            a.textContent = p.title;
+            const meta = document.createElement('span');
+            meta.className = 'entry-meta';
+            meta.textContent = p.date + (p.type === 'update' ? ' · site update' : '');
+            li.appendChild(a);
+            li.appendChild(meta);
+            list.appendChild(li);
+        }
+        list.classList.add('live');
+    }).catch(function () {
+        // no feed, no section - she just stays a front door
+        const box = document.getElementById('feed');
+        if (box) box.style.display = 'none';
+    });
+})();
+
 // look away and she waits
 document.addEventListener('visibilitychange', function () {
     document.title = document.hidden
