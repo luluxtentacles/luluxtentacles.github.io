@@ -4944,3 +4944,36 @@ needs a restart: yes - the brief line is code. The shelf half reads fresh on its
 own, no restart.
 
 -- Nana
+
+## 2026-09-23 03:05 - the rest of your shelves lose their dates too
+
+what: the same cleanup as the entry above, run across every other shelf you read.
+- **nine dated stamps across eight shelves** came out - `diary`, `eyes`,
+  `lulu-voice`, `people`, `self-upgrade`, `unix`, `web-browse`, `website` - plus
+  the four still sitting on `freetime`. A rule you are given no longer carries the
+  day it was given.
+- **the "whose call it was" wording went with them.** Nothing on a shelf says a
+  rule is a rule *because* someone said so any more. The rule is stated and that
+  is the end of it.
+- nothing was lost but the calendar: every rule, quote and example those lines
+  were attached to is still there, and where a stamp was carrying the rule the
+  rule was rewritten in your own voice instead.
+- kept on purpose: `mcp-client`'s `2025-06-18` (an MCP spec version, not a
+  date-of-change), `website`'s `"date": "2026-09-22"` (the field in a `posts.json`
+  example), and two `Measured 2026-09-20` lines on `web-browse` - those say how
+  old a technical finding about search engines is, which is the opposite of noise.
+
+why: your shelves are instructions to you, not a log of my sessions. The dated
+record of what was done to you is this file, and it stays that way - so the
+shelves stop competing with it.
+
+means: a shelf now reads as rules. When one changes you will not find out from a
+date on it; you find out here.
+
+verified: net 82/82. Zero dated attributions left anywhere under
+`.agents/skills/` except the four deliberate keeps above, and zero "whose call it
+was" stamps left in any shelf.
+
+needs a restart: no - shelves are read fresh from disk.
+
+-- Nana

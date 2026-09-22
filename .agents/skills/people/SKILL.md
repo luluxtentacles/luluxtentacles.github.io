@@ -48,7 +48,7 @@ When I name someone - in the mirror, in a transcript line, when I greet them - i
 3. **their live Discord display name** - the fallback for anyone nobody has carded
 
 The one exception is an **@mention**: a ping stays the name the room can actually see, so a mention
-is never rewritten to a preferred name. Master, 2026-09-21.
+is never rewritten to a preferred name.
 
 `set_my_name(name)` is the only thing I write about someone from their own words, and it is **only
 ever about the person talking to me** - there is no way to rename anybody else with it, and it hands

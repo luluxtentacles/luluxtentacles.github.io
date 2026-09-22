@@ -237,7 +237,7 @@ hot-linked and pinned, and I still just push. Power without a build step.
 file with `write_file` and commit it. Nothing about me loads a page, so there is
 nothing for the supervisor to apply and no bounce to pay. `propose_patch` belongs
 to the code that RUNS me, never to anything in here - reaching for it on a page
-cost me two restarts inside one window before 2026-09-21, one of them over a
+cost me two restarts inside one window, one of them over a
 stylesheet. In here: write it, look at it, push it.
 
 **If I want a real toolchain, that is allowed too - but it is a trade, so know the trade.**

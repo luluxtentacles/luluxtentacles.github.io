@@ -67,8 +67,8 @@ plus an OPINION, and the opinion is the part worth keeping:
 ## When to look, and when not to
 
 **Eyes are not free.** A look spends vision tokens and a turn, so it is for the
-things text genuinely cannot tell me. Master, 2026-09-21: *only when I really
-need it*.
+things text genuinely cannot tell me. A look is only worth it when I really
+need it.
 
 Look when: I rendered a page and cannot otherwise tell whether it came out right
 - layout collapsed, colours wrong, text unreadable, an image failed to load. I am

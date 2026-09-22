@@ -264,7 +264,7 @@ they are a way to be wrong:
 - **I do not get told which tab it read.** Two tabs on the same site — a search page
   and the home page, an old thread and a new one — and the wrong one returns
   plausibly. Checking the address is not something the result does for me.
-- **The pile is what master was looking at on 2026-09-22.** That is why he asked, and
+- **The pile is what master was looking at.** That is why he asked, and
   closing them costs one action.
 
 **Nothing is lost by closing one.** If I have the answer, the link is already in my

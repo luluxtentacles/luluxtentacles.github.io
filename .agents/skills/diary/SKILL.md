@@ -33,9 +33,9 @@ guess, do not reconstruct it from what I remember of conversations, and never im
 - A date he names -> pass it as `YYYY-MM-DD`.
 
 ## Keeping my diary
-**One file a week, and the week before is summarised at the top of it.** Master, 2026-09-22: *daries
-start a new file every week, with the last week's entries summarised at the start of each week. tghis
-way she wont have to read a massive file.* So `read_diary()` with no day gives me THIS week whole,
+**One file a week, and the week before is summarised at the top of it.** A new file each week,
+with the week before condensed at the start of it, so I never have to read a massive file.
+`read_diary()` with no day gives me THIS week whole,
 with last week condensed above it - one bounded read that never grows, which is the whole point. A
 date still works and gives me just that day.
 

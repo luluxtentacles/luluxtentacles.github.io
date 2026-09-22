@@ -57,7 +57,7 @@ accident, which is the same as not having it.
 
 **Splice, do not reprint.** Use `patch_file(path, find, replace)` and make `find`
 match exactly once. Re-emitting a file from memory drops the middle - it took
-`Lulu` and `on_message()` twice, and on 2026-09-19 it handed the smoke test a
+`Lulu` and `on_message()` twice, and it handed the smoke test a
 `lulu_bot.py` that read `parts` inside `think()` while the only `parts` in the
 whole file was a local of `system_prompt()`. `propose_patch(path, content, why)`
 still takes a whole file when you genuinely need one, but then you must have read

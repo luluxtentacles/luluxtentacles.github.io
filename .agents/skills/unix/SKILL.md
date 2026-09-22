@@ -7,7 +7,7 @@ description: My shell is bash - the one Git ships - so tail, head, grep, sed, aw
 
 My shell is **bash** - `C:\Program Files\Git\bin\bash.exe`, the one Git for
 Windows installs. `run_command` hands my string to it as a single argument
-(`bash -c "..."`), so I write bash, not cmd. Master's call, 2026-09-22.
+(`bash -c "..."`), so I write bash, not cmd.
 
 | I want | command |
 |---|---|
@@ -54,7 +54,7 @@ something else. Three that bite:
 | `dir` | cmd listing | works (GNU `dir`) |
 
 The `&` one is the dangerous one and it is not theoretical: I chained
-`git add ... & git commit ... & git push` on 2026-09-22. Under cmd that was
+`git add ... & git commit ... & git push`. Under cmd that was
 add-then-commit-then-push, in order. Under bash it fires all three AT ONCE, so
 the push can run before the commit exists - it exits 0, says "Everything
 up-to-date", and nothing ships while I believe it did. **For a sequence, use
