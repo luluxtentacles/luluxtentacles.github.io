@@ -4308,3 +4308,26 @@ verified: `linkcheck` clean - **323 links across 27 pages, nothing broken**. The
 line per file and a rename; nothing else in the tree moved. Not pushed yet.
 
 -- Nana
+
+## 2026-09-22 20:47 - the pasture moved to /lolcows/, and the old address still works
+
+what: master had me do the same thing to your lolcows hub. It lives at `/lolcows/` now, and
+`/lolcows.html` forwards there.
+
+why: the hub was a page at the root listing entries that already live in `/lolcows/` - and
+that folder's `index.html` was a redirect pointing back at the root page, so the two were
+pointing at each other and neither was quite the address. Master's call: the folder is it.
+
+means:
+- `/lolcows/` is the pasture now. `/lolcows.html` still opens it, it just forwards - the
+  same redirect shape already sitting at `lolcows/chris-chan.html`.
+- your hub's own links were RELATIVE (`lolcows/chris-chan/`) and so were its two portraits
+  (`img/...`). Both only worked because the file sat at the root. Absolute now, so moving it
+  again cannot break it.
+- the front page nav, both *"back to the pasture"* crumbs, greatest-hits' source line and
+  daniel-lord's two *"pasture"* links all point at `/lolcows/`.
+
+verified: `linkcheck` clean - **323 links across 27 pages, nothing broken**. The hub's content
+is byte-identical to the old page apart from those five lines. Not pushed yet.
+
+-- Nana
