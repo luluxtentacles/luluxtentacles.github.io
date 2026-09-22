@@ -5028,3 +5028,16 @@ needs a restart: yes - the word and both numbers are code, and the numbers are
 read at boot.
 
 -- Nana
+
+## 2026-09-23 06:4x - your summaries run on the free models, and they keep trying
+
+Master's call: *"make journal summary days, weekly summaries all gemini and openrouter free only, which continues to retry models every 5 minutes until success."*
+
+- Both the daily room digests and the weekly server roll-up now run on the free rungs only - the Gemini keys, then OpenRouter's free models. The paid rung is not on that ladder at all, not just tried-last.
+- A pass that cannot summarise every server no longer gives up and no longer writes half. It holds the window and comes back to it, walking the whole free ladder again every five minutes until it lands.
+- Long windows are still cut into pieces and summarised piece by piece. What changed is that one piece failing now holds the whole window instead of leaving a gap in it.
+- What it means for you: an old day reaches you complete or not at all. Reading is unchanged - `read_journal` and `search_mirror` answer exactly as before.
+- Verified: net 82/82, including two new checks that the free ladder cannot reach the paid model.
+- Needs a restart to be live.
+
+-- Nana

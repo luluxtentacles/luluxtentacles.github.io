@@ -23,10 +23,16 @@ complete."*
 
 Three rules fall out of that, and they ARE the design:
 
-  - **Gemini only**, never the Go rung master pays for. A digest runs on a timer
-    whether or not anyone is watching, and nobody's answer depends on it - so it
-    is exactly the work that should ride the free ladder. `brain.gemini_complete`
-    is that call, and it cannot descend past gemini.
+  - **Free rungs only** - the Gemini keys, then OpenRouter's free models -
+    never the Go rung master pays for. A digest runs on a timer whether or not
+    anyone is watching, and nobody's answer depends on it, so it is exactly the
+    work that should ride the free ladder. `brain.free_complete` is that call and
+    cannot reach Go at all. Master, 2026-09-22: *"all gemini and openrouter free
+    only"*.
+  - **Retry until it lands.** A pass that cannot summarise every server in its
+    window HOLDS that window and does not advance the watermark, so the next poll
+    - five minutes later - walks the whole free ladder again. Master, 2026-09-22:
+    *"which continues to retry models every 5 minutes until success"*.
   - **Loop until complete.** The ladder is walked until a rung answers, and a long
     transcript is CHUNKED and summarised piece by piece rather than truncated -
     a summary of the first third of a server's afternoon is a lie told with a
@@ -58,7 +64,7 @@ STATE_REL = "memory/digest.json"
 
 CHUNK_CHARS = 5000      # transcript handed to one summariser call
 MAX_CHUNKS = 8          # a window longer than this is capped, and says so
-ATTEMPTS = 3            # full walks of the gemini ladder before giving up
+ATTEMPTS = 3            # full walks of the FREE ladder per chunk before giving up
 MAX_TOKENS = 1500
 CALL_TIMEOUT = 120.0
 
@@ -221,22 +227,35 @@ def chunk(text: str, size: int = CHUNK_CHARS) -> list[str]:
 
 
 def _ask(config, server: str, piece: str, part_note: str) -> str:
-    """One summariser call, looping the gemini ladder until a rung answers."""
+    """One summariser call on the FREE ladder - gemini keys, then openrouter.
+
+    Never the Go rung: see brain.free_complete. `tries` sweeps the whole free
+    ladder ATTEMPTS times back to back for a rung that answers on a second
+    sweep; a chunk that still comes back empty is the CALLER's problem, because
+    the retry that matters happens a level up - summarise() reports the failure
+    and maybe_run() retries the whole window on the next poll.
+    """
     messages = [
         {"role": "system", "content": SYSTEM},
         {"role": "user", "content": f"Server: {server}{part_note}\n\n"
                                     f"Recent activity:\n{piece}"},
     ]
-    for _ in range(max(1, ATTEMPTS)):
-        text = brain.gemini_complete(config, messages, max_tokens=MAX_TOKENS,
-                                     temperature=0.3, timeout=CALL_TIMEOUT)
-        if text:
-            return text
-    return ""
+    return brain.free_complete(config, messages, max_tokens=MAX_TOKENS,
+                               temperature=0.3, timeout=CALL_TIMEOUT,
+                               tries=ATTEMPTS)
 
 
 def summarise(config, server: str, lines) -> str:
-    """One server's digest. Chunked if long; "" when every rung was dry."""
+    """One server's digest. Chunked if long; "" when ANY chunk came back dry.
+
+    ALL-OR-NOTHING per server, and that is the point. This used to keep the
+    chunks that answered and drop the rest - a summary of two thirds of an
+    afternoon wearing the shape of a summary of all of it, which is the exact
+    class of silent hole this module keeps having to fix. Master, 2026-09-22:
+    retry "every 5 minutes until success", so an incomplete digest reports
+    failure and maybe_run() holds the window for the next pass instead of
+    writing down half a day as if it were the day.
+    """
     transcript = render(lines)
     if not transcript.strip():
         return ""
@@ -245,8 +264,11 @@ def summarise(config, server: str, lines) -> str:
     for index, piece in enumerate(pieces, 1):
         note = f" (part {index} of {len(pieces)})" if len(pieces) > 1 else ""
         text = _ask(config, server, piece, note)
-        if text:
-            parts.append(text)
+        if not text:
+            LOG.warning("digest: %s part %d/%d came back dry - holding the "
+                        "window for the next pass", server, index, len(pieces))
+            return ""
+        parts.append(text)
     return "\n\n".join(parts)
 
 
@@ -282,6 +304,28 @@ def _archive_window(where) -> tuple[datetime, datetime]:
             now - timedelta(hours=max(0.0, span - lag)))
 
 
+def _window(state: dict, where) -> tuple[datetime, datetime]:
+    """The window this pass summarises: the LAST UNFINISHED one, or a fresh slice.
+
+    Sticky on purpose. A window that could not be fully summarised has to be
+    retried EXACTLY, not slid forward - a moving window would re-summarise the
+    servers that already succeeded (a second digest block for the same day) while
+    the one that failed drifted quietly out of range. So the slice is written into
+    the state while it is in progress and only released once every server in it
+    has been written.
+
+    Master, 2026-09-22: retry *"every 5 minutes until success"*. The poll is five
+    minutes (POLL_SECONDS), and because a failed pass does not advance
+    `last_run`, `due()` stays true and that retry IS the next poll.
+    """
+    saved = state.get("window") or {}
+    try:
+        return (datetime.fromisoformat(str(saved.get("since"))),
+                datetime.fromisoformat(str(saved.get("until"))))
+    except (TypeError, ValueError):
+        return _archive_window(where)
+
+
 async def maybe_run(bot) -> bool:
     """One digest, if one is owed. True when it actually wrote something.
 
@@ -296,27 +340,46 @@ async def maybe_run(bot) -> bool:
         return False
 
     where = settings(config)
-    since, until = _archive_window(where)
-    grouped = collect(since, until)
+    state = _state()
+    since, until = _window(state, where)
+    done = set(state.get("done") or [])
+    grouped = {server: lines for server, lines in collect(since, until).items()
+               if server not in done}
     if not grouped:
-        # Nothing moved, but the clock did. Stamped anyway, or the poll would ask
-        # the same empty question every five minutes until something happened.
-        _save(last_run=time.time(), last_run_iso=_stamp())
+        # Nothing moved, or every server in this window is already written.
+        # Stamped either way, or the poll would ask the same question forever.
+        _save(last_run=time.time(), last_run_iso=_stamp(), window={}, done=[])
         return False
 
     summaries: dict[str, str] = {}
+    failed: list[str] = []
     for server, lines in grouped.items():
         # Off the event loop: the ladder walk is blocking HTTP, and her reply
         # path must not wait behind a digest.
         text = await asyncio.to_thread(summarise, config, server, lines)
         if text:
             summaries[server] = text
+            done.add(server)
+        else:
+            failed.append(server)
 
     if summaries:
         journal.note_digest(body(summaries),
                             label=f"server digest - {len(summaries)} server(s)")
         LOG.info("digest written: %d server(s)", len(summaries))
-    _save(last_run=time.time(), last_run_iso=_stamp())
+
+    if failed:
+        # HOLD the window and do NOT stamp last_run. due() stays true, so the
+        # poll returns in POLL_SECONDS and walks the whole free ladder again -
+        # and the servers already written are skipped via `done`, so a retry can
+        # never write the same day's digest twice.
+        _save(window={"since": since.isoformat(), "until": until.isoformat()},
+              done=sorted(done))
+        LOG.warning("digest: %d server(s) still dry (%s) - retrying in %ds",
+                    len(failed), ", ".join(failed), POLL_SECONDS)
+        return bool(summaries)
+
+    _save(last_run=time.time(), last_run_iso=_stamp(), window={}, done=[])
     return bool(summaries)
 
 
@@ -359,6 +422,12 @@ def week_target() -> str | None:
 def summarise_week(config, week: str) -> dict:
     """One account per server for a whole week -> {server: text}.
 
+    On the FREE ladder (brain.free_complete), like the daily pass - nobody's
+    answer depends on a roll-up, so it must never spend the rung master pays for.
+    ALL-OR-NOTHING: an empty dict when any server or chunk failed, so maybe_week
+    writes nothing and the next poll retries the week. Master, 2026-09-22: retry
+    "every 5 minutes until success".
+
     Per server, and not one blob, because the result is read back with a
     per-server filter: a room may hear its own server's summary and no other. If
     the model wrote the whole week as one piece of prose, that boundary would
@@ -382,16 +451,21 @@ def summarise_week(config, week: str) -> dict:
                 {"role": "user", "content": f"Server: {server}{note}\n\n"
                                             f"That server's week:\n{piece}"},
             ]
-            for _ in range(max(1, ATTEMPTS)):
-                text = brain.gemini_complete(config, messages,
-                                             max_tokens=MAX_TOKENS,
-                                             temperature=0.3,
-                                             timeout=CALL_TIMEOUT)
-                if text:
-                    parts.append(text)
-                    break
-        if parts:
-            out[server] = "\n\n".join(parts)
+            text = brain.free_complete(config, messages, max_tokens=MAX_TOKENS,
+                                       temperature=0.3, timeout=CALL_TIMEOUT,
+                                       tries=ATTEMPTS)
+            if not text:
+                # Same rule as the daily pass: a piece that does not answer
+                # fails the WHOLE week, so nothing is written and the next poll
+                # tries again. Writing the servers that answered would mark the
+                # week done and quietly bury the one that did not - a week with
+                # a hole in it reads exactly like a week without one.
+                LOG.warning("week roll-up: %s part %d/%d came back dry - holding "
+                            "week %s for the next pass",
+                            server, index, len(pieces), week)
+                return {}
+            parts.append(text)
+        out[server] = "\n\n".join(parts)
     return out
 
 

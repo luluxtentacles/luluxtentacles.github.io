@@ -135,7 +135,8 @@ def go_primary(config: dict) -> bool:
     return bool(go_key) and _go_healthy
 
 
-def _providers(config: dict, wants_vision: bool) -> list[dict]:
+def _providers(config: dict, wants_vision: bool, *,
+               free_only: bool = False) -> list[dict]:
     """The ladder for this call: [(base_url, key, model, label), ...].
 
     TWO ORDERS, and the difference is not tidiness - it is two providers with
@@ -168,6 +169,13 @@ def _providers(config: dict, wants_vision: bool) -> list[dict]:
 
     A provider with no key configured is skipped, so a missing brain_keys.json
     degrades to exactly the old behaviour.
+
+    `free_only` drops the Go rung from the head of the ladder. That is the
+    digests' rule - master, 2026-09-22: the journal summaries run on "gemini and
+    openrouter free only", because they fire on a timer nobody is watching and
+    no answer depends on them, so they must never be able to spend the rung he
+    pays for. A PARAMETER rather than a second builder on purpose: two builders
+    would drift, and the rung ORDER is the part that must not.
     """
     keys = load_keys()
     go: list[dict] = []
@@ -175,7 +183,7 @@ def _providers(config: dict, wants_vision: bool) -> list[dict]:
     openrouter: list[dict] = []
 
     go_key = config.get("api_key") or keys.get("open_code_key") or ""
-    if go_key and time.time() >= _go_blocked_until:
+    if go_key and not free_only and time.time() >= _go_blocked_until:
         model = config.get("vision_model") if wants_vision else None
         go.append({"base_url": str(config["base_url"]).rstrip("/"),
                    "key": go_key,
@@ -860,37 +868,40 @@ def reply(config: dict, messages: list[dict]) -> str:
     return (complete(config, messages).get("content") or "").strip()
 
 
-def gemini_complete(config: dict, messages: list[dict], *,
-                    max_tokens: int = 0,
-                    temperature: float | None = None,
-                    timeout: float | None = None) -> str:
-    """One TEXT call on the GEMINI keys ONLY - never Go, never OpenRouter.
+def free_complete(config: dict, messages: list[dict], *,
+                  max_tokens: int = 0,
+                  temperature: float | None = None,
+                  timeout: float | None = None,
+                  tries: int = 1) -> str:
+    """One TEXT call on the FREE rungs only - never the Go rung master pays for.
+
+    Gemini's keys first (every key gets a shot at every model, best model first,
+    because free-tier quota is tracked per (key, model) pair so a dry key only
+    moves to the next key on the SAME model), then OpenRouter's free models.
 
     For bulk work that is not worth a paid rung. The server digests are the
     first caller: they run on a timer whether or not anyone is watching, and
     nobody's answer depends on them - so they must never be able to spend the
-    Go rung master pays for. Master, 2026-09-22: "use the gemini keys for this
-    it's not very important, it can loop until complete."
+    Go rung. Master, 2026-09-22: "use the gemini keys for this it's not very
+    important, it can loop until complete", then "all gemini and openrouter free
+    only, which continues to retry models every 5 minutes until success".
 
-    The rung ORDER is _providers()'s gemini ladder exactly - every key gets a
-    shot at every model, best model first, because free-tier quota is tracked
-    per (key, model) pair - but the walk is this function's own, and it is a
-    dead end: a dry gemini key returns "" instead of descending into a model
-    that costs money.
+    THE RETRY THAT MATTERS IS THE CALLER'S, not `tries`. A pass that comes back
+    empty must not advance the digest watermark, so the poll returns in
+    POLL_SECONDS and walks the whole free ladder again - five minutes later,
+    forever, until the window is summarised. `tries` only sweeps the ladder that
+    many times back to back, for a rung that answers on a second sweep.
 
     Returns the answer text, or "" when every rung is dry or broken. An empty
     string is a real answer here - the caller decides whether to try again.
     """
-    keys = load_keys()
-    providers: list[dict] = []
-    for model in _gemini_models(config):
-        for index in range(1, 6):
-            key = keys.get(f"gemini_key{index}") if index > 1 else keys.get("gemini_key")
-            if key:
-                providers.append({"base_url": GEMINI_BASE_URL, "key": key,
-                                  "model": model, "label": f"{model}/key{index}"})
+    providers = _providers(config, False, free_only=True)
     if not providers:
         return ""
+    # model_limits() carries the OpenRouter max_output caps as well as Gemini's,
+    # so an OR rung is capped at its own ceiling instead of being handed a
+    # budget it cannot honour (a 400 waiting to happen - see _attempt).
+    limits = model_limits(config)
 
     payload: dict = {
         "messages": messages,
@@ -900,16 +911,26 @@ def gemini_complete(config: dict, messages: list[dict], *,
     if max_tokens:
         payload["max_tokens"] = max_tokens
 
-    for provider in providers:
-        result = _attempt(provider, payload, cache=False,
-                          limits=_gemini_limits, timeout=timeout)
-        # A dry or busy rung is the ladder working: move to the next key/model
-        # pair rather than giving up on the call.
-        if result.get("_credit") or result.get("_busy"):
-            continue
-        if result.get("_error"):
-            continue
-        content = (result.get("content") or "").strip()
-        if content:
-            return content
+    for _ in range(max(1, int(tries))):
+        for provider in providers:
+            if provider["model"] in _dead_models:
+                continue  # a model the provider retired: no round trip wasted
+            result = _attempt(provider, payload, cache=False,
+                              limits=limits, timeout=timeout)
+            # A dry or busy rung is the ladder working: move to the next
+            # key/model pair rather than giving up on the call.
+            if result.get("_credit") or result.get("_busy"):
+                continue
+            if result.get("_error"):
+                continue
+            content = (result.get("content") or "").strip()
+            if content:
+                return content
     return ""
+
+
+# The old name, kept because tests/smoke_test.py's MODULE_API still asserts it
+# exists and because digest.py called it for months. The WALK changed, so the
+# name stopped being true: it is no longer Gemini-only. New code says
+# free_complete.
+gemini_complete = free_complete

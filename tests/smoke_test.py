@@ -2775,8 +2775,37 @@ def _vision_ladder() -> str:
            f"the text ladder lost go as primary: {torder[:3]}")
     expect(any(l.startswith("or:") for l in torder),
            "the text ladder lost its OpenRouter fallbacks")
+
+    # And the DIGESTS' ladder, which is the OPPOSITE rule: never the paid rung.
+    # Master, 2026-09-22: the journal summaries run "all gemini and openrouter
+    # free only". A check rather than a comment because the failure is
+    # INVISIBLE - a digest that quietly spent the Go rung looks exactly like one
+    # that did not, and the bill is master's.
+    saved_keys, saved_or = brain.load_keys, brain._or_models
+    brain.load_keys = lambda: {"open_code_key": "go", "gemini_key": "g",
+                               "or_key": "or"}
+    brain._or_models = lambda config, key: ["free-text-model:free"]
+    try:
+        free = brain._providers(cfg, False, free_only=True)
+        paid = brain._providers(cfg, False)
+    finally:
+        brain.load_keys, brain._or_models = saved_keys, saved_or
+    flabels = [r["label"] for r in free]
+    expect(flabels, "the free ladder has no rungs at all")
+    expect(not any(l == "go" for l in flabels),
+           f"THE FREE LADDER CAN REACH THE PAID GO RUNG: {flabels}")
+    expect(any(l.startswith("or:") for l in flabels),
+           f"the free ladder has no OpenRouter rungs: {flabels}")
+    expect(any("/key" in l for l in flabels),
+           f"the free ladder has no gemini key rungs: {flabels}")
+    expect(paid and paid[0]["label"] == "go",
+           f"free_only leaked into the ordinary ladder: {flabels}")
+    expect(brain.gemini_complete is brain.free_complete,
+           "the gemini_complete name no longer points at the free ladder")
+
     return (f"vision: go+mimo first, then {len(order) - 1} gemini backup "
-            f"rungs, no OpenRouter anywhere; text: go first, OpenRouter intact")
+            f"rungs, no OpenRouter anywhere; text: go first, OpenRouter intact; "
+            f"free: {len(flabels)} rungs, no go")
 
 
 # Master, 2026-09-21: "vision models should always go down until we tried all
