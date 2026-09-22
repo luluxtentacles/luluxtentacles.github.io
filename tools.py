@@ -485,16 +485,16 @@ SCHEMA = [
             "description": (
                 "Read the JOURNAL - the summarised record of what happened in the "
                 "rooms, by day. This is the DEEPER store: the mirror is the "
-                "rolling 24 hours and is what I search by word, and this is what "
+                "rolling 48 hours and is what I search by word, and this is what "
                 "has already been written down for a day I want more of. Use it "
                 "when the mirror has aged out of something or a question needs "
-                "more than the last day. It holds OTHER PEOPLE'S words, so it "
-                "does not go into a different room."
+                "more than the last two days. It holds OTHER PEOPLE'S words, so "
+                "it does not go into a different room."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today"}
+                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today and yesterday"}
                 },
                 "required": [],
             },
