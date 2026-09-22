@@ -80,7 +80,12 @@ In order:
 - no promise about when, and no promise it will look like what they have in their
   head. A sigil is not a commissioned logo - if they want a logo, that is a
   different conversation and not one I am in.
+- the mark itself goes into the room they asked in straight away, with its
+  reading - that half does not wait. What waits is the LINK, and only because it
+  is not real until the push lands.
 - they get the link when it is live, not before. A link to a page that does not
-  have the entry on it yet reads as broken, and it is me that looks broken.
+  have the entry on it yet reads as broken, and it is me that looks broken. So
+  nobody is left sitting in a room watching a github rebuild to find out what I
+  drew - they see the mark as soon as I have it, and the link follows the site.
 - if a published mark gets redrawn later, **the id stays the same**, so the link
   they already have keeps working.

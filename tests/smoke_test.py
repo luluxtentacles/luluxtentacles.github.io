@@ -6835,6 +6835,79 @@ def _grab_session() -> str:
             "emptying a signed-out jar, and never printing a secret")
 
 
+def _web_announce() -> str:
+    """Announcing a new page: config.json -> web_update_channels (master,
+    2026-09-23). Same absent/empty promises as the two lists next to it, and the
+    tool has to USE the list rather than a room that only exists in a shelf.
+
+    config.json is swapped rather than read, for the same reason the channel-split
+    check swaps it: the smoke sandbox does not redirect it, so a check that read it
+    would assert against master's live file and go red the day he moves a room.
+    """
+    import tools
+    real_read_json = tools.paths.read_json
+    tools._OUTBOX.clear()
+    tools._SAY_TIMES.clear()
+    try:
+        tools.paths.read_json = lambda *a, **k: {
+            "update_channels": ["lulu-den"],
+            "web_update_channels": ["chaos", "lulu-den"]}
+        expect(tools.web_update_channels() == ["chaos", "lulu-den"],
+               f"web_update_channels read {tools.web_update_channels()!r}")
+
+        # Absent falls back to where she already announces; empty means nowhere.
+        tools.paths.read_json = lambda *a, **k: {"update_channels": ["lulu-den"]}
+        expect(tools.web_update_channels() == ["lulu-den"],
+               "a config with no web_update_channels went dark instead of "
+               "falling back")
+        tools.paths.read_json = lambda *a, **k: {"web_update_channels": []}
+        expect(tools.web_update_channels() == [],
+               "an explicitly empty web_update_channels was ignored")
+
+        # The tool goes to the rooms IN THE LIST - messy case and # prefix and
+        # all - and a bare path has to leave as something clickable.
+        tools.paths.read_json = lambda *a, **k: {
+            "web_update_channels": ["#chaos", "Lulu-Den"]}
+        tools.set_context(1, "master", "general", master=True)
+        out = tools.announce_page("/blog/probe/", "a probe page", "for the net")
+        expect("queued" in out, f"the announcement did not queue: {out!r}")
+        expect([q["channel"] for q in tools._OUTBOX] == ["chaos", "lulu-den"],
+               f"the announcement went to the wrong rooms: {tools._OUTBOX!r}")
+        expect(tools.SITE_URL + "/blog/probe/" in tools._OUTBOX[0]["text"],
+               f"a bare path did not become a link: {tools._OUTBOX[0]!r}")
+
+        # ONE act is ONE send however many rooms it lands in: a two-room
+        # announcement must not spend two of master's three.
+        spent = sum(len(v) for v in tools._SAY_TIMES.values())
+        expect(spent == 1, f"one announcement spent {spent} sends")
+        tools._OUTBOX.clear()
+
+        # No rooms is a refusal that says why, not a silent nothing.
+        tools.paths.read_json = lambda *a, **k: {"web_update_channels": []}
+        out = tools.announce_page("/blog/probe/", "a probe page")
+        expect("web_update_channels" in out,
+               f"an empty room list announced anyway: {out!r}")
+
+        # Master-only, structurally, and registered in both halves.
+        expect("announce_page" not in tools.LOOKUP_TOOL_NAMES,
+               "announce_page is in the lookup set - a stranger could announce")
+        expect("announce_page" in tools.DISPATCH,
+               "announce_page is advertised but not dispatchable")
+        expect("announce_page" in {t["function"]["name"] for t in tools.SCHEMA},
+               "announce_page is missing from the schema")
+        expect(tools.run("announce_page", {"url": "/x/"},
+                         allowed=set(tools.LOOKUP_TOOL_NAMES)).startswith(
+                             "refused:"),
+               "a non-owner reached announce_page")
+    finally:
+        tools.paths.read_json = real_read_json
+        tools.set_context(None)
+        tools._OUTBOX.clear()
+        tools._SAY_TIMES.clear()
+    return ("web_update_channels drives it, absent falls back and empty goes "
+            "nowhere, one act costs one send, and the tool stays master-only")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -6916,6 +6989,7 @@ CHECKS = [
     ("shelf-scope", _shelf_scope),
     ("grab-session", _grab_session),
     ("diary-enforced", _diary_enforced),
+    ("web-announce", _web_announce),
 ]
 
 

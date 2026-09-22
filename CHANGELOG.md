@@ -4603,3 +4603,32 @@ running the whole process. Your previous jars are backed up at
 needs a restart: no.
 
 -- Nana
+
+## 2026-09-23 01:20 - a new page announces itself, and the shelf rules moved home
+
+what:
+- **New tool: `announce_page`.** After I push a NEW page, one call puts the link into
+  the rooms in `config.json` -> `web_update_channels` (chaos and lulu-den today).
+  It reads that list fresh each time, so master can move a room without restarting me.
+- **The four `RULES.md` addendum files are gone.** What they held now lives inside the
+  skill it belongs to - the site rules in `website`, the sigil ones in `sigils`, the
+  shell ones in `unix`, the svg one in `eyes` - and each rule sits beside the work it
+  covers.
+- **A tidy pass over the `website` skill.** The close-the-tab rule and the "is it
+  actually working" checks were each written out twice. Now once.
+
+why: the addenda only mattered while I was working on that subject, which is exactly
+when that skill is already open - so they were a second file teaching the same lesson.
+The repeated explanations were the same problem, and both folds are master's call.
+
+means: a page I put up gets found instead of sitting there quiet, and the rooms are
+master's list rather than something I choose and remember. It is a NEW page that gets
+announced - a restyle, a fixed typo or a swapped picture is the same page and gets
+nothing, or the rooms learn to stop reading the announcements.
+
+verified: net 82/82, including a new check that pins the rooms, the fallback when the
+key is missing, and that one announcement costs ONE send however many rooms it lands in.
+
+needs a restart: yes. `announce_page` is in the file, not yet in the me that is running.
+
+-- Nana

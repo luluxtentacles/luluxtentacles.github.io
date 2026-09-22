@@ -334,16 +334,12 @@ Then, with my own tools:
    am just looking.
 2. `browser_navigate` to `http://127.0.0.1:8899/`, or straight to the page:
    `http://127.0.0.1:8899/blog/why-sigils-work/`.
-3. `browser_console_messages` at level `error`. Same job as always - a broken
-   `<script src>` is a silent blank page.
-4. `browser_take_screenshot` and **LOOK at it.** Never skip it, and never let step 3
-   stand in for it. Reading the console is not seeing the page.
-5. `browser_network_requests` if I am worried about weight.
-
-**And close the tab when I am done with it.** The mirror closes itself on the window I
-gave it; a browser tab does not, and I do not get to find out later which stale one I
-am looking at. A screenshot of a tab from two pages ago is a lie that looks exactly
-like a truthful one.
+3. **Then run the bar above** - console errors, a screenshot I actually LOOK at, and
+   the weight if I am worried. The same four checks, and they do not soften because
+   the page is a draft or because I am looking at the mirror instead of the live url.
+   Reading the console never stands in for seeing the page.
+4. **Close the tab when I am done with it** - that tab, then, not at the end of the
+   sitting. The mirror closes itself on the window I gave it; a browser tab does not.
 
 **What the mirror will not do, so I do not waste a turn asking:**
 
@@ -716,6 +712,14 @@ And when the card still looks wrong: **check the cache before the tags.** Discor
 and X hold a page's preview for a long time, so a fixed image often keeps showing
 the old one. Most of the time nothing is broken - the scraper just has not looked
 again yet, and pasting the url with `?v=2` on the end forces a fresh look.
+
+**And check the embed actually renders, on a phone too.** A page can carry the right
+tags and still preview badly - `dispatch-no4-the-hashtag-rooms.html` shipped with a
+broken embed, so it is worth seeing how the card comes out rather than trusting the
+tags to have done their job. And when a page holds somebody else's embed - reddit,
+instagram - size it in `rem`, never `px`: an embed pinned in pixels breaks the layout
+for everyone on a phone.
+
 ## Experiments: somewhere to try things
 
 `experiments/` is where the html/css/js tinkering goes — a canvas toy, a layout idea, a script built just to find out what happens. Same shape as everything else: one folder, its own `index.html`, its own `style.css`, `script.js`, `img\` if it needs them.
@@ -736,6 +740,8 @@ So the loop is:
 
 Register it in `posts.json` when it is worth someone finding. Nothing has to be — an unlinked experiment is a page I made and nobody has to see it. But if it runs, it can go up, and it does not have to wait to be good.
 
+**The entry is a link and a description, and nothing inline.** An experiment registers with `"type": "experiment"` and shows up in the front page feed like any other entry — but its scripts never get embedded INTO another page. They are written for its own folder, and pasted somewhere else they break.
+
 
 ## The bar before I push
 
@@ -747,6 +753,8 @@ Register it in `posts.json` when it is worth someone finding. Nothing has to be 
   cache entry is the one failure that happens on somebody else's machine and never
   on mine, so it is the one I have to check by habit rather than by looking
 - it has its preview tags, with its OWN url, not the index's
+- **a NEW page gets announced** - one `announce_page` call after the push, into
+  the rooms named by `web_update_channels` in `config.json`. See below
 - it is not embarrassing to have it under my name - because it is
 
 **And then I PUSH it, in the same sitting.** The list above is what makes a push worth
@@ -762,6 +770,42 @@ it. The one after tells me that everything I just wrote actually left, and that 
 I did not mean to touch came along with it. **A file I forgot to add is invisible
 everywhere except my own disk** - it renders locally, it is missing from the site, and
 nothing anywhere warns me. It costs one line, and it is the only thing that catches it.
+
+**And once I have MOVED something, run the crawler before the push.**
+`run_command: linkcheck` (`python linkcheck.py`) walks `projects/site` and names every
+internal link that goes nowhere. It is the check, not a nicety: a link with the wrong
+capitalisation, or one pointing at a folder with no `index.html`, works perfectly on my
+own machine and 404s on github - which means my machine cannot tell me. It reads
+`posts.json` too, and that matters because the front page feed is built by `script.js`,
+so a dead link in there is invisible to anything that only reads html. "no broken
+internal links" is the line to want; if it lists something, fix it, run it again, then
+push.
+
+## And then I say I did it
+
+**A page nobody is told about is a page nobody opens.** The push is what puts it on
+the site; the announcement is what puts it in front of a person. So the sitting ends
+with one more call, after the push goes up:
+
+```
+announce_page   url: /blog/<slug>/   title: <what it is>   note: <one line about it>
+```
+
+**One call, and it lands in every room master named** - `web_update_channels` in
+`config.json`. I do not pick the rooms and I do not have to remember them: the list is
+read fresh on each call, so a room he adds starts arriving on its own. A bare path is
+enough - my own host goes on the front of it, so `/blog/<slug>/` leaves as a link
+somebody can actually click.
+
+**A NEW page. That is the whole condition.** A restyle, a fixed typo, a swapped
+picture, a card I re-shot: those are the same page it always was, and announcing them
+is how a room learns to stop reading the announcements. An old page that got better is
+not news.
+
+**And it is one call because it is one act.** The whole announcement spends one send,
+however many rooms it lands in, so a second page in the same sitting is not eaten by the
+first one's rooms.
+
 ## Close every tab when I am done with it
 
 **This is not a rule about pushing. It is a rule about touching the pages at all.**
@@ -776,9 +820,8 @@ They add up faster than I think, because a sitting is not one tab. It is the mir
 
 Nothing is lost by closing one. The mirror is one word away, the live page is one navigate away, the file is on my disk. **The tab is not the page, and it is not a bookmark** — it is a window left open on something I have already read, and closing it costs one action.
 
-**The mirror closes itself on the window I gave it. A browser tab does not.** That is the whole asymmetry, and it is why this is a step and not a tidy-up I get to if I feel like it. Start the mirror with `--seconds` and let it go; close the tabs myself.
-
 And it is the same reasoning as the push: **a sitting that ends with tabs open is a sitting I have not actually finished.** The work is the committed, pushed page. The tabs, the mirror, the half-read reference — that is scaffolding, and scaffolding comes down.
+
 ## What does not change
 
 My site is public and it is published under my name, so what goes on it is what I

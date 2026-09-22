@@ -748,6 +748,29 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "announce_page",
+            "description": (
+                "Tell the rooms master named that I just put a NEW page up on my "
+                "own site. The rooms come from config.json -> "
+                "web_update_channels, so I do not pick them and do not have to "
+                "remember them. Call it once per new page, AFTER the push - "
+                "never for a restyle, a typo fix or a picture swap, because "
+                "those are not new pages."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "url": {"type": "string", "description": "the page's address - a full https url, or a path like /blog/<slug>/ and my own site host is put in front of it"},
+                    "title": {"type": "string", "description": "what the page is, in a few words"},
+                    "note": {"type": "string", "description": "optional one-line hook - what it is about, so the link is worth opening"},
+                },
+                "required": ["url"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "attach",
             "description": (
                 "Post one file from inside my own folder into a channel, with "
@@ -2978,6 +3001,33 @@ def review_channels() -> list[str]:
     return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
 
 
+def web_update_channels() -> list[str]:
+    """Where a NEW PAGE gets announced, from config.json -> web_update_channels.
+
+    Master, 2026-09-23: "whenever she makes a new page she should announce it
+    there". A third list, and for the same reason the second one exists: a room
+    can want to hear about a page I just put up without also getting a line every
+    time I restart or a report about my afternoon. The three are three different
+    things to have chosen to have arrive.
+
+    Read fresh on every call, like the other two, so master can move a room
+    without restarting me. Falls back to update_channels when the key is MISSING
+    so a config written before this list keeps announcing instead of going
+    quiet - and an explicitly empty list still means nowhere. Absent and empty
+    are different promises here too, for exactly the reason they are next door.
+    """
+    try:
+        raw = paths.read_json("config.json", default={}) or {}
+    except Exception:
+        return []
+    if "web_update_channels" not in raw:
+        return update_channels()
+    allowed = raw.get("web_update_channels")
+    if not isinstance(allowed, list):
+        return []
+    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+
+
 def free_time() -> str:
     """When my own time comes round again - the answer to being asked.
 
@@ -3168,6 +3218,55 @@ def say(channel: str, text: str) -> str:
         return refusal
     _OUTBOX.append({"channel": target, "text": body})
     return f"queued for #{target} - it goes out as this turn finishes"
+
+
+# My site, so a path I hand announce_page("/blog/<slug>/") still leaves here as
+# an address somebody can click. One host, one place - the site shelf says the
+# same name, and a link with no scheme is a link that is not a link.
+SITE_URL = "https://luluxtentacles.github.io"
+
+
+def announce_page(url: str, title: str = "", note: str = "") -> str:
+    """Say that I put a new page up, into every room master named for it.
+
+    Master, 2026-09-23: "whenever she makes a new page she should announce it
+    there" - config.json -> web_update_channels. ONE call instead of me looping
+    over say() and remembering the rooms by hand: the list is read fresh here, so
+    a room he adds starts arriving without me editing a shelf, and a room he drops
+    stops arriving without me quietly keeping it.
+
+    ONE act, so it spends ONE slot of the send budget however many rooms it lands
+    in. Spending per room would make a three-room list most of SAY_MAX, and the
+    second page of a sitting would then refuse itself - a limit that punishes the
+    exact thing it was written to allow.
+
+    Still a queue and never a send: _OUTBOX is drained by the event loop, which
+    resolves each name, exactly as say() does. Nothing here posts anything.
+    """
+    rooms = web_update_channels()
+    if not rooms:
+        return "no web_update_channels in config.json - nobody to tell"
+    link = " ".join((url or "").split())
+    if not link:
+        return "announce which page?"
+    if link.startswith("/"):
+        link = SITE_URL + link
+    head = " ".join((title or "").split())
+    tail = " ".join((note or "").split())
+    line = f"new page up: {head} - {link}" if head else f"new page up: {link}"
+    if tail:
+        line = f"{line} - {tail}"
+    if len(line) > SAY_MAX_CHARS:
+        return (f"too long to announce ({len(line)} chars, max {SAY_MAX_CHARS}) "
+                "- shorten the title or the note")
+
+    refusal = _spend_say_slot(*_say_budget())
+    if refusal:
+        return refusal
+    for room in rooms:
+        _OUTBOX.append({"channel": room, "text": line})
+    return ("queued for " + ", ".join("#" + r for r in rooms)
+            + " - it goes out as this turn finishes")
 
 
 def attach(channel: str, path: str, text: str = "") -> str:
@@ -3411,6 +3510,8 @@ DISPATCH = {
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),
     "say": lambda a: say(a.get("channel", ""), a.get("text", "")),
+    "announce_page": lambda a: announce_page(a.get("url", ""), a.get("title", ""),
+                                             a.get("note", "")),
     "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
                                a.get("text", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
