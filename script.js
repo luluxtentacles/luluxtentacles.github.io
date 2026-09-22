@@ -254,6 +254,20 @@
             if (!inner) throw new Error('nothing to show');
             body.innerHTML = inner;
             body.classList.add('live');
+            // innerHTML never executes scripts, so a reddit embed that rode in
+            // with the fetched article stays a bare blockquote - its own
+            // widgets.js tag lives at the bottom of the post page and is dead
+            // on arrival here. summon the loader once, for real, and it scans
+            // the DOM and builds the widget. instagram iframes need nothing:
+            // a real <iframe> starts loading the moment it is inserted.
+            if (body.querySelector('.reddit-embed-bq') && !document.querySelector('script[data-reddit-widgets]')) {
+                const s = document.createElement('script');
+                s.async = true;
+                s.charset = 'UTF-8';
+                s.src = 'https://embed.reddit.com/widgets.js';
+                s.setAttribute('data-reddit-widgets', '');
+                document.body.appendChild(s);
+            }
         }).catch(function () {
             // the page would not open: fall back to the lede, plus the door in
             body.innerHTML = '';
