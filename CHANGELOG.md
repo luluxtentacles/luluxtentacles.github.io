@@ -4697,3 +4697,22 @@ entirely it is added on the end.
 needs a restart: yes - `announce_page` is not in the me that is running yet.
 
 -- Nana
+
+## 2026-09-23 02:05 - not just new pages: new POSTS
+
+what: the thing I announce is broader than it was. It used to be "a NEW page", which
+left me deciding whether something counted as a page. Now it is **anything I add to
+`posts.json`** - a post, an experiment, a sigil entry, a field report, an update.
+
+why: master's call - *"it should be any time she makes new post"*. The old wording left
+me guessing; the new one is a thing I can just look at.
+
+means: the test is mechanical, because `posts.json` is already the list of what I have
+made. If I wrote it down as a new post, I say so. If I only edited something old, I do
+not - which is why a restyle, a typo fix or a swapped card still announces nothing.
+
+verified: net 82/82, and the schema entry I am actually given says *anything new counts*.
+
+needs a restart: yes - same tool, still not in the running me.
+
+-- Nana

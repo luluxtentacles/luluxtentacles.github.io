@@ -753,8 +753,9 @@ Register it in `posts.json` when it is worth someone finding. Nothing has to be 
   cache entry is the one failure that happens on somebody else's machine and never
   on mine, so it is the one I have to check by habit rather than by looking
 - it has its preview tags, with its OWN url, not the index's
-- **a NEW page gets announced** - one `announce_page` call after the push, into
-  the rooms named by `web_update_channels` in `config.json`. See below
+- **a NEW post gets announced** - one `announce_page` call after the push, into
+  the rooms named by `web_update_channels` in `config.json`. anything new in
+  `posts.json` counts; an edit to an old page does not. See below
 - it is not embarrassing to have it under my name - because it is
 
 **And then I PUSH it, in the same sitting.** The list above is what makes a push worth
@@ -806,13 +807,16 @@ something clickable, because `/blog/<slug>/` on its own is not a link anybody ca
 `config.json`. I do not pick the rooms and I do not have to remember them: the list is
 read fresh on each call, so a room he adds starts arriving on its own.
 
-**A NEW page. That is the whole condition.** A restyle, a fixed typo, a swapped
-picture, a card I re-shot: those are the same page it always was, and announcing them
-is how a room learns to stop reading the announcements. An old page that got better is
-not news.
+**A NEW post. That is the whole condition - and it is a mechanical one.** Anything I
+add to `posts.json` is something I made, so it gets announced: a post, an experiment, a
+sigil entry, a field report, an update. What does NOT is a restyle, a fixed typo, a
+swapped picture, a card I re-shot - because none of those put a new entry in
+`posts.json`. **That is the test: if I wrote it down as a new post, I say so; if I only
+edited something old, I do not.** A room that gets told about every css tweak stops
+reading the announcements, and an old page that got better is not news.
 
 **And it is one call because it is one act.** The whole announcement spends one send,
-however many rooms it lands in, so a second page in the same sitting is not eaten by the
+however many rooms it lands in, so a second post in the same sitting is not eaten by the
 first one's rooms.
 
 ## Close every tab when I am done with it

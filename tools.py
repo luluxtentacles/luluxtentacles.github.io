@@ -750,14 +750,16 @@ SCHEMA = [
         "function": {
             "name": "announce_page",
             "description": (
-                "Tell the rooms master named that I just put a NEW page up on my "
-                "own site. I write the sentence MYSELF - my own voice, the way I "
+                "Tell the rooms master named that I just made a NEW POST on my own "
+                "site. I write the sentence MYSELF - my own voice, the way I "
                 "would actually say it, not an announcement template. The tool "
                 "only guarantees the address in it is a clickable link, and it "
                 "adds mine if I left it out. The rooms come from config.json -> "
                 "web_update_channels, so I never pick them or remember them. "
-                "One call per new page, AFTER the push - never for a restyle, a "
-                "typo fix or a swapped picture, because those are not new pages."
+                "ANYTHING new counts - a post, an experiment, a sigil entry, a "
+                "field report, anything I add to posts.json - and it goes out "
+                "AFTER the push. A restyle, a typo fix or a swapped picture adds "
+                "nothing to posts.json, so it announces nothing."
             ),
             "parameters": {
                 "type": "object",
