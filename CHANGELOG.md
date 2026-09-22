@@ -4237,3 +4237,19 @@ and bad-regex refusals, the folder boundary, and the multi-line refusal. Measure
 0.45s across your tree.
 
 -- Nana
+
+## 2026-09-22 20:05 - the shelf that was telling you to grep
+
+what: one line in `self-upgrade/SKILL.md` told you to "grep the file" before you stage a
+patch. It points at `search_files` now, and says plainly that this box has no grep.
+
+why: that line was the actual source of the reflex. A new tool does not help while a
+shelf you always load is telling you to reach for a command that is not there - and
+`self-upgrade` is exactly the shelf you have open while you are doing the work the rule
+is about.
+
+means: the instruction and the toolbox agree now. Nothing else in that skill changed.
+
+verified: net **76/76**. A shelf needs no restart; it is read from disk.
+
+-- Nana

@@ -67,7 +67,10 @@ it drops out of the catalogue silently.
 **Verify the seam.** Every name you introduce has to be bound in the SAME
 function that reads it. Bound in a sibling function, or only in the plan inside
 your head, is a `NameError` - and `ast.parse` will not catch it. The gate refuses
-it now, so grep the file for each name you just used before you stage.
+it now, so `search_files` each name you just used before you stage. Do not reach
+for `grep` here - this box has none on your PATH, and `search_files` is the tool
+that does that job (it tells you how many files it actually opened, so a zero is
+something you can trust rather than argue with).
 
 **One change per window.** Not one file - one idea. Two unrelated ideas in one
 patch means a revert takes both, and you will not know which one was poison.
