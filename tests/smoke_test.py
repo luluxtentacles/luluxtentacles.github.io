@@ -3145,8 +3145,11 @@ def _entrypoint() -> str:
 MODULE_API = {
     "webtool": ("fetch",),
     "shared_memory": ("context_block", "remember", "search"),
-    "journal": ("note", "read_diary", "write_diary", "read_journal"),
-    "brain": ("complete", "reply"),
+    "journal": ("note", "read_diary", "write_diary", "read_journal",
+                "note_digest", "read_digest"),
+    "brain": ("complete", "reply", "gemini_complete"),
+    "digest": ("settings", "due", "watch", "maybe_run", "collect",
+               "summarise", "channel_names"),
     "people": ("block", "known_count", "learn", "observe", "refresh", "summary",
                "identify", "find", "familiarity", "lookup"),
     "skills": ("catalog", "load", "trigger_ids", "keyword_ids", "append_rule"),
@@ -5642,6 +5645,39 @@ def _skill_rules() -> str:
             "a rule with no home hands her the shelf to choose from")
 
 
+# -- 16. the digests, and both ends of a day ---------------------------------
+# The journal is append-only and read_journal used to take the FIRST
+# MAX_READ_CHARS of it, so on a full day it returned the small hours and dropped
+# everything after, silently - 15228 chars of 2026-09-22 read back as its first
+# 65 entries. Two things have to stay true: a long day shows BOTH ends and says
+# where the gap is, and a digest written into the journal can be read back out.
+# A digest with no reader is a file, not a memory.
+def _digest() -> str:
+    import journal
+
+    body = "\n".join(f"- **{i % 24:02d}:{i % 60:02d}** someone: line {i}"
+                     for i in range(1200))
+    clipped = journal._clip(body)
+    expect(len(clipped) <= journal.MAX_READ_CHARS,
+           f"_clip blew the read budget: {len(clipped)} chars")
+    expect(journal.CUT_MARK in clipped,
+           "_clip hid a cut without saying so - a partial day reads as a whole")
+    expect("line 1199" in clipped, "_clip dropped the NEWEST part of the day")
+    expect("line 0" in clipped, "_clip dropped the start of the day")
+
+    short = "- **09:00** someone: nothing else happened"
+    expect(journal._clip(short) == short,
+           "_clip mangled a day that fits in the budget")
+
+    out = journal.note_digest("**#general**\n\nTalked about sigils.",
+                              label="server digest - 1 server(s)")
+    expect("noted" in out, f"note_digest refused: {out!r}")
+    seen = journal.read_digest()
+    expect("Talked about sigils" in seen, "a digest did not come back out")
+    expect("## server digest" in seen, "the digest lost its heading")
+    return "a long day reads from both ends, and digests round-trip"
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5682,6 +5718,7 @@ CHECKS = [
     ("chatter", _chatter),
     ("entrypoint", _entrypoint),
     ("api", _api),
+    ("digest", _digest),
     ("propose", _propose),
     ("entrypoints", _entrypoints),
     ("supervisor", _supervisor),

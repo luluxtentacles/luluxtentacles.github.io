@@ -20,6 +20,7 @@ import discord
 
 import brain
 import browseguard
+import digest
 import journal
 import paths
 import people
@@ -1641,6 +1642,7 @@ class Lulu(discord.Client):
         self.chatter_state: dict[str, dict] = self._load_chatter_state()
         self.credits_dead = False
         self._ledger_task: asyncio.Task | None = None
+        self._digest_task: asyncio.Task | None = None
         self._restart_task: asyncio.Task | None = None
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
@@ -2098,6 +2100,13 @@ class Lulu(discord.Client):
         # stays up - tools.reap_idle_tabs is where the refusals live.
         if self._tabs_task is None or self._tabs_task.done():
             self._tabs_task = asyncio.create_task(self._tab_reaper())
+        # What happened in each server, written down every few hours. The mirror
+        # is RAM only and dies on a restart, so THIS is what survives one: a
+        # summary per server, appended to today's journal, on the free Gemini
+        # keys rather than the rung master pays for. Off unless config.json
+        # switches it on - see digest.py for what a digest is and is not.
+        if self._digest_task is None or self._digest_task.done():
+            self._digest_task = asyncio.create_task(digest.watch(self))
 
     async def _browser_watchdog(self) -> None:
         """Keep her browser up without anyone having to notice it went down.

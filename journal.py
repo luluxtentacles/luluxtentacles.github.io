@@ -31,6 +31,20 @@ DATE_FMT = "%Y-%m-%d"
 MAX_LINE = 400
 MAX_READ_CHARS = 6000
 
+# The reader shows BOTH ends of a day. Reading the first MAX_READ_CHARS of a file
+# that is only ever appended to returned the small hours and dropped the rest,
+# silently: on 2026-09-22 the live journal was 15228 chars and read_journal handed
+# back 65 of its 152 entries - 00:05 to 03:27 - while the day itself ran to 15:04.
+# "Who talked to me today", asked in the afternoon, was answered from the morning.
+# The cut says so now, so a partial day cannot read as a whole one.
+CUT_MARK = "\n\n[... the middle of this day is not shown ...]\n\n"
+
+# A digest block is a SUMMARY, not a line: it keeps its paragraph breaks and it is
+# allowed to be long. `_clean` is the wrong tool for it - it collapses all
+# whitespace and cuts at MAX_LINE (400), which would leave a digest reading like a
+# truncated line.
+DIGEST_MAX_CHARS = 12000
+
 # Mask credential-shaped text before it can land in a journal that other people's
 # names sit next to. Borrowed from shared_memory rather than reimplemented: two
 # pattern sets would drift, and a mask that has drifted is worse than none.
@@ -82,13 +96,77 @@ def note(text: str, *, speaker: str = "", channel: str = "") -> None:
         return
 
 
+def _clean_block(text: str, limit: int = DIGEST_MAX_CHARS) -> str:
+    """A digest body: masked, paragraph breaks kept, headings demoted.
+
+    A digest is not a line. `_clean` would flatten it and cut it at 400 chars,
+    and an embedded '## ' would forge the journal's own structure - which is the
+    seam read_digest splits on - so any heading in the body becomes a bullet.
+    """
+    body = redact(text or "").replace("\r\n", "\n")
+    lines = []
+    for line in body.split("\n"):
+        if line.lstrip().startswith("#"):
+            line = "- " + line.lstrip("# ").strip()
+        lines.append(line.rstrip())
+    return "\n".join(lines).strip()[:limit]
+
+
+def note_digest(text: str, *, label: str = "server digest", day: str = "") -> str:
+    """Append one summarised block to a day's journal, marked with '## '.
+
+    Never raises, like note(): the digest is a convenience and the raw record
+    beside it is the thing that matters.
+    """
+    body = _clean_block(text)
+    if not body:
+        return "nothing to note"
+    day = (day or "").strip() or today()
+    try:
+        rel = _local_rel(day)
+        existing = paths.read_text(rel, default="")
+        if not existing:
+            existing = f"# Journal - {day}\n\n"
+        head = f"## {label} \u00b7 {datetime.now().strftime('%H:%M')}"
+        paths.write_text(rel, existing + f"\n{head}\n\n{body}\n", internal=True)
+    except Exception as exc:
+        return f"could not note the digest: {exc.__class__.__name__}"
+    return f"digest noted in my journal for {day}"
+
+
+def read_digest(day: str = "") -> str:
+    """Just the summarised blocks in my journal - no raw traffic."""
+    day = (day or "").strip()
+    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        return "that is not a date - use YYYY-MM-DD"
+    wanted = [day] if day else [today(), shift(today(), -1)]
+    out = []
+    for d in wanted:
+        body = paths.read_text(_local_rel(d), default="")
+        blocks = [b.strip() for b in re.split(r"^## ", body, flags=re.M)[1:]]
+        out.append("\n\n".join("## " + b for b in blocks) if blocks
+                   else f"{d}: no digest written")
+    return "\n\n".join(out)[:MAX_READ_CHARS]
+
+
+def _clip(body: str, limit: int = MAX_READ_CHARS) -> str:
+    """A day trimmed to `limit`, keeping the start AND the newest part."""
+    if len(body) <= limit:
+        return body
+    head = max(0, limit // 3)
+    tail = limit - head - len(CUT_MARK)
+    if tail <= 0:
+        return body[:limit]
+    return body[:head].rstrip() + CUT_MARK + body[-tail:].lstrip()
+
+
 def read_journal(day: str = "") -> str:
     """My journal for a day, most recent entry last."""
     day = day.strip() or today()
     body = paths.read_text(_local_rel(day), default="")
     if not body:
         return f"nothing in my journal for {day}"
-    return body[:MAX_READ_CHARS]
+    return _clip(body)
 
 
 def read_den(day: str = "", days: int = 1) -> str:

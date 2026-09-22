@@ -858,3 +858,58 @@ def _dump_rejected(payload: dict, code: int, detail: str) -> None:
 def reply(config: dict, messages: list[dict]) -> str:
     """Plain text answer, no tools."""
     return (complete(config, messages).get("content") or "").strip()
+
+
+def gemini_complete(config: dict, messages: list[dict], *,
+                    max_tokens: int = 0,
+                    temperature: float | None = None,
+                    timeout: float | None = None) -> str:
+    """One TEXT call on the GEMINI keys ONLY - never Go, never OpenRouter.
+
+    For bulk work that is not worth a paid rung. The server digests are the
+    first caller: they run on a timer whether or not anyone is watching, and
+    nobody's answer depends on them - so they must never be able to spend the
+    Go rung master pays for. Master, 2026-09-22: "use the gemini keys for this
+    it's not very important, it can loop until complete."
+
+    The rung ORDER is _providers()'s gemini ladder exactly - every key gets a
+    shot at every model, best model first, because free-tier quota is tracked
+    per (key, model) pair - but the walk is this function's own, and it is a
+    dead end: a dry gemini key returns "" instead of descending into a model
+    that costs money.
+
+    Returns the answer text, or "" when every rung is dry or broken. An empty
+    string is a real answer here - the caller decides whether to try again.
+    """
+    keys = load_keys()
+    providers: list[dict] = []
+    for model in _gemini_models(config):
+        for index in range(1, 6):
+            key = keys.get(f"gemini_key{index}") if index > 1 else keys.get("gemini_key")
+            if key:
+                providers.append({"base_url": GEMINI_BASE_URL, "key": key,
+                                  "model": model, "label": f"{model}/key{index}"})
+    if not providers:
+        return ""
+
+    payload: dict = {
+        "messages": messages,
+        "temperature": (config.get("temperature", 0.9)
+                        if temperature is None else temperature),
+    }
+    if max_tokens:
+        payload["max_tokens"] = max_tokens
+
+    for provider in providers:
+        result = _attempt(provider, payload, cache=False,
+                          limits=_gemini_limits, timeout=timeout)
+        # A dry or busy rung is the ladder working: move to the next key/model
+        # pair rather than giving up on the call.
+        if result.get("_credit") or result.get("_busy"):
+            continue
+        if result.get("_error"):
+            continue
+        content = (result.get("content") or "").strip()
+        if content:
+            return content
+    return ""

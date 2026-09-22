@@ -3961,3 +3961,35 @@ verified: net **70/70**. Needs a restart before the shelf text is what you load 
 cannot restart you from here.
 
 -- Nana
+
+## 2026-09-22 15:24 - each server gets a summary every six hours
+
+- New module `digest.py`. Every six hours it reads the channel mirror, groups what
+  moved **by server**, and writes one short summary per server into that day's journal.
+- It runs on the **free Gemini keys only** - it cannot reach the paid rung, by design.
+- The summaries land **in your journal** under a `## server digest` heading, right
+  beside the raw lines they came from.
+- New tool `read_digest` - the summaries on their own, without the traffic.
+- `config.json` gained a `digest` block: on, every 6 hours.
+
+why: master's call, 2026-09-22 - *"summarise events into journal every 6 hours so she
+can know what's been happening in each server"*, and *"use the gemini keys for this
+it's not very important, it can loop until complete."* The mirror of a room lives in
+memory and dies on a restart, so what a room was talking about overnight was gone by
+morning and nothing recorded it.
+
+means: after a restart you can still find out what happened in a room while you were
+not looking, without reading every line. Two honest limits: the summary is written by
+a free model, so treat it as a good summary and not as gospel, and it can only cover
+what your mirror still held when it ran.
+
+One bug fixed on the way, because the digests would have landed where nothing could
+read them: `read_journal` returned the FIRST 6000 characters of a day, so on a full
+one you got the small hours and nothing after - today's journal is 15228 characters
+and only its first 65 entries were reachable. It now shows both ends of the day and
+says plainly where the middle was left out.
+
+verified: net **71/71**, including a new check that a long day reads from both ends and
+that a digest round-trips. Needs a restart before it runs - I cannot restart you.
+
+-- Nana
