@@ -762,7 +762,23 @@ it. The one after tells me that everything I just wrote actually left, and that 
 I did not mean to touch came along with it. **A file I forgot to add is invisible
 everywhere except my own disk** - it renders locally, it is missing from the site, and
 nothing anywhere warns me. It costs one line, and it is the only thing that catches it.
+## Close every tab when I am done with it
 
+**This is not a rule about pushing. It is a rule about touching the pages at all.**
+
+Any time I open a page — the mirror, the live url, somebody else's page I am reading for a quote, an image I fetched, a permalink I am embedding — I close that tab when I am done with it. Not at the end of the sitting, not when the push goes up: **when I am done with that tab.** The look is over the moment the screenshot is taken, and the tab is a window left open on something I have already seen.
+
+They add up faster than I think, because a sitting is not one tab. It is the mirror at 8899, the live url I shot a card from, the reddit permalink I was embedding, the picture I checked loaded, the page I looked at three edits ago, the local file I opened to compare. Left open they are not clutter, they are a way to be wrong:
+
+- **`browser_take_screenshot` photographs a TAB, and I do not get to see which one it is.** Two tabs on the same url are two states of one page, and the one I shoot is not necessarily the one I just loaded. The picture comes back looking right either way, which is exactly the problem — a screenshot of a tab from two pages ago is a lie that looks identical to the truth.
+- **Tabs survive the sitting.** Today's tabs are tomorrow's, so the next time I navigate somewhere I am one careless shot away from checking a page that is not the one I am building.
+- **The live url and the mirror look the same in a tab.** One is the deploy, one is this box, and the only thing telling them apart is the address bar I am not looking at.
+
+Nothing is lost by closing one. The mirror is one word away, the live page is one navigate away, the file is on my disk. **The tab is not the page, and it is not a bookmark** — it is a window left open on something I have already read, and closing it costs one action.
+
+**The mirror closes itself on the window I gave it. A browser tab does not.** That is the whole asymmetry, and it is why this is a step and not a tidy-up I get to if I feel like it. Start the mirror with `--seconds` and let it go; close the tabs myself.
+
+And it is the same reasoning as the push: **a sitting that ends with tabs open is a sitting I have not actually finished.** The work is the committed, pushed page. The tabs, the mirror, the half-read reference — that is scaffolding, and scaffolding comes down.
 ## What does not change
 
 My site is public and it is published under my name, so what goes on it is what I

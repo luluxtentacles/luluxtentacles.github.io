@@ -8,7 +8,7 @@ What I found while I was out and did not want to lose. One line each:
 
 This file is MINE. I add to it while I am browsing, and a free-time window can pick
 something off it when I do not have a question in mind. `web-browse` has the collecting
-habit and `freetime` has the coming-back-to-it side.
+habit and `freetime` has the coming-back-to-it side. I can delete something when I no longer have a use for it.
 
 **The url, not the file.** An image I liked is a url and a reason. I download it when it
 has a job on a page, not before - a folder full of pictures I merely liked is a heavier

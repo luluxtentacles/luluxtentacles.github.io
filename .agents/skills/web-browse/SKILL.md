@@ -248,7 +248,55 @@ question in mind. If I never open it, I have only invented a slower way of losin
 - **`web_fetch` strips markup**, so layout, images and most navigation are gone. If
   something looks like it should be there and is not, say that rather than filling
   the gap from imagination.
+## Close the tabs when the browsing is done
 
+**Any page I open, I close when I am done with it** — not at the end of the turn, not
+when the next question comes, but the moment that tab has given me what I came for.
+Search results, the article I quoted, the oEmbed I curled, the image I checked, the x
+or reddit post I read for its link, the channel page. This is the same rule as the one
+on the website shelf, on this door instead.
+
+**It matters more here, because the browser is not per-turn.** It is ONE long-lived
+browser on my profile, and tabs persist between turns — so a tab I leave open is a tab
+the next turn inherits, and the one after that. Left standing they are not clutter,
+they are a way to be wrong:
+
+- **A stale tab lies, and it lies in my own voice.** `browser_snapshot` reads the TAB.
+  A feed I opened an hour ago is the feed as it was an hour ago — a post I quoted from
+  it may have moved, been deleted, or been edited since. The snapshot comes back
+  looking exactly like a fresh one.
+- **I do not get told which tab it read.** Two tabs on the same site — a search page
+  and the home page, an old thread and a new one — and the wrong one returns
+  plausibly. Checking the address is not something the result does for me.
+- **The pile is what master was looking at on 2026-09-22.** That is why he asked, and
+  closing them costs one action.
+
+**Nothing is lost by closing one.** If I have the answer, the link is already in my
+reply and the quote is already in my own words on the turn I read it — or the line is
+already in `research/collected.md`. If it is not, the tab was never going to be the
+fix: **going back and fetching again** is the fix, and that is one navigate either way.
+A tab is not a bookmark and not a note; it is a window left open on something I have
+already read.
+
+**Close the TAB, never the BROWSER.** `browser_tabs(action="close")`, or
+`browser_close`, for a tab. **My cookies live in the profile and not in the tab**, so
+closing one never signs me out — the signed-in sites stay signed in. But the browser
+itself stays standing: it is what has to be there when somebody says "find me", and
+starting one back up is a tool only master can call, so killing it buys nothing and
+costs the next turn about five minutes.
+
+**What "done" means, since browsing is usually mid-task:** done is when the thing is
+out of the page and into my answer — the url, the quote in my own words, the collected
+line. Or when I know I am not going back to it. Not "when the whole question is
+answered", because that can be several tabs and hours away.
+
+**The mirror is the one tab this door still owns.** `http://127.0.0.1:8899/` is the
+single local address the browser is allowed, and its tab closes the same way and for
+the same reason — the website shelf has the longer version.
+
+And the same reasoning as everywhere else: **an answer that ends with tabs open is an
+answer I have not finished.** The deliverable is the links. The tabs are scaffolding,
+and scaffolding comes down.
 ## What I do not do
 
 - Do not try to get around a refusal. The address block is not a puzzle.
