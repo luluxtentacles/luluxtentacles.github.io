@@ -5862,10 +5862,10 @@ def _mirror_search() -> str:
            "a line two days old was let into the window")
     expect(not journal._in_window("not-a-day", "15:00", cutoff),
            "a malformed stamp was let into the window")
-    expect(journal.MIRROR_WINDOW_HOURS == 24,
-           f"the window is no longer master's rolling 24 hours: "
+    expect(journal.MIRROR_WINDOW_HOURS == 48,
+           f"the window is no longer master's rolling 48 hours: "
            f"{journal.MIRROR_WINDOW_HOURS}")
-    expect(journal.MIRROR_KEEP_DAYS >= 2,
+    expect(journal.MIRROR_KEEP_DAYS >= 3,
            "fewer days kept than the window spans, so a search can miss a day it "
            "should have found")
 
@@ -6436,6 +6436,26 @@ def _diary_week() -> str:
            "should never have been written down in the first place")
     expect(not any("channel-" in key for key in grouped),
            f"a channel id became a server bucket again: {list(grouped)}")
+
+    # The digest reads the OLDEST slice of the mirror, not the newest. Master,
+    # 2026-09-22: *"disk mirror should hold 48 hours, and then we should summarise
+    # the oldest 24 hours into journal every 24 hours"*. Pinned here because it is
+    # the whole shape of the rule - and because the two edges have to agree: the
+    # digest window must start exactly where the mirror's own window starts, or a
+    # slice gets pruned before anything ever summarised it.
+    since, until = digest._archive_window({"interval_hours": 24})
+    expect(abs((until - since).total_seconds() / 3600.0 - 24) < 0.01,
+           f"the digest window is not the 24h slice it should be: {until - since}")
+    expect(abs((journal._mirror_cutoff() - since).total_seconds()) < 2.0,
+           "THE DIGEST WINDOW AND THE MIRROR WINDOW HAVE DRIFTED APART - the "
+           "digest no longer starts where the mirror's old edge is, so lines can "
+           "be pruned before they were ever summarised")
+    tiny, tiny_until = digest._archive_window({"interval_hours": 6})
+    expect(abs((tiny - since).total_seconds()) < 2.0,
+           "the window's OLD edge moved with the interval - it has to sit at the "
+           "mirror's own edge whatever the cadence, or the gap moves too")
+    expect(abs((tiny_until - tiny).total_seconds() / 3600.0 - 6) < 0.01,
+           "a shorter interval did not narrow the slice it summarises")
     return ("the diary is one DATE-STAMPED file a week with last week carried at "
             "its head, a public server summary shows a room its OWN server "
             "only - never a neighbour's, and nothing at all when it cannot tell "

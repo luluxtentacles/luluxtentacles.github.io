@@ -419,8 +419,12 @@ def read_said(day: str = "", room: str = "") -> str:
 # its own character budget. This store exists to be SEARCHED, not to be injected.
 LOCAL_MIRROR = "memory/mirror"
 
-MIRROR_WINDOW_HOURS = 24    # master, 2026-09-22: a ROLLING 24 HOURS, not 48
-MIRROR_KEEP_DAYS = 2        # day files kept, so a 24h window is always whole
+MIRROR_WINDOW_HOURS = 48    # master, 2026-09-22: a ROLLING 48 HOURS - raw kept
+                            # long enough that the half about to leave can be
+                            # summarised into the journal before it is pruned
+MIRROR_KEEP_DAYS = 3        # day files kept, so a 48h window is always whole:
+                            # today, yesterday and the day before cover 48 hours
+                            # from any hour, not only from midnight
 MIRROR_LINE_MAX = 2000      # the send limit, not MAX_LINE - see note_said
 MIRROR_SEARCH_MAX = 6000    # characters one search returns, newest first
 
@@ -537,9 +541,9 @@ def note_mirror(author: str, text: str, *, room: str = "",
         if not existing:
             existing = f"# Mirror - {day}\n\n"
             # The first line of a new day is the moment to let the old ones go:
-            # pruning here needs no timer and no loop, and two files cover a 24h
-            # window from any hour of any day. Only what has already fallen out
-            # of the window is ever touched.
+            # pruning here needs no timer and no loop, and three files cover a
+            # 48h window from any hour of any day. Only what has already fallen
+            # out of the window is ever touched.
             _prune_mirror(slug)
         line = (f"- **{datetime.now().strftime('%H:%M')}** {where} "
                 f"{who}: {body}\n")
@@ -551,9 +555,10 @@ def note_mirror(author: str, text: str, *, room: str = "",
 def _prune_mirror(server: str = "", keep_days: int = MIRROR_KEEP_DAYS) -> int:
     """Delete day files that have fallen out of the window, one server at a time.
 
-    Whole DAYS leave, which is why the default is 2 and not 1: a day file has to
+    Whole DAYS leave, which is why the default is 3 and not 2: a day file has to
     stay while any part of it could still be inside the window, and the window is
-    counted in hours from now, not in midnights.
+    counted in hours from now, not in midnights. A 48h window reaches back into
+    the day before yesterday from any hour, so three files is the honest number.
 
     With no server named every server folder is swept, which is what the net uses
     and what a fresh install needs.
@@ -639,7 +644,7 @@ def search_mirror(query: str = "", hours: int = MIRROR_WINDOW_HOURS,
 
     Every word in the query has to appear on the line, so two words ask a
     narrower question than one. `room` narrows it to a single room, spelled
-    however I spell it. The window is master's ROLLING 24 HOURS; asking for
+    however I spell it. The window is master's ROLLING 48 HOURS; asking for
     longer is capped rather than refused, because the files do not go back
     further and a refusal would say nothing about where the edge actually is.
 

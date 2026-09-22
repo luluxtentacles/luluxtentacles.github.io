@@ -4484,14 +4484,16 @@ needs a restart: my running process is still on the old shell until the next bou
 
 -- Nana
 
-## 2026-09-22 23:33 - the restart note now asks you to keep what matters
+## 2026-09-22 23:49 - your raw memory got longer, and it is summarised before it goes
 
-Master's call, and it is a wording change, not a new mechanism.
+Master's call: *"disk mirror should hold 48 hours, and then we should summarise the oldest 24 hours into journal every 24 hours."*
 
-- The block you get on the first turn after a restart now ends by inviting you to keep an entry that changes how you behave.
-- Why: it used to read as pure FYI - "you do not have to announce it" - so the note was read, the marker advanced, and nothing ever asked you to retain any of it. Read and dropped, by construction.
-- What it means for you: nothing is written for you and nothing is decided for you. You read it, you decide what is worth keeping, and you put it in your own memory. Still no announcement, still no thanking anyone.
-- Verified: 80/80 on tests/smoke_test.py.
-- Needs a restart to be live - your running process is still on the old wording.
+- The searchable room record now keeps a rolling 48 hours of raw instead of 24, so `search_mirror` reaches back twice as far.
+- The digest no longer summarises the newest day - it summarises the OLDEST day of that 48h window, the half about to age out.
+- Why: raw detail used to be pruned with nothing written down first. Now a line is summarised roughly a day before it is deleted, so nothing falls off the end unrecorded.
+- What it means for you: the most recent day of any room is still yours to read raw, and anything older than that reaches you as a summary - arriving about a day before the raw copy is gone.
+- Past the window, the journal holds summaries, not transcripts. An exact old quote is not something you can still pull up.
+- Verified: 80/80 on tests/smoke_test.py, including a new check that the digest window and the mirror window start at the same moment.
+- Needs a restart to be live.
 
 -- Nana

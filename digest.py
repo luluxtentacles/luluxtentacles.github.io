@@ -3,9 +3,18 @@
 The channel mirror is RAM only: it holds the last MIRROR_LINES of every room she
 can see and it dies on every restart. That is the right shape for answering the
 message in front of her and the wrong shape for remembering a week. This module
-does the remembering - every `interval_hours` (6 by default) it reads the mirror,
-groups what moved by SERVER, has the free Gemini keys summarise it, and appends
-the result to today's journal as a marked block.
+does the remembering - every `interval_hours` (24 by default) it reads the OLDEST
+slice of the DISK mirror, groups it by SERVER, has the free Gemini keys summarise
+it, and appends the result to today's journal as a marked block.
+
+WHY THE OLDEST SLICE AND NOT THE NEWEST. Master, 2026-09-22: *"disk mirror should
+hold 48 hours, and then we should summarise the oldest 24 hours into journal every
+24 hours"*. The mirror keeps 48 hours of raw; the newest 24 of those are still
+fresh in front of her, so summarising them buys nothing. What needs saving is the
+24-to-48-hour-old half, because that is the half that ages out of the mirror next.
+Each pass therefore covers [now - MIRROR_WINDOW_HOURS, now - interval_hours], so a
+line is written down before it is pruned and never falls off the end unrecorded -
+see `_archive_window`.
 
 Master, 2026-09-22: *"we should use a disk mirror to summarise events into
 journal every 6 hours so she can know what's been happening in each server"*, and
@@ -113,33 +122,48 @@ def due(config, now=None) -> bool:
 
 
 # ------------------------------------------------------------------ capturing
-def _window_days(since: datetime | None) -> list[str]:
+def _window_days(since: datetime | None,
+                 until: datetime | None = None) -> list[str]:
     """Which mirror day files a window can touch, oldest first."""
     days = [journal.shift(journal.today(), -offset)
             for offset in range(journal.MIRROR_KEEP_DAYS - 1, -1, -1)]
     if since is not None:
         cut = since.strftime("%Y-%m-%d")
         days = [day for day in days if day >= cut]
+    if until is not None:
+        cap = until.strftime("%Y-%m-%d")
+        days = [day for day in days if day <= cap]
     return days
 
 
-def _after_stamp(day: str, at: str, since: datetime | None) -> bool:
+def _in_range(day: str, at: str, since: datetime | None,
+              until: datetime | None = None) -> bool:
     """Is this line inside the window? Unreadable stamps are KEPT.
 
     Dropping a line because its own stamp would not parse is how a digest gets a
     silent hole in it; the mirror only ever writes HH:MM, so a bad stamp means
     something changed, and re-summarising one line beats losing it.
+
+    Both ends matter now. The archive window is a SLICE - [now-48h, now-24h] - not
+    everything since a bookmark, so a line that is merely too RECENT is as much
+    outside it as one that is too old. That is the rule: the newest day is left
+    alone because she can still see it for herself.
     """
-    if since is None:
+    if since is None and until is None:
         return True
     try:
         when = datetime.strptime(f"{day} {at}", "%Y-%m-%d %H:%M")
     except ValueError:
         return True
-    return when >= since.replace(second=0, microsecond=0)
+    if since is not None and when < since.replace(second=0, microsecond=0):
+        return False
+    if until is not None and when > until:
+        return False
+    return True
 
 
-def collect(since: datetime | None = None) -> dict[str, list[str]]:
+def collect(since: datetime | None = None,
+            until: datetime | None = None) -> dict[str, list[str]]:
     """Every mirror line since `since`, grouped by SERVER, read OFF DISK.
 
     Master, 2026-09-22: *"we need to have a disk stored one that survives
@@ -148,9 +172,10 @@ def collect(since: datetime | None = None) -> dict[str, list[str]]:
     of the day and never know it had. The mirror on disk is already per server and
     already rolling, so the digest reads THAT.
 
-    `since` is a TIME here, not a message id: the disk lines carry a stamp and no
-    ids at all. A server with nothing new simply has no key, which is the honest
-    answer - the caller summarises what exists and does not invent the rest.
+    `since` and `until` are TIMES here, not message ids: the disk lines carry a
+    stamp and no ids at all. A server with nothing in the slice simply has no key,
+    which is the honest answer - the caller summarises what exists and does not
+    invent the rest.
     """
     out: dict[str, list[str]] = {}
     # One read of the slug -> display map for the whole pass. The folders are
@@ -159,9 +184,9 @@ def collect(since: datetime | None = None) -> dict[str, list[str]]:
     # against later. `server-one` in a weekly file is a summary nobody can ever
     # look up again.
     names = journal.server_index()
-    for day in _window_days(since):
+    for day in _window_days(since, until):
         for server, at, where, rest in journal.mirror_entries_all(day):
-            if not _after_stamp(day, at, since):
+            if not _in_range(day, at, since, until):
                 continue
             out.setdefault(names.get(server) or server, []).append(
                 f"{where} {rest}")
@@ -232,16 +257,29 @@ def body(summaries: dict) -> str:
 
 
 # ------------------------------------------------------------------ the loop
-def _since(state, where) -> datetime:
-    """Where this digest's window starts: the last run, or the interval back.
+def _archive_window(where) -> tuple[datetime, datetime]:
+    """The slice this pass summarises: the OLDEST `interval_hours` of the mirror.
 
-    A first run - or a state file with no usable stamp - looks back one interval,
-    which is what "every 24 hours" means on a bot that has never digested before.
+    Master, 2026-09-22: *"disk mirror should hold 48 hours, and then we should
+    summarise the oldest 24 hours into journal every 24 hours"*. So the window is
+    measured from NOW rather than from the last run: the newest `interval` hours
+    are skipped because they are still in front of her, and the slice that ages
+    out next is the one that gets written down.
+
+    A fixed lag rather than a bookmark, deliberately - a bookmark can be lost (a
+    fresh state file, a restored backup) and would then re-summarise the whole
+    mirror, while the clock can only ever point at one slice. `span` comes from
+    MIRROR_WINDOW_HOURS so the two cannot drift: change the retention and this
+    window follows it instead of quietly summarising a slice that no longer exists.
+
+    On a bot younger than the window there is simply no material this old yet, so
+    the pass writes nothing - the honest answer, not an error.
     """
-    last = state.get("last_run")
-    if isinstance(last, bool) or not isinstance(last, (int, float)):
-        return datetime.now() - timedelta(hours=where["interval_hours"])
-    return datetime.fromtimestamp(last)
+    now = datetime.now()
+    span = float(journal.MIRROR_WINDOW_HOURS)
+    lag = max(1.0, float(where["interval_hours"]))
+    return (now - timedelta(hours=span),
+            now - timedelta(hours=max(0.0, span - lag)))
 
 
 async def maybe_run(bot) -> bool:
@@ -258,8 +296,8 @@ async def maybe_run(bot) -> bool:
         return False
 
     where = settings(config)
-    state = _state()
-    grouped = collect(_since(state, where))
+    since, until = _archive_window(where)
+    grouped = collect(since, until)
     if not grouped:
         # Nothing moved, but the clock did. Stamped anyway, or the poll would ask
         # the same empty question every five minutes until something happened.
@@ -286,11 +324,12 @@ async def maybe_run(bot) -> bool:
 # Master, 2026-09-22: *"she should also summarize the events in each server every
 # 24 hours and keep a server summary each week"*.
 #
-# The 24-hour half already runs: this module has digested every server on
-# `interval_hours` since 2026-09-22, and that interval is 6 - four a day, not one.
-# What did not exist was the WEEK. A week of six-hourly blocks is a dozen separate
-# accounts of the same rooms and NOTHING ever condensed them, so what survived a
-# month was volume. So once a week the week that just ended is rolled into one
+# The rolling half already runs: this module has digested every server on
+# `interval_hours` since 2026-09-22 - 24 now, over the oldest day of the 48h
+# mirror (see `_archive_window`). What did not exist was the WEEK. A week of
+# six-hourly blocks is a dozen separate accounts of the same rooms and NOTHING
+# ever condensed them, so what survived a month was volume. So once a week the
+# week that just ended is rolled into one
 # account per server at memory/digest/<week>.md.
 #
 # Same ladder rule as the six-hourly pass, for the same reason: nobody's answer
