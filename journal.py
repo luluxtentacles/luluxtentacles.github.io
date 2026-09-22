@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import re
 from datetime import date, datetime, timedelta
+from hashlib import sha1
 
 import paths
 
@@ -418,27 +419,111 @@ def read_said(day: str = "", room: str = "") -> str:
 # its own character budget. This store exists to be SEARCHED, not to be injected.
 LOCAL_MIRROR = "memory/mirror"
 
-MIRROR_WINDOW_HOURS = 48    # master's window, and the only one a search offers
-MIRROR_KEEP_DAYS = 3        # day files kept, so a 48h window is always whole
+MIRROR_WINDOW_HOURS = 24    # master, 2026-09-22: a ROLLING 24 HOURS, not 48
+MIRROR_KEEP_DAYS = 2        # day files kept, so a 24h window is always whole
 MIRROR_LINE_MAX = 2000      # the send limit, not MAX_LINE - see note_said
 MIRROR_SEARCH_MAX = 6000    # characters one search returns, newest first
 
 
-def _mirror_rel(day: str) -> str:
-    return f"{LOCAL_MIRROR}/{day}.md"
+SERVER_SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 
-def note_mirror(author: str, text: str, *, room: str = "") -> None:
-    """Write down one line of a room - who, where, what. Never raises.
+def server_slug(server: str) -> str:
+    """A server name as a FOLDER name, or "" when there is no server at all.
+
+    Server names are display strings - spaces, punctuation, unicode, the odd
+    slash - and none of that may become a path. Everything that is not a letter
+    or a digit collapses to a dash, so `Unofficial HIMR Server` lands in
+    `unofficial-himr-server`.
+
+    AN EMPTY RETURN MEANS "NOT IN A SERVER", which is a DM, and callers treat it
+    as "do not record this line". That is the structural half of master's
+    2026-09-22 call: a DM has no server, so it has no file to land in.
+
+    A NAME THAT SLUGS TO NOTHING IS STILL A SERVER, and it gets a stable
+    fallback instead of an empty slug. Found the hard way on 2026-09-22, on the
+    first real grab: a guild whose name is written in superscript unicode
+    characters (`ˢⁿᵃⁱˡᶜᵃᵗʰᵒˡⁱᶜ`) has no [a-z0-9] in it at all, so the slug
+    came back EMPTY and the DM rule threw away every line of the whole server -
+    silently, because note_mirror swallows its own failures. The display name is
+    what matters and it is kept in servers.json; the folder just needs to be
+    stable. So the distinction is made on the NAME, not on the slug.
+    """
+    name = (server or "").strip()
+    if not name:
+        return ""
+    slug = SERVER_SLUG_RE.sub("-", name.lower()).strip("-")
+    if not slug:
+        slug = "s-" + sha1(name.encode("utf-8")).hexdigest()[:12]
+    return slug[:60]
+
+
+def _mirror_rel(server: str, day: str) -> str:
+    """One day of ONE server's mirror.
+
+    Master, 2026-09-22: *"the mirror would be per server"*. Per server rather
+    than one file with the server tagged on every line, because that makes the
+    boundary STRUCTURAL: reading a room's own history cannot reach a neighbour's
+    lines by accident, and it is the same reasoning as the weekly summaries.
+    """
+    return f"{LOCAL_MIRROR}/{server}/{day}.md"
+
+
+# A folder name has to be a safe path, so it is a slug. But a summary that calls a
+# server `unofficial-himr-server` is not one anybody recognises, and the weekly
+# file is matched back by DISPLAY name - so the two are recorded together, or the
+# room can never find its own summary again.
+SERVER_INDEX = "servers.json"
+
+
+def server_index() -> dict:
+    """{slug: the name a person would recognise}, beside the mirror folders."""
+    try:
+        data = paths.read_json(f"{LOCAL_MIRROR}/{SERVER_INDEX}", default={})
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def server_name(slug: str) -> str:
+    """The display name for a mirror folder, or the slug itself if unknown."""
+    if not slug:
+        return ""
+    return str(server_index().get(slug) or slug)
+
+
+def _remember_server(slug: str, display: str) -> None:
+    """Keep slug -> display, written only when it is new or has changed.
+
+    A read per line, a write only on a rename: the mirror already writes once per
+    message, and this must not double that for nothing.
+    """
+    try:
+        index = server_index()
+        if index.get(slug) == display:
+            return
+        index[slug] = display
+        paths.write_json(f"{LOCAL_MIRROR}/{SERVER_INDEX}", index, internal=True)
+    except Exception:
+        return
+
+
+def note_mirror(author: str, text: str, *, room: str = "",
+                server: str = "") -> None:
+    """Write down one line of a room - which server, which room, who, what.
 
     Same contract as note() and note_said(): a record, not a dependency. If it
     cannot be written the conversation carries on and the failure is swallowed.
 
-    The room is named on the line because the file is a whole DAY, not a whole
-    channel, so a line without its room could not be placed. A DM has no name and
-    says so rather than guessing at one.
+    NO SERVER, NO LINE. A DM has no server, so it has nothing to be filed under -
+    and master's call on 2026-09-22 was that his private conversations are not
+    recorded for later summarising. Filtering at the WRITE is stronger than
+    filtering at the read, because it cannot be undone by a later reader.
     """
     try:
+        slug = server_slug(server)
+        if not slug:
+            return
         body = _one_line(text, MIRROR_LINE_MAX)
         if not body or body == "[redacted]":
             return
@@ -446,15 +531,16 @@ def note_mirror(author: str, text: str, *, room: str = "") -> None:
         name = _clean(room).lstrip("#").strip()
         where = f"[#{name}]" if name else "[no room]"
         day = today()
-        rel = _mirror_rel(day)
+        rel = _mirror_rel(slug, day)
+        _remember_server(slug, _clean(server))
         existing = paths.read_text(rel, default="")
         if not existing:
             existing = f"# Mirror - {day}\n\n"
             # The first line of a new day is the moment to let the old ones go:
-            # pruning here needs no timer and no loop, and three files covers the
+            # pruning here needs no timer and no loop, and two files cover a 24h
             # window from any hour of any day. Only what has already fallen out
-            # of it is ever touched.
-            _prune_mirror()
+            # of the window is ever touched.
+            _prune_mirror(slug)
         line = (f"- **{datetime.now().strftime('%H:%M')}** {where} "
                 f"{who}: {body}\n")
         paths.write_text(rel, existing + line, internal=True)
@@ -462,26 +548,32 @@ def note_mirror(author: str, text: str, *, room: str = "") -> None:
         return
 
 
-def _prune_mirror(keep_days: int = MIRROR_KEEP_DAYS) -> int:
-    """Delete the day files that have fallen out of the window.
+def _prune_mirror(server: str = "", keep_days: int = MIRROR_KEEP_DAYS) -> int:
+    """Delete day files that have fallen out of the window, one server at a time.
 
-    Whole DAYS leave, which is why the default is 3 and not 2: a day file has to
+    Whole DAYS leave, which is why the default is 2 and not 1: a day file has to
     stay while any part of it could still be inside the window, and the window is
     counted in hours from now, not in midnights.
+
+    With no server named every server folder is swept, which is what the net uses
+    and what a fresh install needs.
     """
     removed = 0
     try:
-        folder = paths.resolve(LOCAL_MIRROR)
-        if not folder.is_dir():
+        root = paths.resolve(LOCAL_MIRROR)
+        if not root.is_dir():
             return 0
+        folders = ([root / server] if server
+                   else [d for d in root.iterdir() if d.is_dir()])
         oldest_kept = shift(today(), -(keep_days - 1))
-        for path in folder.glob("*.md"):
-            day = path.stem
-            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
-                continue
-            if day < oldest_kept:      # ISO dates sort as strings
-                path.unlink()
-                removed += 1
+        for folder in folders:
+            for path in folder.glob("*.md"):
+                day = path.stem
+                if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+                    continue
+                if day < oldest_kept:      # ISO dates sort as strings
+                    path.unlink()
+                    removed += 1
     except Exception:
         return removed
     return removed
@@ -506,10 +598,10 @@ def _in_window(day: str, at: str, cutoff: datetime) -> bool:
     return when >= cutoff
 
 
-def _mirror_entries(day: str) -> list[tuple[str, str, str]]:
-    """(time, [room], rest) for every line in a day's mirror, in file order."""
+def _mirror_entries(server: str, day: str) -> list[tuple[str, str, str]]:
+    """(time, [room], rest) for every line in ONE server's day, in file order."""
     out = []
-    body = paths.read_text(_mirror_rel(day), default="")
+    body = paths.read_text(_mirror_rel(server, day), default="")
     for line in body.splitlines():
         match = re.match(r"^- \*\*(\d{2}:\d{2})\*\* (\[[^\]]*\]) (.*)$", line)
         if match:
@@ -517,15 +609,43 @@ def _mirror_entries(day: str) -> list[tuple[str, str, str]]:
     return out
 
 
+def mirror_entries_all(day: str) -> list[tuple[str, str, str, str]]:
+    """(server, time, [room], rest) for a whole day, across EVERY server.
+
+    The reader a sweep needs - everything since a bookmark, not one room's file -
+    and it is PUBLIC because nyanwatch walks it and a reader that reaches into a
+    private helper is a caller that breaks when the layout changes. Exactly what
+    happened here: the mirror moved to one file per server and this is the one
+    place that has to keep working across all of them.
+
+    Server folders come in sorted order, so a sweep is STABLE but no longer
+    strictly chronological across servers - the old single file held lines in
+    arrival order and per-server files cannot. No line is skipped or repeated,
+    which is what the bookmark counts on; only the interleaving is lost.
+    """
+    out: list[tuple[str, str, str, str]] = []
+    root = paths.resolve(LOCAL_MIRROR)
+    if not root.is_dir():
+        return out
+    for folder in sorted(d for d in root.iterdir() if d.is_dir()):
+        for at, where, rest in _mirror_entries(folder.name, day):
+            out.append((folder.name, at, where, rest))
+    return out
+
+
 def search_mirror(query: str = "", hours: int = MIRROR_WINDOW_HOURS,
-                  room: str = "") -> str:
+                  room: str = "", server: str = "") -> str:
     """Search the last `hours` of the mirror by keyword, newest line first.
 
     Every word in the query has to appear on the line, so two words ask a
     narrower question than one. `room` narrows it to a single room, spelled
-    however I spell it. The window is master's 48 hours; asking for longer is
-    capped rather than refused, because the files do not go back further and a
-    refusal would say nothing about where the edge actually is.
+    however I spell it. The window is master's ROLLING 24 HOURS; asking for
+    longer is capped rather than refused, because the files do not go back
+    further and a refusal would say nothing about where the edge actually is.
+
+    `server` narrows it to one server. Omitted, every server is searched, which
+    is master's view - the files are per server now, so a room reading only its
+    own is the same rule the weekly summaries already follow.
     """
     terms = [word for word in _clean(query).lower().split() if word]
     if not terms:
@@ -539,18 +659,35 @@ def search_mirror(query: str = "", hours: int = MIRROR_WINDOW_HOURS,
     cutoff = _mirror_cutoff(hours)
     wanted = _clean(room).lstrip("#").strip().lower()
 
+    wanted_server = server_slug(server)
+    if server and not wanted_server:
+        return f"'{server}' is not a server I can name"
+    root = paths.resolve(LOCAL_MIRROR)
+    if wanted_server:
+        folders = [wanted_server]
+    elif root.is_dir():
+        folders = [d.name for d in sorted(root.iterdir()) if d.is_dir()]
+    else:
+        folders = []
+
     found: list[tuple[datetime, str]] = []
-    for offset in range(MIRROR_KEEP_DAYS):
-        day = shift(today(), -offset)
-        for at, where, rest in _mirror_entries(day):
-            if not _in_window(day, at, cutoff):
-                continue
-            if wanted and wanted not in where.lower():
-                continue
-            line = f"- **{day} {at}** {where} {rest}"
-            if all(term in line.lower() for term in terms):
-                found.append((datetime.strptime(f"{day} {at}",
-                                                "%Y-%m-%d %H:%M"), line))
+    # Named the way a PERSON says it, not as the folder it lives in: the folder is
+    # a slug because a name may not be a path, and a hit that comes back as
+    # `unofficial-himr-server` is one nobody recognises as a room.
+    names = server_index()
+    for folder in folders:
+        for offset in range(MIRROR_KEEP_DAYS):
+            day = shift(today(), -offset)
+            for at, where, rest in _mirror_entries(folder, day):
+                if not _in_window(day, at, cutoff):
+                    continue
+                if wanted and wanted not in where.lower():
+                    continue
+                line = (f"- **{day} {at}** [{names.get(folder) or folder}] "
+                        f"{where} {rest}")
+                if all(term in line.lower() for term in terms):
+                    found.append((datetime.strptime(f"{day} {at}",
+                                                    "%Y-%m-%d %H:%M"), line))
 
     if not found:
         out = [f"nothing in the last {hours} hours matches "
@@ -860,6 +997,18 @@ def write_diary(text: str) -> str:
     except Exception as exc:
         return f"could not write it: {exc.__class__.__name__}"
     return f"noted in my diary for {week}"
+
+
+def diary_mark() -> str:
+    """A cheap fingerprint of the week's diary, for noticing whether it moved.
+
+    Exists for one caller: the free-time window, which now ENFORCES the diary
+    write instead of asking for it. It counts entries AND bytes, because either
+    alone can lie - a rewrite that adds no line still moves the bytes, and an
+    entry added to a file that lost a stray newline can leave the bytes equal.
+    """
+    body = paths.read_text(_week_rel(week_of()), default="")
+    return f"{len(_entries(body))}:{len(body)}"
 
 
 def _clip_week(body: str, limit: int) -> str:

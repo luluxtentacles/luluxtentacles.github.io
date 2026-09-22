@@ -120,6 +120,16 @@ REVIEW_TOOL_NAMES = {t["function"]["name"] for t in tools.SCHEMA}
 REVIEW_SCHEMA = [t for t in tools.SCHEMA
                  if t["function"]["name"] in REVIEW_TOOL_NAMES]
 
+# The enforced diary close gets its own two tools and nothing else. Master,
+# 2026-09-22: *"this should be enforced after a free time window"*. A turn that
+# exists because the diary was not written should not be able to wander off into
+# a browser and come back having written nothing again - that is the failure it
+# was created to end. She can still READ it, because knowing what she already
+# wrote is how she writes the next line sensibly.
+DIARY_TOOL_NAMES = {"read_diary", "write_diary"}
+DIARY_SCHEMA = [t for t in tools.SCHEMA
+                if t["function"]["name"] in DIARY_TOOL_NAMES]
+
 BRIEF = """\
 This is your own time. Nobody asked for it and nobody is waiting on an answer.
 
@@ -471,9 +481,34 @@ def _diary_block() -> str:
         "what you said you would do. Then decide what this window is for.\n")
 
 
+def _diary_mark() -> str:
+    """A fingerprint of the diary, or "" when it cannot be read at all."""
+    try:
+        import journal
+        return journal.diary_mark()
+    except Exception:
+        return ""
+
+
+def _diary_unchanged(state) -> bool:
+    """Has the diary not moved since this window opened?
+
+    A window that could not take its mark (an unreadable diary, a state file
+    written before this existed) does NOT get a turn forced over it: "cannot
+    tell" must never turn into "she did not write".
+    """
+    was = str(state.get("diary_mark") or "")
+    if not was:
+        return False
+    now = _diary_mark()
+    if not now:
+        return False
+    return now == was
+
+
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
            resuming: bool = False, handoff: str = "",
-           handoff_at: str = "") -> str:
+           handoff_at: str = "", diary_forced: bool = False) -> str:
     """The window brief: the rules, where this turn sits, and master's list."""
     # Master, 2026-09-21: her mood is movable by ANY interaction on discord -
     # and an own-time window is interactions too (feeds, scrolling, reading).
@@ -611,6 +646,23 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
             "week before it is over - `summarise_week` - so the week has one\n"
             "account of what each server was actually about, instead of a dozen\n"
             "six-hourly blocks nobody will ever read back.\n")
+    # THE FORCED CLOSE. Master, 2026-09-22: *"this should be enforced after a
+    # free time window"*. Every other turn in a window is hers to spend; this one
+    # exists only because the diary came out of the last one unwritten.
+    if diary_forced:
+        where += (
+            "\n*** THIS TURN EXISTS FOR ONE REASON: THIS WINDOW WAS NOT WRITTEN\n"
+            "UP. ***\n"
+            "The last turn asked you to close the book and it did not happen, so\n"
+            "the window was held open for this one. You have `read_diary` and\n"
+            "`write_diary` and nothing else, and the window closes when this turn\n"
+            "ends either way.\n"
+            "Call `write_diary` NOW, a few sentences in your own voice: what you\n"
+            "were actually after, what you found, what you would come back to.\n"
+            "Not a summary of the work - the thing the NEXT you needs before she\n"
+            "decides anything. If the honest answer is that the window was quiet,\n"
+            "write that. What is not an option is nothing: a window with no entry\n"
+            "is one the next you cannot see at all.\n")
     return BRIEF + where
 
 
@@ -1021,7 +1073,11 @@ async def _one_window(bot, config, owner) -> bool:
         _save(turns_used=turn, last_turn_at=now, in_progress=True)
     else:
         _save(last_started=now, started=time.strftime("%Y-%m-%d %H:%M:%S"),
-              turns_used=1, last_turn_at=now, in_progress=True, report="")
+              turns_used=1, last_turn_at=now, in_progress=True, report="",
+              # What the diary looked like when this window opened. The close
+              # compares against it to decide whether the write actually
+              # happened - see the enforced close below.
+              diary_mark=_diary_mark())
         # Master's word is spent the moment it actually opens something.
         _clear_force()
     LOG.info("my own time: turn %d of %d%s", turn, where["max_turns"],
@@ -1030,7 +1086,8 @@ async def _one_window(bot, config, owner) -> bool:
     turns = [{"role": "system",
               "content": _brief(turn, where["max_turns"], resuming,
                                 str(state.get("handoff") or ""),
-                                str(state.get("handoff_at") or ""))},
+                                str(state.get("handoff_at") or ""),
+                                bool(state.get("diary_forced")))},
              {"role": "user", "content": "my time is open. do something, or leave it."}]
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
@@ -1046,7 +1103,10 @@ async def _one_window(bot, config, owner) -> bool:
         # blocks on HTTP, which stalls the event loop and Discord's heartbeat
         # with it. Her own log has the blocked-heartbeat warning.
         answer = await tools.in_thread(
-            bot.run_turns, turns, REVIEW_SCHEMA, set(REVIEW_TOOL_NAMES),
+            bot.run_turns, turns,
+            DIARY_SCHEMA if state.get("diary_forced") else REVIEW_SCHEMA,
+            DIARY_TOOL_NAMES if state.get("diary_forced")
+            else set(REVIEW_TOOL_NAMES),
             max_tokens=bot.token_budget(True), unlimited_rounds=True)
     except Exception as exc:
         LOG.warning("her own turn turned over: %s", exc)
@@ -1112,6 +1172,22 @@ async def _one_window(bot, config, owner) -> bool:
         LOG.info("window stays open - turn %d of %d done, turns left",
                  turn, where["max_turns"])
     else:
+        # Master, 2026-09-22: *"this should be enforced after a free time
+        # window"*. Until now the close ASKED her to write the diary, and a
+        # request she can skip is not a rule - so the close now CHECKS. If the
+        # window's last turn added no line, the window is held open for ONE more
+        # turn whose only job is the diary.
+        #
+        # Enforced exactly ONCE. `diary_forced` is the latch: a second miss
+        # closes the window anyway, because a diary that cannot be written must
+        # never be able to hold a window open forever. And a window that could
+        # not take its mark is not checked at all - see _diary_unchanged.
+        if not state.get("diary_forced") and _diary_unchanged(state):
+            _save(turns_used=max(turn - 1, 0), last_turn_at=time.time(),
+                  in_progress=True, diary_forced=True, report=answer[:4000])
+            LOG.info("window held open one turn: the diary was not written")
+            await _deliver(bot, answer)
+            return True
         _save(turns_used=turn, in_progress=False, report=answer[:4000])
     await _deliver(bot, answer)
     return True

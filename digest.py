@@ -35,7 +35,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import brain
 import journal
@@ -113,82 +113,59 @@ def due(config, now=None) -> bool:
 
 
 # ------------------------------------------------------------------ capturing
-def channel_names(bot) -> dict:
-    """channel id -> (server name, channel name), from the live guilds.
+def _window_days(since: datetime | None) -> list[str]:
+    """Which mirror day files a window can touch, oldest first."""
+    days = [journal.shift(journal.today(), -offset)
+            for offset in range(journal.MIRROR_KEEP_DAYS - 1, -1, -1)]
+    if since is not None:
+        cut = since.strftime("%Y-%m-%d")
+        days = [day for day in days if day >= cut]
+    return days
 
-    Deliberately not from the mirror: a mirror entry carries no guild and the
-    mirror is keyed by channel id alone. She is IN these guilds, so the names are
-    already in hand - and asking here costs the message path nothing.
+
+def _after_stamp(day: str, at: str, since: datetime | None) -> bool:
+    """Is this line inside the window? Unreadable stamps are KEPT.
+
+    Dropping a line because its own stamp would not parse is how a digest gets a
+    silent hole in it; the mirror only ever writes HH:MM, so a bad stamp means
+    something changed, and re-summarising one line beats losing it.
     """
-    out: dict[int, tuple[str, str]] = {}
-    for guild in getattr(bot, "guilds", None) or []:
-        server = str(getattr(guild, "name", "") or "a server")
-        for channel in getattr(guild, "text_channels", None) or []:
-            try:
-                out[int(channel.id)] = (
-                    server, str(getattr(channel, "name", "") or "a channel"))
-            except (TypeError, ValueError):
-                continue
-    return out
+    if since is None:
+        return True
+    try:
+        when = datetime.strptime(f"{day} {at}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return True
+    return when >= since.replace(second=0, microsecond=0)
 
 
-def _after(rows: list, last_id):
-    """The entries newer than the watermark.
+def collect(since: datetime | None = None) -> dict[str, list[str]]:
+    """Every mirror line since `since`, grouped by SERVER, read OFF DISK.
 
-    A watermark that is no longer in the ring (200 lines is a real bound on a busy
-    channel) means the WHOLE ring is taken. Re-summarising an afternoon beats a
-    silently missing one.
-    """
-    if last_id is None:
-        return list(rows)
-    for index, entry in enumerate(rows):
-        if entry.get("id") == last_id:
-            return list(rows[index + 1:])
-    return list(rows)
+    Master, 2026-09-22: *"we need to have a disk stored one that survives
+    restarts, not just ram"*. The first cut of this read the RAM ring, which dies
+    on every bounce - so a 24-hourly digest on a bot that restarts would lose most
+    of the day and never know it had. The mirror on disk is already per server and
+    already rolling, so the digest reads THAT.
 
-
-def collect(mirror, names, seen) -> tuple[dict, dict]:
-    """New lines since the last digest, grouped by SERVER. -> (by_server, seen).
-
-    Read-only against the mirror on purpose: it is a defaultdict, so touching
-    `mirror[channel_id]` for a channel that has gone quiet would CREATE an entry
-    and grow her memory every pass.
-
-    A channel that cannot be NAMED is not digested at all, and that is master's
-    call, 2026-09-22: *"dont summarize"*. `names` is built from guild
-    text_channels, so the only channels missing from it are the ones that are
-    not in a guild - which is to say DMs. Master's DMs are the only DMs she
-    reads at all (lulu_bot.py:2143 turns every other one away before it reaches
-    the mirror), and his private conversation does not belong in a weekly server
-    summary, under any name.
-
-    The first cut fell back to a bucket literally called `channel-<id>` instead,
-    which is how his DMs ended up summarised in memory/digest/ under a name that
-    told nobody what it was. Skipping the whole channel is the fix, and it fails
-    in the safe direction: an unnameable channel is left alone rather than
-    guessed at.
+    `since` is a TIME here, not a message id: the disk lines carry a stamp and no
+    ids at all. A server with nothing new simply has no key, which is the honest
+    answer - the caller summarises what exists and does not invent the rest.
     """
     out: dict[str, list[str]] = {}
-    fresh: dict = dict(seen or {})
-    for channel_id, entries in (mirror or {}).items():
-        if channel_id not in names:
-            continue
-        rows = [entry for entry in entries if (entry or {}).get("text")]
-        if not rows:
-            continue
-        key = str(channel_id)
-        lines = _after(rows, (seen or {}).get(key))
-        newest = next((entry.get("id") for entry in reversed(rows)
-                       if entry.get("id")), None)
-        if newest:
-            fresh[key] = newest
-        if not lines:
-            continue
-        server, channel = names[channel_id]
-        for entry in lines:
-            author = str(entry.get("author") or "someone").strip()
-            out.setdefault(server, []).append(f"[#{channel}] {author}: {entry['text']}")
-    return out, fresh
+    # One read of the slug -> display map for the whole pass. The folders are
+    # slugs because a name may not be a path; the digest summarises under the name
+    # a PERSON recognises, because that is what server_summary matches a room
+    # against later. `server-one` in a weekly file is a summary nobody can ever
+    # look up again.
+    names = journal.server_index()
+    for day in _window_days(since):
+        for server, at, where, rest in journal.mirror_entries_all(day):
+            if not _after_stamp(day, at, since):
+                continue
+            out.setdefault(names.get(server) or server, []).append(
+                f"{where} {rest}")
+    return out
 
 
 # --------------------------------------------------------------- summarising
@@ -255,21 +232,38 @@ def body(summaries: dict) -> str:
 
 
 # ------------------------------------------------------------------ the loop
+def _since(state, where) -> datetime:
+    """Where this digest's window starts: the last run, or the interval back.
+
+    A first run - or a state file with no usable stamp - looks back one interval,
+    which is what "every 24 hours" means on a bot that has never digested before.
+    """
+    last = state.get("last_run")
+    if isinstance(last, bool) or not isinstance(last, (int, float)):
+        return datetime.now() - timedelta(hours=where["interval_hours"])
+    return datetime.fromtimestamp(last)
+
+
 async def maybe_run(bot) -> bool:
-    """One digest, if one is owed. True when it actually wrote something."""
+    """One digest, if one is owed. True when it actually wrote something.
+
+    Reads the DISK mirror now, not the RAM ring - master, 2026-09-22: *"we need to
+    have a disk stored one that survives restarts, not just ram"*. The window is
+    therefore a TIME rather than a set of message ids, and a restart in the middle
+    of the day costs nothing: the lines are still in the files, and the watermark
+    is the clock.
+    """
     config = getattr(bot, "config", None) or {}
     if not due(config):
         return False
-    mirror = getattr(bot, "mirror", None)
-    if not mirror:
-        return False
 
+    where = settings(config)
     state = _state()
-    grouped, fresh = collect(mirror, channel_names(bot), state.get("seen") or {})
+    grouped = collect(_since(state, where))
     if not grouped:
         # Nothing moved, but the clock did. Stamped anyway, or the poll would ask
         # the same empty question every five minutes until something happened.
-        _save(last_run=time.time(), last_run_iso=_stamp(), seen=fresh)
+        _save(last_run=time.time(), last_run_iso=_stamp())
         return False
 
     summaries: dict[str, str] = {}
@@ -284,7 +278,7 @@ async def maybe_run(bot) -> bool:
         journal.note_digest(body(summaries),
                             label=f"server digest - {len(summaries)} server(s)")
         LOG.info("digest written: %d server(s)", len(summaries))
-    _save(last_run=time.time(), last_run_iso=_stamp(), seen=fresh)
+    _save(last_run=time.time(), last_run_iso=_stamp())
     return bool(summaries)
 
 

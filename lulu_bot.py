@@ -1281,7 +1281,8 @@ class Lulu(discord.Client):
                                                        message.channel))
             self._note(message.channel.id, SELF_LABEL, answer[:MAX_MESSAGE],
                        getattr(sent, "id", None),
-                       room=getattr(message.channel, "name", "") or "")
+                       room=getattr(message.channel, "name", "") or "",
+                       server=self._guild_name(message.channel))
             self._said(message.channel, answer[:MAX_MESSAGE],
                        getattr(sent, "id", None))
         except discord.HTTPException:
@@ -1904,7 +1905,8 @@ class Lulu(discord.Client):
             sent = await target.send(said[:MAX_MESSAGE])
             self.own_message_ids.add(sent.id)
             self._note(target.id, SELF_LABEL, said[:MAX_MESSAGE], sent.id, None,
-                       room=getattr(target, "name", "") or "")
+                       room=getattr(target, "name", "") or "",
+                       server=self._guild_name(target))
             self._said(target, said[:MAX_MESSAGE], sent.id)
             LOG.info("resume note posted into #%s", where)
         except Exception as exc:
@@ -2035,7 +2037,8 @@ class Lulu(discord.Client):
             sent = await target.send(answer[:MAX_MESSAGE])
             self.own_message_ids.add(sent.id)
             self._note(target.id, SELF_LABEL, answer[:MAX_MESSAGE], sent.id, None,
-                       room=getattr(target, "name", "") or "")
+                       room=getattr(target, "name", "") or "",
+                       server=self._guild_name(target))
             self._said(target, answer[:MAX_MESSAGE], sent.id)
             LOG.info("resume turn spoken in #%s", where)
         except Exception as exc:
@@ -2264,6 +2267,7 @@ class Lulu(discord.Client):
             getattr(message, "id", None),
             getattr(ref, "message_id", None) if ref else None,
             room=getattr(message.channel, "name", "") or "",
+            server=self._guild_name(message.channel),
         )
 
         addressed = self.is_addressed(message)
@@ -2520,9 +2524,26 @@ class Lulu(discord.Client):
                 LOG.warning("delete: could not remove %s in #%s: %s",
                             mid, name, exc)
 
+    @staticmethod
+    def _guild_name(channel) -> str:
+        """Which SERVER a channel belongs to, or "" when it is not in one.
+
+        Taken from the channel object AT THE CALL SITE rather than resolved from
+        an id later. A later lookup can MISS a channel this process no longer has
+        cached, and a miss must never be read as "this was a DM" - that would
+        quietly drop a room's history instead of recording it. A DM genuinely has
+        no guild, and that is the only case that should come back empty.
+
+        Master, 2026-09-22: *"the mirror would be per server"*. His DMs are the
+        one channel deliberately not recorded at all, and an empty answer here is
+        what enforces that.
+        """
+        return getattr(getattr(channel, "guild", None), "name", "") or ""
+
     def _note(self, channel_id, author: str, text: str,
               message_id: int | None = None,
-              reply_to: int | None = None, room: str = "") -> None:
+              reply_to: int | None = None, room: str = "",
+              *, server: str) -> None:
         """Record one line of a channel: the order AND the branch.
 
         Two stores, one call. The RAM ring is what reaches the prompt this turn
@@ -2549,7 +2570,8 @@ class Lulu(discord.Client):
                 "text": line[:MIRROR_LINE_CHARS],
                 "reply_to": reply_to,
             })
-            journal.note_mirror(author or "someone", line, room=room)
+            journal.note_mirror(author or "someone", line, room=room,
+                                server=server)
         except Exception as exc:
             LOG.warning("could not note a channel line: %s", exc)
 
@@ -3269,7 +3291,8 @@ class Lulu(discord.Client):
             # no answers, and a reply chain would read one-sided.
             self._note(message.channel.id, SELF_LABEL, chunk, sent.id,
                        getattr(message, "id", None),
-                       room=getattr(message.channel, "name", "") or "")
+                       room=getattr(message.channel, "name", "") or "",
+                       server=self._guild_name(message.channel))
             self._said(message.channel, chunk, sent.id)
 
 

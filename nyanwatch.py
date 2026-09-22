@@ -271,15 +271,15 @@ def sweep(state) -> tuple[str, dict]:
         day = journal.shift(journal.today(), -offset)
         if mark_day and day < mark_day:
             continue
-        entries = journal._mirror_entries(day)
+        entries = journal.mirror_entries_all(day)
         start = seen if day == mark_day else 0
-        for at, where, rest in entries[max(0, start):]:
-            lines.append(f"- [{day} {at}] {where} {rest}")
+        for server, at, where, rest in entries[max(0, start):]:
+            lines.append(f"- [{day} {at}] [{server}] {where} {rest}")
     if len(lines) > MAX_SWEEP_LINES:
         lines = lines[-MAX_SWEEP_LINES:]
 
     next_book = {"day": journal.today(),
-                 "seen": len(journal._mirror_entries(journal.today()))}
+                 "seen": len(journal.mirror_entries_all(journal.today()))}
     return "\n".join(lines), next_book
 
 

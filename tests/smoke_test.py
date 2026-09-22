@@ -3170,7 +3170,7 @@ MODULE_API = {
     "nyanwatch": ("settings", "due", "watch", "maybe_run", "diff", "sweep"),
     "brain": ("complete", "reply", "gemini_complete"),
     "digest": ("settings", "due", "watch", "maybe_run", "collect",
-               "summarise", "channel_names"),
+               "summarise"),
     "people": ("block", "known_count", "learn", "observe", "refresh", "summary",
                "identify", "find", "familiarity", "lookup"),
     "skills": ("catalog", "load", "trigger_ids", "keyword_ids", "append_rule"),
@@ -5789,11 +5789,13 @@ def _said() -> str:
 # -- 16c. the room's own record, searchable by word --------------------------
 # The mirror that goes into the prompt is a RAM ring that dies with the process,
 # so "what was said in that room" had no answer across a restart. Master,
-# 2026-09-22: keep the last 48 hours so it can be searched by keyword. What this
-# pins: a line written through the bot's OWN path is findable, the search is
-# scoped by word and by room, an empty result says what it does NOT mean, and the
-# window is really 48 hours - proven on the window function directly, because
-# waiting two days to watch a line fall out is not a test, it is a vigil.
+# 2026-09-22: keep a ROLLING 24 HOURS, ONE FILE PER SERVER, so it can be searched
+# by keyword without carrying two days of every room. What this pins: a line
+# written through the bot's OWN path is findable, the search is scoped by word and
+# by room, an empty result says what it does NOT mean, the window is really 24
+# hours, and a channel with NO SERVER is written nowhere at all - proven on the
+# window function directly, because waiting a day to watch a line fall out is not
+# a test, it is a vigil.
 def _mirror_search() -> str:
     import types
     from collections import defaultdict, deque
@@ -5805,10 +5807,11 @@ def _mirror_search() -> str:
 
     bot = types.SimpleNamespace(mirror=defaultdict(lambda: deque(maxlen=5)))
     lulu_bot.Lulu._note(bot, 42, "Tentacles", "did you just call him the room",
-                        None, None, room="general")
-    lulu_bot.Lulu._note(bot, 42, "Nyan", "she said what", None, None, room="general")
+                        None, None, room="general", server="Test Server")
+    lulu_bot.Lulu._note(bot, 42, "Nyan", "she said what", None, None,
+                        room="general", server="Test Server")
     lulu_bot.Lulu._note(bot, 7, "someone", "unrelated chatter", None, None,
-                        room="secret")
+                        room="secret", server="Test Server")
 
     hit = journal.search_mirror("room")
     expect("did you just call him the room" in hit,
@@ -5827,7 +5830,7 @@ def _mirror_search() -> str:
     # The window itself, proven directly and without depending on the clock.
     # `cutoff` is the OLDEST moment still inside the window, so a stamp is in
     # when it is at or after it. The edge matters: a line sitting exactly on the
-    # 48-hour mark is the one a "roughly two days" search would quietly lose.
+    # 24-hour mark is the one a "roughly a day" search would quietly lose.
     cutoff = datetime(2026, 9, 22, 16, 0)
     expect(journal._in_window("2026-09-22", "17:00", cutoff),
            "a line newer than the cutoff was counted as outside the window")
@@ -5839,26 +5842,82 @@ def _mirror_search() -> str:
            "a line two days old was let into the window")
     expect(not journal._in_window("not-a-day", "15:00", cutoff),
            "a malformed stamp was let into the window")
-    expect(journal.MIRROR_WINDOW_HOURS == 48,
-           f"the window is no longer master's 48 hours: {journal.MIRROR_WINDOW_HOURS}")
-    expect(journal.MIRROR_KEEP_DAYS >= 3,
+    expect(journal.MIRROR_WINDOW_HOURS == 24,
+           f"the window is no longer master's rolling 24 hours: "
+           f"{journal.MIRROR_WINDOW_HOURS}")
+    expect(journal.MIRROR_KEEP_DAYS >= 2,
            "fewer days kept than the window spans, so a search can miss a day it "
            "should have found")
+
+    # A channel with NO SERVER is written nowhere. Master, 2026-09-22: *"dont
+    # summarize"* his DMs - and the strongest place to enforce that is at the
+    # WRITE, because a line that was never recorded cannot leak out of a later
+    # reader. The mirror is per server, and a DM is not in one.
+    expect(journal.server_slug("Unofficial HIMR Server") == "unofficial-himr-server",
+           f"a server name is not becoming a safe folder: "
+           f"{journal.server_slug('Unofficial HIMR Server')!r}")
+    expect(journal.server_slug("") == "",
+           "a channel with no server produced a folder name instead of nothing - "
+           "that is a DM, and only an EMPTY name means there is no server")
+
+    # A NAME THAT SLUGS TO NOTHING IS STILL A SERVER. Found on the first real
+    # grab, 2026-09-22: a guild named in superscript unicode has no [a-z0-9] in
+    # it, so the slug came back empty - and the "no server means a DM" rule threw
+    # away every line of the whole server without a word. The guard has to be on
+    # the NAME, not on the slug it happens to produce.
+    unicode_server = "ˢⁿᵃⁱˡᶜᵃᵗʰᵒˡⁱᶜ ˢⁿᵘʳᶜʰ"
+    expect(journal.server_slug(unicode_server) != "",
+           "A SERVER WHOSE NAME HAS NO LATIN LETTERS BECAME AN EMPTY SLUG - that "
+           "is the DM rule, and it would silently discard the whole server")
+    expect(journal.server_slug(unicode_server) == journal.server_slug(unicode_server),
+           "the fallback slug is not stable, so its files would move between runs")
+    before = len(journal.mirror_entries_all(journal.today()))
+    journal.note_mirror("someone", "a unicode server line", room="general",
+                        server=unicode_server)
+    expect(len(journal.mirror_entries_all(journal.today())) > before,
+           "a line from a non-Latin-named server was not recorded at all")
+    before = len(journal.mirror_entries_all(journal.today()))
+    journal.note_mirror("Tentacles", "a private thing", room="", server="")
+    expect(len(journal.mirror_entries_all(journal.today())) == before,
+           "a line with NO SERVER was recorded - that is a DM, and master asked "
+           "for those not to be written down at all")
+    # Per server: the same shape in two servers lands in two files, and a search
+    # narrowed to one cannot see the other's line.
+    journal.note_mirror("Tentacles", "alpha only here", room="general",
+                        server="Alpha Server")
+    journal.note_mirror("Tentacles", "beta only here", room="general",
+                        server="Beta Server")
+    only_alpha = journal.search_mirror("alpha", server="Alpha Server")
+    expect("alpha only here" in only_alpha,
+           "a server-scoped search missed its own server's line")
+    expect("beta only here" not in only_alpha,
+           "A SERVER-SCOPED SEARCH REACHED ANOTHER SERVER'S MIRROR - the whole "
+           "point of one file per server")
+    expect("alpha only here" not in journal.search_mirror("alpha",
+                                                          server="Beta Server"),
+           "a server-scoped search leaked the other way")
 
     # Pruning: whole days leave, and only ones outside the window.
     old_day = journal.shift(journal.today(), -10)
     kept_day = journal.shift(journal.today(), -1)
-    paths.write_text(f"{journal.LOCAL_MIRROR}/{old_day}.md", "# old\n", internal=True)
-    paths.write_text(f"{journal.LOCAL_MIRROR}/{kept_day}.md", "# kept\n", internal=True)
-    paths.write_text(f"{journal.LOCAL_MIRROR}/notes.txt", "not a day\n", internal=True)
-    journal._prune_mirror()
-    expect(not paths.resolve(f"{journal.LOCAL_MIRROR}/{old_day}.md").exists(),
+    folder = journal.server_slug("Test Server")
+    for day in (old_day, kept_day):
+        paths.write_text(f"{journal.LOCAL_MIRROR}/{folder}/{day}.md", "# x\n",
+                         internal=True)
+    paths.write_text(f"{journal.LOCAL_MIRROR}/{folder}/notes.txt", "not a day\n",
+                     internal=True)
+    journal._prune_mirror(folder)
+    expect(not paths.resolve(
+        f"{journal.LOCAL_MIRROR}/{folder}/{old_day}.md").exists(),
            "a mirror day from ten days ago survived the prune")
-    expect(paths.resolve(f"{journal.LOCAL_MIRROR}/{kept_day}.md").exists(),
+    expect(paths.resolve(
+        f"{journal.LOCAL_MIRROR}/{folder}/{kept_day}.md").exists(),
            "the prune ate a day that is still inside the window")
-    expect(paths.resolve(f"{journal.LOCAL_MIRROR}/notes.txt").exists(),
+    expect(paths.resolve(
+        f"{journal.LOCAL_MIRROR}/{folder}/notes.txt").exists(),
            "the prune deleted a file that is not a day")
-    return ("the room is searchable by word and by room, the window is 48h, and "
+    return ("the room is searchable by word and by room, the window is a rolling "
+            "24h, one file per server with a DM written nowhere, and "
             "old days are pruned without touching the live ones")
 
 
@@ -5910,15 +5969,18 @@ def _facts_pass() -> str:
            "the baseline did not read back as the ledger it was copied from")
 
     # The bookmark: a mirror line is read once, then never again.
-    journal.note_mirror("Tentacles", "first line", room="general")
-    journal.note_mirror("Tentacles", "second line", room="general")
+    journal.note_mirror("Tentacles", "first line", room="general",
+                        server="Test Server")
+    journal.note_mirror("Tentacles", "second line", room="general",
+                        server="Test Server")
     text, book = nyanwatch.sweep({})
     expect("first line" in text and "second line" in text,
            "the first sweep missed a mirror line")
     again, book2 = nyanwatch.sweep({"bookmark": book})
     expect("first line" not in again and "second line" not in again,
            "the sweep read the same lines twice")
-    journal.note_mirror("Tentacles", "third line", room="general")
+    journal.note_mirror("Tentacles", "third line", room="general",
+                        server="Test Server")
     third, _ = nyanwatch.sweep({"bookmark": book2})
     expect("third line" in third and "first line" not in third,
            "the sweep did not resume from the bookmark")
@@ -6329,17 +6391,23 @@ def _diary_week() -> str:
     # 2026-09-22, on his own DMs ending up in a weekly summary: "dont
     # summarize". The only channels missing from the guild map are the ones not
     # in a guild, and this is the check that keeps them out.
-    mirror = {101: [{"id": 1, "author": "master", "text": "PRIVATE-THING"}],
-              202: [{"id": 2, "author": "someone", "text": "ROOM-THING"}]}
-    grouped, _ = digest.collect(mirror, {202: ("Server One", "general")}, {})
+    # The digest reads the DISK mirror, grouped by server - master, 2026-09-22:
+    # "we need to have a disk stored one that survives restarts, not just ram".
+    # A line with NO SERVER is not on disk at all, so it cannot reach a digest.
+    journal.note_mirror("someone", "ROOM-THING", room="general",
+                        server="Server One")
+    journal.note_mirror("master", "PRIVATE-THING", room="", server="")
+    grouped = digest.collect()
     flat = " ".join(" ".join(v) for v in grouped.values())
+    expect("Server One" in grouped,
+           f"a server with lines on disk was not collected: {list(grouped)}")
     expect("ROOM-THING" in flat,
-           f"a channel that CAN be named stopped being digested: {grouped}")
+           f"a disk mirror line did not reach the digest: {grouped}")
     expect("PRIVATE-THING" not in flat,
-           "AN UNNAMEABLE CHANNEL WAS DIGESTED - that is a DM, and master said "
-           "not to summarise them")
+           "a line with NO SERVER reached the digest - that is a DM, and it "
+           "should never have been written down in the first place")
     expect(not any("channel-" in key for key in grouped),
-           f"an unmappable channel still became a server bucket: {list(grouped)}")
+           f"a channel id became a server bucket again: {list(grouped)}")
     return ("the diary is one DATE-STAMPED file a week with last week carried at "
             "its head, a public server summary shows a room its OWN server "
             "only - never a neighbour's, and nothing at all when it cannot tell "
@@ -6411,6 +6479,77 @@ def _shelf_scope() -> str:
     return ("a room is shown no skills at all - not listed, not loadable, and not "
             "via the 'skills' keyword - while master still gets the whole shelf, "
             "and the reply-replacer fails closed by default")
+
+
+# -- the diary close is ENFORCED, not requested -----------------------------
+def _diary_enforced() -> str:
+    """Master, 2026-09-22: *"this should be enforced after a free time window"*.
+
+    The last turn used to ASK her to close the diary, and a request she can skip
+    is not a rule. The close now compares the diary against a mark taken when the
+    window opened, and holds the window for one more turn if it did not move.
+    Every piece of that is asserted here, because every piece can regress
+    silently - and the failure mode is a diary that quietly stops being written.
+    """
+    import shutil
+
+    import journal
+    import paths
+    import self_review
+
+    # The forced turn gets the diary and nothing else. A turn created because she
+    # did not write must not be able to wander off and not write again.
+    expect(self_review.DIARY_TOOL_NAMES == {"read_diary", "write_diary"},
+           f"the enforced close can call more than the diary: "
+           f"{sorted(self_review.DIARY_TOOL_NAMES)}")
+    for name in ("read_diary", "write_diary"):
+        expect(any(t["function"]["name"] == name
+                   for t in self_review.DIARY_SCHEMA),
+               f"{name} is missing from the forced turn's schema, so the close "
+               f"cannot actually be written")
+    expect(len(self_review.DIARY_SCHEMA) == 2,
+           f"the forced turn carries {len(self_review.DIARY_SCHEMA)} tools")
+
+    # "Cannot tell" must never become "she did not write". A window whose state
+    # predates this feature carries no mark, and forcing a turn over a diary
+    # nobody could read would spend her turn on a guess.
+    expect(self_review._diary_unchanged({}) is False,
+           "a window with NO diary mark would be forced a turn anyway - an old "
+           "state file must not be read as a miss")
+
+    # The mark notices a real write, and does not cry wolf on an untouched one.
+    box = f"{SANDBOX_NAME}/enforced"
+    shutil.rmtree(paths.ROOT / box, ignore_errors=True)
+    keep, journal.LOCAL_DIARY = journal.LOCAL_DIARY, box
+    try:
+        journal.write_diary("the window opened")
+        mark = self_review._diary_mark()
+        expect(mark, "the diary mark came back empty - nothing can be compared")
+        state = {"diary_mark": mark}
+        expect(self_review._diary_unchanged(state) is True,
+               "an untouched diary was not noticed as untouched, so the close "
+               "would never hold a window open for a missed write")
+        journal.write_diary("and the window was written up")
+        expect(self_review._diary_unchanged(state) is False,
+               "the diary WAS written and the mark did not notice - the close "
+               "would spend an extra turn on a diary that is already closed")
+    finally:
+        journal.LOCAL_DIARY = keep
+        shutil.rmtree(paths.ROOT / box, ignore_errors=True)
+
+    # And the forced turn SAYS so - on that turn only. A brief that never mentions
+    # it leaves her wondering why her tools are two; a brief that always mentions
+    # it cries wolf on every ordinary last turn.
+    forced = self_review._brief(4, 4, False, "", "", True)
+    normal = self_review._brief(4, 4, False, "", "", False)
+    expect("EXISTS FOR ONE REASON" in forced,
+           "the forced turn does not tell her why it is there")
+    expect("EXISTS FOR ONE REASON" not in normal,
+           "an ordinary last turn is being told it is a forced diary turn")
+    return ("the diary close is enforced rather than asked for: the window takes "
+            "a mark when it opens, holds for ONE extra turn carrying only "
+            "read_diary and write_diary when the mark did not move, never forces "
+            "on a state it could not read, and says why on that turn alone")
 
 
 CHECKS = [
@@ -6492,6 +6631,7 @@ CHECKS = [
     ("linkcheck", _linkcheck),
     ("diary-week", _diary_week),
     ("shelf-scope", _shelf_scope),
+    ("diary-enforced", _diary_enforced),
 ]
 
 

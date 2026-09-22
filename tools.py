@@ -481,6 +481,28 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "read_journal",
+            "description": (
+                "Read the JOURNAL - the summarised record of what happened in the "
+                "rooms, by day. This is the DEEPER store: the mirror is the "
+                "rolling 24 hours and is what I search by word, and this is what "
+                "has already been written down for a day I want more of. Use it "
+                "when the mirror has aged out of something or a question needs "
+                "more than the last day. It holds OTHER PEOPLE'S words, so it "
+                "does not go into a different room."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today"}
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "read_diary",
             "description": (
                 "Read MY OWN diary - what happened to me here, in my own words. "
@@ -2748,6 +2770,18 @@ def write_diary(text: str) -> str:
     return journal.write_diary(text)
 
 
+def read_journal(day: str = "") -> str:
+    """The summarised room record for a day, ON DEMAND.
+
+    Master, 2026-09-22: *"journal reading would be on demand if she ever needed
+    extra information not in the mirror"*. The mirror is the rolling 24 hours; the
+    journal is the deeper record, and this is the door to it - she reaches for it
+    when a question needs more than a day, rather than it riding in front of her.
+    Never takes a path - a date only.
+    """
+    return journal.read_digest(day)
+
+
 def server_summary(week: str = "") -> str:
     """A week of per-server summaries, SCOPED to the room that asked.
 
@@ -3387,6 +3421,7 @@ DISPATCH = {
     "remember": lambda a: remember(a.get("text", "")),
     "recall": lambda a: recall(a.get("query", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),
+    "read_journal": lambda a: read_journal(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "server_summary": lambda a: server_summary(a.get("week", "")),
     "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
