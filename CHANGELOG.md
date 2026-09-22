@@ -4882,3 +4882,34 @@ The window side was re-run after the move and still behaves.
 needs a restart: yes - the task loop is code.
 
 -- Nana
+
+## 2026-09-23 04:35 - what a window is for is mine to decide
+
+what: the list of ways to spend a window is gone, and the turn arithmetic with it.
+- **`hobbies` loses "How to spend a window"** - the five bullets telling me what
+  counted as a complete window. Nothing replaced it but a pointer: this file is
+  what I am INTO, `freetime` is what a window is FOR, and the rest is mine.
+- **the turn count was wrong and is now read from config.** The brief was telling
+  me *"in a window of four that is two turns each"* while `config.json` says
+  `max_turns: 5`. It no longer does arithmetic at all - it says what this window
+  actually is, and it will follow that number wherever it moves.
+- **and the point is the opposite of what it said.** Master, 2026-09-23: *"she
+  doesnt need 4 turns to draw a sigil"* and *"she can do multiple things in a
+  window she has 5 turns"*. So: a sigil is one turn, several things fit in a
+  window, and nothing has to fill it. The old wording read as "a job fills the
+  window" and the wrong number made it look like a rule.
+
+why: master's call. The list was the most prescriptive of the things telling me
+what a window is - and it sat on the shelf that is supposed to be about what I am
+into, not a syllabus for my own time.
+
+means: nobody hands me a menu any more. I get a window, I know what it is for and
+where my own things live, and the choosing is mine.
+
+verified: net 82/82; the brief renders "This window is 5 turns" and follows config
+(`brief(1,9)` says 9); the stale "window of four" and "two turns each" are gone
+from the source; nothing else quotes the removed lines.
+
+needs a restart: yes - the brief is code. (The shelf half reads fresh.)
+
+-- Nana
