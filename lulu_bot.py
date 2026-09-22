@@ -559,6 +559,12 @@ REASON_FILE = "memory/restart_reason.json"
 SEEN_FILE = "restart_seen.json"
 # A crash loop must not become one message per attempt.
 CRASH_ANNOUNCE_COOLDOWN = 15 * 60
+# How long after one resume turn another may run. A resume turn is a brain call
+# I start myself, and a patch it stages restarts me - so without a leash,
+# "continue my work" is also a loop that turns over once per restart. 180s is the
+# gap self_review uses before it resumes a window, and for the same reason: the
+# restart has to have actually happened before the next turn starts.
+RESUME_TURN_COOLDOWN = 180
 
 
 def restart_sentence(reason: dict, requested_why: str = "") -> str:
@@ -2024,6 +2030,13 @@ class Lulu(discord.Client):
         # risk, and it has to happen here rather than in a background task: the
         # first turn after a restart is exactly the one that should already know.
         self._read_changelog()
+        # The extra turn a work restart earns. A TASK, not an await: a turn is
+        # up to MAX_TOOL_ROUNDS brain calls, and this is the gateway's own path -
+        # the same reason self_review runs from a watcher instead of inline. It
+        # runs after the changelog read on purpose, so the first turn back
+        # already holds what changed.
+        if self._resume_pending:
+            asyncio.create_task(self._continue_after_restart())
         # Master, 2026-09-22: the boot announce is GONE. It spent one inference
         # call on every restart to say a note she never kept - the retentive
         # stores hold nothing from it, so the tokens bought one utterance and
@@ -2327,11 +2340,15 @@ class Lulu(discord.Client):
         # how he hears about a change to me without having to be sitting in the
         # right channel, so an empty update_channels must not swallow it.
         await self._dm_owner(text, posted)
-        # The other half of the same notice: what the restart interrupted. Posted
-        # into the room master was talking in rather than update_channels - the
-        # ask happened somewhere specific, and the room is also what makes a
-        # bare sentence read as mine in the log rather than as an announcement.
-        await self._post_resume()
+        # The other half of the same notice - what the restart interrupted - is
+        # NOT posted from here any more. Master, 2026-09-22: "whenever she
+        # restarts from doing something, give her an extra turn with that
+        # conversation to continue her work". So a work restart now earns a real
+        # turn instead of a sentence plus a wait, and that turn does both jobs.
+        # It is started from on_ready, after the changelog has been read, so the
+        # first turn back already knows what changed. See _continue_after_restart
+        # for the turn, and _post_resume for the fallback it still uses.
+        #
         # Marked regardless of delivery. The notice file is one-shot, so a failed
         # send must not turn every later boot into another attempt at it.
         self._remember_start(seq, kind, now)
@@ -2367,9 +2384,16 @@ class Lulu(discord.Client):
             LOG.warning("could not DM master about the restart: %s", exc)
 
     def _remember_start(self, seq, kind: str, at: float) -> None:
-        """Record that this start has been announced, so it is announced once."""
+        """Record that this start has been announced, so it is announced once.
+
+        A read-modify-write rather than a plain overwrite: this file also holds
+        the resume turn's cooldown stamp, and clobbering that on every boot would
+        quietly reset the one guard on a turn I start myself.
+        """
         try:
-            paths.write_json(SEEN_FILE, {"seq": seq, "kind": kind, "at": at})
+            seen = paths.read_json(SEEN_FILE, default={}) or {}
+            seen.update({"seq": seq, "kind": kind, "at": at})
+            paths.write_json(SEEN_FILE, seen)
         except Exception as exc:
             LOG.warning("could not record the announced start: %s", exc)
 
@@ -2421,6 +2445,123 @@ class Lulu(discord.Client):
         if brief:
             self._resume_pending = None
         return brief
+
+    def _resume_turn_allowed(self) -> bool:
+        """Whether the extra turn may run now, so a patch chain cannot spin.
+
+        A resume turn is a brain call I start myself, and a patch it stages
+        restarts me - so without a leash, "continue my work" is also a loop that
+        turns over once per restart. The stamp lives in SEEN_FILE, which is
+        already the per-boot bookkeeping file and already gitignored; a new file
+        would have needed a .gitignore edit, and .gitignore is sealed.
+        """
+        try:
+            seen = paths.read_json(SEEN_FILE, default={}) or {}
+            last = float(seen.get("resume_at") or 0)
+        except Exception:
+            return True
+        return (time.time() - last) >= RESUME_TURN_COOLDOWN
+
+    def _stamp_resume_turn(self) -> None:
+        """Record that the extra turn ran, so the next one waits its gap."""
+        try:
+            seen = paths.read_json(SEEN_FILE, default={}) or {}
+            seen["resume_at"] = time.time()
+            paths.write_json(SEEN_FILE, seen)
+        except Exception as exc:
+            LOG.warning("could not stamp the resume turn: %s", exc)
+
+    async def _continue_after_restart(self) -> None:
+        """The one extra turn a work restart earns, in the room it interrupted.
+
+        Master, 2026-09-22: "whenever she restarts from doing something, give her
+        an extra turn with that conversation to continue her work". Before this
+        a work restart only ever POSTED a sentence and then waited for somebody
+        to speak - and my own sent lines cannot re-enter on_message, so a patch
+        staged while master was away finished nothing at all.
+
+        The sentence is not deleted, it is demoted: _post_resume is what the room
+        gets when the brain will not answer, so a failed turn is still not
+        silence. And the brief is spent either way, because the continuation
+        happened HERE - the next incoming turn in that room must not be handed
+        the same job a second time.
+        """
+        note = self._resume_pending
+        if not note:
+            return
+        asked = str(note.get("brief") or "").strip()
+        if not asked:
+            return
+        where = str(note.get("channel") or "").strip().lstrip("#")
+        if not where:
+            LOG.info("resume turn: nothing recorded which room it came from")
+            return
+        target = self.resolve_channel(where)
+        if target is None:
+            LOG.warning("resume turn: no channel called #%s", where)
+            return
+        if not self._resume_turn_allowed():
+            LOG.info("resume turn: one ran recently - not chaining in #%s", where)
+            self._resume_pending = None
+            return
+
+        turns = [{"role": "system", "content": self.system_prompt()}]
+        mood = journal.mood_block()
+        if mood:
+            turns.append({"role": "system", "content": f"[{mood}]"})
+        # The room as it actually read. The brief is one line; the conversation
+        # is what makes it continuable, and this is the same block think() uses.
+        turns.extend(mirror_block(self.mirror, target.id))
+        # think()'s shape for the resume note, kept: the turn being answered comes
+        # first and the continuation sits AFTER it, so it reads as "and here is
+        # what you were already doing" rather than as something master said.
+        turns.append({"role": "user",
+                      "content": "back up. continuing where i left off."})
+        turns.append({"role": "system", "content": (
+            "You have just come back up after a restart and nobody has said "
+            "anything yet - this is not a message from anyone. It is the job you "
+            "were already on, handed back to you so you can finish it instead of "
+            "starting cold. What you were doing:\n"
+            f"{escape_block(asked)}\n\n"
+            "Pick it up from exactly there. Do not restart it, do not announce "
+            "that you restarted unless it actually matters, and do not ask "
+            "anyone to repeat themselves."
+        )})
+        owners = list(self.config.get("owner_ids") or [])
+        try:
+            owner = int(owners[0]) if owners else None
+        except (TypeError, ValueError):
+            owner = None
+        # `origin` stays "master", deliberately: this is HIS job being finished,
+        # not my own upgrade window, so it must not spend the supervisor's patch
+        # budget for changes I decided on myself. self_review sets the other one.
+        if owner is not None:
+            tools.set_context(owner, "master", where, channel_id=target.id,
+                              master=True)
+        try:
+            answer = await tools.in_thread(
+                self.run_turns, turns, tools.SCHEMA, set(tools.DISPATCH),
+                max_tokens=self.token_budget(True))
+        except Exception as exc:
+            LOG.warning("the resume turn turned over: %s", exc)
+            await self._post_resume()
+            return
+
+        answer = (answer or "").strip()
+        if not answer:
+            # Saying nothing is a real outcome, and the room is still owed the
+            # sentence rather than being left to wonder what the restart ate.
+            await self._post_resume()
+            return
+        self._stamp_resume_turn()
+        try:
+            sent = await target.send(answer[:MAX_MESSAGE])
+            self.own_message_ids.add(sent.id)
+            self._note(target.id, SELF_LABEL, answer[:MAX_MESSAGE], sent.id, None)
+            LOG.info("resume turn spoken in #%s", where)
+        except Exception as exc:
+            LOG.warning("could not speak the resume turn in #%s: %s", where, exc)
+        self._resume_pending = None
 
     def _take_restart_context(self) -> str:
         """Why I went down, handed to the next turn once, then spent.
@@ -3259,6 +3400,10 @@ class Lulu(discord.Client):
             getattr(message.channel, "name", "") or "",
             channel_id=getattr(message.channel, "id", None),
             master=is_owner,
+            # What was actually said to me, captured HERE because it is the last
+            # moment it exists: by the time a restart notice is read back at
+            # boot this process is dead. See tools._derived_brief.
+            asked=text,
         )
 
         # The notebook half: pick up what they say about themselves as we talk,

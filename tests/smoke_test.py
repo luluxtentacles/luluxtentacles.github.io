@@ -1804,6 +1804,32 @@ def _resume() -> str:
         expect(isinstance(body.get("brief"), str),
                f"a non-string brief reached the notice: {body.get('brief')!r}")
 
+        # The turn nobody wrote a brief for. Master, 2026-09-22: a work restart
+        # earns an extra turn with the conversation it interrupted, so the ask is
+        # captured HERE - while it still exists - instead of waiting for somebody
+        # to remember to describe it.
+        tools.set_context(1, "probe", "lulu-den", asked="fix the uploader")
+        tools._write_notice([], "staging a patch")
+        body = _json.loads(notice.read_text(encoding="utf-8"))
+        expect("fix the uploader" in (body.get("brief") or ""),
+               f"the ask did not ride the notice: {body!r}")
+        expect(body.get("channel") == "lulu-den",
+               f"a derived brief lost the room: {body!r}")
+        # An explicit brief still wins: the model's own words beat a
+        # reconstruction, which is the whole reason the field is still there.
+        tools._write_notice([], "staging a patch", "the explicit one")
+        body = _json.loads(notice.read_text(encoding="utf-8"))
+        expect(body.get("brief") == "the explicit one",
+               f"the derived brief overrode the written one: {body!r}")
+        # And it is the ASK only. A reason is not a conversation, so a restart
+        # with no ask behind it stays the plain bounce pinned above - the pull
+        # towards deriving one from `why` is exactly the regression this pins.
+        tools.set_context(1, "probe", "lulu-den")
+        tools._write_notice([], "going down to pick up new config")
+        body = _json.loads(notice.read_text(encoding="utf-8"))
+        expect(body.get("brief") is None,
+               f"a reason was promoted into a conversation: {body!r}")
+
         # The note goes into the ROOM IT CAME FROM, not update_channels.
         bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [1], "brain": {},
                              "update_channels": ["snailcat"]})
@@ -1846,6 +1872,22 @@ def _resume() -> str:
                "the note did not reach the turn in its own room")
         expect(bot._take_resume("lulu-den") == "",
                "the continuation fired more than once")
+
+        # The leash on the extra turn. It is a brain call she starts herself,
+        # and a patch it stages restarts her, so an ungated one is a spin.
+        bot._stamp_resume_turn()
+        expect(not bot._resume_turn_allowed(),
+               "the extra turn was allowed to fire twice with no gap")
+        # The stamp shares SEEN_FILE with the boot record, so recording a start
+        # must not clobber it - a plain overwrite there would reset the leash on
+        # every restart, which is the same as having none.
+        bot._remember_start(7, "running-new-code", 1.0)
+        expect(not bot._resume_turn_allowed(),
+               "recording a start wiped the resume turn's cooldown")
+        seen = _json.loads(
+            paths.resolve(lulu_bot.SEEN_FILE).read_text(encoding="utf-8"))
+        expect(seen.get("seq") == 7 and "resume_at" in seen,
+               f"the boot record and the cooldown did not share the file: {seen!r}")
 
         # The channel split, master 2026-09-21: a restart notice and a four-hour
         # window report are two different voices and must not share one list, or
@@ -1976,8 +2018,27 @@ def _resume() -> str:
                "propose_patch has no brief, so a self-update cannot carry the job")
         expect("_take_resume" in inspect.getsource(lulu_bot.Lulu.think),
                "think() never reads the continuation note")
-        expect("_post_resume" in inspect.getsource(lulu_bot.Lulu.announce_restart),
-               "the boot path never posts the note")
+        # The boot path HOLDS the note; the extra turn spends it. This replaced an
+        # assertion that only looked for the string "_post_resume" inside
+        # announce_restart - and when that call moved out, the name stayed behind
+        # in a comment, so the check went on passing while testing prose. It now
+        # names the wiring that has to exist, including the half that must NOT be
+        # there: two posters would speak the same restart twice.
+        expect("_resume_pending" in inspect.getsource(lulu_bot.Lulu.announce_restart),
+               "the boot path never picks up the continuation note")
+        expect("await self._post_resume()"
+               not in inspect.getsource(lulu_bot.Lulu.announce_restart),
+               "announce_restart posts the note itself again - the extra turn owns "
+               "that now, and both together say the same thing twice")
+        expect("_continue_after_restart" in inspect.getsource(lulu_bot.Lulu.on_ready),
+               "on_ready never starts the extra turn, so a work restart stays silent")
+        expect("run_turns"
+               in inspect.getsource(lulu_bot.Lulu._continue_after_restart),
+               "the extra turn does not run a real turn")
+        expect("_post_resume"
+               in inspect.getsource(lulu_bot.Lulu._continue_after_restart),
+               "the extra turn dropped the sentence it falls back to, so a failed "
+               "turn leaves the room with nothing")
 
         # And the dispatch really passes the brief through - asserted on the
         # SOURCE, never by calling request_restart(). That writes

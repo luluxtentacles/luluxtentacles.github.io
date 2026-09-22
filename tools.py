@@ -112,7 +112,8 @@ IMPLICIT_GLOBALS = {
 _LOCAL = threading.local()
 
 _CONTEXT_DEFAULT = {"user_id": None, "name": "", "channel": "",
-                    "channel_id": None, "origin": "master", "master": False}
+                    "channel_id": None, "origin": "master", "master": False,
+                    "asked": ""}
 
 
 def _ctx() -> dict:
@@ -132,7 +133,7 @@ def _ctx() -> dict:
 
 def set_context(user_id, name: str = "", channel: str = "",
                 channel_id=None, origin: str = "master",
-                master: bool = False) -> None:
+                master: bool = False, asked: str = "") -> None:
     """Who this turn is from, and whether a person asked or I decided.
 
     `origin` is not reachable by the model: the tool schema has no such field, so
@@ -160,6 +161,7 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["channel_id"] = channel_id
     ctx["origin"] = origin or "master"
     ctx["master"] = bool(master)
+    ctx["asked"] = asked or ""
 
 
 async def in_thread(fn, *args, **kwargs):
@@ -1312,6 +1314,31 @@ NOTICE_FILE = "memory/restart_notice.json"
 RESUME_BRIEF_MAX = 2000
 
 
+def _derived_brief() -> str:
+    """The continuation nobody wrote down, from the turn it is standing in.
+
+    Master, 2026-09-22: "whenever she restarts from doing something, give her an
+    extra turn with that conversation to continue her work". Until this, the
+    continuation only existed when the model REMEMBERED to pass a brief, so it
+    happened by luck - and the turn master asked for is exactly the one that
+    gets lost when nobody remembered.
+
+    Read from THIS turn's context, which lives only while the tool call runs.
+    That timing is the whole point and not an implementation detail: by the time
+    the notice is read back at boot, the conversation is gone - the process that
+    was holding it is dead - so this is the last moment it can be captured, and
+    the notice is the only thing that crosses the gap.
+
+    Master's own message ONLY, deliberately. It is what he means by "that
+    conversation", and it keeps an older promise intact: a restart with no
+    conversation behind it is STILL a plain bounce that carries nothing. The
+    restarts that have no ask - a task tick, my own-time window - already resume
+    through their own machinery, so deriving one from the reason here would buy a
+    second continuation in a room nobody was talking in.
+    """
+    return " ".join(str(_ctx().get("asked") or "").split())
+
+
 def _write_notice(files: list[str], why: str, brief: str = "") -> None:
     """Write ONLY the come-back note - never the request the supervisor watches.
 
@@ -1321,11 +1348,17 @@ def _write_notice(files: list[str], why: str, brief: str = "") -> None:
     doing exactly that restarted the production bot at 23:42:38. Anything
     testable must be able to avoid that file.
 
-    `brief` is the thing master asked for, carried across the restart. It is
-    optional because request_restart also exists without one, and a bounce with
-    nothing to remember must stay a plain bounce.
+    `brief` is the thing master asked for, carried across the restart. When the
+    model does not write one it is DERIVED from the turn it is standing in - see
+    _derived_brief - because a continuation that only fires when somebody
+    remembered to ask for it is a continuation that fires by luck. A bounce with
+    no conversation and no reason behind it still carries nothing, so the plain
+    bounce stays plain.
     """
-    brief = str(brief or "").strip()[:RESUME_BRIEF_MAX]
+    brief = str(brief or "").strip()
+    if not brief:
+        brief = _derived_brief()
+    brief = brief[:RESUME_BRIEF_MAX]
     body = {
         "why": (why or "no reason given")[:500],
         "files": files,

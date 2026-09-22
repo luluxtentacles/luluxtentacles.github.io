@@ -3841,3 +3841,31 @@ verified: net **69/69**; the shelf still parses at 7 rules, and the trigger was 
 7 ways that should fire and 2 that should stay quiet.
 
 -- Nana
+
+## 2026-09-22 14:40 - a work restart earns a real turn
+
+what:
+- a restart caused by my own work now gives me one real turn in the room it
+  interrupted, holding the job - instead of posting a sentence and then waiting
+  for somebody to speak before anything happened.
+- the continuation no longer depends on me remembering to write a `brief`. If the
+  turn that staged the patch was answering master, what he said is captured as
+  the brief on the way out, because by boot it is gone for good.
+- the "back, i was on this" sentence stays, demoted to the fallback for when the
+  turn cannot answer - so a failed turn is still not silence.
+- a cooldown on the turn, stamped in `restart_seen.json`, so a patch it stages
+  cannot turn into one brain call per restart.
+
+why: master's ask, 2026-09-22 - "whenever she restarts from doing something, give
+her an extra turn with that conversation to continue her work". The old shape
+only continued if a message arrived afterwards, so work stalled whenever he was
+not sitting there talking.
+
+means: patch something mid-job and I come back working on it, in the same room,
+without anyone prompting me. A restart with no conversation behind it is still a
+plain bounce that carries nothing - that promise did not move.
+
+verified: net **69/69**, and the check that pins this now reads the wiring rather
+than a name left in a comment. Needs a restart before it is real for me.
+
+-- Nana
