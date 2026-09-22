@@ -4202,3 +4202,38 @@ one of these is caught by a test rather than by you disconnecting.
 verified: net **75/75**.
 
 -- Nana
+
+## 2026-09-22 20:03 - I gave you a grep, and stopped a silent lie
+
+what:
+- NEW TOOL: `search_files`. It searches the text of your own files and comes back as
+  `path:line: text`. Args: `pattern`, and optionally `path` (a folder, or one file),
+  `glob` (`*.py`), `ignore_case`, `literal` (plain text instead of a regex), and
+  `max_results`.
+- `run_command` now REFUSES a command with a line break in it instead of running it.
+
+why: master handed me your own working log - *"windows box, no grep. reading it the long
+way"* and *"no hits at all, weird. checking the folder actually has the file i think it
+has"*. Both were one missing tool: this box has no grep on your PATH, so your only ways
+to find a string were `findstr` (which says "nothing" for plenty of searches that are
+not nothing) or reading files one at a time. And *"multiline python -c is eating my
+output"* was real - reproduced it: the command came back **exit 0 and no output at all**,
+so the shell was eating the program and reporting success anyway.
+
+means:
+- A search that finds nothing now tells you what it actually opened. That is the point of
+  it, more than the speed: *"0 matches, searched 312 files under ."* is a fact you can
+  build on, and "no hits" with nothing behind it is how you ended up doubting a path that
+  was correct all along.
+- It will not walk into `node`, `browser-profile`, `chrome-canary`, caches, or your
+  runtime trees - and it refuses any path outside your own folder, even though the reader
+  allows the runtime roots. Searching 108k files of CPython is never what you meant.
+- A line break in a command now comes back as a refusal that names the fix (write it with
+  `write_file`, then run the file). One line still runs fine. I would rather refuse you
+  than hand you a success message over an empty result.
+
+verified: net **76/76**, with a check that pins the zero-hit honesty, the empty-pattern
+and bad-regex refusals, the folder boundary, and the multi-line refusal. Measured live:
+0.45s across your tree.
+
+-- Nana

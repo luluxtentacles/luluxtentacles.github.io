@@ -12,6 +12,7 @@ import ast
 import asyncio
 import builtins
 import difflib
+import fnmatch
 import json
 import operator
 import os
@@ -247,6 +248,38 @@ SCHEMA = [
                               "description": "how many lines from there"},
                 },
                 "required": ["path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_files",
+            "description": (
+                "Search the TEXT of my own files and return matching lines as "
+                "`path:line: text`. This is the grep I do not have - the box "
+                "has no grep on PATH - so use it INSTEAD of reading files one "
+                "at a time to find something, and instead of guessing which "
+                "file a thing is in. Every answer says how many files it "
+                "actually opened, so a zero can be believed rather than "
+                "doubted. Skips binaries, huge files, and the heavy trees."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "pattern": {"type": "string",
+                                "description": "what to look for"},
+                    "path": {"type": "string",
+                             "description": "a folder or one file, '.' for my root"},
+                    "glob": {"type": "string",
+                             "description": "only files matching this, e.g. '*.py'"},
+                    "ignore_case": {"type": "boolean"},
+                    "literal": {"type": "boolean",
+                                "description": "true to search plain text instead of a regex"},
+                    "max_results": {"type": "integer",
+                                    "description": "stop after this many matching lines"},
+                },
+                "required": ["pattern"],
             },
         },
     },
@@ -1471,6 +1504,169 @@ def _page(lines: list[str], start: int, count: int, path: str) -> str:
     return (f"[{path}: lines {start}-{last} of {total}]\n{body}\n"
             f"[cut at {MAX_READ_BYTES} bytes - {total - last} lines left. "
             f"Read on with offset={last + 1}]" )
+
+
+# ---------------------------------------------------------------------------
+# Searching, because the box does not give her one.
+#
+# Master, 2026-09-22, handing me her own working log:
+#   "windows box, no grep. reading it the long way"
+#   "no hits at all, weird. checking the folder actually has the file i think it has"
+#
+# Both are the same missing tool. `grep.exe` lives in Git's usr/bin and her
+# shell does not have that on PATH, so her only ways to find a string were
+# `findstr` - which says "nothing" for a great many searches that are not
+# nothing - or reading whole files one at a time. That is the long way she was
+# complaining about, and it ends with her doubting a PATH instead of a search.
+#
+# The property that matters here is not speed, it is TRUST: a search that finds
+# nothing has to say what it actually opened, or "no hits" and "I looked in the
+# wrong place" are the same sentence, and she cannot tell which one she has. So
+# every answer carries its counts, including every empty one.
+SEARCH_SKIP_DIRS = {
+    ".git", ".trial", "node", "node_modules", "node_cache", "__pycache__",
+    "ffmpeg", "whisper.cpp", "Python311", "browser-profile", "chrome-canary",
+    ".venv", "venv", ".setup-tools",
+}
+SEARCH_SKIP_PREFIX = (".trial", ".smoke_sandbox")
+# Anything likely to be binary. Naming the shapes is cheaper than sniffing every
+# file, and a NUL in the first block catches whatever the list misses.
+SEARCH_SKIP_EXT = {
+    ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".bmp", ".svgz",
+    ".mp4", ".mov", ".webm", ".avi", ".mkv", ".mp3", ".wav", ".flac",
+    ".ogg", ".zip", ".gz", ".tar", ".7z", ".rar", ".exe", ".dll", ".so",
+    ".dylib", ".pyd", ".pyc", ".pdf", ".woff", ".woff2", ".ttf", ".otf",
+    ".eot", ".bin", ".db", ".sqlite", ".sqlite3", ".pt", ".onnx",
+}
+SEARCH_MAX_FILE_BYTES = 2_000_000   # bigger than any source file she owns
+SEARCH_DEFAULT_MAX = 120            # matching LINES, not files
+SEARCH_LINE_CHARS = 240             # one line of the match, trimmed
+
+
+def _inside_root(target) -> bool:
+    """Is this inside her own folder, rather than a read-only external root?
+
+    paths.resolve permits reads from the runtime roots (her interpreter, whisper)
+    because she has to be able to RUN them. Searching one is never what she
+    meant - it is 108k files of CPython - so the search tool is narrower than the
+    reader on purpose.
+    """
+    try:
+        target.relative_to(paths.ROOT)
+    except ValueError:
+        return False
+    return True
+
+
+def _walk_files(root: str):
+    """Every file under `root` worth opening. Prunes whole trees as it goes."""
+    for base, dirs, names in os.walk(root):
+        dirs[:] = [d for d in dirs
+                   if d not in SEARCH_SKIP_DIRS
+                   and not d.startswith(SEARCH_SKIP_PREFIX)]
+        for name in names:
+            yield os.path.join(base, name)
+
+
+def search_files(pattern: str, path: str = ".", glob: str = "",
+                 ignore_case: bool = False, literal: bool = False,
+                 max_results: int = 0) -> str:
+    """Find a string in the files inside her own folder. Never raises.
+
+    One line per match as `path:line: text`, then a footer with the counts.
+    `literal` searches plain text rather than a regex, which is what most
+    searches actually want.
+    """
+    wanted = str(pattern or "")
+    if not wanted:
+        return ("give me something to search for - an empty pattern matches "
+                "every line of every file and tells us nothing.")
+    try:
+        needle = re.compile(re.escape(wanted) if literal else wanted,
+                            re.IGNORECASE if ignore_case else 0)
+    except re.error as exc:
+        return (f"that is not a pattern I can run ({exc}). Fix the regex, or "
+                f"pass literal=true to search for those characters as text.")
+
+    where = str(path or ".").strip() or "."
+    try:
+        root = paths.resolve(where, must_exist=True)
+    except paths.SandboxError as exc:
+        return (f"refused: {exc} - nothing was searched. A path that is wrong "
+                f"and a search that found nothing look identical from here, so "
+                f"check the path with list_files.")
+    except Exception as exc:
+        return f"could not look at {where}: {exc}"
+    if not _inside_root(root):
+        return (f"refused: {where} is outside my own folder. I only search the "
+                f"folders that are mine.")
+
+    try:
+        limit = max(1, int(max_results or SEARCH_DEFAULT_MAX))
+    except (TypeError, ValueError):
+        limit = SEARCH_DEFAULT_MAX
+
+    targets = [str(root)] if root.is_file() else list(_walk_files(str(root)))
+    hits: list[str] = []
+    scanned = skipped = hit_files = 0
+    truncated = False
+
+    for target in targets:
+        name = os.path.basename(target)
+        rel = os.path.relpath(target, str(paths.ROOT)).replace("\\", "/")
+        if glob and not (fnmatch.fnmatch(name, glob)
+                         or fnmatch.fnmatch(rel, glob)):
+            continue
+        if os.path.splitext(name)[1].lower() in SEARCH_SKIP_EXT:
+            skipped += 1
+            continue
+        try:
+            if os.path.getsize(target) > SEARCH_MAX_FILE_BYTES:
+                skipped += 1
+                continue
+            with open(target, "rb") as handle:
+                body = handle.read().decode("utf-8", "replace")
+        except Exception:
+            skipped += 1
+            continue
+        if "\x00" in body[:4096]:
+            skipped += 1
+            continue
+        scanned += 1
+        matched_here = False
+        for number, line in enumerate(body.splitlines(), 1):
+            if not needle.search(line):
+                continue
+            matched_here = True
+            hits.append(f"{rel}:{number}: "
+                        + " ".join(line.split())[:SEARCH_LINE_CHARS])
+            if len(hits) >= limit:
+                truncated = True
+                break
+        if matched_here:
+            hit_files += 1
+        if truncated:
+            break
+
+    plural = "" if scanned == 1 else "s"
+    foot = (f"[searched {scanned} file{plural} under {where}"
+            + (f", skipped {skipped}" if skipped else "")
+            + f"; {'literal text' if literal else 'regex'}"
+            + (f"; glob {glob!r}" if glob else "") + "]")
+    if not hits:
+        return "\n".join([
+            "no matches.",
+            foot,
+            "(a real zero: those files were opened and read. If a hit was "
+            "expected, doubt the pattern or the glob before doubting the path "
+            "- and if it should be there, search a NARROWER path to be sure.)",
+        ])
+
+    head = (f"{len(hits)} match" + ("" if len(hits) == 1 else "es")
+            + f" in {hit_files} file" + ("" if hit_files == 1 else "s"))
+    if truncated:
+        head += f" (stopped at {limit} - narrow the pattern or the path)"
+    return "\n".join([head] + hits + [foot])
 
 
 def write_file(path: str, content: str) -> str:
@@ -3047,6 +3243,12 @@ def recall(query: str) -> str:
 DISPATCH = {
     "list_files": lambda a: list_files(a.get("path", ".")),
     "read_file": lambda a: read_file(a.get("path", "")),
+    "search_files": lambda a: search_files(a.get("pattern", ""),
+                                           a.get("path", "."),
+                                           a.get("glob", ""),
+                                           bool(a.get("ignore_case")),
+                                           bool(a.get("literal")),
+                                           a.get("max_results") or 0),
     "write_file": lambda a: write_file(a.get("path", ""), a.get("content", "")),
     "patch_file": lambda a: patch_file(a.get("path", ""), a.get("find", ""),
                                        a.get("replace", ""), a.get("why", ""),

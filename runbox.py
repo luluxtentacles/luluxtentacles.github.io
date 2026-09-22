@@ -323,6 +323,27 @@ def run(command: str = "", max_output: int | None = None) -> str:
     if not command:
         return catalog()
 
+    # A line break does not make a script here - it makes a SILENT no-op.
+    #
+    # Master, 2026-09-22, quoting her own log: "multiline python -c is eating my
+    # output, writing a temp script instead". Reproduced before touching
+    # anything: `python -c "import os\nprint(1)"` came back exit 0 and
+    # "(no output)". The shell splits on the newline, python never sees the real
+    # program, and the exit code reports SUCCESS anyway. A wrong answer that
+    # reads like a right one is the worst shape a result can have, so this
+    # refuses instead - and names the thing that does work.
+    if "\n" in command or "\r" in command:
+        _audit(command, None, 0.0, "REFUSED - multi-line command")
+        return (
+            f"refused: this command has a line break in it, and a line break "
+            f"does not make a script on this box. The shell splits it, the "
+            f"interpreter sees a truncated argument, and the exit code still "
+            f"says 0 - so the output just goes missing and looks like silence.\n"
+            f"Write it to a file with write_file, then run that file "
+            f"(`python scratch.py`). One line, or a file - never a multi-line "
+            f"string."
+        )
+
     # `publish` routes BEFORE the shell path: it is a sequence rather than a
     # command, and its message is free text that must never reach a shell.
     if command == "publish" or command.startswith("publish "):

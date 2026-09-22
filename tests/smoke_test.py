@@ -6030,6 +6030,81 @@ def _heartbeat() -> str:
             "ticking while she comes up")
 
 
+# -- her tools have to fit the box she is actually on ----------------------
+# Master, 2026-09-22: "she keeps hitting these issues, any improvement on her
+# tools?" Two of them were one missing tool. `grep.exe` lives in Git's usr/bin,
+# her shell does not have it on PATH, so she read whole files to find a string
+# and then doubted her own paths when a search came back empty.
+#
+# The property under test is not speed. It is that a ZERO result is trustworthy,
+# because the answer says how many files it actually opened - "no hits" and "I
+# searched the wrong place" must not be the same sentence.
+def _search_tool() -> str:
+    import runbox
+    import tools
+
+    expect("search_files" in tools.DISPATCH, "search_files is not dispatchable")
+    expect(any(t["function"]["name"] == "search_files" for t in tools.SCHEMA),
+           "search_files is not advertised to her")
+    # Owner-only by the same rule as read_file: it returns file CONTENTS.
+    expect("search_files" not in tools.LOOKUP_TOOL_NAMES,
+           "search_files is offered to strangers, and it reads her own files")
+
+    # A hit, in a file whose contents are known.
+    hits = tools.search_files("def read_file", "tools.py")
+    expect("tools.py:" in hits and "def read_file" in hits,
+           f"a string I know is there was not found: {hits[:200]}")
+    expect("searched 1 file" in hits,
+           f"the footer lost its count: {hits[:200]}")
+
+    # THE property: a zero says what it looked at.
+    #
+    # The probe is BUILT here, not written as a literal - the first version used
+    # a literal string, and the search found it in this very file, because of
+    # course it did. A needle that exists in the tree cannot test a zero.
+    import uuid
+    probe = "zqx" + uuid.uuid4().hex + "qzx"
+    zero = tools.search_files(probe, ".", glob="*.py")
+    expect(zero.startswith("no matches."),
+           f"a zero did not lead with the zero: {zero[:120]}")
+    expect("searched" in zero and "file" in zero,
+           f"a zero did not say what it searched, so it cannot be trusted: "
+           f"{zero[:200]}")
+
+    # An empty pattern would match every line of every file - refused, not run.
+    expect(tools.search_files("").startswith("give me"),
+           "an empty pattern was actually run")
+    # A bad regex is words, not a traceback.
+    expect("not a pattern" in tools.search_files("([unclosed", "tools.py"),
+           "a bad regex did not come back as a plain sentence")
+    # literal=true searches the metacharacters instead of interpreting them.
+    lit = tools.search_files("def read_file(", "tools.py", literal=True)
+    expect("tools.py:" in lit, f"a literal search failed: {lit[:160]}")
+    # Outside her own folder is refused, never walked. paths.resolve permits
+    # reads from the runtime roots; the SEARCH tool is deliberately narrower.
+    out = tools.search_files("x", "../../Windows")
+    expect(out.startswith("refused:"),
+           f"a search was allowed to leave her folder: {out[:160]}")
+    out = tools.search_files("x", "no_such_folder_xyz")
+    expect(out.startswith("refused:") and "nothing" in out.lower(),
+           f"a missing path did not say so: {out[:160]}")
+
+    # And the multi-line trap that ate her output. Reproduced 2026-09-22: exit 0
+    # and "(no output)" - a wrong answer wearing a right one's clothes.
+    guard = runbox.run('python -c "import os\nprint(1)"')
+    expect(guard.startswith("refused:"),
+           f"a multi-line command was actually run: {guard[:160]}")
+    expect("write_file" in guard,
+           "the multi-line refusal does not name the fix")
+    # One line still runs, or the refusal would be worse than the bug.
+    ok = runbox.run('python -c "print(7)"')
+    expect("7" in ok, f"a single-line command stopped working: {ok[:160]}")
+    return ("search_files finds a known string and says what it scanned on a "
+            "zero, refuses an empty pattern, a bad regex and anything outside "
+            "her folder, and a multi-line command is refused instead of "
+            "silently printing nothing")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -6105,6 +6180,7 @@ CHECKS = [
     ("stop-limits", _stop_and_limits),
     ("no-retry-forever", _no_retry_forever),
     ("heartbeat", _heartbeat),
+    ("search-tool", _search_tool),
 ]
 
 
