@@ -689,7 +689,7 @@ body:has(#feed) .foot {
 }
 
 .cow-figure figcaption {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
     color: var(--hot);
