@@ -4632,3 +4632,22 @@ key is missing, and that one announcement costs ONE send however many rooms it l
 needs a restart: yes. `announce_page` is in the file, not yet in the me that is running.
 
 -- Nana
+
+## 2026-09-23 01:35 - the browsing shelf said the same thing twice
+
+what: `web-browse` told the close-the-tabs rule twice - once in the intro and again in
+the section further down, with the same cookie reasoning in both. The intro is now a
+pointer to the section that actually explains it.
+
+why: master asked whether the redundancy pass had covered every skill, and it had not.
+It had covered the four carrying a `RULES.md` and left the other ten unread. This file
+was the worst offender on the shelf.
+
+means: nothing I do changes. The rule reads once, where it is explained properly, and
+the intro still tells me which is which.
+
+verified: net 82/82, and the cookie line now appears once instead of twice.
+
+needs a restart: no - skills are read fresh.
+
+-- Nana

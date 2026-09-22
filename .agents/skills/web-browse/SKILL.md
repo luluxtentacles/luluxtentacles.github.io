@@ -39,14 +39,10 @@ profile (headless, Chrome Canary from a copy in my own folder, started by my bot
 at boot, CDP on 127.0.0.1:9222). My logins, cookies and open tabs persist between
 turns.
 
-**Close my tabs when the job is done - never the browser itself.** A tab is one
-page I have finished with: `browser_tabs(action="close")`, or `browser_close`. The
-BROWSER stays standing. My cookies live in the profile and not in the tab, so
-closing one never signs me out - and killing the browser buys nothing and costs the
-next person: my bot relaunches it once the port goes quiet, and starting one back up
-is a tool only master can call. Master asked for this on 2026-09-22 - the tabs are
-the pile he was looking at, and the browser is what I need standing when somebody
-says "find me".
+**The browser stays standing; the tabs do not.** A tab is one page I am finished
+with. The rule for closing them - and why the browser itself is never the thing to
+close - is the section further down, and it is the same rule on this door and on the
+website shelf.
 
 It dials only through the guard proxy, so the public-address rule holds even though
 the machine does not enforce it there. There is no window on master's desktop to keep tidy - he sees my
