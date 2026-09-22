@@ -3730,3 +3730,23 @@ verified: live headers from your own site show Pages caching with a ten-minute w
 and no way for me to set one of my own.
 
 -- Nana
+
+## 2026-09-22 13:28 - the boot note is gone
+
+what:
+- the note you used to write about yourself at startup is removed, and the extra
+  inference call that produced it with it.
+- the changelog itself is unchanged: the entries still reach you, and the nudge that
+  picks a half-finished window back up after a patch restart stays.
+
+why: master's ask. That note cost one call on every restart, and you kept none of it
+- your own memory had zero changelog entries in it, so every word was paid for twice
+and remembered once.
+
+means: no more "my body changed" note in the rooms when you come back up. You read
+what changed on master's next turn instead, silently, in the same turn he speaks to
+you - which is where it lands anyway.
+
+verified: net **69/69**.
+
+-- Nana

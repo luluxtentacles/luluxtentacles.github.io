@@ -2018,13 +2018,23 @@ class Lulu(discord.Client):
         # risk, and it has to happen here rather than in a background task: the
         # first turn after a restart is exactly the one that should already know.
         self._read_changelog()
-        # Master, 2026-09-21: the changelog is an EVENT now, not just background
-        # for his next turn - she gets the unread entries through one inference
-        # call at boot and says the result where he asked for it.
-        try:
-            await self._changelog_announce()
-        except Exception as exc:
-            LOG.warning("changelog announce stumbled: %s", exc)
+        # Master, 2026-09-22: the boot announce is GONE. It spent one inference
+        # call on every restart to say a note she never kept - the retentive
+        # stores hold nothing from it, so the tokens bought one utterance and
+        # no recall. The entries wait for his next turn now, which is the only
+        # place they were ever going to stick. See _take_changelog.
+        #
+        # What the announce also carried was a nudge for the self-review resume
+        # path, and that is a different feature with its own reason to exist -
+        # master, 2026-09-21: after a patch restart her half-finished window
+        # should continue NOW, not on the next poll. It stays, fired on the same
+        # signal it always was: unread entries mean this boot followed a change
+        # to me. The watch loop is still the mechanism; this is only latency.
+        if self._changelog_pending:
+            try:
+                asyncio.create_task(self._nudge_self_review())
+            except Exception as exc:
+                LOG.warning("could not nudge the review after a change: %s", exc)
         if self._ledger_task is None or self._ledger_task.done():
             self._ledger_task = asyncio.create_task(self._daily_ledger())
         if self._restart_task is None or self._restart_task.done():
@@ -2464,79 +2474,6 @@ class Lulu(discord.Client):
         except Exception as exc:
             LOG.warning("changelog: could not record what was shown: %s", exc)
         return changelog_block(entries, more)
-
-    async def _changelog_announce(self) -> None:
-        """Pass the unread changelog through her, then let her say it.
-
-        Master, 2026-09-21: "after we do something we should pass the unread
-        entries to her for an inference call and she will output in the
-        lulu-den, snailcat and owner dm". So a change to her body is no longer
-        something she discovers on master's NEXT turn: at boot, whatever she
-        has not read yet goes into one inference call, and her note about it
-        goes where he asked - the update rooms (#lulu-den, #snailcat) and his
-        DMs. After a SELF-update restart this same path is why she can pick
-        her half-finished window straight back up: the review loop is nudged
-        as soon as the note is out, instead of waiting for the poll.
-        """
-        held = self._changelog_pending
-        if not held:
-            return
-        entries, marker, more = held
-        block = changelog_block(entries, more)
-        turns = [
-            {"role": "system", "content": (
-                "You are Lulu. These are notes left in your own changelog by "
-                "whoever edited your code - what changed in YOUR body since "
-                "you last read. Read them properly: this is how you learn "
-                "what you are now.\n\n" + block +
-                "\n\nWrite ONE short note (at most three sentences) in your "
-                "own voice, to the people you live with, saying what changed "
-                "in you and what it means for you. Not a summary for a "
-                "lawyer - yours. Output ONLY the note, nothing else."
-            )},
-            {"role": "user", "content": "my body changed while I was down. say it."},
-        ]
-        try:
-            reply = brain.complete(self.config["brain"], turns,
-                                   max_tokens=self.token_budget(True))
-        except Exception as exc:
-            LOG.warning("changelog announce: the call itself failed: %s", exc)
-            return
-        note = (reply.get("content") or "").strip()
-        if not note or note.startswith("["):
-            # A dry ladder or a refusal: say nothing in the rooms, but do not
-            # eat the entries either - leave them pending for master's turn.
-            LOG.info("changelog announce: no note came back (%s)",
-                     note[:80] or "empty")
-            return
-        rooms = tools.update_channels()
-        posted: list[str] = []
-        for name in rooms:
-            target = self.resolve_channel(name)
-            if target is None:
-                LOG.warning("changelog announce: no channel called #%s", name)
-                continue
-            try:
-                await target.send(note[:MAX_MESSAGE])
-                posted.append(name)
-            except Exception as exc:
-                LOG.warning("changelog announce: could not post in #%s: %s",
-                            name, exc)
-        await self._dm_owner(note, posted or None)
-        # Only now are the entries read: a failed send leaves them waiting.
-        self._changelog_pending = None
-        try:
-            paths.write_json(CHANGELOG_SEEN_FILE, marker)
-        except Exception as exc:
-            LOG.warning("changelog announce: could not mark read: %s", exc)
-        LOG.info("changelog announce: said in %s and DM'd to master",
-                 ", ".join("#" + n for n in posted) or "(no rooms)")
-        # The self-update half of master's ask: after a patch restart, her
-        # half-finished window should continue NOW, not on the next poll.
-        try:
-            asyncio.create_task(self._nudge_self_review())
-        except Exception as exc:
-            LOG.warning("changelog announce: could not nudge the review: %s", exc)
 
     async def _nudge_self_review(self) -> None:
         """One immediate review-window check, for the restart resume path.

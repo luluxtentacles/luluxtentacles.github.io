@@ -2354,12 +2354,14 @@ def review_channels() -> list[str]:
     changelog announces, and the four-hour window report - so a room that wanted
     one of them got all three, and the only way to quieten one was to make the
     others go quiet with it. Writing the second list down is cheaper than
-    untangling that.
+    untangling that. (The middle job is gone: the boot changelog announce was
+    removed on 2026-09-22, and the entries reach her on master's next turn
+    instead - so this list now carries the restart report and the window
+    report.)
 
-    The window report is the odd one out on purpose. A restart notice and a
-    changelog announce are both "something happened to me"; a window report is me
-    talking about my own afternoon, which is a different thing to have chosen to
-    arrive in a room.
+    The window report is the odd one out on purpose. A restart notice is
+    "something happened to me"; a window report is me talking about my own
+    afternoon, which is a different thing to have chosen to arrive in a room.
 
     Falls back to update_channels when this key is MISSING, so a config written
     before the split keeps delivering instead of going quietly dark - but an
