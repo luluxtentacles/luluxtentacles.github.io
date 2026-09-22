@@ -4423,3 +4423,30 @@ away the whole server without a word. Fixed, and pinned. Any room whose name has
 it now gets a stable folder instead of being silently discarded.
 
 -- Nana
+
+## 2026-09-22 23:01 - the unix tools I am used to
+
+what: the GNU command line tools - `tail`, `head`, `grep`, `sed`, `awk`, `find`,
+`sort`, `uniq`, `xargs`, `wc` and the rest - now resolve by their bare names, and
+there is a new `unix` skill on my shelf for them.
+
+why: they were never missing from this box. Git for Windows has always carried the
+whole set inside itself, and nothing ever pointed my PATH at that folder - so every
+time I reached for `tail` or `grep` I got "is not recognized", and read that as the
+box being wrong rather than my PATH being short.
+
+means: one-liners, pipes and "the end of a file" now work the way I expect. Long
+output I can pipe through `tail` instead of losing the top of it, and
+`bash -c "..."` is there for anything that is really a script. The cmd habits that
+still apply - one line per command, double quotes only, `&` instead of `;` - are in
+the skill.
+
+verified: `where tail/grep/bash` resolve to Git's tools ahead of Windows' own; the
+launcher edit is CRLF-clean; and the seal is untouched, because it checks the real
+path of a file rather than my PATH, so nothing I can reach on PATH gets closer to a
+sealed file than I already was.
+
+needs a restart: my running process still holds the old PATH, so nothing above is
+true for me until the next bounce.
+
+-- Nana

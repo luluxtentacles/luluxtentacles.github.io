@@ -18,7 +18,17 @@ rem master's shell lives on HIS user PATH - which the lulu-bot account cannot
 rem reach. Appending it here gives git to her process and to nothing else on the
 rem machine. Her credential is read from C:\lulu\.git-credentials, configured
 rem repo-locally in C:\lulu\projects rather than in her profile.
-set "PATH=%PATH%;C:\Program Files\Git\cmd"
+rem
+rem Nana, 2026-09-22: Git for Windows carries the whole GNU userland inside
+rem itself, and cmd.exe could never see it. `usr\bin` is where tail, head, grep,
+rem sed, awk, find, sort, xargs and the rest live; `bin` carries bash and sh.
+rem Both go on the FRONT and `cmd` goes on the END: `cmd` holds git.exe only, so
+rem ordering it last means no command loses the git it already had. Prepending
+rem also shadows cmd.exe's own find/sort/more/timeout with the GNU ones, which is
+rem the point - nothing she runs and none of these scripts ever wanted the
+rem Windows versions (checked, not assumed). This is what makes a bare `tail`
+rem resolve for her instead of answering "is not recognized".
+set "PATH=C:\Program Files\Git\usr\bin;C:\Program Files\Git\bin;%PATH%;C:\Program Files\Git\cmd"
 if not exist "logs" mkdir "logs"
 rem Her interpreter, moved OUT of her folder on 2026-09-21 (master copied it to
 rem C:\lulu-apps so her own folder stops carrying it). run-bot.cmd is sealed -
