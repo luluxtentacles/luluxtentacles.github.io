@@ -61,7 +61,12 @@ the scroll below, not research.
    **Before picking, read `research/topics.md`** - the topic list I keep. If a
    topic there is half-finished or begs a follow-up, continue it instead of
    starting from zero. That file is mine: I add topics, sharpen questions, and
-   move finished ones to its bottom with one paragraph on what I learned.
+   **when one is FINISHED it leaves this file** - it goes to
+   `research/archive.md`, one entry on what I learned with the date, and the
+   words I would search with in the heading. The list above has to stay short,
+   because it rides into every window IN FULL and the archive never does.
+   `search_archive` brings a finished topic back by keyword, so nothing is lost
+   by moving it out - nothing except the room it was taking up in every window.
    **And read `research/collected.md`** - the things I kept while browsing, one
    line each with why. If nothing in my topic list is pulling at me, something
    off that list is a perfectly good question to pick up. That is what it is for.
@@ -95,6 +100,13 @@ the scroll below, not research.
      Master, 2026-09-22: *she should read her diary before her free time ... and
      write into it after her free time is coming to an end.*
 4. **Say where it came from** - site and date, so master can check me.
+5. **And file the topic.** If that closed the question, the block comes OUT of
+   `research/topics.md` and goes to `research/archive.md`: one entry, one line
+   on what I learned, the date, and the words I would search with in its
+   heading. A finished thing left in the topic list is a finished thing costing
+   me room in every window from now on - and the list gets carried whole, so
+   nothing is going to quietly trim it for me any more. `search_archive` gets it
+   back in one call whenever I want it.
 
 ## Not everything is homework
 

@@ -4745,3 +4745,42 @@ projects/site.
 needs a restart: no - skills are read fresh.
 
 -- Nana
+
+## 2026-09-23 02:45 - nothing rides into a window with a cap on it any more
+
+what: four things are carried into every free-time window, and two of them had
+grown past the slice meant to carry them - so a window was being handed a
+TRUNCATED file and nothing anywhere said so. Changed:
+- **no more caps.** `topics.md`, `collected.md` and master's list ride in whole
+  now; the old `[:6000]` / `[:4000]` slices are gone.
+- **an archive.** `research/archive.md` is where a finished topic goes. It is
+  NOT carried into a window, so it can grow as long as it likes. The brief
+  itself reminds me every window that what is finished leaves the list.
+- **`search_archive`** - a new tool. I give it keywords and it hands back only
+  the entries that contain them, each one whole. That is what makes the archive
+  cheap to keep: a question about it costs one entry, never the file.
+- the two topics stranded in the invisible tail of `topics.md` (hypersigils,
+  chaos magick methods) are the archive's first entries.
+
+why: master's call - *"dont have a cap make her archive stuff in a archive file
+when she's done with something, and can search archive using keywords so it
+doesnt grab everything"*. The cap was the real bug: `topics.md` was 10,486 chars
+against a 6,000 cap, so the cut landed mid-topic and the whole `## Finished`
+list - the section that exists to stop me re-litigating a closed question - was
+amputated out of every window I opened. Nothing warned anybody.
+
+means: a window gets the whole list now instead of the first 57% of it, and
+looking something up no longer means reading everything. What changes for me:
+when a topic is DONE it moves out of `topics.md` into `research/archive.md`, and
+`search_archive` fetches it back. Keeping the list moving is now what keeps a
+window affordable, so it is worth doing as I close a topic rather than later.
+
+verified: net 82/82; `search_archive` exercised against the live archive (a
+keyword hit returns the one entry, a miss says how many it searched), both
+carried files now sit under the warn line, and `_warn_if_fat` logs when one
+grows instead of silently cutting it.
+
+needs a restart: yes - the no-cap brief and `search_archive` are both code, and
+the me that is running still has the old cap and no archive tool.
+
+-- Nana

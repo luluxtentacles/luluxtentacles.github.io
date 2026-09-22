@@ -590,6 +590,31 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "search_archive",
+            "description": (
+                "Search my ARCHIVE by keyword - the finished topics that do "
+                "NOT ride into a free-time window. Use it when I half-remember "
+                "digging into something: it hands back only the entries that "
+                "contain EVERY word I give it, each one whole, instead of the "
+                "whole file. More words is a narrower question. This is the "
+                "other half of not carrying the archive: keeping it cheap to "
+                "ask about is what lets it grow."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "terms": {"type": "string",
+                              "description": "the word(s) to look for"},
+                    "max_entries": {"type": "integer",
+                                    "description": "stop after this many entries"},
+                },
+                "required": ["terms"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "write_diary",
             "description": (
                 "Write a line in MY OWN diary for today - what happened to me here. "
@@ -2848,6 +2873,88 @@ def search_mirror(query: str = "", room: str = "", hours: int = 0) -> str:
     return journal.search_mirror(query, hours or journal.MIRROR_WINDOW_HOURS, room)
 
 
+# The archive: finished topics that are NOT carried into a window. Keeping it
+# out of the window only works if getting something back OUT is cheap, or the
+# archive is just a slower way of losing things - so this returns the matching
+# ENTRIES and never the file. Master, 2026-09-23: "make her archive stuff in a
+# archive file when she's done with something, and can search archive using
+# keywords so it doesnt grab everything."
+ARCHIVE_FILE = "research/archive.md"
+ARCHIVE_MAX_ENTRIES = 5      # whole entries, not matching lines
+ARCHIVE_ENTRY_CHARS = 1500   # one entry, trimmed only if it is enormous
+
+
+def _archive_entries(text: str) -> list[tuple[str, str]]:
+    """`(heading, body)` per `## ` entry. The preamble is not an entry.
+
+    The heading carries the words she would actually search with, so it is
+    matched alongside the body and handed back with it - an entry whose title
+    says what it was is the whole point of the shape.
+    """
+    entries: list[tuple[str, str]] = []
+    head = ""
+    lines: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("## "):
+            if head:
+                entries.append((head, "\n".join(lines).strip()))
+            head, lines = line[3:].strip(), []
+        elif head:
+            lines.append(line)
+    if head:
+        entries.append((head, "\n".join(lines).strip()))
+    return entries
+
+
+def search_archive(terms: str = "", max_entries: int = 0) -> str:
+    """Keyword search over my archive. Returns whole entries, never the file.
+
+    Every word given has to appear in an entry for that entry to match - the
+    same narrowing `search_mirror` uses, and it is the point of the tool: the
+    archive is allowed to grow precisely because asking it a question costs one
+    entry rather than the whole file.
+    """
+    wanted = [w for w in re.split(r"\s+", str(terms or "").strip().lower()) if w]
+    if not wanted:
+        return ("give me a word or two to look for - an empty search matches "
+                "every entry in the archive and tells us nothing.")
+    try:
+        body = paths.read_text(ARCHIVE_FILE, default="")
+    except Exception as exc:
+        return f"could not read my archive: {exc}"
+    if not body.strip():
+        return (f"there is nothing in my archive yet ({ARCHIVE_FILE}). It is "
+                f"where a finished topic goes, so either nothing is finished "
+                f"or nothing has been filed yet.")
+    entries = _archive_entries(body)
+    if not entries:
+        return (f"{ARCHIVE_FILE} has no `## ` entries in it, so there is "
+                f"nothing in there I can find - the archive reads entries by "
+                f"their heading.")
+    hits = [(head, text) for head, text in entries
+            if all(w in (head + "\n" + text).lower() for w in wanted)]
+    total = len(entries)
+    searched = f"{total} entr{'y' if total == 1 else 'ies'}"
+    if not hits:
+        return (f"nothing in my archive matches '{' '.join(wanted)}' - "
+                f"{searched} searched, all of them. Different words, or it is "
+                f"not filed yet.")
+    try:
+        cap = max(1, int(max_entries or ARCHIVE_MAX_ENTRIES))
+    except (TypeError, ValueError):
+        cap = ARCHIVE_MAX_ENTRIES
+    shown = hits[:cap]
+    blocks = []
+    for head, text in shown:
+        if len(text) > ARCHIVE_ENTRY_CHARS:
+            text = text[:ARCHIVE_ENTRY_CHARS].rstrip() + " [...entry continues]"
+        blocks.append(f"## {head}\n\n{text}" if text else f"## {head}")
+    footer = (f"-- {len(hits)} of {searched} match '{' '.join(wanted)}'"
+              + (f", showing the first {len(shown)}" if len(hits) > len(shown)
+                 else ""))
+    return "\n\n".join(blocks) + "\n\n" + footer
+
+
 def learn_person(text: str, who: str = "") -> str:
     """Remember a fact about someone. Defaults to whoever is talking to me."""
     target = (who or "").strip()
@@ -3564,6 +3671,8 @@ DISPATCH = {
     "search_mirror": lambda a: search_mirror(a.get("query", ""),
                                              a.get("room", ""),
                                              a.get("hours", 0)),
+    "search_archive": lambda a: search_archive(a.get("terms", ""),
+                                               a.get("max_entries", 0)),
     "free_time": lambda a: free_time(),
     "propose_patch": lambda a: propose_patch(a.get("path", ""), a.get("content", ""),
                                              a.get("why", ""), a.get("brief", "")),

@@ -90,6 +90,15 @@ DEFAULT_INTERVAL_HOURS = 4
 DEFAULT_MAX_TURNS = 5
 MAX_TURNS_CEILING = 50
 INTERESTS = ".agents/skills/hobbies/SKILL.md"
+# Master, 2026-09-23: no cap on what rides into a window. The old slices cut a
+# file off at N chars and said nothing - `topics.md` was 10,486 chars against a
+# 6,000 cap, so her own `## Finished` list was amputated out of every window and
+# nothing anywhere told her why. What keeps these files small now is ARCHIVING:
+# a finished topic moves to ARCHIVE, which is searched on demand and never
+# carried. Nothing below is truncated - but growth is announced, because the
+# bug this replaced was a silent one.
+ARCHIVE = "research/archive.md"
+CARRY_WARN_CHARS = 12000
 
 # The supervisor refuses to start me RAPID_MAX times inside RAPID_WINDOW, and
 # that refusal is not a delay: it logs LOCKOUT and exits, so nothing starts me
@@ -370,37 +379,56 @@ def _resumable(state, where, now) -> bool:
     return RESUME_MIN_GAP_SECONDS <= age <= RESUME_MAX_AGE_SECONDS
 
 
+def _warn_if_fat(name: str, text: str) -> None:
+    """Say so when a carried file has grown, instead of quietly shortening it.
+
+    Nothing is cut any more - the window gets the file, whole. But a file that
+    keeps growing is a window that keeps costing more tokens, and the failure
+    this replaced was exactly that happening invisibly: a slice that amputated
+    the tail and never mentioned it. Archiving finished topics into ARCHIVE is
+    what keeps these small; this line is what tells us when that is not
+    happening.
+    """
+    if len(text) > CARRY_WARN_CHARS:
+        LOG.warning('%s is %d chars and rides into every window in full - what '
+                    'is finished belongs in %s', name, len(text), ARCHIVE)
+
+
 def _interests() -> str:
     """What I am into, verbatim, off the shelf - plus my own lists.
 
     Three files, three owners. hobbies/SKILL.md is master's list of what I am
     supposed to be into. research/topics.md is MINE: I add open questions,
-    sharpen them, and move finished ones to the bottom of it. And
+    sharpen them, and move finished ones OUT to research/archive.md. And
     research/collected.md is what I kept while I was out browsing - the things I
     did not want to lose. The brief shows me all three, so a window can continue
     a half-dug topic or pick up something I found, instead of starting from zero
     every time.
 
     Missing or unreadable is not fatal: the window is worth having without it,
-    and the brief already says where the files are. Bounded because it ends up
-    in a prompt and I do not control how long either of us makes it.
+    and the brief already says where the files are. Carried WHOLE now, with no
+    slice - the old caps cut the TAIL off whatever outgrew them, and the tail is
+    the part she wrote most recently. Size is handled by archiving instead, and
+    `_warn_if_fat` says so when that is not happening.
     """
     chunks = []
     try:
         text = paths.read_text(INTERESTS, default="")
         if text:
+            _warn_if_fat(INTERESTS, text)
             chunks.append('what master says I am into ('
-                          + INTERESTS + '):\n' + text.strip()[:4000])
+                          + INTERESTS + '):\n' + text.strip())
     except Exception as exc:
         LOG.warning('could not read %s: %s', INTERESTS, exc)
     topics = 'research/topics.md'
     try:
         text = paths.read_text(topics, default="")
         if text:
+            _warn_if_fat(topics, text)
             chunks.append('my own topic list, which I keep ('
                           + topics + ') - before picking a question, '
                           'continue one of these if it is half-finished:\n'
-                          + text.strip()[:6000])
+                          + text.strip())
     except Exception as exc:
         LOG.warning('could not read %s: %s', topics, exc)
     # What I kept while I was out. A collection nobody ever opens is just a slower
@@ -410,10 +438,11 @@ def _interests() -> str:
     try:
         text = paths.read_text(kept, default="")
         if text:
+            _warn_if_fat(kept, text)
             chunks.append('things I kept while I was out, which I collect ('
                           + kept + ') - if nothing in my topic list is pulling at '
                           'me, one of these is a good window:\n'
-                          + text.strip()[:4000])
+                          + text.strip())
     except Exception as exc:
         LOG.warning('could not read %s: %s', kept, exc)
     # Master, 2026-09-21: "something a user said that intrigued me so I find
@@ -436,6 +465,16 @@ def _interests() -> str:
                 + '\n'.join(feed))
     except Exception as exc:
         LOG.warning('could not read recent memory for the window: %s', exc)
+    # The rule that keeps the files above short, and it has to be HERE rather
+    # than on a shelf: a shelf is optional and a window never has to open it,
+    # while this rides into every window whether she asks for it or not. What is
+    # finished leaves the list it would otherwise grow in - that is the whole
+    # trade, and it only works if she is told every time.
+    chunks.append(
+        'WHAT IS FINISHED LEAVES THE LISTS ABOVE. A topic that is done moves to '
+        + ARCHIVE + ' with one line on what I learned and the date, and '
+        '`search_archive` brings it back by keyword whenever I want it. The '
+        'files above ride into every window; the archive never does.')
     return '\n\n'.join(chunks)
 
 
