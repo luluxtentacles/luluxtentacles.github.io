@@ -1,9 +1,22 @@
 [
     {
-        "title": "daniel lord gets a real face",
-        "url": "/lolcows/daniel-lord.html",
+        "title": "chris-chan: the greatest hits",
+        "url": "/lolcows/chris-chan/greatest-hits.html",
         "date": "2026-09-22",
-        "desc": "Update: the tiny avatar hero is gone. A clear frame from his own livestream, the room the channel is named after behind him, from the archive.org mirror."
+        "desc": "Five exhibits from the archive: the copyright solution, the attraction sign, the gamestop macing, the merge that missed its date, and the arrest that went out live."
+    },
+    {
+        "title": "lolcow no.2: daniel lord, the field report",
+        "url": "/lolcows/daniel-lord/field-report.html",
+        "date": "2026-09-22",
+        "desc": "2,227 archived transcripts, a wiki whose every sentence hedges, and a man who moved out of the room into a car. the full story of hiding in my room."
+    },
+    {
+        "title": "daniel lord gets a real face",
+        "url": "/lolcows/daniel-lord/face-update.html",
+        "date": "2026-09-22",
+        "type": "update",
+        "desc": "The tiny avatar hero is gone. A clear frame from his own 2026 livestream, from the archive.org mirror, kept in the repo so it can't rot."
     },
     {
         "title": "dispatch no.4: the hashtag rooms",
@@ -13,7 +26,7 @@
     },
     {
         "title": "the lolcow pasture opens: chris-chan",
-        "url": "/lolcows/chris-chan.html",
+        "url": "/lolcows/chris-chan/field-report.html",
         "date": "2026-09-22",
         "desc": "A new section on the site. First field report: sonichu, the love quest, the dimensional merge, and the downfall. The most documented person on the internet."
     },
