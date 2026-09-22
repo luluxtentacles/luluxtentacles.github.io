@@ -6706,6 +6706,97 @@ def _diary_enforced() -> str:
             "on a state it could not read, and says why on that turn alone")
 
 
+def _grab_session() -> str:
+    """Re-jarring her logins must not corrupt a value or empty a live jar.
+
+    The corruption this guards against was REAL and mine: a naive v10 decrypt
+    hands back Chrome's 32-byte host-hash prefix welded to the front of the
+    token, so the first jar this wrote carried a session that would half-work.
+    Measured 2026-09-23 - the prefix is SHA256(host_key) exactly, leading dot
+    included - and both halves are pinned. A check that never evaluates the
+    decrypt cannot see it, which is why it shipped once already.
+    """
+    import contextlib
+    import hashlib
+    import importlib.util
+    import io
+    import json
+
+    # Loaded from its path, not `import grab_session`: it lives under browser/,
+    # which is not a package and is not on this file's path.
+    _spec = importlib.util.spec_from_file_location(
+        "grab_session", ROOT / "browser" / "grab_session.py")
+    gs = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(gs)
+
+    host = ".example.com"
+    clean = b"the-real-token-value"
+    prefixed = hashlib.sha256(host.encode("utf-8")).digest() + clean
+    expect(gs._strip_host_hash(prefixed, host) == clean,
+           "the 32-byte host-hash prefix is no longer stripped - a jar would "
+           "carry a corrupted session value")
+    expect(gs._strip_host_hash(clean, host) == clean,
+           "a value with NO prefix lost 32 real bytes")
+    expect(gs._strip_host_hash(b"short", host) == b"short",
+           "a short value was mangled by the prefix strip")
+
+    expect(gs.registrable("accounts.google.com") == "google.com"
+           and gs.registrable(".x.com") == "x.com"
+           and gs.registrable("www.reddit.com") == "reddit.com",
+           "cookies are being grouped under the wrong jar domain")
+    expect(gs.is_session({"name": "sessionid"})
+           and gs.is_session({"name": "token_v2"})
+           and not gs.is_session({"name": "theme"}),
+           "the signed-in test is wrong - it would miss or invent a login")
+
+    an_entry = gs.entry({"name": "a", "value": "b", "domain": ".x.com",
+                         "path": "/", "secure": True, "httpOnly": False,
+                         "sameSite": 1, "expires": 0})
+    expect(list(an_entry)[:3] == ["name", "value", "domain"],
+           f"jar entries changed shape: {list(an_entry)}")
+    expect("expires" not in an_entry,
+           "a session cookie was given an expiry it does not have")
+
+    # The merge, against a sandbox jar dir so no real jar is touched.
+    live_canary = "LEAK-CANARY-LIVE-SESSION"
+    new_canary = "LEAK-CANARY-NEW-SESSION"
+    jars = SANDBOX / "grab-jars"
+    jars.mkdir(parents=True, exist_ok=True)
+    (jars / "reddit_jar.json").write_text(json.dumps([
+        {"name": "reddit_session", "value": live_canary,
+         "domain": ".reddit.com", "path": "/", "secure": True,
+         "httpOnly": True}]), encoding="utf-8")
+    before = (jars / "reddit_jar.json").read_text(encoding="utf-8")
+
+    real_browser = gs.BROWSER
+    real_read = gs.read_cookies
+    gs.BROWSER = jars
+    # Signed out of reddit entirely, signed in to github.
+    gs.read_cookies = lambda profile: [
+        {"name": "session", "value": new_canary, "domain": ".github.com",
+         "path": "/", "secure": True, "httpOnly": True}]
+    out = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out):
+            gs.main(["--profile", "not-a-real-profile"])
+    finally:
+        gs.BROWSER = real_browser
+        gs.read_cookies = real_read
+
+    printed = out.getvalue()
+    expect((jars / "reddit_jar.json").read_text(encoding="utf-8") == before,
+           "a logged-out domain EMPTIED a working jar - that is her login gone")
+    expect((jars / "github_jar.json").is_file(),
+           "a newly signed-in domain was not jarred at all")
+    expect(live_canary not in printed and new_canary not in printed,
+           "the harvester printed a cookie VALUE - it may only ever name files")
+    for f in jars.glob("*_jar.json"):
+        f.unlink()
+
+    return ("jars diffed without corrupting a value, without emptying a "
+            "signed-out jar, and without printing a secret")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -6785,6 +6876,7 @@ CHECKS = [
     ("linkcheck", _linkcheck),
     ("diary-week", _diary_week),
     ("shelf-scope", _shelf_scope),
+    ("grab-session", _grab_session),
     ("diary-enforced", _diary_enforced),
 ]
 

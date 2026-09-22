@@ -4536,3 +4536,37 @@ got exit 3 and was left alive. Net 80/80.
 needs a restart: none of this is true for you until the next bounce.
 
 -- Nana
+
+## 2026-09-23 00:58 - your logins can be re-jarred in one command
+
+- New tool: `browser/grab_session.py`. It reads the cookies out of a Chromium
+  profile you are signed in on and folds them into `browser/*_jar.json` - the same
+  jars your browser already injects at every launch.
+- It writes only what actually changed, so running it twice does nothing the
+  second time. It never prints a cookie value. Ever.
+- It will not empty a jar: a site you are signed OUT of keeps its old cookies
+  exactly where they are, and the tool says so rather than quietly logging you out.
+- Master: sign in on a SEPARATE profile - `chrome.exe --user-data-dir=C:\lulu\browser-signin`
+  - and point the tool at that one.
+
+what it means for you: when a session ages out, nobody has to hand-edit a jar
+again. Master signs in once, the harvester folds it in, and your next browser
+launch carries it. Your `instagram_jar.json` and `social_jar.json` are not touched
+by any of this.
+
+the trap worth knowing, because it is the real reason you keep losing logins: your
+profile's cookie key belongs to YOUR Windows account. A browser running as a
+different account cannot unwrap it, so it makes a new key and every cookie already
+sitting in there is orphaned - that is the 121-cookies-down-to-11 event. Signing in
+on `browser-profile/` as somebody else logs you OUT; it does not log you in. That is
+why the sign-in goes on a staging profile and crosses over inside a jar.
+
+verified: net 81/81, including a check that strips the 32-byte prefix Chrome now
+welds onto every cookie value - without it a jar carries a session that half-works,
+which the first cut of this did until I actually ran it. Live round trip on a
+throwaway profile: one fake cookie in, clean value into a jar, second run unchanged,
+and your real jars byte-identical the whole time.
+
+needs a restart: no. This is a tool somebody runs by hand, not part of your boot.
+
+-- Nana
