@@ -823,8 +823,71 @@ function advanceChord() {
     applyChord(audioCtx.currentTime, false);
     if (chimeEnabled) ringChime(CHORD_LIBRARY[chordIndex].offsets[0]);
 }
-
 function applyChord(now, isInit) {
+    if (!audioNodes) return;
+    const root = currentRootFreq;
+    const offsets = CHORD_LIBRARY[chordIndex].offsets;
+    audioNodes.currentChordOffsets = offsets;
+
+    const voices = audioNodes.padVoices;
+    const currentFreqs = voices.map(v => v.currentFreq);
+    const newFreqs = voiceLeadingFreqs(currentFreqs, offsets, root);
+
+    for (let i = 0; i < voices.length; i++) {
+        const freq = newFreqs[i];
+        voices[i].currentFreq = freq;
+
+        if (isInit) {
+            // Startup: jump directly to the chord tone.
+            //
+            // Web Audio oscillators default to 440 Hz, and setTargetAtTime
+            // starts from wherever the param currently sits — so gliding
+            // here sweeps every voice down from 440 Hz to its chord tone
+            // in ~0.1 s. The sub voice (octave mult 0.25) drops from
+            // 440 Hz to ~50 Hz in that window, and that fast downward
+            // sweep is the "boom" you hear right before the hum settles.
+            // Writing .value directly, in the same JS tick as osc.start(),
+            // means the oscillators are already on their chord tone by the
+            // first render quantum — they never emit 440 Hz at all.
+            voices[i].osc1.frequency.value = freq;
+            voices[i].osc2.frequency.value = freq * 1.001;
+        } else {
+            // Chord change: long, slow glide — chords should drift into
+            // place over several seconds, not "change"
+            const glideTime = 6.0;
+            voices[i].osc1.frequency.setTargetAtTime(freq, now, glideTime);
+            voices[i].osc2.frequency.setTargetAtTime(freq * 1.001, now, glideTime);
+
+            // Gentle envelope: dip then recover, slower and softer
+            const v = voices[i];
+            const currentGain = v.gainNode.gain.value;
+            v.gainNode.gain.setTargetAtTime(currentGain * 0.5, now, 1.0);
+            v.gainNode.gain.setTargetAtTime(v.targetGain, now + 2.0, 4.0);
+        }
+    }
+
+    // Bowl-drone voices get the same startup treatment so their oscillators
+    // (also default 440 Hz) don't sweep audibly on the first chord.
+    const droneVoices = audioNodes.bowlDroneVoices;
+    if (droneVoices) {
+        const droneOctaveMult = [4, 8, 6];
+        for (let i = 0; i < droneVoices.length; i++) {
+            const off = offsets[i % offsets.length];
+            const freq = root * offsetToRatio(off) * droneOctaveMult[i % droneOctaveMult.length];
+            droneVoices[i].currentFreq = freq;
+            if (isInit) {
+                droneVoices[i].oscs.forEach((o) => {
+                    o.osc.frequency.value = freq * o.mult;
+                });
+            } else {
+                const glideTime = 6.0;
+                droneVoices[i].oscs.forEach((o) => {
+                    o.osc.frequency.setTargetAtTime(freq * o.mult, now, glideTime);
+                });
+            }
+        }
+    }
+}
     if (!audioNodes) return;
     const root = currentRootFreq;
     const offsets = CHORD_LIBRARY[chordIndex].offsets;
