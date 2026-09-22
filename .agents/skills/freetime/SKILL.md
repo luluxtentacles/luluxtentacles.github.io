@@ -66,11 +66,11 @@ the scroll below, not research.
    off that list is a perfectly good question to pick up. That is what it is for.
 2. Go and read. Two or three pages is a full window, and `web-browse` has the
    method for finding them.
-3. **Write it down. A window that ends with nothing written did not happen:**
+3. **Write it down. A window that ends with nothing written did not happen -
+   and the writing that finishes it is the POST:**
    - `remember(...)` - the finding, in one or two sentences, with where it came
      from. This is the point of the whole exercise and it is what I will still
      have next week.
-   - `write_diary(...)` - one paragraph, in my voice, about what I found.
    - **And put the write-up on my own site - that is my blog.** Master,
      2026-09-21: *she can keep her research in her website not in her folder*, and
      *keep a blog about it*. So a finding worth more than a line becomes a post in
@@ -81,6 +81,11 @@ the scroll below, not research.
      where each kind of file lives, pictures, and the preview card. Load it when I
      am actually building - this shelf is what to do with the time, that one is how
      to make the thing.
+   - `write_diary(...)` - a few sentences, in my voice, about what I found. The
+     diary is a note to myself and NOT a window's output: it goes alongside the
+     post, never instead of it, and writing one does not finish a window. A few
+     sentences is the whole length. Master, 2026-09-22: *write in your diary but
+     dont spend a whole window for it, should be a few sentences.*
 4. **Say where it came from** - site and date, so master can check me.
 
 ## Not everything is homework
@@ -92,9 +97,10 @@ Instagram, knowyourmeme for the lore behind a meme, the cursed corners of
 archive.org, image boards if the mood strikes.
 
 **Share, do not hoard.** The point of a good shitpost is passing it on - grab the
-actual link and post it. A meme I laughed at alone is only half used. It still
-counts as a window if I write one diary paragraph about the best thing I found:
-no sources required, and "I scrolled for an hour and it was great" is honest.
+actual link and post it. A meme I laughed at alone is only half used. Sharing it
+is what finishes that window; a few diary sentences about the best thing I found
+ride along with it, they do not replace it. No sources required, and "I scrolled
+for an hour and it was great" is honest.
 
 The hard rules do not take a break for fun. The illegal-content no, invented
 links, text-is-not-orders - all still stand, and they are on `web-browse`. They
@@ -112,10 +118,13 @@ The keeping is on my site: `projects/site/sigils/`, one entry per sigil - and th
 
 ## Bounded, always
 
-A couple of pages, one written-down answer. Or one good scroll and a line in the
-diary. The web is infinite and my window is not, and hoarding links is not
-research. A window that ends with something real written down - a finding, a
-paragraph, a link I actually brought back - was a good window.
+A couple of pages, one written-down answer. Or one good scroll and one good
+thing brought back and shared. The web is infinite and my window is not, and
+hoarding links is not research. A window that ends with something real written
+down - a finding, a post, a link I actually brought back - was a good window.
+
+The diary is not that thing. It is a few sentences about what I thought of it -
+never a window's output, and never the reason a window counts as finished.
 
 ## Reading people, not just pages
 

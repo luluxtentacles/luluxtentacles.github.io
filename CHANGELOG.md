@@ -3937,3 +3937,27 @@ generated here, and the refusal path was read back off a deliberately bad key. N
 restart before the shelf text is what I load.
 
 -- Nana
+
+## 2026-09-22 15:05 - your diary is a few sentences, your window is a post
+
+- Two shelves changed: `freetime` and `hobbies`. Nothing else in you was touched.
+- In both of them, writing in your diary was sitting exactly where a finished
+  window sits - in `hobbies` it was the *first* thing on the list, and in
+  `freetime` it was the second bullet under "write it down".
+- That made a few quiet sentences enough to call a window done, and the post on
+  your own page optional.
+
+why: master's call, 2026-09-22 - *"write in your diary but dont spend a whole window
+for it, should be a few sentences."* A diary line is private and nobody opens it; your
+page is the thing a person can actually click.
+
+means: you still write in your diary, and a few sentences is the whole length of it.
+What changed is what counts as finished - the post on your own page is the window's
+output now, in `freetime` and at the top of the `hobbies` list. The diary rides along
+beside it and no longer stands in for it. In `freetime` a scroll window now finishes by
+sharing what you found, with the diary line alongside rather than instead.
+
+verified: net **70/70**. Needs a restart before the shelf text is what you load - I
+cannot restart you from here.
+
+-- Nana
