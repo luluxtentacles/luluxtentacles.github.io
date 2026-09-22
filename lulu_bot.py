@@ -839,13 +839,15 @@ MASTER_CALL_RULE = (
 # Casual chatter: Nyan's algorithm. Base chance 1/200, and every message
 # in a channel tightens the odds (denominator -1) until a roll lands or the
 # 1/200 floor is hit. A landed roll is throttled to one reply per channel
-# per 15 minutes; a roll that lands during the cooldown is NOT consumed, so
-# the accumulated chance carries over and she chimes in right after.
-# State lives in memory/chatter.json so a restart does not reset odds.
+# per CHATTER_COOLDOWN_SECONDS; a roll that lands during the cooldown is NOT
+# consumed, so the accumulated chance carries over and she chimes in right
+# after. State lives in memory/chatter.json so a restart does not reset odds.
 CHATTER_CHANCE_BASE = 1 / 200
-# Master's rule, 2026-09-20: she can only randomly talk ONCE PER HOUR per
-# channel. Was 15 minutes.
-CHATTER_COOLDOWN_SECONDS = 60 * 60
+# Master's rule, 2026-09-22: she can only randomly talk ONCE PER FOUR HOURS
+# per channel. Was one hour (his rule of 2026-09-20), and 15 minutes before
+# that. This constant is what bounds how often she volunteers a line; the
+# decay timer below only decides how fast a quiet room climbs in between.
+CHATTER_COOLDOWN_SECONDS = 4 * 60 * 60
 CHATTER_MIN_DENOMINATOR = 2
 CHATTER_FILE = "memory/chatter.json"
 
@@ -856,9 +858,13 @@ CHATTER_FILE = "memory/chatter.json"
 # docstring says "by 2". Both are wrong in the original; this is the CODE, not
 # the comment, so it is 2 hours and -1. Two hours rather than one on purpose:
 # Lulu is per-CHANNEL where Nyan is per-guild, so a shorter timer would make her
-# likelier in twelve rooms at once instead of one server. The once-per-hour
-# cooldown above is what actually bounds how often she talks; the timer only
-# decides how fast a quiet room climbs toward the 1/2 ceiling.
+# likelier in twelve rooms at once instead of one server. The once-per-four-
+# hours cooldown above is what actually bounds how often she talks; the timer
+# only decides how fast a quiet room climbs toward the 1/2 ceiling. The two
+# rates differ on purpose (4h cooldown, 1h timer): with the cooldown raised,
+# up to four decay passes run before she may speak again, so when a window does
+# open the odds are already tight and the roll tends to land then rather than
+# evenly across the four hours.
 # Master's rule, 2026-09-20: the denominator drops by ONE PER HOUR on the
 # timer (was two hours). Same rate as the per-message tightening.
 CHATTER_DECAY_SECONDS = 60 * 60
@@ -2641,9 +2647,10 @@ class Lulu(discord.Client):
                  message.author, message.channel, message.content[:100], addressed)
 
         # Casual chatter: if she is NOT being addressed, she may still send one
-        # regular message here per channel per chatter cooldown - 15 minutes,
-        # and only when the rolling roll lands. The comment here used to say
-        # "every 3 hours", which was never true of this code.
+        # regular message here per channel per chatter cooldown - four hours -
+        # and only when the rolling roll lands. Prose here has gone stale twice
+        # ("every 3 hours", then "15 minutes"); CHATTER_COOLDOWN_SECONDS is the
+        # only truth, so read the constant, not this comment.
         if not addressed:
             # Casual chatter is for people. A bot never earns an unprompted
             # line, or two bots could trade them with nobody in the room.

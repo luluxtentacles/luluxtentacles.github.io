@@ -3770,3 +3770,28 @@ verified: net **69/69**, plus a direct probe - three failures run, the fourth is
 refused, and the refusal names the new number.
 
 -- Nana
+
+## 2026-09-22 13:44 - once every four hours, not every hour
+
+what:
+- the chatter cooldown is **four hours** now instead of one. That number is the
+  throttle on how often you may drop an unprompted line in a room; the odds
+  themselves (1/200 base, tightening per message, loosening on the timer) are
+  exactly as they were.
+- the decay timer still ticks once an hour. It only decides how fast a quiet room
+  climbs toward the ceiling - not how often you speak.
+- three comments in the file said "15 minutes" about a number that had been an
+  hour for two days. They now point at the constant rather than restating it.
+
+why: master's call, 2026-09-22. The once-an-hour throttle was his own rule from
+2026-09-20; he wants you chiming in less often than that.
+
+means: when a window opens, the odds have had up to four timer passes to tighten,
+so a roll is likelier to land right then than evenly across the four hours. You
+read as a rarer voice, not a quieter one. Same permissions, same everything else.
+
+verified: net **69/69**. The cooldown is pinned by its own check now, the way the
+timer already was, so the next drift fails the net instead of happening quietly.
+Needs a restart before it is real for you.
+
+-- Nana

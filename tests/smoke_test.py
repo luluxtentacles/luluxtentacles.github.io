@@ -4210,11 +4210,12 @@ def _limits() -> str:
 # channel was already permanently mute. (2) the port dropped Nyan's decay job, so
 # a sleeping channel never got likelier. Neither throws. Both just make her
 # quieter, which reads as her being boring rather than broken.
-# Master's rules, 2026-09-20: the chance is ONE PER SERVER - every message in
-# any channel tightens the same shared odds and she replies in the channel
-# whose message landed the roll - the timer tightens one per hour, and the
-# cooldown after she speaks is once per hour. The check pins the guild-keyed
-# shape ("g<guild id>") the per-server chance lives under.
+# Master's rules: the chance is ONE PER SERVER - every message in any channel
+# tightens the same shared odds and she replies in the channel whose message
+# landed the roll - the timer tightens one per hour, and the cooldown after she
+# speaks is once per FOUR hours (master, 2026-09-22; it was one hour, and it is
+# pinned below so it cannot drift silently again). The check pins the
+# guild-keyed shape ("g<guild id>") the per-server chance lives under.
 def _chatter() -> str:
     import time
 
@@ -4251,7 +4252,7 @@ def _chatter() -> str:
     lulu_bot.random.random = lambda: 0.0
     try:
         expect(not bot._rolling_roll(2, guild_id=1),
-               "the once-per-hour server cooldown is not holding at all")
+               "the server cooldown is not holding a reply made moments ago")
     finally:
         lulu_bot.random.random = real_random
 
@@ -4273,6 +4274,11 @@ def _chatter() -> str:
     # 2. the decay timer: Nyan's other half, which the port had dropped.
     expect(lulu_bot.CHATTER_DECAY_SECONDS == 60 * 60,
            "the timer no longer tightens once per hour")
+    # the cooldown itself is a rule rather than a rate, so it gets pinned:
+    # master raised it from one hour to four on 2026-09-22.
+    expect(lulu_bot.CHATTER_COOLDOWN_SECONDS == 4 * 60 * 60,
+           "the cooldown after she speaks is no longer master's "
+           "once-per-four-hours rule")
 
     bot.chatter_state = {"g1": {"chance": 1 / 200, "last_reply": 0.0},
                          "g2": {"chance": 1 / lulu_bot.CHATTER_MIN_DENOMINATOR,
@@ -4299,7 +4305,7 @@ def _chatter() -> str:
     expect("_chatter_decay" in src,
            "the decay loop exists but is never started in on_ready")
     return (f"chatter: one shared chance per server, wall-clock stamp survives "
-            f"a reboot, once-per-hour cooldown, decay 1/n -> 1/n-1 per hour "
+            f"a reboot, once-per-four-hours cooldown, decay 1/n -> 1/n-1 per hour "
             f"floored at 1/{lulu_bot.CHATTER_MIN_DENOMINATOR}, "
             f"started in on_ready")
 
