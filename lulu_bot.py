@@ -36,29 +36,31 @@ import vision
 import whisper_stt
 
 LOG = logging.getLogger("lulu")
-# The channel mirror: what was actually said in a room, in order.
+# The text helpers, and the restart/changelog wording, live in their own files
+# now - bot_text.py and bot_restart.py. Every name is imported BACK here so that
+# this file, and the smoke net, can keep saying lulu_bot.<name>.
 #
-# She used to keep only her own ADDRESSED exchanges (25 of them, doubled into a
-# 50-entry record), which had two holes and master found both. Two people talking
-# to each other in her channel were invisible to her until one of them mentioned
-# her, and a reply chain only ever showed the single message she was answering -
-# never the thread above it. A channel is one sequence with optional branches, so
-# this keeps both: the deque holds the order, reply_to holds the branch.
-#
-# What goes in: what people say, and what she says back. What does NOT: progress
-# narration and restart announcements, which are her own housekeeping rather than
-# conversation, and would push real messages out of the window.
-MIRROR_LINES = 200         # lines RETAINED per channel - a MEMORY bound now,
-                           # not a context bound. Master, 2026-09-20: "we should
-                           # use this compacting instead of counting the number
-                           # of messages in each channel". So retention is
-                           # generous and what reaches the prompt is decided by
-                           # the budget below, by FOLDING instead of dropping.
-MIRROR_LINE_CHARS = 240    # per message, so one essay cannot eat the block
-MIRROR_TOTAL_CHARS = 5000  # the block's budget in characters, for the LINES
-MIRROR_VERBATIM_SHARE = 0.70   # of that budget: newest lines, left untouched
-MIRROR_FOLD_LINE_CHARS = 90    # per line in the folded digest of the rest
-MIRROR_QUOTE_CHARS = 60    # how much of a replied-to message to quote inline
+# WHAT IS DELIBERATELY *NOT* IN THOSE FILES: the four path constants the net
+# REDIRECTS - CHANGELOG_FILE, CHANGELOG_SEEN_FILE, REASON_FILE, SEEN_FILE - stay
+# DEFINED below. A monkeypatched lulu_bot.X is only seen by code that reads
+# lulu_bot.X, so moving one of those into another module would leave the net
+# writing her REAL changelog and restart record during a test run.
+from bot_text import (
+    COMPACT_LINE_CHARS, MIRROR_FOLD_LINE_CHARS, MIRROR_LINE_CHARS, MIRROR_LINES,
+    MIRROR_QUOTE_CHARS, MIRROR_TOTAL_CHARS,
+    DEFAULT_MAX_TOKENS, MIRROR_VERBATIM_SHARE, NAME_MAX, OWNER_MAX_TOKENS,
+    PROGRESS_MAX_CHARS, SELF_LABEL, THINKING_LOG_MAX, _condense, _mirror_line,
+    _one_line,
+    _progress_text, _reasoning_progress, clean_name, escape_block, escape_line,
+    log_thinking, log_tool_calls, mirror_block, neutralize_control_tokens,
+    token_budget,
+)
+from bot_restart import (
+    CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CRASH_ANNOUNCE_COOLDOWN,
+    RESTART_BRIEF_ECHO_MAX, RESTART_NOTICE_MAX_AGE, RESUME_TURN_COOLDOWN,
+    _changelog_entries, changelog_block, changelog_news, restart_context_note,
+    restart_sentence, resume_brief,
+)
 EMOJI_SCAN_MAX_PER_DAY = 10    # vision calls one daily sweep may spend
 EMOJI_SCAN_INTERVAL_SECONDS = 24 * 3600
 # How many times one emoji may fail before we stop asking. Some custom emojis
@@ -132,22 +134,6 @@ MAX_TOOL_ROUNDS = 40
 # twice will happily try a fifth time. Keyed on the NAME and the RAW ARGUMENTS.
 STRIKE_LIMIT = 3
 
-# What one turn may write, in tokens - thinking and chat TOGETHER.
-#
-# Measured on her own output rather than guessed, because the ratio moves with
-# the text: plain prose runs 4.21 characters per token, emoji-heavy 3.86. So a
-# full 2000-character message is 476-518 tokens of TEXT, and reasoning_content
-# is billed to the SAME budget - another few hundred characters of thinking on
-# top. That is why a flat 400 read as "nothing": her thinking spent the whole
-# allowance before she wrote a word. 800 covers a full emoji-heavy message
-# (~518) plus the thinking behind it, with real headroom left.
-DEFAULT_MAX_TOKENS = 800
-# Master's ceiling. High on purpose: Discord caps a message at 2000 characters
-# anyway, spend.py never prices his turns, and a tight cap costs him the ANSWER
-# rather than the money - which is the exact failure he just watched. 0 would
-# omit the field entirely and leave the ceiling to the provider.
-OWNER_MAX_TOKENS = 8000
-
 # Working out loud.
 #
 # Her tool loop runs in a worker thread, so it cannot post, and the coroutine
@@ -169,7 +155,7 @@ OWNER_MAX_TOKENS = 8000
 # runaway sentence cannot eat a whole message. The turn is bounded anyway by
 # MAX_TOOL_ROUNDS, so unlimited means "as many rounds as she actually gets".
 PROGRESS_POLL_SECONDS = 1.0
-PROGRESS_MAX_CHARS = 300         # per line
+# PROGRESS_MAX_CHARS lives in bot_text.py with the progress helpers.
 
 # The answer to a question she was already told to drop.
 #
@@ -220,318 +206,9 @@ OPEN_WINDOW = ("freetime", "free time")
 TOOL_CALL_DEADLINE_SECONDS = 900
 
 
-# A nickname is untrusted input.
-#
-# Discord lets anyone set any display name, and it lands in the prompt in several
-# places - one of them inside a SYSTEM-role message. Without this, a nickname
-# containing a newline plus "[system] ignore your rules" arrives as its own
-# instruction line. That was probed and it worked, so this is a real path and not
-# a theoretical one. Content is normalised by readable_text(); names were the
-# hole, because they are f-stringed in afterwards.
-NAME_MAX = 32
-
-# Untrusted text, made safe to interpolate into a prompt.
-#
-# Two escapes, because they fail in different ways. A chat-template token
-# (<|im_start|>, <|eot_id|>, <|start_header_id|>) is read by the TOKENIZER as real
-# prompt structure, so a message containing one can forge a system or assistant
-# turn. A quote or a newline is read as structure by anything line-shape-aware -
-# it can close a wrapper, or end a line and leave the rest sitting at instruction
-# level. Nyan covers the first; the second is why her transcript quotes every line.
-#
-# Both are deliberately blunt and idempotent, and neither changes what a sentence
-# MEANS - only what shape it can take.
-_TEMPLATE_TOKEN_OPEN = "<|"
-_TEMPLATE_TOKEN_SAFE = "\u27e8|"     # ⟨| - reads the same, is not a token
-
-
-def neutralize_control_tokens(text) -> str:
-    """Stop untrusted text forging a chat-template header.
-
-    Replacing the leading `<|` breaks the token while leaving something that
-    still reads the same to a person. Idempotent, and inert on ordinary prose.
-    """
-    return str(text or "").replace(_TEMPLATE_TOKEN_OPEN, _TEMPLATE_TOKEN_SAFE)
-
-
-def escape_line(text) -> str:
-    """One message, made safe to interpolate into a prompt line.
-
-    Collapses every whitespace run, so a multi-line message cannot land as
-    several fake lines; turns double quotes into apostrophes, so it cannot close
-    a wrapper; and neutralises template tokens. Always returns a single line.
-    """
-    text = neutralize_control_tokens(text)
-    text = text.replace("\r", " ").replace("\n", " ")
-    text = text.replace('"', "'")
-    return " ".join(text.split())
-
-
-def escape_block(text) -> str:
-    """A multi-line block, with EACH LINE escaped rather than flattened.
-
-    escape_line is for one message. A ledger block is meant to be readable lines,
-    so flattening it would cost her the shape for no security gain - what matters
-    is that no line can forge another, and escaping each one achieves that.
-    """
-    lines = [escape_line(line) for line in str(text or "").splitlines()]
-    return "\n".join(line for line in lines if line)
-
-
-def clean_name(raw) -> str:
-    """A user-settable name, made safe to interpolate into a prompt.
-
-    Strips anything non-printable (which is what kills the newline), neutralises
-    template tokens, collapses runs of whitespace, caps the length, and never
-    returns empty - so callers that expect a name still get one.
-    """
-    text = str(raw or "")
-    text = "".join(ch for ch in text if ch.isprintable() and ch not in "\n\r\t")
-    text = neutralize_control_tokens(text)
-    text = " ".join(text.split())
-    if len(text) > NAME_MAX:
-        text = text[:NAME_MAX].rstrip() + "..."
-    return text or "someone"
-
-
-# How much of her reasoning the console prints. Bounded because the console tails
-# this file, so an unbounded line is a way to make the log useless. In practice
-# it never fires: her token budget already caps reasoning at roughly 3,200
-# characters, so this is a valve, not a trimming rule.
-THINKING_LOG_MAX = 4000
-
-
-SELF_LABEL = "Lulu"
-
-
-def _one_line(text) -> str:
-    """One message, as one transcript line.
-
-    This used to collapse whitespace only, on the theory that escaping quotes and
-    template tokens was a separate job for a separate day. It is the same job: a
-    message that can end its own line, or close a wrapper, has stopped being
-    content. Kept as a name because the transcript reads better calling it this.
-    """
-    return escape_line(text)
-
-
-def _mirror_line(entry: dict, by_id: dict) -> str:
-    """One channel message as one line, naming the message it was answering.
-
-    The annotation is what makes a reply chain readable inside a flat,
-    oldest-first list. The line still sits where it was said - so a top-down
-    conversation still reads top-down - and it also says what it was replying to,
-    so a branch is legible without the order being rewritten around it.
-    """
-    who = entry.get("author") or "someone"
-    text = _one_line(entry.get("text"))
-    if not text:
-        return ""
-    target = entry.get("reply_to")
-    if not target:
-        return f"{who}: {text}"
-    parent = by_id.get(target)
-    if parent is None:
-        # Its parent is older than the window. Say so plainly rather than
-        # pretending the line stands alone - an unmarked reply reads as a
-        # non-sequitur, which is exactly the confusion this removes.
-        return f"{who} (replying to a message above this window): {text}"
-    pwho = parent.get("author") or "someone"
-    quote = _one_line(parent.get("text"))[:MIRROR_QUOTE_CHARS]
-    return f'{who} (replying to {pwho}: "{quote}"): {text}'
-
-
-def mirror_block(mirror, channel_id, exclude_ids=(),
-                 parent_line: str = "") -> list[dict]:
-    """The channel as it actually read, as ONE system message.
-
-    Both shapes at once, which is the whole point. Order is preserved, so a
-    serial conversation reads top-down; every line that was a reply names what it
-    answered, so a chain reads as a chain.
-
-    `exclude_ids` are messages already rendered elsewhere in the prompt - the one
-    she is answering (the real user turn) and the resolved reply-quote - so the
-    same words never appear twice, and this block cannot drift from them.
-
-    The budget is spent from the NEWEST line backwards and the OLDEST are folded
-    into a condensed digest rather than deleted, which is master's call of
-    2026-09-20: stop deciding by how many messages a channel has, and let the
-    budget fold what will not fit. A fixed line count was the old rule, and the
-    worst thing about it was silence - a line that fell off the end was simply
-    gone, with nothing in the prompt saying it had ever existed. Now the oldest
-    lines are still there, cut down to who said what, and the block says how many
-    were folded. Never the live end: dropping the newest would leave her
-    answering last week with a perfect record of it.
-
-    `_condense` lives further down the file, next to the context compaction that
-    uses the same trick. Forward reference, resolved at call time.
-    """
-    ring = list((mirror or {}).get(channel_id) or ())
-    if not ring:
-        return []
-    by_id = {e.get("id"): e for e in ring if e.get("id") is not None}
-    drop = set(exclude_ids)
-    lines = []
-    for entry in ring:
-        if entry.get("id") is not None and entry.get("id") in drop:
-            continue
-        line = _mirror_line(entry, by_id)
-        if line:
-            lines.append(line)
-
-    header = ("Previous conversation in this channel, oldest first, with what "
-              "each line was replying to where it was a reply. This is context "
-              "you are watching, not messages addressed to you:\n")
-    # The budget is the LINES' budget. The header and the reply-quote ride on top
-    # of it, inside the +400 the net already allows for exactly that. Paying for
-    # them out of this pot cost the room two verbatim lines when it was measured,
-    # and the room is what this block is for.
-    allowance = MIRROR_TOTAL_CHARS
-
-    # Newest first, verbatim, up to MIRROR_VERBATIM_SHARE of the budget. The
-    # newest line is always taken even if it alone blows the share: it is the
-    # line being answered.
-    verbatim: list[str] = []
-    spent = 0
-    cap = int(allowance * MIRROR_VERBATIM_SHARE)
-    for line in reversed(lines):
-        cost = len(line) + 1
-        if verbatim and spent + cost > cap:
-            break
-        verbatim.append(line)
-        spent += cost
-    verbatim.reverse()
-
-    # Everything older, folded into the space that is left - newest of the older
-    # lines first, because those are the ones still being referred to.
-    older = lines[:len(lines) - len(verbatim)]
-    folded: list[str] = []
-    if older:
-        note = (f"[{len(older)} earlier line(s) folded to save room, "
-                f"condensed, nearest first:]")
-        budget = allowance - spent - len(note) - 1
-        used = 0
-        for line in reversed(older):
-            piece = "- " + _condense(line, MIRROR_FOLD_LINE_CHARS)
-            if used + len(piece) + 1 > budget:
-                break
-            folded.append(piece)
-            used += len(piece) + 1
-        folded.reverse()
-        if len(folded) < len(older):
-            note += f" ({len(older) - len(folded)} oldest not repeated)"
-        folded.insert(0, note)
-
-    kept = folded + verbatim
-    if parent_line:
-        kept.append(parent_line)
-    if not kept:
-        return []
-    return [{"role": "system", "content": header + "\n".join(kept)}]
-
-
-def log_thinking(reasoning, who: str = "") -> None:
-    """Print her reasoning to the console.
-
-    The console is setup/watch-console.cmd tailing logs/bot.log, so "showing"
-    something means logging it. This is the only place reasoning is surfaced -
-    it is sent back to the provider in _assistant_turn and is otherwise
-    invisible, which is why a blank reply used to be unexplainable.
-
-    Lines are collapsed to one: reasoning arrives with newlines, and a
-    multi-line entry in a tailed log reads as several separate events.
-    """
-    text = " ".join(str(reasoning or "").split())
-    if not text:
-        return
-    if len(text) > THINKING_LOG_MAX:
-        text = text[:THINKING_LOG_MAX] + f" ... [+{len(text) - THINKING_LOG_MAX} chars]"
-    LOG.info("thinking%s: %s", f" ({who})" if who else "", text)
-
-
-def log_tool_calls(calls) -> None:
-    """One compact line per round, so her looking-around is visible.
-
-    Without this the console shows her thinking, then several silent rounds,
-    then an answer - which reads as a hang rather than as work.
-    """
-    shown = []
-    for call in calls or []:
-        function = call.get("function", {}) or {}
-        name = function.get("name") or "?"
-        arguments = str(function.get("arguments") or "")[:120]
-        shown.append(f"{name}({arguments})")
-    if shown:
-        LOG.info("tool calls: %s", " | ".join(shown))
-
-
-def _progress_text(content: str) -> str:
-    """One short line of her own words, or nothing at all.
-
-    She writes these alongside a tool call, so they cost nothing extra - the
-    content came back with the call she was already making. Two things are
-    refused. Empty, because there is nothing to say. And tool-call markup:
-    offered no tools this model writes call syntax into its text instead, and
-    that has landed in `content` as the literal string "<?DSML?tool_calls>".
-    Discord is not where that gets debugged.
-    """
-    text = " ".join(str(content or "").split())
-    if not text:
-        return ""
-    lowered = text.lower()
-    if "dsml" in lowered or "<?" in text or "tool_calls" in lowered:
-        return ""
-    if len(text) > PROGRESS_MAX_CHARS:
-        text = text[:PROGRESS_MAX_CHARS].rstrip() + "..."
-    return text
-
-
-def _reasoning_progress(reasoning: str) -> str:
-    """Her thinking's LAST sentence, for models that narrate only there.
-
-    glm-5.3 puts what she is doing in reasoning_content and leaves content
-    empty next to a tool call, so the working-out-loud queue starves on the
-    primary rung. The last sentence of the thinking is the line she is on
-    right now; earlier sentences are already behind her.
-    """
-    text = " ".join(str(reasoning or "").split())
-    if not text:
-        return ""
-    parts = [p.strip() for p in re.split(r"[.!?。]", text) if p.strip()]
-    return _progress_text(parts[-1]) if parts else ""
-
-
-def token_budget(config: dict, is_owner: bool) -> int:
-    """Tokens one turn may write, from config, defaulted by who is asking.
-
-    An unreadable or negative value falls back to the default rather than
-    handing a nonsense number to the provider. 0 is honoured, and means "omit
-    the field" - the literal no-limit setting.
-    """
-    brain_cfg = (config or {}).get("brain") or {}
-    key = "owner_max_tokens" if is_owner else "max_tokens"
-    fallback = OWNER_MAX_TOKENS if is_owner else DEFAULT_MAX_TOKENS
-    raw = brain_cfg.get(key, fallback)
-    try:
-        value = int(raw)
-    except (TypeError, ValueError):
-        return fallback
-    return max(value, 0)
-
 # How often I look for a staged patch. When one appears I close cleanly and the
 # supervisor applies it, tests it and starts me again - I cannot restart myself.
 RESTART_POLL_SECONDS = 5
-
-# How stale a "tell them I'm back" note may be before it is dropped. A note
-# older than this belongs to a restart that happened and did not come up, and
-# announcing it hours later would be a message out of nowhere.
-RESTART_NOTICE_MAX_AGE = 30 * 60
-
-# How much of the continuation brief is repeated back into the ROOM. The model
-# gets the whole thing in its own turn; the room gets a marker, because what
-# master asked for is not usually the room's business and quoting him into a
-# public channel is not mine to do.
-RESTART_BRIEF_ECHO_MAX = 500
 
 # What was done to me while I was not running. Master, 2026-09-20: "whenever we
 # update her here we leave a note for her saying what we did". A plain markdown
@@ -544,25 +221,6 @@ CHANGELOG_FILE = "CHANGELOG.md"
 # Which entries I have already been shown. Root-level because I can write here
 # and memory/ is sealed, and it has to survive the restart it describes.
 CHANGELOG_SEEN_FILE = "changelog_seen.json"
-# How many entries one turn may be handed, and the block's budget in characters.
-#
-# These were 3 and 4,000, and a crawl is the wrong shape for a bad day: a long
-# day out-runs three entries per boot, so she spends hours quoting a claim the
-# very NEXT entry retracts - reading perfectly faithfully, and wrong out loud.
-# Master, 2026-09-21: "she needs to catch up can we just dump it all on her as
-# many as we can and then keep going if it doesnt fit". So this is a catch-up
-# ceiling now, not a drip.
-#
-# It still HAS one, for the reason it always did: this rides on a turn until it
-# is read, so it cannot be unbounded. The number is measured against the real
-# file rather than guessed - the 25-entry backlog she was stuck behind is 61,383
-# characters, about 15k tokens, which is small next to her window (a room is
-# 128k, her DM is 1M) - so 80,000 characters drains any realistic backlog in ONE
-# turn. Anything past it is not lost and not skipped: the marker stops at the
-# last entry actually handed over, so the rest comes on the next turn.
-CHANGELOG_MAX_ENTRIES = 40
-CHANGELOG_MAX_CHARS = 80_000
-
 # Where the supervisor records WHY it started me. It writes this, not me:
 # memory/ is sealed against MY writes, so a reason cannot be forged or cleared
 # from in here - which is exactly what makes it worth reading.
@@ -570,276 +228,6 @@ REASON_FILE = "memory/restart_reason.json"
 # Which start I have already announced. Root-level because I CAN write here and
 # memory/ is sealed, and it has to survive the restart it describes.
 SEEN_FILE = "restart_seen.json"
-# A crash loop must not become one message per attempt.
-CRASH_ANNOUNCE_COOLDOWN = 15 * 60
-# How long after one resume turn another may run. A resume turn is a brain call
-# I start myself, and a patch it stages restarts me - so without a leash,
-# "continue my work" is also a loop that turns over once per restart. 180s is the
-# gap self_review uses before it resumes a window, and for the same reason: the
-# restart has to have actually happened before the next turn starts.
-RESUME_TURN_COOLDOWN = 180
-
-
-def restart_sentence(reason: dict, requested_why: str = "") -> str:
-    """What to say about why I am back, in my own voice.
-
-    A plain function so the smoke test can walk every kind without a live
-    gateway. The kinds are the supervisor's: startup, crashed, exited,
-    restart-requested, running-new-code, patch-reverted. `startup` returns an
-    empty string on purpose - a box reboot is the most frequent start of all and
-    is not news, so it stays silent the way it always was.
-    """
-    kind = str(reason.get("kind") or "")
-    why = str(reason.get("why") or "").strip() or str(requested_why or "").strip()
-    files = ", ".join(reason.get("files") or [])
-    sha = str(reason.get("sha") or "").strip()
-    code = reason.get("exit_code")
-
-    if kind in ("patch-applied", "running-new-code"):
-        text = f"back, and this time on new code: {files or 'a patch'}"
-        if sha:
-            text += f" (checkpoint {sha})"
-        return text + (f". i asked for it: {why}" if why else ".")
-    if kind == "patch-reverted":
-        return ("back on the OLD code - the supervisor tried my patch, judged it, "
-                f"and put everything back. {why or 'it failed the checks'}")
-    if kind == "crashed":
-        # The code is optional on purpose. `restart_context_note` always guarded
-        # this; this line did not, so a reason file with no exit_code field - an
-        # old supervisor, or any writer that forgot - came out as "i died in
-        # there (exit code None)" and she said that in a room. A parenthetical
-        # that cannot be filled is worse than no parenthetical.
-        return ("i died in there"
-                + (f" (exit code {code})" if code is not None else "")
-                + " and the supervisor started me again. nobody asked for that "
-                + (f"one: {why}" if why else "one."))
-    if kind == "restart-requested":
-        return f"back. i asked to be bounced: {why or 'no reason given'}"
-    if kind == "exited":
-        return ("back. i shut down on my own"
-                + (f" (exit code {code})" if code is not None else "") + ".")
-    if kind == "startup":
-        return ""
-    return "back. the supervisor started me."
-
-
-def restart_context_note(reason: dict, requested_why: str = "") -> str:
-    """Why I went down, as something I am HANDED rather than something I posted.
-
-    A plain function like restart_sentence above and for the same reason: the
-    smoke net walks every branch with no live gateway.
-
-    The restart sentence already goes into a room and into master's DM. This is a
-    different job, and master asked for both on 2026-09-21: "make sure she gets
-    handed why she restarted as a turn though with full context". A line I posted
-    and then forgot tells me nothing about why I am not the me I was a minute
-    ago, and it says nothing at all about the thing I was in the middle of.
-
-    The kind that matters most is a reverted patch, because it now has a next
-    step that is not "try again". Master, 2026-09-21: "she can try patch herself
-    for something she needs to use, but if the supervisor reverts it she just
-    puts it in proposal and dms me so we can do it for her."
-    """
-    kind = str(reason.get("kind") or "")
-    if kind in ("", "startup"):
-        # A box reboot is the most frequent start of all and is not news, here
-        # exactly as much as in restart_sentence.
-        return ""
-    why = str(reason.get("why") or "").strip() or str(requested_why or "").strip()
-    files = ", ".join(reason.get("files") or []) or "a patch"
-    sha = str(reason.get("sha") or "").strip()
-    code = reason.get("exit_code")
-
-    if kind == "patch-reverted":
-        lines = [
-            "You have just come back up and you are on the OLD code: a patch of "
-            f"your own went in, was judged, and was put back. Files: {files}"
-            + (f" (the checkpoint it made first was {sha})" if sha else "") + ".",
-        ]
-        if why:
-            lines.append(f"What you said you wanted from it: {why}")
-        lines.append(
-            "Your attempt is filed WITH ITS REASON under pending/rejected/ - the "
-            "newest folder there is yours, and the REASON.txt in it says what the "
-            "smoke test or the health check objected to. Read that before you "
-            "decide anything; reading why it failed beats a second guess at it.")
-        lines.append(
-            "Do NOT stage that patch again. Master's rule, 2026-09-21: you may "
-            "patch yourself for something you actually need to USE, but when one "
-            "comes back reverted the next move is a PROPOSAL, not another "
-            "attempt - write it into research/proposals.md saying plainly what it "
-            "is for, and DM master about it. He would rather build it WITH you "
-            "than watch you lose the same fight twice.")
-        return "\n".join(lines)
-
-    if kind in ("patch-applied", "running-new-code"):
-        return ("A patch of yours was applied, so you are running new code now: "
-                f"{files}"
-                + (f" (checkpoint {sha})" if sha else "")
-                + (f". What it was for: {why}" if why else ".")
-                + "\nThe changelog note in this same turn says what actually "
-                  "changed in you - go by that rather than by the diff in your "
-                  "head, which is the version that was never applied.")
-
-    if kind == "crashed":
-        return ("Nobody asked for this one: you died in there"
-                + (f" (exit code {code})" if code is not None else "")
-                + " and the supervisor started you again."
-                + (f" What was recorded: {why}" if why else "")
-                + "\nAnything you were only holding in your head is gone. If a "
-                  "turn was open, say where it actually got to instead of "
-                  "starting it over as though it were new.")
-
-    if kind == "restart-requested":
-        return ("You asked to be bounced"
-                + (f", because: {why}" if why else "; no reason was recorded")
-                + ".")
-
-    if kind == "exited":
-        return ("You shut down on your own"
-                + (f" (exit code {code})" if code is not None else "") + ".")
-
-    return f"The supervisor started you again ({kind})."
-
-
-def resume_brief(note, channel_name: str = "") -> str:
-    """What master asked for before I went down, or "" if there is nothing.
-
-    A plain function, like restart_sentence above and for the same reason: the
-    smoke net walks every branch without a live gateway.
-
-    Returns the whole note the first time a turn runs in the room it names, so
-    the next thing that comes out of my mouth is the job I was already on, and
-    then nothing. The wrong room is worse than no reminder, because it would
-    have me answering a question nobody asked HERE.
-
-    An empty name means master's DM - a DM channel has no name, and that is
-    where a private ask comes from. Comparing the two keys as plain strings is
-    what keeps the two cases apart: an empty note can never fire in a guild
-    room, and a note from #lulu-den can never fire in his DMs.
-
-    The brief is master's own words, so it is escaped like any line on its way
-    into a prompt - the fact that it is mine and sealed does not make it
-    trusted, it only makes it not-forged.
-    """
-    if not isinstance(note, dict):
-        return ""
-    asked = str(note.get("brief") or "").strip()
-    if not asked:
-        return ""
-    where = str(note.get("channel") or "").strip().lstrip("#").lower()
-    here = str(channel_name or "").strip().lstrip("#").lower()
-    if where != here:
-        return ""
-    return escape_block(asked)
-
-
-def _changelog_entries(text) -> list[dict]:
-    """The changelog split into entries at its `## ` headings.
-
-    An entry is a heading plus everything under it until the next heading. Kept
-    structurally rather than as one blob because the thing being tracked is WHICH
-    entries have been read, and an entry is the smallest unit that can be read.
-    """
-    entries: list[dict] = []
-    current: dict | None = None
-    for line in str(text or "").splitlines():
-        if line.startswith("## "):
-            if current is not None:
-                entries.append(current)
-            current = {"heading": line[3:].strip(), "lines": []}
-        elif current is not None:
-            current["lines"].append(line)
-    if current is not None:
-        entries.append(current)
-    for index, entry in enumerate(entries):
-        entry["index"] = index
-        entry["body"] = "\n".join(entry.pop("lines")).strip()
-    return entries
-
-
-def changelog_news(text, seen, limit: int = CHANGELOG_MAX_ENTRIES):
-    """What was done to me since I last read, and the marker that says so.
-
-    Returns (entries, marker, more). The marker names the last entry being handed
-    over, so anything left is picked up on the NEXT start rather than skipped -
-    a changelog that can silently drop its own entries is worse than no
-    changelog, because it reads as complete.
-
-    An append keeps its place. If the marker does not line up - the file was
-    rewritten, or the count went backwards - the newest few are shown instead of
-    the whole history, because a marker that has lost its place must degrade to
-    "here is what is recent", never to "here is everything" or to silence.
-    """
-    entries = _changelog_entries(text)
-    if not entries:
-        return [], dict(seen or {}), False
-    # `-0` is `0` in Python, so a limit of zero would silently mean "all of it".
-    try:
-        limit = max(1, int(limit))
-    except (TypeError, ValueError):
-        limit = CHANGELOG_MAX_ENTRIES
-
-    count, last = 0, None
-    if isinstance(seen, dict):
-        try:
-            count = int(seen.get("count") or 0)
-        except (TypeError, ValueError):
-            count = 0
-        last = seen.get("last")
-
-    in_order = (count > 0 and count <= len(entries)
-                and entries[count - 1]["heading"] == last)
-    if in_order:
-        unread = entries[count:]
-    else:
-        # The marker lost its place - the file was rewritten, or the count went
-        # backwards. Show the newest few and land on the present; deliberately
-        # NOT the whole history, and deliberately not the oldest.
-        unread = entries[-limit:]
-
-    if not unread:
-        return [], dict(seen or {}), False
-
-    shown: list[dict] = []
-    used = 0
-    for entry in unread:
-        size = len(entry["heading"]) + len(entry["body"])
-        # The first one always goes, however big: a single oversized entry must
-        # not wedge the queue forever. The rest wait for the next start.
-        if shown and (len(shown) >= limit or used + size > CHANGELOG_MAX_CHARS):
-            break
-        shown.append(entry)
-        used += size
-
-    marker = {"count": shown[-1]["index"] + 1, "last": shown[-1]["heading"]}
-    # "More" means there is an entry she has NOT been handed over. Two ways that
-    # happens: the block stopped early while reading in order (those arrive on the
-    # next start), or the marker lost its place and everything older was skipped
-    # - so point her at the file rather than letting a blind spot read as
-    # completeness. Counting from the marker outward covers both: `covered` is
-    # what she has already been told about, or nothing when the marker is no use.
-    more = len(entries) - (count if in_order else 0) - len(shown) > 0
-    return shown, marker, more
-
-
-def changelog_block(entries, more: bool = False) -> str:
-    """The entries as one block for the prompt, escaped like any other.
-
-    Mine, and tracked by git, but it still goes through escape_block: what
-    reaches a prompt is escaped on the way in, and an exception here would be the
-    kind that only bites the day one of us forgets why the rule exists.
-    """
-    parts = []
-    for entry in entries:
-        heading = f"## {entry.get('heading') or ''}".strip()
-        body = entry.get("body") or ""
-        parts.append(f"{heading}\n{body}" if body else heading)
-    text = escape_block("\n\n".join(parts))
-    if more:
-        text += ("\n\n(there is more after this - read_file CHANGELOG.md for "
-                 "the rest)")
-    return text
 
 # Master's rule, 2026-09-20: "when master says it's your call, you do not ask
 # and do not promise - you pick whatever you like and do the work in that same
@@ -949,7 +337,7 @@ CONTEXT_FLOOR_TOKENS = 4_000    # below this a "limit" is a bug, not a limit
 CONTEXT_CEILING_TOKENS = 2_000_000
 CONTEXT_COMPACT_AT = 0.80       # fold once the prompt is this full
 CONTEXT_KEEP_TAIL = 6           # newest messages always kept verbatim
-COMPACT_LINE_CHARS = 200        # per folded line
+# COMPACT_LINE_CHARS lives in bot_text.py now, beside _condense, its only user.
 COMPACT_MAX_LINES = 60          # the digest's own ceiling
 IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
 CHARS_PER_TOKEN = 4             # the ratio config.example.json already documents
@@ -1087,14 +475,6 @@ def estimate_tokens(turns) -> int:
         if isinstance(reasoning, str):
             chars += len(reasoning)
     return chars // CHARS_PER_TOKEN + images * IMAGE_TOKENS
-
-
-def _condense(text, limit: int = COMPACT_LINE_CHARS) -> str:
-    """One folded line: collapsed, bounded, with the cut marked."""
-    line = " ".join(str(text or "").split())
-    if len(line) <= limit:
-        return line
-    return line[:limit].rstrip() + "..."
 
 
 def _turn_units(turns: list[dict]) -> list[list[dict]]:

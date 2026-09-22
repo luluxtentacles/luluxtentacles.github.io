@@ -161,6 +161,12 @@ PROPOSABLE_DIRS = {".agents"}
 # Code that runs her. Changeable - but only through the pipeline, never by a
 # bare tool call.
 PROPOSABLE_NAMES = {
+    # Split out of lulu_bot.py on 2026-09-22 - that file had reached 199,644
+    # bytes against tools.MAX_READ_BYTES of 200,000, so her biggest module could
+    # not have taken another line. Listed here so the split did not quietly
+    # downgrade what she may propose a patch to: a new file of hers that the
+    # wall treats as an ordinary file is a hole, not a convenience.
+    "bot_text.py", "bot_restart.py",
     "lulu_bot.py", "tools.py", "brain.py", "skills.py", "shared_memory.py",
     "people.py", "journal.py", "webtool.py",
     # Her ears. Everything this module does with an attachment ends in a spawned

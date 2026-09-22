@@ -347,7 +347,7 @@ def _imports() -> str:
     import paths
     paths.pin_cwd()  # narrows writes to her folder; same as startup does
     mods = ["paths", "brain", "skills", "shared_memory", "people", "journal",
-            "webtool", "tools", "lulu_bot"]
+            "webtool", "tools", "bot_text", "bot_restart", "lulu_bot"]
     bad = []
     for name in mods:
         try:
