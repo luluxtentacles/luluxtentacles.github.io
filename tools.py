@@ -3121,3 +3121,48 @@ def run(name: str, arguments, allowed: set[str] | None = None) -> str:
         return f"refused: {exc}"
     except Exception as exc:
         return f"{type(exc).__name__}: {exc}"
+
+
+# What a FAILED tool result looks like, and the words she is told about it. Both
+# live beside run() because run() is what MAKES the shapes: a refusal, a missing
+# tool, an exception rendered as its class name, the hand-written sentences whose
+# first word is the bad news, and run_command's own nonzero exit line. lulu_bot's
+# round loop counts those failures per call and uses the two messages below - see
+# STRIKE_LIMIT there.
+_FAILURE_PREFIXES = ("refused:", "no tool called", "could not ", "cannot ",
+                     "can't ")
+_EXCEPTION_LINE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*(Error|Exception)\b")
+_SHELL_EXIT = re.compile(r"\(exit (-?\d+),")
+
+
+def looks_failed(result: str) -> bool:
+    """Did that tool call come back as a failure rather than as an answer?
+
+    Only ever asked about an IDENTICAL call, so it under-reports rather than
+    over: a result that merely talks about a failure is not one, and only the
+    first line is read, because that is where all of these put their news.
+    """
+    lines = (result or "").strip().splitlines()
+    if not lines:
+        return False
+    head = lines[0].strip()
+    if head.lower().startswith(_FAILURE_PREFIXES):
+        return True
+    if _EXCEPTION_LINE.match(head):
+        return True
+    # run_command cannot fail by raising: its own head line carries the exit code.
+    if head.startswith("$"):
+        match = _SHELL_EXIT.search(head)
+        if match and int(match.group(1)) != 0:
+            return True
+    return False
+
+
+STRIKE_REFUSAL = (
+    "refused: this exact call already failed three times this turn, so it was "
+    "not run again. Change method - different arguments, a different tool, or "
+    "read the thing yourself - and carry on.")
+STRIKE_NUDGE = (
+    "That call has now failed the same way three times. Do not send it again: "
+    "change method - different arguments, a different tool, or a different "
+    "route to the same answer - and keep going.")

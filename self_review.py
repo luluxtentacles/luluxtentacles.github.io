@@ -8,7 +8,7 @@ something is genuinely wrong, propose one change to myself.
 Most windows should still be small. "Nothing needs doing, and here is what I
 looked at" is a complete answer, not a wasted one.
 
-Four settled decisions, each for its own reason:
+Six settled decisions, each for its own reason:
 
   off by default   Master opts in with `self_review` in config.json. Autonomy
                    that arrives switched on is not consent, and he should get
@@ -45,6 +45,22 @@ Four settled decisions, each for its own reason:
                    not a delay, it stops her dead. An interrupted window older
                    than RESUME_MAX_AGE_SECONDS is history, not a window to pick
                    back up.
+
+  one at a time    Master, 2026-09-22: a window and a long task never run at the
+                   same time. His job and my own time are both full turns of me
+                   and both land in the same rooms, so the two wait for each
+                   other - a task that is open keeps a NEW window shut, and a
+                   window that is open keeps the task from taking its next
+                   turn. A window that is ALREADY open still finishes its own
+                   turns while a task waits: two waits facing each other is a
+                   deadlock, and each of them would sit there being polite.
+
+  unlimited        Inside a task turn and inside a window turn there is no round
+  rounds           ceiling - master, 2026-09-22: "give her unlimited too calls
+                   for these". What keeps a turn from spinning instead is the
+                   strike rule (the same call failing three times, and the
+                   fourth attempt refused), the per-call deadline, and the turn
+                   caps above, which did not move.
 
 What I am into - the list master edits for me - is read from
 .agents/skills/hobbies/SKILL.md and appended to every window verbatim.
@@ -577,6 +593,39 @@ def _forced_at(state: dict, now: float) -> float | None:
     return at if 0 <= now - at <= FORCE_TTL_SECONDS else None
 
 
+def task_running() -> bool:
+    """Is one of master's long tasks open right now?
+
+    Read through taskmode's own is_active() rather than by reading task.json
+    here: one definition of "a task is running" is the point, and the import is
+    local because a module-level one would be a cycle - taskmode reaches back
+    into this file for window_open().
+
+    A check that cannot run answers NO, which is the direction that cannot pin
+    her: the cost of being wrong is one window opening beside a task, and the
+    cost of the other answer is a window that never opens again because an
+    import hiccuped. A waiting task is not one of these - it is parked on
+    master's answer and costs nothing, so a window may open over it.
+    """
+    try:
+        import taskmode
+        return taskmode.is_active()
+    except Exception as exc:
+        LOG.warning("could not tell whether a task is open: %s", exc)
+        return False
+
+
+def window_open() -> bool:
+    """Is a window open RIGHT NOW - in this process, or stamped on disk?
+
+    The one thing taskmode asks me, and it needs both halves for two different
+    reasons: the stamp is what survives a restart (a window interrupted by a
+    patch is still a window), and the in-process latch covers the moment before
+    the stamp is written.
+    """
+    return _OPEN or bool(_state().get("in_progress"))
+
+
 def held(config) -> bool:
     """Is the model ladder keeping a window shut right now?
 
@@ -609,16 +658,26 @@ def force(config, now=None) -> str:
       'stamped' - recorded; the next check opens the window
       'open'    - a window is already open, so there is nothing to open NOW
       'held'    - the ladder is not on the model master trusts for own time
+      'busy'    - one of his tasks is open, and a window waits for it
 
     Both refusals are real refusals rather than quiet no-ops. A window stamps
     `in_progress` the moment it opens, so a second one stacked on it would spend
     the turns twice, deliver two reports, and leave the state file describing
     neither; and opening one on a model he has told me twice not to trust with it
     is the thing he said no to. He asked, so he gets told either way.
+
+    'busy' is the third, and it is a refusal rather than a stamp on purpose: a
+    stamp written here would have to sit through the whole task waiting for its
+    turn, and it EXPIRES in fifteen minutes (FORCE_TTL_SECONDS). So his word
+    would be spent on nothing at all - he would ask, get a yes, and watch no
+    window open. Better to say not now and have him ask again when the job is
+    done, which is also the honest answer.
     """
     moment = time.time() if now is None else now
     if _state().get("in_progress"):
         return "open"
+    if task_running():
+        return "busy"
     if held(config):
         return "held"
     _save(force_at=moment)
@@ -669,6 +728,7 @@ def schedule(config, now=None) -> dict:
         "resumable": _resumable(state, where, moment),
         "forced": _forced_at(state, moment) is not None,
         "held": held(config),
+        "task_open": task_running(),
         "last_started": _clock(last) if last_ok else "",
         "next_at": _clock(due_at) if due_at is not None else "",
         "seconds_away": max(0.0, (due_at - moment) if due_at is not None else 0.0),
@@ -707,6 +767,9 @@ def describe(config, now=None) -> str:
     if where["held"]:
         lines.append("held right now: the ladder is not on the go model, so a "
                      "window that comes due stays owed instead of opening")
+    if where["task_open"]:
+        lines.append("a job of master's is open, and we do one thing at a time "
+                     "- a window that comes due waits for it to finish")
     return "\n".join(lines)
 
 
@@ -850,6 +913,20 @@ async def maybe_run(bot) -> bool:
         LOG.info("self-review held: the ladder is not on the OpenCode model (fallback active); window owed but not opened")
         return False
 
+    # Master, 2026-09-22: "if theres a current task happening, lulu will wait
+    # till it's finished before starting her free time and vice versa". This is
+    # the first direction. A NEW window waits for his job; a window that is
+    # already open is not stopped by one, because the task side waits for a
+    # window in the other direction and two mutual waits would deadlock - each
+    # politely yielding to the other and neither ever moving. So the test is
+    # resumability, which is the same question due() just answered.
+    state = _state()
+    where = settings(config)
+    if not _resumable(state, where, time.time()) and task_running():
+        LOG.info("one of master's tasks is open - my own time waits for it "
+                 "to finish")
+        return False
+
     owner = _owner_id(bot)
     if owner is None:
         LOG.warning("self-review is enabled but there is no owner id; skipping")
@@ -902,12 +979,13 @@ async def _one_window(bot, config, owner) -> bool:
         # tools.in_thread, NOT asyncio.to_thread: the tool context is per THREAD,
         # so a bare to_thread would drop the origin set just above and quietly
         # uncount this turn from the supervisor's budget. And it must not run
-        # inline either - a window turn is up to MAX_TOOL_ROUNDS brain calls,
-        # each blocking on HTTP, which stalls the event loop and Discord's
-        # heartbeat with it. Her own log has the blocked-heartbeat warning.
+        # inline either - a window turn has NO round ceiling (master, 2026-09-22:
+        # unlimited tool calls for exactly this and for a task), and each round
+        # blocks on HTTP, which stalls the event loop and Discord's heartbeat
+        # with it. Her own log has the blocked-heartbeat warning.
         answer = await tools.in_thread(
             bot.run_turns, turns, REVIEW_SCHEMA, set(REVIEW_TOOL_NAMES),
-            max_tokens=bot.token_budget(True))
+            max_tokens=bot.token_budget(True), unlimited_rounds=True)
     except Exception as exc:
         LOG.warning("her own turn turned over: %s", exc)
         _save(in_progress=False, report=f"turned over: {type(exc).__name__}")

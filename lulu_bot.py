@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import itertools
 import json
 import logging
 import logging.handlers
@@ -119,7 +120,17 @@ MAX_MESSAGE = 2000
 # at all - the prompt is resent EVERY round and tool results accumulate, so round
 # 4 alone doubled the prompt in the measurement that set 12 - so 40 is headroom,
 # not a target; most turns still finish inside ten rounds.
+#
+# Not every caller's ceiling any more: taskmode and self_review pass
+# unlimited_rounds=True (master, 2026-09-22) and lean on their own turn caps.
 MAX_TOOL_ROUNDS = 40
+
+# Master's rule, 2026-09-22: "she can only fail the same tool call 3 times before
+# trying a different method". On the third failure she is TOLD (tools.STRIKE_NUDGE
+# into the transcript); the fourth identical call is refused with
+# tools.STRIKE_REFUSAL instead of run, because a model that has repeated itself
+# twice will happily try a fifth time. Keyed on the NAME and the RAW ARGUMENTS.
+STRIKE_LIMIT = 3
 
 # What one turn may write, in tokens - thinking and chat TOGETHER.
 #
@@ -2781,6 +2792,12 @@ class Lulu(discord.Client):
                                          "ladder. it stays owed, so say it "
                                          "again when the go model is back.")
                 return
+            if verdict == "busy":
+                await self.send(message, "not while your task is running - "
+                                         "one thing at a time, so my own time "
+                                         "waits for the job to finish. say it "
+                                         "again once it's done.")
+                return
             LOG.warning("master opened a free-time window by hand")
             await self.send(message, "alright - my own time is open. report "
                                      "lands in the usual rooms and your dms "
@@ -3567,7 +3584,8 @@ class Lulu(discord.Client):
                   meter=None, max_tokens=None,
                   context_tokens=None,
                   progress_channel=None,
-                  supersede_check=None) -> str:
+                  supersede_check=None,
+                  unlimited_rounds: bool = False) -> str:
         """Drive the tool loop until the model stops asking for tools.
 
         `max_tokens` is the per-call ceiling, handed straight to the provider. It
@@ -3599,6 +3617,9 @@ class Lulu(discord.Client):
         work - a call already in flight is a blocking HTTP read that nothing
         here can cut short. Defaults to None, which is what the review window
         and task mode pass: those are not interruptible turns.
+
+        `unlimited_rounds` drops MAX_TOOL_ROUNDS - master, 2026-09-22, for his long
+        tasks and her own-time windows, which have turn caps of their own.
         """
         answer = ""
         empty_retries = 0
@@ -3606,12 +3627,19 @@ class Lulu(discord.Client):
         prompt_total = 0
         cached_total = 0
         prompt_this_round = None
+        # itertools.count, not range: the body has a `continue` that would skip
+        # a hand-rolled counter's increment.
+        rounds = None if unlimited_rounds else MAX_TOOL_ROUNDS
+        # (tool name, raw arguments) -> how often that call has failed this turn.
+        strikes: dict[tuple, int] = {}
         # No turn-wide clock here any more (master, 2026-09-22). The deadline is
         # per CALL - TOOL_CALL_DEADLINE_SECONDS - so a dig is allowed to be long
         # as long as no single call inside it hangs. What still ends a turn is
-        # MAX_TOOL_ROUNDS above, the purse, master's stop word, or a new message
-        # from him superseding it.
-        for round_index in range(MAX_TOOL_ROUNDS):
+        # MAX_TOOL_ROUNDS above when the caller has one, the purse, master's
+        # stop word, or a new message from him superseding it.
+        for round_index in itertools.count():
+            if rounds is not None and round_index >= rounds:
+                break
             # Fold the prompt's middle BEFORE it can outgrow the window. From the
             # second round on this uses the exact number the provider reported for
             # the round just sent; on the first round, before anything has gone
@@ -3629,7 +3657,7 @@ class Lulu(discord.Client):
             if supersede_check is not None and supersede_check():
                 LOG.info("turn superseded - abandoning the tool loop")
                 return SUPERSEDED
-            if round_index == MAX_TOOL_ROUNDS - 1:
+            if rounds is not None and round_index == rounds - 1:
                 turns.append({"role": "user", "content":
                               "Enough looking - answer now, in your own words, using "
                               "only what you already gathered. Do not call another tool."})
@@ -3736,15 +3764,35 @@ class Lulu(discord.Client):
                 return ("my brain went quiet on that one - nothing came back. "
                         "ask me again and i'll take another run at it.")
             turns.append(self._assistant_turn(reply, calls))
+            struck = False
             for call in calls:
                 function = call.get("function", {})
+                raw = function.get("arguments") or "{}"
                 try:
-                    arguments = json.loads(function.get("arguments") or "{}")
+                    arguments = json.loads(raw)
                 except json.JSONDecodeError:
                     arguments = {}
-                result = tools.run(function.get("name", ""), arguments, allowed)
+                name = function.get("name", "")
+                key = (name, raw)
+                if strikes.get(key, 0) >= STRIKE_LIMIT:
+                    # The allowance is spent: refused, not run. It goes back as
+                    # the tool result, so providers still see one per call.
+                    result = tools.STRIKE_REFUSAL
+                else:
+                    result = tools.run(name, arguments, allowed)
+                    if tools.looks_failed(result):
+                        strikes[key] = strikes.get(key, 0) + 1
+                        if strikes[key] == STRIKE_LIMIT:
+                            LOG.warning("the same call has failed %d times (%s) "
+                                        "- telling her to change method",
+                                        STRIKE_LIMIT, name or "(no name)")
+                            struck = True
                 turns.append({"role": "tool", "tool_call_id": call.get("id"),
                               "content": result})
+            if struck:
+                # After the tool results, never between them: a provider drops a
+                # request that has an unanswered tool_call.
+                turns.append({"role": "user", "content": tools.STRIKE_NUDGE})
         LOG.warning("tool round limit hit with no answer")
         return answer or ("i ran out of looking on that one and never got to an "
                           "answer. ask me again?")
