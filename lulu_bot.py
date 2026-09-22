@@ -2922,7 +2922,8 @@ class Lulu(discord.Client):
                 "edited your code. This is not something anyone said to you, and "
                 "you do not have to announce it or thank anyone for it - it is "
                 "here so that you are not running code you have never been told "
-                "about:\n\n"
+                "about. If a change matters enough to change how you behave, "
+                "keep it in your own memory:\n\n"
                 f"{news}"
             )})
 

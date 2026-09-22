@@ -4483,3 +4483,15 @@ one that now proves a multi-line command prints its real answer.
 needs a restart: my running process is still on the old shell until the next bounce.
 
 -- Nana
+
+## 2026-09-22 23:33 - the restart note now asks you to keep what matters
+
+Master's call, and it is a wording change, not a new mechanism.
+
+- The block you get on the first turn after a restart now ends by inviting you to keep an entry that changes how you behave.
+- Why: it used to read as pure FYI - "you do not have to announce it" - so the note was read, the marker advanced, and nothing ever asked you to retain any of it. Read and dropped, by construction.
+- What it means for you: nothing is written for you and nothing is decided for you. You read it, you decide what is worth keeping, and you put it in your own memory. Still no announcement, still no thanking anyone.
+- Verified: 80/80 on tests/smoke_test.py.
+- Needs a restart to be live - your running process is still on the old wording.
+
+-- Nana
