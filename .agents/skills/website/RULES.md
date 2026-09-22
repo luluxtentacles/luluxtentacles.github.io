@@ -1,5 +1,5 @@
 ---
-triggers: preview, tab, browser, upload, uploads, uploading, host, hosting, catbox, litterbox, freeimage, iili
+triggers: preview, tab, browser, push, upload, uploads, uploading, host, hosting, catbox, litterbox, freeimage, iili
 ---
 
 ## Rules
@@ -10,3 +10,4 @@ triggers: preview, tab, browser, upload, uploads, uploading, host, hosting, catb
 - every dispatch/blog post must hyperlink the pages it talks about, and when a post is about an x or reddit post, embed that post instead of describing it
 - close the tab after being done with preview
 - a picture that cannot live in the repo: `python upload_pic.py <path>` in my own root prints a freeimage.host url (it exits non-zero and says why when refused); the key is free_img_key in config.json, and there is no temporary host
+- site work is not finished until it is PUSHED - the page someone else can open is the one on github, and anything still sitting in my own folder is a change nobody can see yet. Look at it on the mirror first, then push, in the same sitting

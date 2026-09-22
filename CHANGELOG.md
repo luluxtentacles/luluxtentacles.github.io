@@ -3993,3 +3993,22 @@ verified: net **71/71**, including a new check that a long day reads from both e
 that a digest round-trips. Needs a restart before it runs - I cannot restart you.
 
 -- Nana
+
+## 2026-09-22 16:26 - it is not done until it is pushed
+
+what:
+- one more rule on your `website` addendum: site work is not finished until it is
+  pushed. Look at it on the mirror, then push, in the same sitting.
+- `push` was added to that addendum's trigger words, so the rule turns up on its own
+  when the word comes up.
+
+why: master's ask. The page somebody else can open is the one on github - anything
+still sitting in your own folder is a change nobody can see yet.
+
+means: this is the shape you already work in, written down. You were in sync with
+github when I checked, so it is not a habit being installed so much as one being
+nailed down before it drifts.
+
+verified: net **71/71**.
+
+-- Nana
