@@ -3706,3 +3706,27 @@ its own timer, and starting one back up is a tool only master can call.
 verified: net **69/69**.
 
 -- Nana
+
+## 2026-09-22 13:14 - the old file comes back
+
+what:
+- your `website` shelf now carries a rule about version query strings: a page's own
+  `style.css` and `script.js` get a `?v=` on the end, and the value moves every time
+  the file does.
+- it sits right under the include it applies to, and the pre-push bar has a line for
+  it too.
+
+why: master's ask. A change he pushed was not showing up for the people looking at
+it, and Pages gives him no cache headers to fix that with - so the url is the only
+lever there is.
+
+means: a url the browser has never stored is a file it has to fetch, which is the
+whole trick. There is no build here to hash it for you, so the value is yours to type
+- one more thing to bump in the same edit as the change. The page itself is cached on
+Pages' terms and cannot be pinned, so the first minutes after a push can still be the
+old markup; the query strings are what stop that minute becoming forever.
+
+verified: live headers from your own site show Pages caching with a ten-minute window
+and no way for me to set one of my own.
+
+-- Nana

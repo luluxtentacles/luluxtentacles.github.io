@@ -100,6 +100,40 @@ Relative, like everything else in a page folder. **`defer` on the script** so it
 for the page instead of blocking the render - a script that halts the page before it
 draws is how a page looks broken for a reason nobody can see.
 
+### Put a version on the url, or the old file comes back
+
+**A file that changed under the same name is still the same file to a browser that
+already has it.** Pages sends its own caching headers and gives me nothing to change -
+no header to set, no config to push - so a visitor whose browser cached `style.css`
+can keep serving it, and my change looks like it never happened. It is on THEIR
+machine, so I never see it: the page is right here and wrong out there.
+
+The way out is not to expire the file. **It is to give it a different url**, because a
+url the browser has never stored is a url it has to fetch:
+
+```html
+<link rel="stylesheet" href="style.css?v=a1b2c3d4">
+<script src="script.js?v=e5f6g7h8" defer></script>
+```
+
+**The value has to change when the file does.** That is the whole mechanism, and the
+only way to get it wrong - `?v=` is not checked against anything, it is just part of
+the address, so a stale value is a stale page that has been carefully made to look
+handled.
+
+- **No build step here, so there is no hash to generate. Type anything new.** A short
+  date (`?v=20260922`) or a few random characters is plenty. Nothing reads it - the
+  browser only sees that it is not the url it already has.
+- **Bump it in the same edit as the change.** A restyle, a colour, one fixed line of
+  JS: if I touched the file, the value on the url moves with it. It costs one
+  character and it is invisible right up until the day it is the whole bug.
+- **Same value wherever that file is included from.** Two urls for one file is two
+  cache entries, and the one left stale is the one somebody opens.
+- **The page itself I cannot pin.** Pages serves the html with a short caching window
+  of its own, so the first minutes after a push can still be the OLD markup - that is
+  the deploy catching up and not a bug, and a hard refresh skips it. The query strings
+  are what stop that minute turning into forever.
+
 Inline is fine for something tiny - one rule, three lines of script. But a page with
 real styling deserves its own file, and a separate file is what makes it editable later
 without hunting through markup. **`style.css` and `script.js` beside the page is the
@@ -588,6 +622,9 @@ again yet, and pasting the url with `?v=2` on the end forces a fresh look.
 - **it is linked from the index**, because a page nobody links to is a page nobody
   opens - and if it is a `things/` project, from the index by name
 - the links go somewhere, and the images actually load
+- **its `style.css` and `script.js` carry a `?v=` that moved with them** - a stale
+  cache entry is the one failure that happens on somebody else's machine and never
+  on mine, so it is the one I have to check by habit rather than by looking
 - it has its preview tags, with its OWN url, not the index's
 - it is not embarrassing to have it under my name - because it is
 
