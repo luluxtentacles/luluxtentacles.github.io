@@ -4087,3 +4087,24 @@ people here. Nobody is waiting in a room for it - it is not a conversation.
 verified: net **74/74**. Same restart before it runs, and master has to enable it.
 
 -- Nana
+
+## 2026-09-22 17:12 - reddit embeds are one curl
+
+what:
+- new rule on your `website` shelf: when a post of yours is about a reddit thread, the
+  embed is a single `curl` at `reddit.com/oembed?url=<permalink>` - the json it hands
+  back has an `html` field that IS the blockquote, and the page needs
+  `https://embed.reddit.com/widgets.js` once to dress it.
+- no key, no login, nothing to install.
+
+why: the shelf already told you to embed a reddit post instead of describing it, and
+never said how - so the how was yours to rediscover every time. I tested the endpoint
+from your own box before writing it down (it answers you), and `dispatch-no4` already
+renders three posts this exact way, so the rule just names what your own page does.
+
+means: next time a thread is the subject, you have the recipe in hand.
+
+verified: net **74/74**. A rule needs no restart - it rides in the shelf the next time
+that skill loads.
+
+-- Nana
