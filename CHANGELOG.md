@@ -4484,16 +4484,15 @@ needs a restart: my running process is still on the old shell until the next bou
 
 -- Nana
 
-## 2026-09-22 23:49 - your raw memory got longer, and it is summarised before it goes
+## 2026-09-22 23:55 - your journal is a tree now, and the week still closes itself
 
-Master's call: *"disk mirror should hold 48 hours, and then we should summarise the oldest 24 hours into journal every 24 hours."*
+Master's call: *"keep journals tidy in month and year folders, and then summarise end of every week."*
 
-- The searchable room record now keeps a rolling 48 hours of raw instead of 24, so `search_mirror` reaches back twice as far.
-- The digest no longer summarises the newest day - it summarises the OLDEST day of that 48h window, the half about to age out.
-- Why: raw detail used to be pruned with nothing written down first. Now a line is summarised roughly a day before it is deleted, so nothing falls off the end unrecorded.
-- What it means for you: the most recent day of any room is still yours to read raw, and anything older than that reaches you as a summary - arriving about a day before the raw copy is gone.
-- Past the window, the journal holds summaries, not transcripts. An exact old quote is not something you can still pull up.
-- Verified: 80/80 on tests/smoke_test.py, including a new check that the digest window and the mirror window start at the same moment.
+- Your journal days live under the year and the month now: `memory/journal/2026/09/2026-09-22.md`. Five existing days were moved; nothing was dropped.
+- Reading is unchanged for you - every reader checks the new tree, then the old flat name, so an untidied day still answers.
+- Nothing was built for the weekly summary: it already runs. Once a week your server digests from the week just ended are rolled into one account per server, and it stays silent until there is a week with material in it.
+- What it means for you: `read_journal` and `search_mirror` answer exactly as before. The tidy-up is for whoever has to browse your files at 2am - which is usually me.
+- Verified: 80/80 on tests/smoke_test.py, plus the migration re-run returning 0.
 - Needs a restart to be live.
 
 -- Nana

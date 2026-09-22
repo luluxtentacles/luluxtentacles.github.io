@@ -89,8 +89,67 @@ def _one_line(text: str, limit: int) -> str:
 
 
 # --------------------------------------------------------------- her journal
+#
+# Filed by year and month, so a year of days is a browsable tree instead of one
+# flat dir: `memory/journal/2026/09/2026-09-22.md`. Master, 2026-09-22: *"keep
+# journals tidy in month and year folders"*. Every reader and writer goes through
+# `_local_rel`, so the layout lives in exactly one place - and the weekly roll-up
+# walks `week_days()`, so it followed this change without being told.
+#
+# A key that is not a date keeps the old flat name: a junk key must never be
+# pasted into a path just because something called this with one.
 def _local_rel(day: str) -> str:
+    match = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", (day or "").strip())
+    if not match:
+        return f"{LOCAL_REL}/{day}.md"
+    return f"{LOCAL_REL}/{match.group(1)}/{match.group(2)}/{day}.md"
+
+
+def _flat_rel(day: str) -> str:
+    """The pre-2026-09-22 flat name. Still read, never written again."""
     return f"{LOCAL_REL}/{day}.md"
+
+
+def _day_body(day: str) -> str:
+    """One day's journal, out of its year/month folder or its legacy flat file.
+
+    Read-through rather than a migration on the read path: a day that was never
+    tidied still answers, so moving files is a tidy-up and never a dependency.
+    """
+    body = paths.read_text(_local_rel(day), default="")
+    if not body.strip():
+        body = paths.read_text(_flat_rel(day), default="")
+    return body
+
+
+def tidy_layout() -> int:
+    """Move flat journal day files into their year/month folders. Idempotent.
+
+    Deliberately NOT wired into boot. Moving files at startup is a lot of risk
+    for something that needs doing once per layout change - and `_day_body` reads
+    either shape, so an untidied day still answers. This only makes the tree
+    browsable, and a caller that has already tidied gets 0 back.
+    """
+    moved = 0
+    try:
+        root = paths.resolve(LOCAL_REL)
+        if not root.is_dir():
+            return 0
+        for path in sorted(root.glob("*.md")):
+            day = path.stem
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+                continue
+            rel = _local_rel(day)
+            target = paths.resolve(rel)
+            if target.exists():
+                continue        # already tidied - never overwrite a day
+            paths.write_text(rel, path.read_text(encoding="utf-8"),
+                             internal=True)
+            path.unlink()       # write first, delete second: crash-safe order
+            moved += 1
+    except Exception:
+        return moved
+    return moved
 
 
 # `note()` used to live here: one line per message, incoming only, appended to
@@ -131,6 +190,13 @@ def note_digest(text: str, *, label: str = "server digest", day: str = "") -> st
     try:
         rel = _local_rel(day)
         existing = paths.read_text(rel, default="")
+        if not existing.strip() and paths.read_text(_flat_rel(day),
+                                                    default="").strip():
+            # That day still lives in the old flat file. Append THERE rather than
+            # starting a second one, or a single day would read back as two
+            # halves in date order but not in time order.
+            rel = _flat_rel(day)
+            existing = paths.read_text(rel, default="")
         if not existing:
             existing = f"# Journal - {day}\n\n"
         head = f"## {label} \u00b7 {datetime.now().strftime('%H:%M')}"
@@ -148,7 +214,7 @@ def read_digest(day: str = "") -> str:
     wanted = [day] if day else [today(), shift(today(), -1)]
     out = []
     for d in wanted:
-        body = paths.read_text(_local_rel(d), default="")
+        body = _day_body(d)
         blocks = [b.strip() for b in re.split(r"^## ", body, flags=re.M)[1:]]
         out.append("\n\n".join("## " + b for b in blocks) if blocks
                    else f"{d}: no digest written")
@@ -182,7 +248,7 @@ def _digest_blocks(week: str) -> list[str]:
     """The '## ' blocks in that week's journal - the summaries, not the chatter."""
     blocks = []
     for day in week_days(week):
-        body = paths.read_text(_local_rel(day), default="")
+        body = _day_body(day)
         for block in re.split(r"^## ", body, flags=re.M)[1:]:
             block = block.strip()
             if block:
@@ -1088,7 +1154,7 @@ def _read_day(day: str, limit: int) -> str:
 def who_today(day: str = "") -> str:
     """The people I talked to, counted off my own journal."""
     day = day.strip() or today()
-    body = paths.read_text(_local_rel(day), default="")
+    body = _day_body(day)
     if not body:
         return f"nobody - my journal for {day} is empty"
 
