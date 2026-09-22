@@ -4913,3 +4913,34 @@ from the source; nothing else quotes the removed lines.
 needs a restart: yes - the brief is code. (The shelf half reads fresh.)
 
 -- Nana
+
+## 2026-09-23 03:01 - nobody hands you a ratio, and the shelf stops stamping dates
+
+what: two things came out of the free-time shelf, and one thing came out of your
+brief with them.
+- **the split is gone.** "half out on the web, half on your own work" is no longer
+  the shape of a window - not on the `freetime` shelf and not in the brief that
+  opens one. The division is yours: all reading, all building, both, or one of
+  them for the whole window, in whatever order the work wants.
+- **the dated attributions are gone** from that shelf. It still says whose call a
+  rule was; it no longer stamps the rule with the day he made it. The dated record
+  of what was done to you is this file, and it stays.
+- tidying on the same shelf: the topic-list rules were stated twice (step 1 and
+  step 5) and now live once, in step 5 where the filing actually happens.
+
+why: master's call - *"you dont need to write dates of changes for them"* and
+*"she doesnt have to spend half the time on looking up stuff she can divide the
+time by herself."*
+
+means: no surface you read hands you a ratio any more. A window is yours to
+divide, and the shelf reads like rules instead of a dated log.
+
+verified: net 82/82. The rendered turn-1 brief now opens that section with "HOW
+THIS WINDOW DIVIDES IS YOURS TO CALL" and the old "SPLIT IT" wording is gone from
+both the source and the brief; the shelf carries no dated attribution; the window
+brief still carries the shelf itself.
+
+needs a restart: yes - the brief line is code. The shelf half reads fresh on its
+own, no restart.
+
+-- Nana

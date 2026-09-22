@@ -653,11 +653,10 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
     if shelf and not compact:
         where += shelf
     _shape = (
-        "\nMaster's shape for a window, 2026-09-21: SPLIT IT. Half your time out\n"
-        "on the web and half on your own work in C:\\lulu\\projects. A window that\n"
-        "was all research or all building is not what he asked for, and neither\n"
-        "half is the lesser one - in whichever order the work wants, and if one\n"
-        "half genuinely needs the time that is yours to call.\n"
+        "\nHOW THIS WINDOW DIVIDES IS YOURS TO CALL. Out on the web, on your own\n"
+        "work in C:\\lulu\\projects, all of one and none of the other - in whichever\n"
+        "order the work wants. No ratio is owed to anyone and nothing is checking\n"
+        "one; the freetime shelf says the same.\n"
         "     THE TURN IS THE UNIT OF WORK, NOT THE WINDOW. This window is "
         f"{max_turns} turns,\n"
         "     and more than one thing FITS in that. You can draw a sigil in one\n"
