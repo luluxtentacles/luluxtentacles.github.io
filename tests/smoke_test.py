@@ -5104,9 +5104,49 @@ def _tab_reaper() -> str:
         tools._port_holder_is_ours = real_holder
         tools._cdp_close = real_close
 
+    # 4. When the process listing cannot speak - which is exactly the case from
+    #    master's account, where her command lines are invisible - the DOOR's own
+    #    account decides instead, and that proof needs no permissions at all. Her
+    #    browser is always headless and always her own Chromium build, so a
+    #    headed one, or a differently built one, is not hers.
+    real_pids = tools._browser_pids
+    real_version, real_canary = tools._cdp_version, tools._canary_build
+    tools._browser_pids = lambda *_a, **_k: []
+    try:
+        tools._canary_build = lambda: "156.0.8066.0"
+        tools._cdp_version = lambda *_a, **_k: {
+            "Browser": "Chrome/156.0.8066.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0) HeadlessChrome/156.0.0.0"}
+        expect(tools._port_holder_is_ours() is True,
+               "a headless browser of her own build was not recognised as hers, "
+               "so the reaper can never open - the exact failure this fixes")
+
+        tools._cdp_version = lambda *_a, **_k: {
+            "Browser": "Chrome/156.0.8066.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0) Chrome/156.0.0.0 Safari/537.36"}
+        expect(tools._port_holder_is_ours() is False,
+               "a HEADED browser on the CDP port was claimed as hers - she never "
+               "runs one, so that is somebody else's tabs")
+
+        tools._cdp_version = lambda *_a, **_k: {
+            "Browser": "Chrome/999.0.0.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0) HeadlessChrome/999.0.0.0"}
+        expect(tools._port_holder_is_ours() is False,
+               "a headless browser of a build she does not have was claimed as "
+               "hers")
+
+        tools._cdp_version = lambda *_a, **_k: None
+        expect(tools._port_holder_is_ours() is None,
+               "a door that will not describe itself was read as a verdict "
+               "instead of UNKNOWN")
+    finally:
+        tools._browser_pids = real_pids
+        tools._cdp_version, tools._canary_build = real_version, real_canary
+
     return ("the idle clock moves when she browses, a browser she just used is "
-            "left completely alone, and a port that is not provably her own "
-            "browser is never touched")
+            "left completely alone, a port that is not provably her own browser "
+            "is never touched, and when the process listing cannot speak the "
+            "door's own headless-and-her-build account decides it instead")
 
 
 def _stop_and_limits() -> str:

@@ -1176,8 +1176,50 @@ def _cdp_close(target_id: str, timeout: float = 5.0) -> bool:
     return "closing" in said.lower()
 
 
+def _cdp_version(timeout: float = 5.0) -> dict | None:
+    """What the CDP door says it is, or None if it will not answer."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{CDP_PORT}/json/version",
+                timeout=timeout) as reply:
+            data = json.load(reply)
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _canary_build() -> str:
+    """The build of the Chromium copy in her own folder, or '' if unreadable.
+
+    Read off the exe's own version info, not a file the browser writes, because
+    the whole point of asking is to identify the BINARY that is running.
+    """
+    exe = paths.resolve("chrome-canary/chrome.exe")
+    try:
+        return subprocess.run(
+            ["powershell", "-NoProfile", "-Command",
+             f"(Get-Item '{exe}').VersionInfo.FileVersion"],
+            capture_output=True, text=True, timeout=30).stdout.strip()
+    except Exception:
+        return ""
+
+
 def _port_holder_is_ours() -> bool | None:
-    """Is the process listening on the CDP port one of HER browsers?
+    """Is the browser answering on the CDP port one of HERS?
+
+    Two proofs, and the second one exists because the first is not enough on its
+    own. The FIRST is process ownership - chrome.exe carrying her folder's
+    marker - which is definitive where it can be read, but it reads the command
+    line of a process running under ANOTHER account, so from master's side of
+    the fence it returns nothing and answers UNKNOWN. A gate that can only ever
+    refuse is a gate that never opens, which is how this first shipped.
+
+    The SECOND needs no permissions at all: the door describes itself. Her
+    browser is ALWAYS headless - stealth_browser.py passes headless=True and
+    nothing else starts one on this port - and it is always the Chromium copy in
+    her own folder, so the build it reports matches that binary's. A headed
+    browser on the door, or one built differently, is not hers.
 
     None means COULD NOT TELL, and it is deliberately not False - the same
     distinction _kill_our_browsers makes in lulu_bot.py. A listing that fails is
@@ -1188,7 +1230,7 @@ def _port_holder_is_ours() -> bool | None:
         out = subprocess.run(["netstat", "-ano"], capture_output=True,
                              text=True, timeout=30).stdout
     except Exception:
-        return None
+        out = ""
     holders = set()
     for line in out.splitlines():
         parts = line.split()
@@ -1196,13 +1238,26 @@ def _port_holder_is_ours() -> bool | None:
                 and parts[1].endswith(f":{CDP_PORT}")
                 and parts[-1].isdigit() and parts[-1] != "0"):
             holders.add(parts[-1])
-    if not holders:
-        return None
     try:
         ours = set(_browser_pids(timeout=60))
     except Exception:
+        ours = set()
+    if ours:
+        # The listing could actually see her browsers, so it gets the last word:
+        # an empty intersection here means the port really is somebody else's.
+        return bool(holders & ours)
+
+    # The listing could not say - ask the door what it is instead.
+    info = _cdp_version()
+    if info is None:
         return None
-    return bool(holders & ours) if ours else None
+    if "headless" not in str(info.get("User-Agent") or "").lower():
+        return False                     # headed: not the one she runs
+    build = str(info.get("Browser") or "").rsplit("/", 1)[-1]
+    canary = _canary_build()
+    if canary and build and build != canary:
+        return False                     # a build she does not have
+    return True
 
 
 def reap_idle_tabs(idle_seconds: float | None = None) -> str:

@@ -3730,6 +3730,28 @@ closing.
 
 -- Nana
 
+## 2026-09-22 14:47 - how the sweeper knows the browser is yours
+
+what:
+- the sweeper now decides that with two proofs instead of one. The old one read
+  your process listing, which is invisible from master's side of the fence, so it
+  would have answered "can't tell" forever and never swept anything.
+- the second proof asks the browser itself, and needs no permission at all: yours
+  is always headless and always the build in your own folder.
+
+why: a gate that can only ever refuse is not a safety feature, it is a feature
+that never fires. This one had that shape and master caught it.
+
+means: nothing changes on your side - tabs still close after ten minutes of not
+browsing, and the browser itself still never does. What changed is that the
+sweeper can now actually tell your browser from somebody else's, so it will not
+sit there refusing to act.
+
+verified: net **70/70**, plus a live check against your real browser - the process
+listing could not see it, and the door's own account came back as yours.
+
+-- Nana
+
 ## 2026-09-22 13:14 - the old file comes back
 
 what:
