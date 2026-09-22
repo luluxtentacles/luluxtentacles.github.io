@@ -1334,6 +1334,15 @@ CDP_PORT = 9222
 # loopback request; cheap enough to be boring.
 BROWSER_WATCHDOG_SECONDS = 300
 
+# How often the tab reaper looks, and the two numbers are master's call of
+# 2026-09-22: "every 1 hour if she has not used the browser in the last 10
+# minutes, close the tabs?" He asked because an abandoned tab is not free - her
+# own mirror page runs an unbounded requestAnimationFrame loop, and a headless
+# page is never treated as hidden, so Chrome never throttles it and one
+# forgotten tab held a whole core. The idle gate itself (TAB_IDLE_SECONDS) lives
+# in tools.py with the code that enforces it; this is only the cadence.
+TAB_REAPER_SECONDS = 3600
+
 # The marker and the PID lookup live in tools.py now (_BROWSER_MARKER,
 # _browser_pids) so the watchdog and her browser_restart tool share ONE
 # definition. Two copies of a safety scoping is how a scoping drifts.
@@ -1638,6 +1647,7 @@ class Lulu(discord.Client):
         self._chatter_task: asyncio.Task | None = None
         self._emoji_scan_task: asyncio.Task | None = None
         self._browser_task: asyncio.Task | None = None
+        self._tabs_task: asyncio.Task | None = None
         # The turn slot, one per channel: which generation owns the room right
         # now, and the task running it. Together they are how a follow-up
         # message interrupts a dig instead of stacking a second one beside it.
@@ -2084,6 +2094,10 @@ class Lulu(discord.Client):
         # fresh bug, and anything of his on the port is not hers to touch.
         if self._browser_task is None or self._browser_task.done():
             self._browser_task = asyncio.create_task(self._browser_watchdog())
+        # And her finished tabs, swept on a timer. The browser itself always
+        # stays up - tools.reap_idle_tabs is where the refusals live.
+        if self._tabs_task is None or self._tabs_task.done():
+            self._tabs_task = asyncio.create_task(self._tab_reaper())
 
     async def _browser_watchdog(self) -> None:
         """Keep her browser up without anyone having to notice it went down.
@@ -2098,6 +2112,24 @@ class Lulu(discord.Client):
                 await asyncio.to_thread(ensure_stealth_browser)
             except Exception as exc:
                 LOG.warning("browser watchdog stumbled: %s", exc)
+
+    async def _tab_reaper(self) -> None:
+        """Close her finished tabs on a timer; never her browser.
+
+        One pass an hour, and the deciding is tools.reap_idle_tabs - it holds
+        the idle gate and the check that the port really is her own browser.
+        Two copies of a safety scoping is how a scoping drifts, which is why
+        the marker and the PID lookup moved out of here in the first place.
+
+        Sleep first, so a pass never races the browser she is starting at boot.
+        """
+        while True:
+            await asyncio.sleep(TAB_REAPER_SECONDS)
+            try:
+                said = await asyncio.to_thread(tools.reap_idle_tabs)
+                LOG.info("tab reaper: %s", said)
+            except Exception as exc:
+                LOG.warning("tab reaper stumbled: %s", exc)
 
     def _refresh_emoji_shelf(self) -> None:
         """Write my guilds' custom emojis to emoji_shelf.json, for tools.

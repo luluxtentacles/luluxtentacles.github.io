@@ -5056,6 +5056,59 @@ def _browser_proxy() -> str:
             "comes up")
 
 
+def _tab_reaper() -> str:
+    """The idle-tab sweep - and the two things it must refuse to do.
+
+    Master, 2026-09-22: "every 1 hour if she has not used the browser in the
+    last 10 minutes, close the tabs?" The danger was never the closing. It is a
+    sweep that fires on a browser she IS using, or on a port that is not hers -
+    and the second one closes somebody else's tabs. Both refusals are proved by
+    making the CDP door explode if it is reached at all, so a reaper that got
+    that far cannot pass quietly.
+    """
+    import tools
+
+    def _explode(*_a, **_k):
+        raise AssertionError("the tab reaper touched CDP when it should not have")
+
+    # 1. The clock moves when she browses - otherwise the gate is decorative.
+    tools.note_browser_use()
+    expect(tools.browser_idle_seconds() < 5,
+           "using the browser did not move the idle clock")
+
+    # 2. A browser she has just used is never touched.
+    real_targets, real_close = tools._cdp_targets, tools._cdp_close
+    tools._cdp_targets = tools._cdp_close = _explode
+    try:
+        said = tools.reap_idle_tabs()
+        expect("left the tabs alone" in said,
+               f"the reaper did not refuse a browser she just used: {said!r}")
+    finally:
+        tools._cdp_targets, tools._cdp_close = real_targets, real_close
+
+    # 3. Nor is a port it cannot prove is her own, even after a year idle: a
+    #    foreign browser's tabs are not hers to close, and "could not tell" must
+    #    never read as "mine".
+    real_targets = tools._cdp_targets
+    real_holder, real_close = tools._port_holder_is_ours, tools._cdp_close
+    tools._cdp_targets = lambda *_a, **_k: [
+        {"type": "page", "id": "fake", "url": "http://example.invalid/"}]
+    tools._port_holder_is_ours = lambda *_a, **_k: None
+    tools._cdp_close = _explode
+    try:
+        said = tools.reap_idle_tabs(idle_seconds=99999)
+        expect("not provably" in said,
+               f"the reaper did not refuse a port it could not claim: {said!r}")
+    finally:
+        tools._cdp_targets = real_targets
+        tools._port_holder_is_ours = real_holder
+        tools._cdp_close = real_close
+
+    return ("the idle clock moves when she browses, a browser she just used is "
+            "left completely alone, and a port that is not provably her own "
+            "browser is never touched")
+
+
 def _stop_and_limits() -> str:
     """Master's stop word, the 15-minute ceiling, and who may interrupt her.
 
@@ -5555,6 +5608,7 @@ CHECKS = [
     ("sandbox", _sandbox),
     ("browseguard", _browseguard),
     ("browser-proxy", _browser_proxy),
+    ("tab-reaper", _tab_reaper),
     ("wall", _wall),
     ("sealed-apply", _sealed_apply),
     ("runbox", _runbox),

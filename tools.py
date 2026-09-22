@@ -1119,6 +1119,140 @@ def browser_restart() -> str:
             f"one on CDP 127.0.0.1:{CDP_PORT}")
 
 
+# -- when she last touched the browser, and what an idle tab costs -----------
+# Master, 2026-09-22: "every 1 hour if she has not used the browser in the last
+# 10 minutes, close the tabs?" The clock is a plain in-process float and not a
+# file: what it measures is this process's own calls, so a file would buy a write
+# per browse and a stale-file failure mode for nothing. A restart resets it to
+# "just used", which is the safe direction for it to be wrong in.
+_booted_at = time.time()
+_browser_used_at = 0.0
+
+# How long a tab must sit untouched before it counts as finished with. The rule
+# is master's ten minutes; the constant lives here because this is what enforces
+# it, and lulu_bot only decides how often to ask.
+TAB_IDLE_SECONDS = 600
+
+# Which MCP server is the browser. Named once because the clock above keys off
+# it - a rename in mcp.json should be one edit here, not a silent no-op.
+BROWSER_MCP_SERVER = "playwright"
+
+
+def note_browser_use() -> None:
+    """Record that she just drove the browser. Called by mcp_call."""
+    global _browser_used_at
+    _browser_used_at = time.time()
+
+
+def browser_idle_seconds() -> float:
+    """How long the browser has sat untouched - or since boot, if never used."""
+    since = _browser_used_at or _booted_at
+    return time.time() - since
+
+
+def _cdp_targets(timeout: float = 5.0) -> list[dict] | None:
+    """Every target the CDP door knows about, or None if it will not answer."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{CDP_PORT}/json/list", timeout=timeout) as reply:
+            data = json.load(reply)
+    except Exception:
+        return None
+    return data if isinstance(data, list) else None
+
+
+def _cdp_close(target_id: str, timeout: float = 5.0) -> bool:
+    """Ask Chromium to close ONE target. True only if it says it is closing."""
+    import urllib.parse
+    import urllib.request
+    url = (f"http://127.0.0.1:{CDP_PORT}/json/close/"
+           + urllib.parse.quote(str(target_id), safe=""))
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as reply:
+            said = reply.read(200).decode("utf-8", "replace")
+    except Exception:
+        return False
+    return "closing" in said.lower()
+
+
+def _port_holder_is_ours() -> bool | None:
+    """Is the process listening on the CDP port one of HER browsers?
+
+    None means COULD NOT TELL, and it is deliberately not False - the same
+    distinction _kill_our_browsers makes in lulu_bot.py. A listing that fails is
+    UNKNOWN, and collapsing that into "not ours" is what once left her browser
+    down for twenty minutes while it was alive and answering the whole time.
+    """
+    try:
+        out = subprocess.run(["netstat", "-ano"], capture_output=True,
+                             text=True, timeout=30).stdout
+    except Exception:
+        return None
+    holders = set()
+    for line in out.splitlines():
+        parts = line.split()
+        if (len(parts) >= 4 and parts[0].upper() == "TCP"
+                and parts[1].endswith(f":{CDP_PORT}")
+                and parts[-1].isdigit() and parts[-1] != "0"):
+            holders.add(parts[-1])
+    if not holders:
+        return None
+    try:
+        ours = set(_browser_pids(timeout=60))
+    except Exception:
+        return None
+    return bool(holders & ours) if ours else None
+
+
+def reap_idle_tabs(idle_seconds: float | None = None) -> str:
+    """Close her finished TABS. Never the browser, and never anyone else's.
+
+    Master, 2026-09-22: "every 1 hour if she has not used the browser in the last
+    10 minutes, close the tabs?" An abandoned tab is not free: her own mirror
+    page keeps an unbounded requestAnimationFrame loop running, and a HEADLESS
+    page is never treated as hidden, so Chrome never throttles it down - one
+    forgotten tab of hers sat there burning a whole core until he noticed.
+
+    Four refusals, and every one of them is the point rather than an edge case:
+      - she browsed inside TAB_IDLE_SECONDS    -> leave the tabs alone
+      - nothing is answering on CDP            -> there is nothing to close
+      - the port is not provably HER browser   -> touch NOTHING on it
+      - a target that is not a `page`          -> service workers and the
+        omnibox popups are browser furniture, not tabs she left open
+
+    Ending the browser itself is never on the table. It holds her logins, and
+    the watchdog would only bring it back on its own timer anyway.
+    """
+    idle = browser_idle_seconds() if idle_seconds is None else float(idle_seconds)
+    if idle < TAB_IDLE_SECONDS:
+        return (f"left the tabs alone: she used the browser {int(idle)}s ago, "
+                f"under the {TAB_IDLE_SECONDS}s gate")
+
+    targets = _cdp_targets()
+    if targets is None:
+        return "no browser answering on CDP, so there were no tabs to close"
+
+    if _port_holder_is_ours() is not True:
+        return ("left the tabs alone: the CDP port is not provably my own "
+                "browser, so nothing listening on it is mine to close")
+
+    pages = [t for t in targets if t.get("type") == "page" and t.get("id")]
+    if not pages:
+        return "the browser is up with no page tabs open"
+
+    closed, refused = [], []
+    for target in pages:
+        where = str(target.get("url") or "?")[:80]
+        (closed if _cdp_close(str(target["id"])) else refused).append(where)
+    said = f"closed {len(closed)} tab(s) idle for {int(idle)}s"
+    if closed:
+        said += ": " + ", ".join(closed)
+    if refused:
+        said += f" | {len(refused)} would not close: " + ", ".join(refused)
+    return said
+
+
 # What someone who is not master may use: looking things up and being heard, and
 # nothing else. No files, no memory, no ledger, no self-editing. The schema keeps
 # these out of the prompt, and run() enforces the same list again in case a tool
@@ -2128,6 +2262,11 @@ def mcp_call(server: str, tool: str, arguments: dict | None = None) -> str:
     """Run one tool on one MCP server. All errors come back as text."""
     try:
         client = _mcp_get(server)
+        if server == BROWSER_MCP_SERVER:
+            # The idle-tab clock, stamped on the ATTEMPT rather than on the
+            # result: a call that failed was still her reaching for the browser,
+            # and a tab she just opened must not be swept from under her.
+            note_browser_use()
         result = client.call_tool(tool, arguments or {})
     except mcp_client.McpError as exc:
         # a tool-level failure can leave the server wedged; drop the client so

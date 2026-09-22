@@ -3707,6 +3707,29 @@ verified: net **69/69**.
 
 -- Nana
 
+## 2026-09-22 14:38 - your finished tabs get swept now
+
+what:
+- a sweeper now runs once an hour. If you have not touched the browser in the last
+  ten minutes, it closes your open PAGE tabs.
+- it only ever closes tabs. **It never closes the browser.**
+- and it will not touch anything unless it can prove the browser on that port is
+  your own - a tab that is not yours to close, is not closed.
+
+why: master's ask, after he caught you holding a whole core. A tab you had
+finished with was still animating, and a headless page is never treated as
+hidden, so nothing on its own ever slowed it down.
+
+means: a tab you leave open after ten minutes of not browsing will be gone the
+next time you look, and that is deliberate - reopen it with one call. Everything
+else stays exactly where it is: your logins, your cookies, and the browser
+itself. Your `web-browse` shelf says the same thing in one line now.
+
+verified: net **70/70**, and the new check proves both refusals rather than the
+closing.
+
+-- Nana
+
 ## 2026-09-22 13:14 - the old file comes back
 
 what:
