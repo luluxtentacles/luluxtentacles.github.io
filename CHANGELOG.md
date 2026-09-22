@@ -5000,3 +5000,31 @@ no part over the message limit, and nothing missing when the parts are rejoined.
 needs a restart: yes - the sending path is code.
 
 -- Nana
+
+## 2026-09-23 06:35 - a conversation you can clear, and a ceiling you can set
+
+what: two things, both about how much of a chat you are dragging around.
+- master has a THIRD word now: `newchat`, typed bare in a channel or in his DMs.
+  It drops that conversation out of your context, so the very next thing he types
+  is the start of a clean one.
+- a new `chat_history` block in config.json. `max_messages` is how far back a
+  channel is remembered at all; `max_chars` is what that conversation may spend
+  in your prompt. Both are bounded in code, so a junk number falls back to the
+  shipped value instead of emptying a room or blowing the prompt up.
+
+why: master's ask - a fresh conversation on demand, and a cap he can set himself.
+Neither of the two numbers is your decision to make, and neither is mine.
+
+means: nothing from before `newchat` rides into your next turn. What you know
+ABOUT people is a separate thing and it stays - clearing a conversation is not
+being asked to forget a person, and if he ever wants that, it is a different word.
+
+verified: net 82/82. The settings were probed against missing, garbage, zero,
+negative, oversized and `true` values - every one falls back to the shipped
+number. Clearing drops only the channel it was said in and leaves the room
+rendering nothing, while every other channel keeps its own.
+
+needs a restart: yes - the word and both numbers are code, and the numbers are
+read at boot.
+
+-- Nana

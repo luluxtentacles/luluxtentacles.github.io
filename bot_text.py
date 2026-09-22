@@ -178,8 +178,16 @@ def _mirror_line(entry: dict, by_id: dict) -> str:
 
 
 def mirror_block(mirror, channel_id, exclude_ids=(),
-                 parent_line: str = "") -> list[dict]:
+                 parent_line: str = "",
+                 total_chars: int | None = None) -> list[dict]:
     """The channel as it actually read, as ONE system message.
+
+    `total_chars` is how much this conversation may SPEND, and it comes from the
+    caller because master made it a setting - config.json -> chat_history ->
+    max_chars. None means the shipped default, which is what every probe and the
+    smoke net still get. A nonsense number is treated as None rather than obeyed:
+    a 0 here would render an empty block, and an empty block reads as "this room
+    said nothing", which is a lie rather than a small budget.
 
     Both shapes at once, which is the whole point. Order is preserved, so a
     serial conversation reads top-down; every line that was a reply names what it
@@ -224,6 +232,9 @@ def mirror_block(mirror, channel_id, exclude_ids=(),
     # them out of this pot cost the room two verbatim lines when it was measured,
     # and the room is what this block is for.
     allowance = MIRROR_TOTAL_CHARS
+    if isinstance(total_chars, int) and not isinstance(total_chars, bool):
+        if total_chars > 0:
+            allowance = total_chars
 
     # Newest first, verbatim, up to MIRROR_VERBATIM_SHARE of the budget. The
     # newest line is always taken even if it alone blows the share: it is the

@@ -183,6 +183,20 @@ STOP_WORK = "stopwork"
 # The space is allowed because that is also how he says it out loud.
 OPEN_WINDOW = ("freetime", "free time")
 
+# Master's third word, and the same shape as the two above: typed bare, answered
+# without a turn, owner-gated in on_message. It CLEARS THIS CONVERSATION out of
+# my context - master, 2026-09-23: *"it can be just code i type newchat and it
+# clears the context from there"*.
+#
+# Why this is a word and not a tool: a tool has to be reached through a turn,
+# which means it runs on the same conversation it is meant to be escaping, and
+# the thing he wants gone is exactly what the turn would carry. Said as a word it
+# lands before any turn is built, so the next thing he types is already clean.
+#
+# The space is allowed for the same reason OPEN_WINDOW allows it - that is how he
+# says it out loud.
+NEW_CHAT = ("newchat", "new chat")
+
 # How long ONE CALL may run - one model read, or one tool - before it is given
 # up on. Master, 2026-09-22: "lulu has a 15 minute timeout for her tasks, set
 # that to 15 minute per tool call instead of stopping everything."
@@ -341,6 +355,59 @@ CONTEXT_KEEP_TAIL = 6           # newest messages always kept verbatim
 COMPACT_MAX_LINES = 60          # the digest's own ceiling
 IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
 CHARS_PER_TOKEN = 4             # the ratio config.example.json already documents
+
+# How much of a channel's own conversation she carries. Master, 2026-09-23:
+# *"add to her config.json a max history setting for her channel chats"*. The
+# ceilings are here because this is a number a typo can write, and too large a
+# one is a prompt nobody agreed to pay for. See chat_history_settings.
+CHAT_HISTORY_MAX_MESSAGES = 5_000
+CHAT_HISTORY_MIN_CHARS = 500
+CHAT_HISTORY_MAX_CHARS = 40_000
+
+
+def chat_history_settings(config: dict) -> dict:
+    """How much of a channel's own conversation rides into the prompt.
+
+    TWO numbers, because "history" is two questions, and answering only one of
+    them is half a lie:
+
+      max_messages - how far back a channel is REMEMBERED. This is the ring's
+                     maxlen. Past it a line is gone, and nothing says so.
+      max_chars    - what that conversation may SPEND in the prompt. Past it the
+                     oldest lines are FOLDED, not dropped - master's 2026-09-20
+                     call, and nothing here reopens it.
+
+    So the two shorten a conversation in different places: max_messages forgets,
+    max_chars condenses. A missing, unreadable or absurd value falls back to what
+    ships rather than to something that would empty a room or fill it.
+    """
+    raw = config.get("chat_history")
+    if not isinstance(raw, dict):
+        raw = {}
+    return {
+        "max_messages": _history_int(raw.get("max_messages"), MIRROR_LINES,
+                                     1, CHAT_HISTORY_MAX_MESSAGES),
+        "max_chars": _history_int(raw.get("max_chars"), MIRROR_TOTAL_CHARS,
+                                  CHAT_HISTORY_MIN_CHARS,
+                                  CHAT_HISTORY_MAX_CHARS),
+    }
+
+
+def _history_int(value, fallback: int, low: int, high: int) -> int:
+    """One of those numbers, or the fallback - never a bool, never a surprise.
+
+    A bool is REFUSED rather than read as 1, which is what `int(True)` would
+    quietly give: json has no integers, so a `true` in this block is a person
+    writing the wrong thing, and one message retained is a strange way to find
+    that out. self_review.settings refuses a bool for the same reason.
+    """
+    if isinstance(value, bool):
+        return fallback
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return fallback
+    return number if low <= number <= high else fallback
 
 
 def _ladder_rungs(config: dict, metered_only: bool = False) -> list[dict]:
@@ -988,8 +1055,15 @@ class Lulu(discord.Client):
         # The channel mirror: every message in every room she can see, in order,
         # with its reply pointer. Subsumes the old addressed-only history - one
         # record, so the two cannot drift apart. See mirror_block.
+        #
+        # Both of these come from config.json -> chat_history, read ONCE here:
+        # a deque's maxlen is baked when the deque is made, and the ring is made
+        # lazily per channel, so a new number lands on my next restart. Master's
+        # other lever, the `newchat` word, is the one that does not wait.
+        history = chat_history_settings(config)
+        self.history_chars: int = history["max_chars"]
         self.mirror: dict[int, deque] = defaultdict(
-            lambda: deque(maxlen=MIRROR_LINES))
+            lambda: deque(maxlen=history["max_messages"]))
         self.own_message_ids: set[int] = set()
         # The continuation note, read ONCE at boot. announce_restart is the only
         # other caller of take_restart_notice(), and that note is one-shot, so
@@ -1234,7 +1308,8 @@ class Lulu(discord.Client):
             "and human."
         )})
         turns.extend(mirror_block(self.mirror, message.channel.id,
-                                  exclude_ids=[getattr(message, "id", None)]))
+                                  exclude_ids=[getattr(message, "id", None)],
+                                  total_chars=self.history_chars))
         known = user_knowledge_block(message.author.id)
         if known:
             # The name I SAY, not the name the room shows - master, 2026-09-21:
@@ -1990,7 +2065,8 @@ class Lulu(discord.Client):
             turns.append({"role": "system", "content": f"[{mood}]"})
         # The room as it actually read. The brief is one line; the conversation
         # is what makes it continuable, and this is the same block think() uses.
-        turns.extend(mirror_block(self.mirror, target.id))
+        turns.extend(mirror_block(self.mirror, target.id,
+                                  total_chars=self.history_chars))
         # think()'s shape for the resume note, kept: the turn being answered comes
         # first and the continuation sits AFTER it, so it reads as "and here is
         # what you were already doing" rather than as something master said.
@@ -2225,6 +2301,30 @@ class Lulu(discord.Client):
                 LOG.warning("could not start the window master asked for: %s",
                             exc)
             return
+
+        # AND HIS THIRD WORD: clearing this conversation out of my context. Same
+        # shape as the two above - before the identity layer and before any turn
+        # slot is claimed - because the thing he wants gone is what a turn would
+        # have carried, so it has to be gone before the next one is built.
+        #
+        # A stranger typing it gets an ordinary turn rather than the silence the
+        # other two words answer with, and the difference is the words
+        # themselves: "stopwork" and "freetime" are not English anybody says by
+        # accident, and "new chat" is. Nothing is cleared for them either way -
+        # this door is his.
+        if (message.content or "").strip().lower() in NEW_CHAT:
+            if not self.has_hands(message.author.id):
+                LOG.info("%s typed master's new-chat word - only his counts",
+                         message.author)
+            else:
+                dropped = self._clear_chat(message.channel.id)
+                LOG.warning("master cleared the conversation in %s (%d line(s) "
+                            "out of context)", message.channel, dropped)
+                await self.send(message, "clean slate - that whole conversation "
+                                         "is out of my context. what i remember "
+                                         "about you is untouched, so just start "
+                                         "talking.")
+                return
 
         # Who this is, recorded on every message - the identity layer. It is why
         # a rename cannot turn a regular into a stranger: the old name becomes an
@@ -2594,6 +2694,38 @@ class Lulu(discord.Client):
         except Exception as exc:
             LOG.warning("could not note what I said: %s", exc)
 
+    def _clear_chat(self, channel_id) -> int:
+        """Forget one channel's conversation - what master's `newchat` word does.
+
+        The ring IS the conversation: it is the only thing `mirror_block` renders
+        into the prompt, so emptying it is the honest meaning of a new chat
+        rather than a summary of one.
+
+        What this does NOT reach, said plainly because the two are easy to
+        confuse:
+          - `shared_memory` and the people ledger. Those are what I know ABOUT
+            people, deliberately spanning every channel, and "clear this
+            conversation" is not "forget you".
+          - the DISK mirror, `journal.note_mirror`, in a room that has a server.
+            That copy answers search_mirror and is a record rather than context,
+            so it keeps standing. In a DM there is no disk copy at all -
+            note_mirror refuses a line with no server - so there the ring was the
+            only place that conversation ever existed.
+
+        Never fatal: a bot that raises on being asked to forget is worse than one
+        that forgot slightly less.
+        """
+        try:
+            ring = self.mirror.get(channel_id)
+            if not ring:
+                return 0
+            dropped = len(ring)
+            ring.clear()
+            return dropped
+        except Exception as exc:
+            LOG.warning("could not clear a channel's conversation: %s", exc)
+            return 0
+
     def _begin_turn(self, channel_id: int, *, owner: bool) -> int | None:
         """Claim the turn slot for a channel, superseding whatever holds it.
 
@@ -2819,7 +2951,8 @@ class Lulu(discord.Client):
         if parent is not None:
             skip.append(getattr(parent, "id", None))
         turns.extend(mirror_block(self.mirror, message.channel.id,
-                                  exclude_ids=skip, parent_line=parent_line))
+                                  exclude_ids=skip, parent_line=parent_line,
+                                  total_chars=self.history_chars))
         known = user_knowledge_block(message.author.id)
         if known:
             # The header carries the name I should USE - master, 2026-09-21:

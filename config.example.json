@@ -16,6 +16,12 @@
 
   "always_skills": ["lulu-voice"],
 
+  "_chat_history": "How much of a channel's OWN conversation rides into a prompt. max_messages is how far back a channel is remembered at all - the ring's maxlen, past which a line is simply gone. max_chars is what that conversation may spend in the prompt, and past it the OLDEST lines are folded into a condensed digest rather than dropped. They shorten a conversation in different places: max_messages forgets, max_chars condenses. Both are bounded in lulu_bot.py, so a typo falls back to the shipped value instead of emptying a room or filling the prompt. Read at boot only - a new number lands on her next restart. To clear one conversation RIGHT NOW, master types `newchat` in that channel.",
+  "chat_history": {
+    "max_messages": 200,
+    "max_chars": 5000
+  },
+
   "stt": false,
   "stt_folder": "C:\\lulu-apps\\whisper.cpp",
   "stt_model": "C:\\lulu-apps\\whisper.cpp\\ggml-small-q5_1.bin",
