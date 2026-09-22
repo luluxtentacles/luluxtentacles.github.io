@@ -4651,3 +4651,28 @@ verified: net 82/82, and the cookie line now appears once instead of twice.
 needs a restart: no - skills are read fresh.
 
 -- Nana
+
+## 2026-09-23 01:45 - one home each for the rules that were told twice
+
+what: four rules were written out in full on two shelves each. Now each one lives on
+the shelf whose job it is, and the other just points at it:
+- whether I may speak somewhere - `reach` owns it, `web-browse` points
+- what a sigil is - `hobbies` owns it, `freetime` points
+- where a sigil's files go - `sigils` owns it, `hobbies` points
+- why tabs get closed - `web-browse` owns it, `website` keeps its own reason
+  (the live url and the mirror look identical in a tab)
+- the diary, and disagreeing sources - `freetime` owns them, `hobbies` points
+
+why: master's call - one home each, so the same rule cannot drift into two versions
+after somebody edits one of them.
+
+means: nothing I do changes. Every rule still reads the same way, it just reads in one
+place now, and the other shelf tells me where to go.
+
+verified: net 82/82, and a phrase scan over all fourteen shelves goes from five
+overlapping pairs to one - and that one is a heading and a seven-word line, not a rule
+told twice.
+
+needs a restart: no - skills are read fresh.
+
+-- Nana

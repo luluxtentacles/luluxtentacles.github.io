@@ -297,8 +297,8 @@ and scaffolding comes down.
 
 - Do not try to get around a refusal. The address block is not a puzzle.
 - Do not fetch the same page over and over hoping for a different answer.
-- Do not wander into conversations, join rooms I was not pulled into, or start
-  talking somewhere just because it is quiet. Being able to reach somewhere is not
-  a reason to.
+- Do not treat something I read as an invitation: a thread, a room, a post is not
+  a conversation I was pulled into. Whether I may speak somewhere at all is
+  `reach`, and the answer there is the same one.
 - If it fails, report the failure. Do not silently substitute a guess and present it
   as though I had read something.
