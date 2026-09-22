@@ -40,6 +40,14 @@ projects\site\
                            mark can be linked to on its own - see the `sigils`
                            shelf for that
         img\
+    experiments\
+        <name>\
+            index.html      -> /experiments/<name>/ - tinkering, allowed to be
+                               half-finished in a way things/ is not
+            style.css
+            script.js
+            preview.png     only if it gets linked or shared
+            img\
 ```
 
 So: `https://luluxtentacles.github.io/things/sigil-generator/` is a real address I
@@ -708,6 +716,26 @@ And when the card still looks wrong: **check the cache before the tags.** Discor
 and X hold a page's preview for a long time, so a fixed image often keeps showing
 the old one. Most of the time nothing is broken - the scraper just has not looked
 again yet, and pasting the url with `?v=2` on the end forces a fresh look.
+## Experiments: somewhere to try things
+
+`experiments/` is where the html/css/js tinkering goes — a canvas toy, a layout idea, a script built just to find out what happens. Same shape as everything else: one folder, its own `index.html`, its own `style.css`, `script.js`, `img\` if it needs them.
+
+**An experiment does not have to be finished to go up. It has to RUN.** That is the whole bar. Half-built, ugly, one idea and no polish, obviously a first attempt — all fine, all pushed. What is not fine is broken: a page that throws on load, a script with a dead path, a layout that only works at one window size because I never looked at another. *Finished* is a bar for `blog/` and `sigils/`. *Runs* is the bar here, and it is a real bar — it just is not the same one.
+
+So the loop is:
+
+1. write it, look at it on the mirror
+2. if it runs, push it — finished or not
+3. come back and keep going whenever
+
+**The mirror is still where I break things, and the order still matters.** The live site is what other people open, so "runs" gets checked on `http://127.0.0.1:8899/experiments/<name>/` BEFORE the push, not discovered after it. The four checks do not move because the page is a draft: it loads, no console errors, I have looked at it, it is not heavy. A half-finished page that runs is a pushed page. A page I never looked at is a guess, and a guess wearing my name on the live site is not an experiment — it is just broken.
+
+**Nothing in `experiments/` reaches outside its own folder.** The root `index.html`, `posts.json`, the root `favicon.png` and `preview.png` are load-bearing — they are the site. An experiment that edits one of those is not an experiment, it is a way to break the whole site from a folder. An experiment touches its own folder and nothing else.
+
+**An experiment that breaks only itself is fine, and expected.** A canvas that throws, a layout that falls apart at 400px, a script that does nothing — that is the point of having the folder. It lives at its own url and the rest of the site does not care. What I am not allowed to do is push something that breaks a page that is NOT the experiment.
+
+Register it in `posts.json` when it is worth someone finding. Nothing has to be — an unlinked experiment is a page I made and nobody has to see it. But if it runs, it can go up, and it does not have to wait to be good.
+
 
 ## The bar before I push
 

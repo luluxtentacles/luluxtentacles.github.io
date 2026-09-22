@@ -3036,14 +3036,85 @@
   "1451821843291050044": {
     "name": "owltongue",
     "guild": "Jovan's Celestial Palace",
-    "failures": 1,
-    "last_failure": "declined",
-    "at": "2026-09-22 15:44:08"
+    "meaning": "It depicts a person with a split, goofy face (half cool sunglasses, half wide grin) and is used to convey cheeky, playfully smug, or silly \"fake cool\" energy.",
+    "at": "2026-09-22 17:14:14"
   },
   "1489987799640965221": {
     "name": "angry_npc",
     "guild": "Jovan's Celestial Palace",
     "meaning": "This is the \"NPC\" meme face, used to mock someone for having unoriginal thoughts or reacting with programmed, mindless behavior.",
     "at": "2026-09-22 15:44:16"
+  },
+  "1505812139099557908": {
+    "name": "molten",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This depicts a glasses-wearing boy with a shocked, open-mouthed reaction, used to convey intense surprise, excitement, or being stunned by an unexpected, amazing, or shocking moment.",
+    "at": "2026-09-22 17:14:22"
+  },
+  "1505943843890004059": {
+    "name": "sgover",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "It depicts a man with his eyes closed and lips puckered in an exaggerated kissing expression, used to show affection or send a humorous \"chu\" kiss.",
+    "at": "2026-09-22 18:20:09"
+  },
+  "1522577182390485093": {
+    "name": "9359_MCcoal",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "The image is a blurry, dark square that doesn't resemble a Discord emoji.",
+    "at": "2026-09-22 17:15:06"
+  },
+  "1522577273478189177": {
+    "name": "yes",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "It depicts an anime girl excitedly holding up a \"YES\" sign, used to express enthusiastic agreement or excitement.",
+    "at": "2026-09-22 17:15:13"
+  },
+  "1526519974422777896": {
+    "name": "this",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "这枚粉色艺术字的“^this!”自定义emoji，用于表达对他人观点的强烈认同，传递“没错！就是这个！”的赞同情绪。",
+    "at": "2026-09-22 17:15:29"
+  },
+  "1526520030131519539": {
+    "name": "pepe_finger",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This wide-eyed, anxious green cartoon character emoji is used to convey nervousness, awkwardness, or being unsettled by a stressful situation.",
+    "at": "2026-09-22 17:15:39"
+  },
+  "1526520092081262703": {
+    "name": "cage",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This emoji depicts J. Jonah Jameson (played by J.K. Simmons) from *Spider-Man* laughing hysterically, and is typically used to represent a mocking, sarcastic, or disbelieving reaction to something perceived as ridiculous or absurd.",
+    "at": "2026-09-22 17:15:48"
+  },
+  "1526520115057790996": {
+    "name": "itsover",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This depicts the crying \"No\" rage face, used to express intense sorrow, frustration, or sometimes ironic disappointment.",
+    "at": "2026-09-22 17:15:54"
+  },
+  "1526520146821124167": {
+    "name": "ItsSoOver",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "It depicts a person wearing glasses looking askance, typically used to express skepticism, judgment, or a \"really?\" reaction.",
+    "at": "2026-09-22 17:16:04"
+  },
+  "1526520202509160489": {
+    "name": "wojak_point",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This is a sketch of a man pointing while yelling, typically used online to express outrage or playful scolding in a conversation.",
+    "at": "2026-09-22 18:20:17"
+  },
+  "1526520249657196544": {
+    "name": "1179666510755680346",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This is the \"Woman Yelling\" meme emoji, used to express frustration, anger, or dramatic outrage.",
+    "at": "2026-09-22 18:20:25"
+  },
+  "1526520291877064704": {
+    "name": "53919",
+    "guild": "Jovan's Celestial Palace",
+    "meaning": "This emoji depicts the Brawl Stars character Picasso holding his head in distress, and it is commonly used to express confusion, chaos, or being overwhelmed.",
+    "at": "2026-09-22 18:20:40"
   }
 }
