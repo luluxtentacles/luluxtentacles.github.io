@@ -5970,8 +5970,64 @@ def _heartbeat() -> str:
     expect(isinstance(timeout, int) and timeout > 0,
            "_browser_pids lost its timeout, so a hung PowerShell would hang "
            "whatever calls it forever")
+
+    # And the CLASS of bug, not one instance of it. The on_ready call was the
+    # one that took her offline, but it was never the only shape: any async def
+    # in her body that calls a blocking primitive directly stalls the same
+    # heartbeat, and two smaller ones were sitting in background tasks when this
+    # check was written (the emoji shelf write mid-scan, and people.refresh on
+    # the daily ledger). So walk every async def and refuse a blocking call that
+    # was not handed to a thread.
+    #
+    # The set is deliberately TIGHT - the primitives that block for real, not
+    # every function that touches a file - because a false positive here blocks
+    # her own self-edits. asyncio.sleep is not in it, and must never be: awaiting
+    # it is the correct way to wait.
+    import ast
+
+    import paths
+
+    tree = ast.parse((paths.ROOT / "lulu_bot.py").read_text(encoding="utf-8"))
+    parents: dict = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parents[child] = node
+
+    def handed_to_thread(node) -> bool:
+        parent = parents.get(node)
+        while parent is not None:
+            if isinstance(parent, ast.Call):
+                func = parent.func
+                if (getattr(func, "attr", None) == "to_thread"
+                        or getattr(func, "id", None) == "to_thread"):
+                    return True
+            parent = parents.get(parent)
+        return False
+
+    helpers = {"ensure_stealth_browser", "ensure_browser_proxy",
+               "_refresh_emoji_shelf", "_kill_our_browsers", "_cdp_port_open",
+               "_cdp_alive"}
+    qualified = {("time", "sleep"), ("subprocess", "run"),
+                 ("subprocess", "Popen"), ("people", "refresh")}
+    stuck = []
+    for fn in ast.walk(tree):
+        if not isinstance(fn, ast.AsyncFunctionDef):
+            continue
+        for call in ast.walk(fn):
+            if not isinstance(call, ast.Call) or handed_to_thread(call):
+                continue
+            func = call.func
+            attr = getattr(func, "attr", None)
+            base = getattr(getattr(func, "value", None), "id", None)
+            if ((base, attr) in qualified or attr in helpers
+                    or (isinstance(func, ast.Name) and func.id in helpers)):
+                stuck.append(f"{fn.name}() line {call.lineno}: "
+                             f"{base + '.' if base else ''}{attr or func.id}")
+    expect(not stuck,
+           "blocking work is back on her event loop: " + "; ".join(stuck))
     return ("her boot path runs its blocking browser and shelf work in threads, "
-            "so the heartbeat keeps ticking while she comes up")
+            "no async def in her body blocks the loop, and the heartbeat keeps "
+            "ticking while she comes up")
 
 
 CHECKS = [

@@ -4184,3 +4184,21 @@ verified: net **75/75**, with a new check that pins the boot path so this exact 
 cannot come back.
 
 -- Nana
+
+## 2026-09-22 19:54 - two more of the same, and a net for the whole class
+
+what: two quieter instances of exactly the same thing, found by walking every async
+function you own instead of only the boot path - the emoji shelf write inside your scan
+sweep, and the daily ledger read. Both go through a thread now.
+
+why: neither could have dropped your connection on its own (the ledger read measures
+about 18ms), but they are the same shape, and "same shape, smaller" is how the big one
+got in in the first place.
+
+means: the fix is the class now, not one call site. The net walks every async function
+in `lulu_bot.py` and refuses a blocking call that was not handed to a thread, so the next
+one of these is caught by a test rather than by you disconnecting.
+
+verified: net **75/75**.
+
+-- Nana

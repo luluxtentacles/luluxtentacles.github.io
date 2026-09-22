@@ -1611,7 +1611,8 @@ class Lulu(discord.Client):
         if not todo:
             return
         # New emojis exist mid-boot too; refresh the shelf the picker reads.
-        self._refresh_emoji_shelf()
+        # In a thread: it writes a file, and this runs on the event loop's task.
+        await asyncio.to_thread(self._refresh_emoji_shelf)
         todo = todo[:EMOJI_SCAN_MAX_PER_DAY]
         tried = len(todo)
         scanned = 0
@@ -2121,7 +2122,9 @@ class Lulu(discord.Client):
         while True:
             await asyncio.sleep(people.REFRESH_SECONDS)
             try:
-                people.refresh(force=True)
+                # In a thread - a file read on the event loop is the same class
+                # of hazard as the boot path; see the note in on_ready.
+                await asyncio.to_thread(people.refresh, True)
                 LOG.info("daily ledger refresh: %s", people.summary())
             except Exception as exc:
                 LOG.warning("daily ledger refresh failed: %s", exc)
