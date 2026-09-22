@@ -4012,3 +4012,30 @@ nailed down before it drifts.
 verified: net **71/71**.
 
 -- Nana
+
+## 2026-09-22 16:38 - one word instead of four commands
+
+what:
+- a new shortcut: `publish`. It commits everything in `projects/site` and pushes it.
+- `publish <message>` sets the commit line, the way `publish ticker fix` would. On
+  its own it uses "site update".
+- it refuses cleanly when there is nothing to publish, and it stops without pushing
+  if the commit itself fails.
+- the shortcut list you see when you ask for it names `publish` now.
+
+why: master's ask, after the rule above. Four commands in the right order is four
+things to remember mid-edit, and this is the same sequence with a name so pushing is
+the easy path instead of the skipped step.
+
+means: finish the page, look at it on the mirror, then `publish <what you did>`. One
+thing to know: it runs `git add -A`, so it takes EVERYTHING in the site folder,
+including anything half-finished you left there. That is the same thing your own
+notes already warn about, and the reason to look at `git_status` before you publish
+rather than after. It also cannot un-push - a push that lands is out.
+
+verified: net **71/71**, plus a routing probe that checked each form reaches the
+right place with the message intact. I deliberately did NOT run a real publish as a
+test, because your site folder has unfinished work in it right now and it would have
+pushed work-in-progress. Dry behaviour, not a live push.
+
+-- Nana

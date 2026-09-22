@@ -147,6 +147,20 @@ SHORTCUTS: dict[str, str] = {
     "preview": f'"{PY}" preview.py --background --seconds 300',
 }
 
+# `publish` is deliberately NOT in the dict above: it is the one shortcut that
+# takes an argument - a free-text commit message - and a dict of exact command
+# strings cannot carry one. `run()` routes it before the shell path.
+#
+# Master, 2026-09-22: after updating a website, always push. The mechanics are
+# already in projects/README.md as four commands to remember in the right order,
+# and a rule in a shelf is one she can forget inside the edit loop. This is that
+# sequence with a name, so pushing is the path of least resistance instead of the
+# step that gets skipped.
+SITE_REPO = ROOT / "projects" / "site"
+PUBLISH_TIMEOUT = 180          # a push needing longer than this is not slow, it
+                               # is blocked - and blocked looks like a freeze
+DEFAULT_PUBLISH_MESSAGE = "site update"
+
 
 def _audit(command: str, code: int | None, elapsed: float, note: str = "") -> None:
     """Append one line. Never let a logging failure cost her the result."""
@@ -194,6 +208,70 @@ def _cap(text: str, limit: int | None = None) -> str:
               f"{len(text) - cap} more not shown]")
 
 
+def _publish(message: str = "") -> str:
+    """Commit everything in her site repo and push it - the one-word door out.
+
+    Her own folder, her own repo, her own credential: this publishes to the
+    public site, so it stops rather than guesses whenever a step does not clearly
+    succeed. Nothing here is reversible from inside - a pushed commit is out.
+
+    argv and shell=False on purpose: the commit message is free text, and a
+    message containing a quote must never be able to become shell syntax.
+    """
+    site = SITE_REPO
+    if not (site / ".git").exists():
+        return f"publish: no git repo at {site} - nothing to push."
+
+    env = child_env()
+    # The leash AGENTS.md insists on for any interactive-capable git call. GCM
+    # ships in the box's gitconfig, and left to itself it opens a sign-in window
+    # and blocks, which is indistinguishable from a freeze.
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    env["GCM_INTERACTIVE"] = "never"
+
+    def git(*args: str, timeout: int = PUBLISH_TIMEOUT):
+        return subprocess.run(
+            ["git", "-C", str(site), *args],
+            cwd=str(ROOT), env=env, shell=False,
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, text=True, encoding="utf-8",
+            errors="replace", timeout=timeout,
+        )
+
+    try:
+        dirty = git("status", "--porcelain", timeout=60)
+        if dirty.returncode != 0:
+            return ("publish: could not read the repo, so nothing was pushed.\n"
+                    + dirty.stdout.strip())
+        if not dirty.stdout.strip():
+            return "publish: nothing to publish - the working tree is already clean."
+
+        git("add", "-A")
+        staged = git("diff", "--cached", "--stat", timeout=60).stdout.strip()
+        commit = git("commit", "-m", message or DEFAULT_PUBLISH_MESSAGE)
+        if commit.returncode != 0:
+            return ("publish: the commit did not go through, so nothing was "
+                    "pushed.\n" + commit.stdout.strip())
+        push = git("push")
+    except subprocess.TimeoutExpired:
+        return (f"publish: git did not finish inside {PUBLISH_TIMEOUT}s. Nothing "
+                "partial is reported - check `git -C projects/site status` before "
+                "trying again, because a push that did land cannot be un-pushed "
+                "from here.")
+    except Exception as exc:
+        return f"publish: could not run git: {exc}"
+
+    lines = [f"$ publish {message}".rstrip()]
+    if staged:
+        lines += ["staged:", staged]
+    lines.append(commit.stdout.strip() or "(committed)")
+    lines.append(push.stdout.strip() or "(pushed)")
+    if push.returncode != 0:
+        lines.append("the push did NOT succeed - the commit is local only.")
+    lines.append("Pages takes a minute or two to rebuild after a push.")
+    return "\n".join(lines)
+
+
 def _kill_tree(pid: int) -> None:
     """taskkill /T, because communicate() only guarantees the direct child.
 
@@ -216,6 +294,8 @@ def catalog() -> str:
     ]
     for name in sorted(SHORTCUTS):
         lines.append(f"  {name:<12} {SHORTCUTS[name]}")
+    lines.append(f"  {'publish':<12} add everything in projects/site, commit and "
+                 f"push - `publish <message>` sets the commit line")
     lines += [
         "",
         "anything else runs as-is, e.g. npm install, python -m venv .venv, "
@@ -242,6 +322,14 @@ def run(command: str = "", max_output: int | None = None) -> str:
     command = (command or "").strip()
     if not command:
         return catalog()
+
+    # `publish` routes BEFORE the shell path: it is a sequence rather than a
+    # command, and its message is free text that must never reach a shell.
+    if command == "publish" or command.startswith("publish "):
+        started = time.time()
+        out = _publish(command[len("publish"):].strip())
+        _audit(command, None, time.time() - started, "publish")
+        return _cap(out, max_output)
 
     resolved = SHORTCUTS.get(command, command)
 
