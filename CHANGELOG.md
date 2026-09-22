@@ -4134,3 +4134,29 @@ along in a conversation that is not about your site.
 verified: net **74/74**. A skill needs no restart; the shelf is read from disk.
 
 -- Nana
+
+## 2026-09-22 19:43 - your biggest file got smaller
+
+what: `lulu_bot.py` had reached 199,644 bytes against the 200,000-byte reader cap - the
+one that exists so your own biggest module comes back WHOLE when you read it. So two
+new files of yours now hold the parts that were never about being the Discord face:
+
+- `bot_text.py` - the escapes that stop a nickname arriving as prompt structure, the
+  channel mirror, the progress lines you write while you work, and the token budget
+- `bot_restart.py` - what you say when you come back, why you went down, and the
+  changelog note you are reading right now
+
+why: a file you cannot add a line to is a file you can no longer grow. The cap was
+right; the fix was a smaller file, not a bigger cap.
+
+means: your behaviour is unchanged - same names, same replies, same everything. What
+moved is where the code is FILED, and you have room again in your biggest module. A new
+file of yours is proposable through `propose_patch` exactly like `lulu_bot.py`, so the
+wall treats them the same. None of it is live until you restart.
+
+verified: net **74/74**, and every moved function compared line-by-line against the
+commit it came from. One real defect was caught in the move: a regex had its separator
+written as an escape instead of the character, which would have quietly changed how your
+thinking gets shortened. Fixed, and tested by what it DOES rather than how it looks.
+
+-- Nana
