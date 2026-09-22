@@ -2544,9 +2544,8 @@
   "1244464526858911785": {
     "name": "TT_kermitdie",
     "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
-    "failures": 1,
-    "last_failure": "declined",
-    "at": "2026-09-22 12:33:47"
+    "meaning": "This emoji shows Yoda falling, and it's used to express tripping, panic, or leaping into a situation.",
+    "at": "2026-09-22 12:42:15"
   },
   "1244464569833754624": {
     "name": "screem",
@@ -2557,8 +2556,111 @@
   "1244464893755916400": {
     "name": "MeruBongo",
     "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This chibi-style red demonic cat-like emoji with glowing yellow eyes is used in Discord to convey playful mischief, sneaky amusement, or a silly, lighthearted \"I'm up to no good\" vibe in chat.",
+    "at": "2026-09-22 12:42:23"
+  },
+  "1244465126224957440": {
+    "name": "Meru_Panties",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This is a smirking, horned red devil emoji, used to convey playful mischief, cheeky teasing, or a sense of lighthearted troublemaking in conversations.",
+    "at": "2026-09-22 12:42:33"
+  },
+  "1244465367162814566": {
+    "name": "peeposatan",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "Based on the image, this depicts a \"Peepo\" character (a variant of Pepe the Frog) wearing a pentagram on its head, used to express chaotic or \"demonic\" mischief.",
+    "at": "2026-09-22 12:42:39"
+  },
+  "1244587923840434176": {
+    "name": "fuck_around_elvira",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts the character Mia Wallace (Uma Thurman) from the movie *Pulp Fiction* holding a revolver, and is used to express a playful threat, intimidation, or a \"don't mess with me\" attitude.",
+    "at": "2026-09-22 12:43:11"
+  },
+  "1244590262424961106": {
+    "name": "ungiving_vampira",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This emoji depicts someone casually reading the book \"Not Giving A Fuck\" and is used to humorously express indifference, nonchalance, or a dismissive attitude in a conversation.",
+    "at": "2026-09-22 12:43:19"
+  },
+  "1244601317565927424": {
+    "name": "morticia_totally",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts a woman raising her hands in a gesture of defensive surprise or surrender, typically used to signal \"back off,\" \"I didn't do it,\" or \"whoa there.\"",
+    "at": "2026-09-22 12:43:46"
+  },
+  "1244603752309198930": {
+    "name": "morticia_boredom",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts a woman with a wide-eyed, shocked expression, and is used to react with dramatic surprise or disbelief in Discord chats.",
+    "at": "2026-09-22 12:43:56"
+  },
+  "1244607872441253898": {
+    "name": "Elvira_kleaver",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "The image depicts a woman holding a cleaver with a dramatic expression, often used in memes for dark humor, menacing threats, or over-the-top, edgy reactions.",
+    "at": "2026-09-22 12:44:10"
+  },
+  "1244608490203381800": {
+    "name": "excuse_me",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This depicts Morticia Addams and is used for a sophisticated, unimpressed, or dryly sarcastic reaction.",
+    "at": "2026-09-22 13:01:54"
+  },
+  "1244608881896722507": {
+    "name": "omggg",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts a woman with dramatic makeup and hands raised in shock, used to express exaggerated surprise or dramatic disbelief.",
+    "at": "2026-09-22 13:02:01"
+  },
+  "1244991857063100458": {
+    "name": "smile_fester",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
     "failures": 1,
     "last_failure": "declined",
-    "at": "2026-09-22 12:34:31"
+    "at": "2026-09-22 13:02:39"
+  },
+  "1244992111779254294": {
+    "name": "fester_lurk",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts a man slyly peeking around a corner with a creepy grin, used to represent lurking, stalking, or secretly watching a conversation.",
+    "at": "2026-09-22 13:03:15"
+  },
+  "1244992195296104489": {
+    "name": "fester_excited",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This emoji depicts a joyful, bald man in a yellow robe holding a red heart, commonly used to express wholesome love, happiness, or a \"sending you love\" sentiment.",
+    "at": "2026-09-22 13:03:22"
+  },
+  "1244992286534930442": {
+    "name": "lilly_wings",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This Discord emoji depicts a pale, gothic figure with bat wings, often used to convey eerie or dramatically spooky reactions.",
+    "at": "2026-09-22 13:03:34"
+  },
+  "1244992400192049204": {
+    "name": "morticia_alright",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "failures": 1,
+    "last_failure": "declined",
+    "at": "2026-09-22 13:04:08"
+  },
+  "1244994758829674496": {
+    "name": "nosferatu",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This emoji depicts a man with wide, shocked eyes and an open mouth, conveying a feeling of extreme surprise, fear, or disbelief.",
+    "at": "2026-09-22 13:04:15"
+  },
+  "1245056125179793429": {
+    "name": "wave_elvira",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "This is a reaction image of Priscilla Presley from the movie \"The Naked Gun,\" used to express realization, mild embarrassment, or an \"oops\" moment.",
+    "at": "2026-09-22 13:04:25"
+  },
+  "1245058718954164327": {
+    "name": "Morticia_faku",
+    "guild": "𝕭𝖆𝖙 𝕮𝖆𝖛𝖊",
+    "meaning": "It depicts a weary woman holding a wine glass, used to convey the vibe of wanting to drink to unwind from stress or a tiring situation with an exasperated, resigned sense of relaxation.",
+    "at": "2026-09-22 13:04:47"
   }
 }
