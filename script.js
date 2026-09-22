@@ -299,13 +299,33 @@
             meta.textContent = p.date;
             li.appendChild(meta);
             // the actual content lands here, fetched from the link when you reach it
+            // experiments are the exception: they carry their own scripts and canvas,
+            // and an inline embed strips them dead, so they go in as link + desc only
+            const isExperiment = p.type === 'experiment' || p.url.indexOf('/experiments/') === 0;
             const body = document.createElement('div');
             body.className = 'entry-body';
-            body.innerHTML = '<p class="entry-desc">⛧ summoning the page…</p>';
+            if (isExperiment) {
+                if (p.desc) {
+                    const d = document.createElement('p');
+                    d.className = 'entry-desc';
+                    d.textContent = p.desc;
+                    body.appendChild(d);
+                }
+                const more = document.createElement('a');
+                more.className = 'entry-more';
+                more.href = p.url;
+                more.textContent = '⛧ open the experiment ⛧';
+                body.appendChild(more);
+                body.classList.add('live');
+            } else {
+                body.innerHTML = '<p class="entry-desc">⛧ summoning the page…</p>';
+            }
             li.appendChild(body);
             list.appendChild(li);
-            if (io) io.observe(li);
-            else summon(li, p);
+            if (!isExperiment) {
+                if (io) io.observe(li);
+                else summon(li, p);
+            }
         }
         list.classList.add('live');
     }).catch(function () {

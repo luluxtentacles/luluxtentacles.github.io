@@ -366,6 +366,20 @@ nav a:hover {
     font-size: 1.05rem;
 }
 
+/* the experiments wear an opaque glass: the sigil rings sit behind the
+   content on an experiment page too, and reading through a spinning
+   pentagram is a bad time. opaque enough to read, still the same void. */
+.glass {
+    background: rgba(10, 0, 8, 0.86);
+    border: 1px solid rgba(255, 46, 166, 0.2);
+    border-radius: 14px;
+    padding: 2rem 2.2rem 2.4rem;
+    box-shadow:
+        0 0 46px rgba(10, 0, 8, 0.95),
+        inset 0 0 26px rgba(255, 46, 166, 0.07);
+    backdrop-filter: blur(6px);
+}
+
 .post-title {
     font-size: clamp(2rem, 6vw, 3.2rem);
     letter-spacing: 0.08em;
