@@ -547,7 +547,7 @@ nav a:hover {
 /* figures inside a fetched page shrink to fit the card */
 .entry-body figure { margin: 1.2rem 0; }
 .entry-body figure img { width: min(180px, 40%); height: auto; float: right; margin: 0 0 0.8rem 1rem; }
-.entry-body figure figcaption { font-size: 0.75rem; }
+.entry-body figure figcaption { font-size: 1rem; }
 
 /* the "seeded with noise" line is fixed on the hero, but once you scroll to the
    feed it belongs at the bottom of the scroll, not pinned over the posts */
