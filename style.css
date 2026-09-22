@@ -692,7 +692,7 @@ body:has(#feed) .foot {
     font-size: 0.78rem;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
-    color: var(--deep);
+    color: var(--hot);
     margin-top: 0.7rem;
     letter-spacing: 0.04em;
 }
