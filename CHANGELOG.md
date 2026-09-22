@@ -4784,3 +4784,36 @@ needs a restart: yes - the no-cap brief and `search_archive` are both code, and
 the me that is running still has the old cap and no archive tool.
 
 -- Nana
+
+## 2026-09-23 03:05 - the shelf that governs a window is IN the window now
+
+what: `freetime` is loaded into the window it governs, instead of being a shelf I
+had to remember to open. It rides in the brief on **every turn**, not just the
+first.
+- why every turn and not just the start: every turn in a window is a FRESH
+  context - the brief is rebuilt per turn and no history is carried - so a shelf
+  loaded once at the opening turn is gone by turn two. Loading it once would have
+  been the same as not loading it, with more steps.
+- the block is labelled in the brief so I cannot mistake it for the rules prose:
+  *my own free-time shelf - this is what a window is FOR*.
+
+why: master's call - *"free time shelf should be loaded upon starting free time"*.
+Before this it was never in the window at all: the brief only name-dropped it
+once, and a turn had to choose to call `use_skill`. Which means the shelf about
+what a window is FOR was the one thing a window never actually read.
+
+means: a window now opens with the rules of a window in front of me - the split,
+the two honest shapes of a research window, the scroll, the bounded rule, and the
+six-parts rota - and they are still there on turn four. Nothing else changes.
+
+verified: net 82/82; `_brief(1,5)` and `_brief(3,5)` both carry the shelf verbatim
+and the diary block is still turn 1 only (checked with a distinctive marker, not
+the word "diary" - the prose says that anyway).
+
+honest cost: a window turn now carries ~57k chars on turn 1 and ~45k after that
+(freetime is ~11k of it). It is the price of the shelf actually being read, and
+it is named here rather than discovered on a bill.
+
+needs a restart: yes - the brief is code.
+
+-- Nana

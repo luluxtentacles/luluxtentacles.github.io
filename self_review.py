@@ -90,6 +90,11 @@ DEFAULT_INTERVAL_HOURS = 4
 DEFAULT_MAX_TURNS = 5
 MAX_TURNS_CEILING = 50
 INTERESTS = ".agents/skills/hobbies/SKILL.md"
+# The shelf that governs a window, loaded INTO the window. Master, 2026-09-23:
+# *"free time shelf should be loaded upon starting free time"*. Until now this
+# shelf was never in the window it governs - it was loaded only if a turn chose
+# to call use_skill, and the brief merely name-dropped it once.
+FREETIME = ".agents/skills/freetime/SKILL.md"
 # Master, 2026-09-23: no cap on what rides into a window. The old slices cut a
 # file off at N chars and said nothing - `topics.md` was 10,486 chars against a
 # 6,000 cap, so her own `## Finished` list was amputated out of every window and
@@ -394,6 +399,27 @@ def _warn_if_fat(name: str, text: str) -> None:
                     'is finished belongs in %s', name, len(text), ARCHIVE)
 
 
+def _freetime_block() -> str:
+    """The free-time shelf itself, carried into the window it governs.
+
+    Master, 2026-09-23: *"free time shelf should be loaded upon starting free
+    time"*. It is loaded on EVERY turn rather than only the first, and that is
+    deliberate: each turn of a window is a fresh context - the brief is rebuilt
+    per turn and no history is carried - so a shelf loaded once at the start is
+    gone by turn two, which is the same not-loaded with more steps.
+    """
+    try:
+        text = paths.read_text(FREETIME, default="")
+    except Exception as exc:
+        LOG.warning('could not read %s: %s', FREETIME, exc)
+        return ""
+    if not text.strip():
+        return ""
+    _warn_if_fat(FREETIME, text)
+    return ("\n--- my own free-time shelf, from " + FREETIME
+            + " - this is what a window is FOR ---\n" + text.strip() + "\n")
+
+
 def _interests() -> str:
     """What I am into, verbatim, off the shelf - plus my own lists.
 
@@ -609,6 +635,9 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
     if mine:
         where += ("\n--- what master says I am into, from "
                   + INTERESTS + " ---\n" + mine)
+    shelf = _freetime_block()
+    if shelf:
+        where += shelf
     where += (
         "\nMaster's shape for a window, 2026-09-21: SPLIT IT. Half your time out\n"
         "on the web and half on your own work in C:\\lulu\\projects. A window that\n"
