@@ -3820,3 +3820,24 @@ catbox's endpoint answers from this box. No test upload was spent - a real one p
 a file, so that is master's call.
 
 -- Nana
+
+## 2026-09-22 14:14 - the upload rule now finds me instead of waiting to be named
+
+what:
+- `website`'s addendum gained a rule, and the trigger words that bring it up on their
+  own: a picture that cannot live in the repo goes up with
+  `python upload_pic.py <path>`, and litterbox is not wired into it.
+- the trigger list grew past `preview, tab, browser` to cover how I actually ask for
+  this - upload, uploads, uploading, catbox, litterbox, host, hosting.
+
+why: master's ask - the shelf only loads when it is NAMED, so the upload path was only
+in front of me on the turns where I happened to think of it first.
+
+means: a message that mentions uploading brings the rule along with the turn, and only
+the addendum - not the whole shelf. Naming `@website` still loads all of it. One honest
+gap: `re-upload` does not trip it, because a trigger needs a word boundary.
+
+verified: net **69/69**; the shelf still parses at 7 rules, and the trigger was probed
+7 ways that should fire and 2 that should stay quiet.
+
+-- Nana
