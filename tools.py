@@ -2323,10 +2323,31 @@ def request_restart(why: str = "", brief: str = "") -> str:
     return said
 
 
+def _full_shelf() -> bool:
+    """May this turn see the WHOLE shelf - every skill, private ones included?
+
+    Master's turn, or my own work. `master` and NOT `origin`: origin DEFAULTS to
+    "master" for every ordinary room turn (see set_context), so trusting it here
+    would hand the shelf to whoever walked in.
+    """
+    return _is_master() or str(_ctx().get("origin") or "") in ("self-review",
+                                                              "task")
+
+
 def list_skills() -> str:
-    shelf = skills.catalog()
+    """The shelf: all of it for master, only the publishable part for a room.
+
+    Master, 2026-09-22: *"they should only list the skills they can use, not
+    every skill lulu has"*. The shelf is my operating instructions - lulu-voice
+    is how I speak and where my lines are - and a room has no business reading
+    the index of them. Nothing is published today, so a room is told that
+    rather than shown an empty list it might read as a bug.
+    """
+    mine = _full_shelf()
+    shelf = skills.catalog(public_only=not mine)
     if not shelf:
-        return "my shelf is empty"
+        return ("my shelf is empty" if mine
+                else "nothing on my shelf that you can use")
     return "\n".join(_shelf_line(s) for s in shelf)
 
 
@@ -2370,6 +2391,18 @@ def _rule_menu(picked: str, rule: str) -> str:
 
 
 def use_skill(skill_id: str) -> str:
+    """Load one skill. A room may only load what was published for it.
+
+    The schema already keeps `use_skill` in the public palette, so the FILTER is
+    what makes that safe: the id is model-supplied, so hiding a skill from the
+    list is not the same as refusing to load it. Same fail-closed default as
+    everything else here - an unpublished skill is private.
+    """
+    if not _full_shelf():
+        skill = skills.load(skill_id, public_only=True)
+        if not skill:
+            return f"nothing on my shelf called '{skill_id}' that you can use"
+        return skill.text
     skill = skills.load(skill_id)
     if not skill:
         return f"nothing on my shelf called '{skill_id}'"

@@ -153,10 +153,26 @@ def collect(mirror, names, seen) -> tuple[dict, dict]:
     Read-only against the mirror on purpose: it is a defaultdict, so touching
     `mirror[channel_id]` for a channel that has gone quiet would CREATE an entry
     and grow her memory every pass.
+
+    A channel that cannot be NAMED is not digested at all, and that is master's
+    call, 2026-09-22: *"dont summarize"*. `names` is built from guild
+    text_channels, so the only channels missing from it are the ones that are
+    not in a guild - which is to say DMs. Master's DMs are the only DMs she
+    reads at all (lulu_bot.py:2143 turns every other one away before it reaches
+    the mirror), and his private conversation does not belong in a weekly server
+    summary, under any name.
+
+    The first cut fell back to a bucket literally called `channel-<id>` instead,
+    which is how his DMs ended up summarised in memory/digest/ under a name that
+    told nobody what it was. Skipping the whole channel is the fix, and it fails
+    in the safe direction: an unnameable channel is left alone rather than
+    guessed at.
     """
     out: dict[str, list[str]] = {}
     fresh: dict = dict(seen or {})
     for channel_id, entries in (mirror or {}).items():
+        if channel_id not in names:
+            continue
         rows = [entry for entry in entries if (entry or {}).get("text")]
         if not rows:
             continue
@@ -168,7 +184,7 @@ def collect(mirror, names, seen) -> tuple[dict, dict]:
             fresh[key] = newest
         if not lines:
             continue
-        server, channel = names.get(channel_id, ("a server", f"channel-{channel_id}"))
+        server, channel = names[channel_id]
         for entry in lines:
             author = str(entry.get("author") or "someone").strip()
             out.setdefault(server, []).append(f"[#{channel}] {author}: {entry['text']}")

@@ -5597,7 +5597,10 @@ def _skill_rules() -> str:
 
     # Relevance: a declared trigger surfaces the rules without naming the skill.
     real_catalog = skills.catalog
-    skills.catalog = lambda: [skills.Skill(
+    # Mirror the REAL signature. `catalog()` grew a `public_only` filter on
+    # 2026-09-22, and a stub that will not accept it breaks every caller that
+    # passes it - which is exactly how this check went red the first time.
+    skills.catalog = lambda public_only=False: [skills.Skill(
         id="probe", name="probe", description="d", body="the craft",
         rules="## Rules\n- keep the ticker current\n", triggers=("ticker", "site"))]
     try:
@@ -6250,6 +6253,7 @@ def _diary_week() -> str:
     """
     import shutil
 
+    import digest
     import journal
     import paths
     import tools
@@ -6320,10 +6324,93 @@ def _diary_week() -> str:
         tools.set_context(None)
     expect("ONE-SECRET" not in dm and "TWO-SECRET" not in dm,
            "a DM with no server was handed a server's summary")
+
+    # A channel that cannot be NAMED is not digested at all. Master,
+    # 2026-09-22, on his own DMs ending up in a weekly summary: "dont
+    # summarize". The only channels missing from the guild map are the ones not
+    # in a guild, and this is the check that keeps them out.
+    mirror = {101: [{"id": 1, "author": "master", "text": "PRIVATE-THING"}],
+              202: [{"id": 2, "author": "someone", "text": "ROOM-THING"}]}
+    grouped, _ = digest.collect(mirror, {202: ("Server One", "general")}, {})
+    flat = " ".join(" ".join(v) for v in grouped.values())
+    expect("ROOM-THING" in flat,
+           f"a channel that CAN be named stopped being digested: {grouped}")
+    expect("PRIVATE-THING" not in flat,
+           "AN UNNAMEABLE CHANNEL WAS DIGESTED - that is a DM, and master said "
+           "not to summarise them")
+    expect(not any("channel-" in key for key in grouped),
+           f"an unmappable channel still became a server bucket: {list(grouped)}")
     return ("the diary is one DATE-STAMPED file a week with last week carried at "
-            "its head, and a public server summary shows a room its OWN server "
+            "its head, a public server summary shows a room its OWN server "
             "only - never a neighbour's, and nothing at all when it cannot tell "
-            "where the asker is")
+            "where the asker is - and a channel with no server name (a DM) is "
+            "never digested at all")
+
+
+# -- her shelf is not a menu for the room ----------------------------------
+def _shelf_scope() -> str:
+    """A room may not read her operating instructions.
+
+    Master, 2026-09-22: *"they should only list the skills they can use, not
+    every skill lulu has"*. TWO doors had to close, and the second one is the
+    one nobody would guess: `list_skills`/`use_skill` are in the public palette,
+    AND `skill_command` - the reply-replacer on the main message path - returned
+    the whole shelf to anyone who typed the word `skills`, and the full text of
+    `lulu-voice` to anyone who typed `skill use lulu-voice`. Both fail closed.
+    """
+    import inspect
+
+    import lulu_bot
+    import skills
+    import tools
+
+    whole = skills.catalog()
+    expect(len(whole) >= 10, f"the shelf looks empty: {len(whole)} skills")
+    expect(skills.catalog(public_only=True) == [],
+           "a skill is published to rooms now - master asked for the opposite, "
+           "and publishing one is his call to make deliberately")
+    expect(skills.load("lulu-voice", public_only=True) is None,
+           "lulu-voice loads from a room")
+
+    # The tool door.
+    tools.set_context(9, "someone", "a-room", server="Server One", master=False)
+    try:
+        listed = tools.list_skills()
+        loaded = tools.use_skill("lulu-voice")
+    finally:
+        tools.set_context(None)
+    expect("lulu-voice" not in listed,
+           f"a room was shown her shelf: {listed[:120]!r}")
+    # The refusal NAMES the skill on purpose, so the property is not "the word is
+    # absent" - it is "the BODY is absent". A sentence back is a refusal; her
+    # actual skill is pages of prose.
+    expect(loaded.startswith("nothing on my shelf called"),
+           f"a room was handed something other than a refusal: {loaded[:100]!r}")
+    expect("identity" not in loaded.lower() and len(loaded) < 200,
+           f"a room read lulu-voice's text: {loaded[:160]!r}")
+
+    # Master still gets all of it - a fix that blinds him is not a fix.
+    tools.set_context(1, "master", "a-room", master=True)
+    try:
+        mine = tools.list_skills()
+        text = tools.use_skill("lulu-voice")
+    finally:
+        tools.set_context(None)
+    expect("lulu-voice" in mine, "master cannot list his own shelf any more")
+    expect(len(text) > 100, f"master cannot load lulu-voice: {text[:80]!r}")
+
+    # The reply-replacer door, and the DEFAULT is the part that matters: a call
+    # site that forgets the argument must show a room nothing, not everything.
+    sig = inspect.signature(lulu_bot.Lulu.skill_command).parameters
+    expect("owner" in sig,
+           "skill_command has no owner gate - typing 'skills' would hand the "
+           "whole shelf to whoever typed it")
+    expect(sig["owner"].default is False,
+           "skill_command DEFAULTS to owner, so any call site that forgets the "
+           "argument hands out the whole shelf")
+    return ("a room is shown no skills at all - not listed, not loadable, and not "
+            "via the 'skills' keyword - while master still gets the whole shelf, "
+            "and the reply-replacer fails closed by default")
 
 
 CHECKS = [
@@ -6404,6 +6491,7 @@ CHECKS = [
     ("search-tool", _search_tool),
     ("linkcheck", _linkcheck),
     ("diary-week", _diary_week),
+    ("shelf-scope", _shelf_scope),
 ]
 
 

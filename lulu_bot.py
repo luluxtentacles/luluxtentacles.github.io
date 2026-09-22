@@ -1377,25 +1377,44 @@ class Lulu(discord.Client):
         parts.append(MASTER_CALL_RULE)
         return "\n\n".join(parts) or "You are Lulu."
 
-    def skill_command(self, text: str) -> str | None:
+    def skill_command(self, text: str, owner: bool = False) -> str | None:
+        """A literal `skills` / `skill use X` command, answered directly.
+
+        `owner` DEFAULTS TO FALSE, and the default is the safety. This method's
+        return value REPLACES her whole turn, it runs for anyone in a room, and
+        the shelf is her operating instructions - so a stranger typing `skills`
+        was handed the entire index, and `skill use lulu-voice` the text of her
+        identity and her lines. Master, 2026-09-22: *"they should only list the
+        skills they can use, not every skill lulu has"*.
+
+        Failing closed means a call site that forgets the argument shows a room
+        NOTHING instead of everything. The declaration-trigger loop is gated for
+        the same reason: it returns a skill as her reply, so a stranger's word
+        matching a trigger was a stranger reading a skill.
+        """
         words = text.lower().split()
         if words and words[0] in {"skill", "skills"}:
             if len(words) > 2 and words[1] in {"use", "load"}:
-                skill = skills.load(words[2])
-                return f"[{skill.id}]\n\n{skill.text}" if skill else f"nothing called '{words[2]}'"
-            shelf = skills.catalog()
+                skill = skills.load(words[2], public_only=not owner)
+                if skill:
+                    return f"[{skill.id}]\n\n{skill.text}"
+                return (f"nothing called '{words[2]}'" if owner else
+                        f"nothing on my shelf called '{words[2]}' that you can use")
+            shelf = skills.catalog(public_only=not owner)
             if not shelf:
-                return "my shelf is empty"
+                return ("my shelf is empty" if owner
+                        else "nothing on my shelf that you can use")
             lines = []
             for s in shelf:
                 n = skills.rule_count(s)
                 lines.append(f"`{s.id}` - {s.description}"
                              + (f" ({n} rule{'s' if n != 1 else ''} filed)" if n else ""))
             return "my shelf:\n" + "\n".join(lines)
-        for skill_id in skills.trigger_ids(text):
-            skill = skills.load(skill_id)
-            if skill:
-                return f"[{skill.id}]\n\n{skill.text}"
+        if owner:
+            for skill_id in skills.trigger_ids(text):
+                skill = skills.load(skill_id)
+                if skill:
+                    return f"[{skill.id}]\n\n{skill.text}"
         # NO keyword branch here, deliberately - it was the bug.
         #
         # Every string this method returns REPLACES her turn: on_message calls it
@@ -2317,7 +2336,7 @@ class Lulu(discord.Client):
             if parts:
                 text = "(the message i replied to just had an image)"
 
-        answer = self.skill_command(text)
+        answer = self.skill_command(text, owner=self.has_hands(message.author.id))
         if answer is None:
             channel_id = message.channel.id
             # Claim the slot BEFORE the work starts. Only MASTER's message

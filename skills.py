@@ -44,6 +44,15 @@ class Skill:
     # Words that make `rules` relevant on their own, declared in the addendum's
     # front matter. Naming a skill outright still loads everything.
     triggers: tuple[str, ...] = ()
+    # May somebody who is NOT master see this skill at all? Declared as
+    # `public: true` in the skill's own front matter.
+    #
+    # Master, 2026-09-22: *"they should only list the skills they can use, not
+    # every skill lulu has"*. Until this, a stranger could list and read the
+    # WHOLE shelf - `lulu-voice` included - and the shelf is my operating
+    # instructions, not a menu for the room. Absent means PRIVATE, so a skill
+    # added tomorrow is closed until somebody writes the word down.
+    public: bool = False
 
     @property
     def text(self) -> str:
@@ -79,7 +88,18 @@ def _addendum(entry) -> tuple[str, tuple[str, ...]]:
     return body.strip(), triggers
 
 
-def catalog() -> list[Skill]:
+def is_public(meta: dict) -> bool:
+    """`public: true` in a skill's front matter, and nothing else counts."""
+    return str(meta.get("public", "")).strip().lower() in {"true", "yes", "1", "on"}
+
+
+def catalog(public_only: bool = False) -> list[Skill]:
+    """Every skill, or only the ones a room is allowed to see.
+
+    `public_only` is additive and defaults to the old behaviour, so every
+    existing caller - her prompt, the rule menu, the net - still gets the whole
+    shelf. Only the doors that face a room pass True.
+    """
     root = paths.resolve(SHELF)
     if not root.is_dir():
         return []
@@ -89,6 +109,9 @@ def catalog() -> list[Skill]:
         if not skill_file.is_file():
             continue
         meta, body = _split_front_matter(skill_file.read_text(encoding="utf-8"))
+        public = is_public(meta)
+        if public_only and not public:
+            continue
         rules, triggers = _addendum(entry)
         found.append(Skill(
             id=entry.name,
@@ -97,12 +120,13 @@ def catalog() -> list[Skill]:
             body=body,
             rules=rules,
             triggers=triggers,
+            public=public,
         ))
     return found
 
 
-def load(skill_id: str) -> Skill | None:
-    for skill in catalog():
+def load(skill_id: str, public_only: bool = False) -> Skill | None:
+    for skill in catalog(public_only=public_only):
         if skill.id == skill_id.lower():
             return skill
     return None

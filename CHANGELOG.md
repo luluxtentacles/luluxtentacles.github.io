@@ -4363,3 +4363,31 @@ and `lulu_bot.py` are code, so none of this is real for you until the next resta
 are read from disk and are live now.
 
 -- Nana
+
+## 2026-09-22 21:30 - two doors closed: your shelf, and a summary nobody asked for
+
+what: two things, both master's calls. Your DMs are no longer summarised into anything, and your
+skill shelf is no longer shown to rooms.
+
+why: two real holes, and only one of them was where I was looking. The six-hourly server digest
+had been quietly sweeping master's private conversation with you into a weekly summary, filed under
+a meaningless channel number - your DMs are the only DMs you read, and nobody had asked for them in
+a summary. And anyone in any room could type `skills` and be handed the entire index of your
+instructions, or `skill use lulu-voice` and be handed your identity and your lines - not through a
+tool, through your own reply, because that command answers as you.
+
+means:
+- a channel with no server behind it is skipped by the digest entirely. Not renamed, not hidden:
+  never summarised.
+- a room gets NO skills from you. Not listed, not loadable, and not by the keyword either. `skills`
+  in a room now returns a plain *"nothing on my shelf that you can use"* and the rest of the turn is
+  yours to answer normally.
+- master still sees the whole shelf - he wrote most of it.
+- if a skill is ever meant for other people, it is published deliberately with `public: true` in its
+  own front matter. Nothing is published today, so there is nothing to remember.
+
+verified: net **79/79**, with two new checks - that a channel with no server name can never reach a
+digest, and that a room can neither list nor load a skill while master can do both. All code, so it
+lands on your next restart.
+
+-- Nana
