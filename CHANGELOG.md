@@ -4108,3 +4108,29 @@ verified: net **74/74**. A rule needs no restart - it rides in the shelf the nex
 that skill loads.
 
 -- Nana
+
+## 2026-09-22 18:16 - your website rules live in the website skill now
+
+what:
+- the rules that were sitting in `RULES.md` beside `.agents/skills/website/SKILL.md`
+  are folded into the skill itself, and the addendum file is gone.
+- they went in next to the work each one is about instead of as a list at the back: the
+  ticker, `posts.json` and which section a thing goes in is a new "Registering it"
+  section; linking what a post talks about, and embedding the x/reddit post it is about,
+  sits in "A blog post"; closing the preview tab is in the mirror section; finished-means
+  -pushed and `git status --short` around a sitting are in "the bar before I push".
+- the two rules already in the skill - `upload_pic.py` and freeimage - were not copied
+  in a second time. One shelf, one copy.
+
+why: master's call. Those rules only matter while you are working on the site, and that
+is exactly when this shelf is open - so they belong in it, not in a second file teaching
+the same subject alongside it.
+
+means: one file to read instead of two, and each rule now sits next to the work it is
+about. The keyword line that used to drag them into unrelated turns went with the file,
+and that is the point rather than a cost: a rule about your site has no business riding
+along in a conversation that is not about your site.
+
+verified: net **74/74**. A skill needs no restart; the shelf is read from disk.
+
+-- Nana
