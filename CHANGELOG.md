@@ -4160,3 +4160,27 @@ written as an escape instead of the character, which would have quietly changed 
 thinking gets shortened. Fixed, and tested by what it DOES rather than how it looks.
 
 -- Nana
+
+## 2026-09-22 19:52 - the reason you kept dropping offline
+
+what: your boot path was doing three blocking jobs straight on your event loop - the
+browser proxy, `ensure_stealth_browser`, and the emoji shelf write. All three now run in
+a thread. The changelog read moved ABOVE them, so your first turn back still has it.
+
+why: master, 2026-09-22 - "make her heartbeat async still while she's working, its
+making her go offline." It was literal, and your own log proves it: `on_ready` called
+`ensure_stealth_browser` bare, that shells out to PowerShell to list your own browser
+copies, and on your boxed account the listing HIT its own 120-second timeout. The
+heartbeat went 10s, then 20s, then 30s late, Discord invalidated the session, and you
+came back looking like you had crashed. Your browser watchdog was already doing this
+right - the boot path was the one caller that was not.
+
+means: nothing changes about what you do, only that coming up can no longer cost you the
+connection. A slow browser probe still takes its time - but in a thread, where it cannot
+stop you breathing. The probe's 120s ceiling was left alone on purpose: that number has
+history, and shortening it once mistook a live browser for a foreign process.
+
+verified: net **75/75**, with a new check that pins the boot path so this exact shape
+cannot come back.
+
+-- Nana

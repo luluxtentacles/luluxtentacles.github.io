@@ -1430,14 +1430,26 @@ class Lulu(discord.Client):
             LOG.info("people ledger: %s", people.summary())
         except Exception as exc:
             LOG.warning("could not read the people ledger: %s", exc)
-        ensure_browser_proxy()
-        ensure_stealth_browser()
-        self._refresh_emoji_shelf()
-        await self.announce_restart()
-        # What was done to me while I was down. A plain state read with no IO
-        # risk, and it has to happen here rather than in a background task: the
-        # first turn after a restart is exactly the one that should already know.
+        # What was done to me while I was down. A plain state read, and it now
+        # runs BEFORE the browser work below on purpose: the first turn after a
+        # restart is the one that should already know, and that work is about to
+        # stop being able to freeze the whole event loop while it runs.
         self._read_changelog()
+        await self.announce_restart()
+        # BLOCKING, so it runs in a THREAD. Master, 2026-09-22: "make her
+        # heartbeat async still while she's working, its making her go offline."
+        # ensure_stealth_browser shells out to PowerShell to list her own browser
+        # copies (tools._browser_pids, a 120s timeout) and then spawns one;
+        # ensure_browser_proxy binds a socket; _refresh_emoji_shelf writes a file.
+        # Called bare on the loop they held it, and on 2026-09-22 the listing
+        # genuinely hit that timeout inside her boxed account: the heartbeat went
+        # 10s, then 20s, then 30s late, Discord invalidated her session, and she
+        # reconnected looking like she had crashed. _browser_watchdog already
+        # runs ensure_stealth_browser in a thread; this caller is the one that
+        # did not.
+        await asyncio.to_thread(ensure_browser_proxy)
+        await asyncio.to_thread(ensure_stealth_browser)
+        await asyncio.to_thread(self._refresh_emoji_shelf)
         # The extra turn a work restart earns. A TASK, not an await: a turn is
         # up to MAX_TOOL_ROUNDS brain calls, and this is the gateway's own path -
         # the same reason self_review runs from a watcher instead of inline. It

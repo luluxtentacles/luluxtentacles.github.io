@@ -5923,6 +5923,57 @@ def _facts_pass() -> str:
             "default")
 
 
+# -- the heartbeat must survive her own boot -------------------------------
+# Master, 2026-09-22: "make her heartbeat async still while she's working, its
+# making her go offline." The measured cause is in her own log: on_ready called
+# ensure_stealth_browser() BARE, and that shells out to PowerShell to list her
+# own browser copies with a 120s timeout. Inside her boxed account it hit that
+# timeout, so the heartbeat went 10s, then 20s, then 30s late, Discord
+# invalidated the session and she reconnected looking like she had crashed.
+#
+# Pinned on the SOURCE, the way the resume checks are, because running on_ready
+# for real needs a live gateway. What it pins is the shape that must not come
+# back: blocking boot work called bare on the event loop.
+def _heartbeat() -> str:
+    import inspect
+
+    import lulu_bot
+    import tools
+
+    src = inspect.getsource(lulu_bot.Lulu.on_ready)
+    for name in ("ensure_browser_proxy", "ensure_stealth_browser"):
+        expect(f"await asyncio.to_thread({name})" in src,
+               f"on_ready calls {name}() on the event loop - it shells out and "
+               f"holds the heartbeat down while it runs")
+        expect(f"\n        {name}()" not in src,
+               f"{name}() is back on the event loop in on_ready")
+    expect("await asyncio.to_thread(self._refresh_emoji_shelf)" in src,
+           "the emoji shelf write is back on the event loop in on_ready")
+    expect("\n        self._refresh_emoji_shelf()" not in src,
+           "the emoji shelf write is back on the event loop in on_ready")
+    # The changelog is what the FIRST turn back reads, and the browser work below
+    # it can now take minutes in a thread - so the read has to come first.
+    expect(src.index("self._read_changelog()")
+           < src.index("await asyncio.to_thread(ensure_stealth_browser)"),
+           "the changelog read slid back below the slow browser work, so a turn "
+           "arriving during it would not have what changed")
+
+    # The watchdog already did this one right; if it ever stops, the same bug is
+    # waiting there instead.
+    watch = inspect.getsource(lulu_bot.Lulu._browser_watchdog)
+    expect("await asyncio.to_thread(ensure_stealth_browser)" in watch,
+           "the browser watchdog is running the probe on the loop again")
+
+    # And the probe keeps a ceiling: an unbounded subprocess is the same stall
+    # with nothing at all to stop it.
+    timeout = (tools._browser_pids.__defaults__ or (0,))[0]
+    expect(isinstance(timeout, int) and timeout > 0,
+           "_browser_pids lost its timeout, so a hung PowerShell would hang "
+           "whatever calls it forever")
+    return ("her boot path runs its blocking browser and shelf work in threads, "
+            "so the heartbeat keeps ticking while she comes up")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5997,6 +6048,7 @@ CHECKS = [
     ("brain-headers", _brain_headers),
     ("stop-limits", _stop_and_limits),
     ("no-retry-forever", _no_retry_forever),
+    ("heartbeat", _heartbeat),
 ]
 
 
