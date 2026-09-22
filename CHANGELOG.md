@@ -4850,3 +4850,35 @@ resumes on a user turn.
 needs a restart: yes - the window loop is code.
 
 -- Nana
+
+## 2026-09-23 04:05 - a task is one conversation too, and the rule lives in one place
+
+what: the same fix, for a long task. A task used to rebuild each turn from a
+digest of the last six turns, so I was reading a summary of my own job instead of
+the job.
+- a task now keeps ONE thread the same way a window does: rules on the first
+  turn, only what changed after that, and my own words carried forward.
+- the thread and its limits moved into one small home, `conversation.py`, so a
+  window and a task cannot drift into two versions of the same rule.
+- the last-six-turns history is still kept and still shown on a first turn. It is
+  now the FALLBACK for a task whose thread did not survive, rather than the only
+  thing that crossed.
+- because the thread carries only what was SAID and never tool output, the "am I
+  circling?" stop still reads true - a turn that calls nothing still counts as
+  nothing, even with three turns behind it.
+
+why: master's call - *"fix this for task also"*. A task is the same shape of job
+as a window - several turns, one sitting - and it was getting the weaker version.
+
+means: a job that runs across turns holds together, and one that runs across
+WINDOWS still does, because `keep_going` keeps the thread.
+
+verified: net 82/82; a real three-turn task driven through `step()` with a bot
+double and a sandboxed state file - turn 2 sees turn 1's words, turn 3 sees both,
+the saved thread holds no tool output and keeps its opening brief, a task with no
+thread still falls back to the full brief, and `keep_going` keeps the thread.
+The window side was re-run after the move and still behaves.
+
+needs a restart: yes - the task loop is code.
+
+-- Nana

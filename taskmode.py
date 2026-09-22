@@ -86,6 +86,7 @@ import json
 import logging
 import time
 
+import conversation
 import paths
 
 LOG = logging.getLogger("lulu.task")
@@ -134,6 +135,19 @@ Rules for a task turn:
   - When the job is done, or you are genuinely stuck and need him, call
     finish_task with the answer. If you cannot finish it, say what is blocking
     you AND call finish_task.
+
+Turn {turn} of at most {limit} - sooner the moment there is nothing left worth
+doing.\
+"""
+
+# A LATER turn of a task that already has a thread. The rules above are at the top
+# of that thread where they were given, so this says only what CHANGED - the same
+# shape a window of her own time uses, for the same reason: one home for a rule.
+COMPACT = """\
+Still on the long task, not answering a message - master gave you a job and you get
+several turns to do it, and this is one of them.
+
+The job: {goal}
 
 Turn {turn} of at most {limit} - sooner the moment there is nothing left worth
 doing.\
@@ -214,6 +228,9 @@ def start(goal: str, by: str = "master", room: str = "", room_id=None) -> str:
         "started": time.strftime("%Y-%m-%d %H:%M:%S"),
         "epoch": time.time(),
         "history": [],
+        # The task's own conversation, the same shape as a window's. Empty at the
+        # start, and carried from turn to turn after that.
+        "thread": [],
     })
     LOG.info("task opened: %s", goal[:120])
     where = f"#{room}" if room else "your DMs"
@@ -480,10 +497,29 @@ async def step(bot) -> bool:
     if turn > MAX_TASK_TURNS:
         return await _park(bot, live)
 
-    brief = BRIEF.format(goal=live.get("goal"), history=_history_text(live),
-                         turn=turn, limit=MAX_TASK_TURNS)
-    turns = [{"role": "system", "content": brief},
-             {"role": "user", "content": "take the next step."}]
+    # ONE CONVERSATION FOR THE TASK. Master, 2026-09-23: *"fix this for task
+    # also"*. Each turn used to be built from scratch out of a digest of the last
+    # six turns, so she was reading a summary of her own job instead of the job.
+    # Now the task keeps ONE thread, exactly as a window does: the rules go in on
+    # the first turn and stay at the top, and a later turn adds only what changed.
+    # `history` is still maintained and still shown on a FIRST turn - it is the
+    # fallback for a task whose thread did not survive, and the idle rule below
+    # reads the live turns, not this.
+    thread = conversation.read(live)
+    if thread:
+        thread.append({"role": "system", "content": COMPACT.format(
+            goal=live.get("goal"), turn=turn, limit=MAX_TASK_TURNS)})
+    else:
+        thread = [{"role": "system", "content": BRIEF.format(
+            goal=live.get("goal"), history=_history_text(live),
+            turn=turn, limit=MAX_TASK_TURNS)}]
+    thread.append({"role": "user", "content": "take the next step."})
+    # A COPY, deliberately: run_turns folds the list it is handed once the prompt
+    # nears the window (compact_history returns a NEW list and does not touch the
+    # dicts), and the thread she keeps must not fill up with raw tool output -
+    # which is also what keeps _tools_used below honest, since it reads this list
+    # for tool turns and the thread never contains one.
+    turns = list(thread)
 
     # Full hands, master's budget: this is his job and his money, and spend.py
     # never prices his turns. The cap above is the brake instead.
@@ -526,6 +562,12 @@ async def step(bot) -> bool:
     answer = (answer or "").strip()
     live = _record(live, answer or "(said nothing)", used)
     live["turn"] = turn
+    # Her own words go back into the thread, so the next turn reads the job as a
+    # conversation it is in rather than a digest of it. The placeholder matches
+    # _record's own, because a turn that said nothing still happened and leaving
+    # the gap bare would put two user turns in a row.
+    thread.append({"role": "assistant", "content": answer or "(said nothing)"})
+    live["thread"] = conversation.trim(thread)
     _save(live)
 
     # Report first, then look at the idle rule: master should hear the turn even

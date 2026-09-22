@@ -79,6 +79,7 @@ import json
 import logging
 import time
 
+import conversation
 import paths
 import tools
 
@@ -105,12 +106,9 @@ FREETIME = ".agents/skills/freetime/SKILL.md"
 ARCHIVE = "research/archive.md"
 CARRY_WARN_CHARS = 12000
 # One window, ONE conversation. Master, 2026-09-23: *"like how you take multiple
-# turns to do something it should be the same for her."* Until this, every turn
-# built its OWN message list - turn 2 could not see turn 1, and the only
-# continuity was whatever she had written to disk. The thread is that one
-# conversation, kept in the state file so it survives the restart a staged patch
-# causes. Bounded, because it rides into the model on every remaining turn.
-THREAD_MAX_CHARS = 120_000
+# turns to do something it should be the same for her"*, and the thread itself
+# lives in `conversation.py` - the one home for it, so a window and a task cannot
+# drift into two versions of the same rule.
 
 # The supervisor refuses to start me RAPID_MAX times inside RAPID_WINDOW, and
 # that refusal is not a delay: it logs LOCKOUT and exits, so nothing starts me
@@ -576,45 +574,6 @@ def _diary_unchanged(state) -> bool:
     if not now:
         return False
     return now == was
-
-
-def _thread(state) -> list[dict]:
-    """The window's own conversation so far, as far as it can be trusted.
-
-    Garbage in the state file counts as NO thread: a window that cannot read its
-    own thread opens with a fresh brief rather than half a conversation.
-    """
-    raw = state.get("thread")
-    if not isinstance(raw, list):
-        return []
-    out: list[dict] = []
-    for item in raw:
-        if not isinstance(item, dict):
-            continue
-        if item.get("role") not in {"system", "user", "assistant"}:
-            continue
-        if not isinstance(item.get("content"), str):
-            continue
-        out.append({"role": item["role"], "content": item["content"]})
-    return out
-
-
-def _trim_thread(thread: list[dict]) -> list[dict]:
-    """Keep the opening brief and the most recent exchanges.
-
-    The thread rides into the model on every remaining turn, so it cannot grow
-    without a limit. The FIRST message is the brief the window opened with and is
-    never dropped; the OLDEST exchanges go first, so an old turn fades out while
-    the rules the window was given stay. What is left always resumes on a USER
-    turn, so the thread can never begin with an answer to a question that is no
-    longer there.
-    """
-    total = sum(len(m["content"]) for m in thread)
-    while total > THREAD_MAX_CHARS and len(thread) > 2:
-        total -= len(thread.pop(1)["content"])
-    while len(thread) > 1 and thread[1]["role"] != "user":
-        thread.pop(1)
-    return thread
 
 
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
@@ -1216,7 +1175,7 @@ async def _one_window(bot, config, owner) -> bool:
     # window keeps ONE running thread: the opening brief, then each turn's own
     # words, and the next turn reads the conversation it is actually in. The full
     # rules go in ONCE, at the top; a later turn adds only what changed.
-    thread = _thread(state)
+    thread = conversation.read(state)
     if resuming and thread:
         thread.append({"role": "system", "content": _brief(
             turn, where["max_turns"], resuming,
@@ -1268,7 +1227,7 @@ async def _one_window(bot, config, owner) -> bool:
     # Her own words go back into the thread, so the next turn reads them as the
     # conversation it is in rather than starting from nothing.
     thread.append({"role": "assistant", "content": answer})
-    _save(thread=_trim_thread(thread))
+    _save(thread=conversation.trim(thread))
     # The handoff, stored the moment the last turn produces it. Read-modify-write
     # against the file, so it is already on disk before the supervisor can kill
     # this process over a staged patch - the window closing must not be able to
