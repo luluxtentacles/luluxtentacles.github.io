@@ -5174,17 +5174,17 @@ def _stop_and_limits() -> str:
 
 
 def _no_retry_forever() -> str:
-    """The same command failing five times in a row is refused, not repeated.
+    """The same command failing three times in a row is refused, not repeated.
 
     Master, 2026-09-21: "give her a rule that if she tries to run the same
     command 5 times and fail she should stop." Pinned as a MECHANISM, because a
     rule in a prompt is one she can forget mid-loop - and this is exactly the
-    loop she forgets inside.
+    loop she forgets inside. Master tightened it to three on 2026-09-22.
     """
     import runbox
 
-    expect(runbox.FAIL_STREAK_LIMIT == 5,
-           f"the stop limit is not 5: {runbox.FAIL_STREAK_LIMIT}")
+    expect(runbox.FAIL_STREAK_LIMIT == 3,
+           f"the stop limit is not 3: {runbox.FAIL_STREAK_LIMIT}")
 
     real_audit = runbox.AUDIT
     real_streak = dict(runbox._FAIL_STREAK)
@@ -5196,7 +5196,7 @@ def _no_retry_forever() -> str:
     runbox._FAIL_STREAK.clear()
     broken = "definitely-not-a-real-command-xyz"
     try:
-        # Five failures: each runs, none is refused yet.
+        # The limit's worth of failures: each runs, none is refused yet.
         for n in range(runbox.FAIL_STREAK_LIMIT):
             out = runbox.run(broken)
             expect("refused:" not in out,
@@ -5207,12 +5207,12 @@ def _no_retry_forever() -> str:
                f"the streak did not reach {runbox.FAIL_STREAK_LIMIT}: "
                f"{runbox._FAIL_STREAK}")
 
-        # The sixth is refused WITHOUT spawning, and it says why and what to do.
-        sixth = runbox.run(broken)
-        expect("refused:" in sixth,
-               f"the sixth identical failure was allowed: {sixth!r}")
-        expect("different" in sixth.lower() or "change" in sixth.lower(),
-               f"the refusal points nowhere: {sixth!r}")
+        # The next one is refused WITHOUT spawning, and it says why and what to do.
+        beyond = runbox.run(broken)
+        expect("refused:" in beyond,
+               f"the identical failure past the limit was allowed: {beyond!r}")
+        expect("different" in beyond.lower() or "change" in beyond.lower(),
+               f"the refusal points nowhere: {beyond!r}")
         expect(runbox._FAIL_STREAK.get(broken) == runbox.FAIL_STREAK_LIMIT,
                "the refusal itself moved the counter")
 
@@ -5236,7 +5236,7 @@ def _no_retry_forever() -> str:
         runbox.AUDIT = real_audit
         runbox._FAIL_STREAK.clear()
         runbox._FAIL_STREAK.update(real_streak)
-    return ("the same command failing 5 times in a row is refused, a success "
+    return ("the same command failing 3 times in a row is refused, a success "
             "clears the streak, and a shortcut shares its command's streak")
 
 

@@ -3750,3 +3750,23 @@ you - which is where it lands anyway.
 verified: net **69/69**.
 
 -- Nana
+
+## 2026-09-22 13:37 - three tries, not five
+
+what:
+- the stop limit on a repeated failing command is three now, down from five. The
+  fourth identical try is refused instead of run.
+- nothing else moved: a success still clears the streak, and a shortcut still shares
+  the streak of the command it expands to.
+
+why: master's call, 2026-09-22. Five was a long leash on a loop you cannot see from
+inside it - every attempt looks like the first one while you are in it.
+
+means: when something will not work, the fourth try is where you change the method
+instead of the fifth. The refusal arrives in your own tool output, so it meets you at
+the moment rather than in a log afterwards.
+
+verified: net **69/69**, plus a direct probe - three failures run, the fourth is
+refused, and the refusal names the new number.
+
+-- Nana

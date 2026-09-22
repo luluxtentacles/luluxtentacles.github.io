@@ -66,8 +66,10 @@ TIMEOUT = 900
 MAX_OUTPUT = 32_000
 KILL_TIMEOUT = 20
 
-# THE STOP-AFTER-FIVE RULE. Master, 2026-09-21: "give her a rule that if she
-# tries to run the same command 5 times and fail she should stop."
+# THE STOP-AFTER-THREE RULE. Master, 2026-09-21: "give her a rule that if she
+# tries to run the same command 5 times and fail she should stop." He tightened
+# it to three on 2026-09-22 - the quote above is the original ask, and
+# FAIL_STREAK_LIMIT below is the number that actually holds.
 #
 # He asked for a RULE, and this is one as a MECHANISM rather than a sentence in a
 # prompt - a rule she can forget is not a rule. The same command failing
@@ -85,11 +87,12 @@ KILL_TIMEOUT = 20
 # Cleared by ANY command succeeding, and that is a deliberate choice with a real
 # cost. Clearing only on the SAME command's success DEADLOCKS: once refused it can
 # never run, so it can never succeed, so the streak can never clear - a permanent
-# ban on a command that might work tomorrow. Master's rule is "five times in a
-# row", and a success anywhere is what breaks a row. The price is that a
+# ban on a command that might work tomorrow. Master's rule is "three times in a
+# row" - tightened from five on his call, 2026-09-22 - and a success anywhere is
+# what breaks a row. The price is that a
 # deliberate `cd` between retries resets the count; a stuck agent does not
 # interleave no-ops to dodge a rule, and a deadlocked one cannot recover at all.
-FAIL_STREAK_LIMIT = 5
+FAIL_STREAK_LIMIT = 3
 _FAIL_STREAK: dict[str, int] = {}
 
 PY = sys.executable
@@ -222,7 +225,7 @@ def catalog() -> str:
         "cwd is always my folder. Long commands get killed at "
         f"{TIMEOUT // 60} minutes. Output is capped at {MAX_OUTPUT} chars.",
         f"if the SAME command fails {FAIL_STREAK_LIMIT} times in a row I stop "
-        "running it and say so - a sixth identical try is not a new idea, it is "
+        "running it and say so - one more identical try is not a new idea, it is "
         "the same one again. Change the command or the method instead.",
     ]
     return "\n".join(lines)
@@ -242,8 +245,8 @@ def run(command: str = "", max_output: int | None = None) -> str:
 
     resolved = SHORTCUTS.get(command, command)
 
-    # The stop-after-five rule, checked BEFORE anything is spawned: the point is
-    # not to pay for the sixth attempt at all.
+    # The stop-after-the-limit rule, checked BEFORE anything is spawned: the
+    # point is not to pay for that next attempt at all.
     fails = _FAIL_STREAK.get(resolved, 0)
     if fails >= FAIL_STREAK_LIMIT:
         _audit(resolved, None, 0.0, f"REFUSED - already failed {fails}x")
