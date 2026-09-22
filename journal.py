@@ -4,6 +4,13 @@
                                      own words.
     memory/journal/<date>.md         the raw record: who spoke, which channel,
                                      what was said. Everyone, not just master.
+    memory/said/<date>.md            my own mouth: the lines I sent, by room.
+                                     The journal holds what was said TO me; this
+                                     is the only record of what came back out.
+    memory/mirror/<date>.md          the room itself, both sides, LAST 48 HOURS.
+                                     The block in my prompt is trimmed from this
+                                     same dialog, but the file is what survives a
+                                     restart and what can be searched by word.
 
 These are the ONLY two records I can reach. The den's diary at C:\\Lulu\\diary
 is NOT readable from here and there is no code path to it: that one is master's
@@ -64,6 +71,16 @@ def shift(day: str, offset: int) -> str:
 
 def _clean(text: str) -> str:
     return " ".join((text or "").split())[:MAX_LINE]
+
+
+def _one_line(text: str, limit: int) -> str:
+    """Masked, collapsed to one line, cut at `limit`.
+
+    Shared by the records of a MESSAGE - what I said, and the room's mirror - so
+    the two cannot drift into two different rules, which is the same reason the
+    redactor is borrowed from shared_memory rather than written twice.
+    """
+    return " ".join(redact(text or "").split())[:limit]
 
 
 # --------------------------------------------------------------- her journal
@@ -167,6 +184,275 @@ def read_journal(day: str = "") -> str:
     if not body:
         return f"nothing in my journal for {day}"
     return _clip(body)
+
+
+# ------------------------------------------------------------ what I said
+# Her own sent lines, written down as they leave.
+#
+# WHY THIS EXISTS: the journal carries what was said TO her and never her own
+# half, and the mirror - which does hold her replies - is a deque of 200 lines
+# per channel living in RAM, so it dies with the process. Between the two, "what
+# did I actually say in that room" was answerable only from a store that forgets,
+# and on 2026-09-22 that is how an afternoon of her own words went missing. This
+# is the durable half: her side, on disk, by room and by day.
+#
+# WHAT IT IS NOT: not every byte that leaves her. Progress pings, restart notices
+# and review reports are machinery narrating itself, and they are not here. This
+# holds what she said to a person - a reply, a bit of chatter, a resume note, or
+# something she sent into another room to be heard.
+LOCAL_SAID = "memory/said"
+
+# A message can be MAX_MESSAGE (2000) long. MAX_LINE's 400 is for a line somebody
+# typed AT her; cutting her own words there would let this file answer "no" to
+# "did I say that", and a log that can be wrong about her own mouth is worse than
+# no log. So the cap is the send limit, and the reader must not clip below it.
+MAX_SAID_LINE = 2000
+
+
+def _said_rel(day: str) -> str:
+    return f"{LOCAL_SAID}/{day}.md"
+
+
+def note_said(text: str, *, room: str = "", message_id: int | None = None) -> None:
+    """Write down one line I actually sent. Never raises, like note().
+
+    Masked on the way in with the same redactor as everything else: a credential
+    she typed by accident must not land in a file she will one day quote back at
+    herself.
+
+    One message is ONE LINE, runs of whitespace collapsed, exactly like the
+    journal's own entries - the reader filters by line, and a multi-line message
+    flattened to a sentence is still the same words in the same order. The cap is
+    the send limit rather than MAX_LINE, so a long message is stored whole: the
+    one thing this file must never do is answer "no" about something she said.
+    """
+    try:
+        body = _one_line(text, MAX_SAID_LINE)
+        if not body or body == "[redacted]":
+            return
+        name = _clean(room).lstrip("#").strip()
+        where = f" in #{name}" if name else " in a DM"
+        day = today()
+        line = f"- **{datetime.now().strftime('%H:%M')}**{where}: {body}\n"
+        rel = _said_rel(day)
+        existing = paths.read_text(rel, default="")
+        if not existing:
+            existing = f"# What I said - {day}\n\n"
+        paths.write_text(rel, existing + line, internal=True)
+    except Exception:
+        return
+
+
+def read_said(day: str = "", room: str = "") -> str:
+    """The lines I sent on a day, newest last, or just one room's.
+
+    `room` matches however she spells it - 'general', '#general' and 'GEN' all
+    land on the same room. A filtered miss says so AND says what the miss does
+    not mean, because "not in my log" and "I never said it" are different
+    answers and only one of them is true.
+    """
+    day = (day or "").strip()
+    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        return "that is not a date - use YYYY-MM-DD"
+    day = day or today()
+    body = paths.read_text(_said_rel(day), default="")
+    if not body:
+        return (f"nothing written down for {day} - either I said nothing, or "
+                f"that is from before I started keeping this")
+    wanted = _clean(room).lstrip("#").strip().lower()
+    if not wanted:
+        return _clip(body)
+    lines = [ln for ln in body.splitlines()
+             if ln.startswith("- ") and wanted in ln.lower()]
+    if not lines:
+        return (f"nothing of mine in a room matching '{wanted}' on {day}. That "
+                f"is not the same as never saying it - I only started writing "
+                f"my own lines down on 2026-09-22, and status lines I send "
+                f"(progress pings, restart notices) are not in here either.")
+    return _clip(f"# What I said, matching {wanted} - {day}\n\n"
+                 + "\n".join(lines) + "\n")
+
+
+# ---------------------------------------------------------------- the mirror
+# The room itself, both sides, written down as it happens.
+#
+# The block in my prompt is a deque of MIRROR_LINES per channel in RAM: right for
+# the last hour, gone on a restart, and impossible to search. Master, 2026-09-22:
+# *"we should maybe keep the mirror to be the last 48 hours she can search it
+# with keywords"*. So the same line is also written here - one file per day, every
+# room in it, pruned to the window - and search_mirror walks it.
+#
+# This is not a third copy of one fact. The journal is incoming only and flat
+# ("who talked to me"); memory/said is my own lines, kept for good; this is the
+# two-sided dialog with the room named on every line, and it expires by design.
+#
+# It is also NOT what reaches the prompt: the block is still built from RAM under
+# its own character budget. This store exists to be SEARCHED, not to be injected.
+LOCAL_MIRROR = "memory/mirror"
+
+MIRROR_WINDOW_HOURS = 48    # master's window, and the only one a search offers
+MIRROR_KEEP_DAYS = 3        # day files kept, so a 48h window is always whole
+MIRROR_LINE_MAX = 2000      # the send limit, not MAX_LINE - see note_said
+MIRROR_SEARCH_MAX = 6000    # characters one search returns, newest first
+
+
+def _mirror_rel(day: str) -> str:
+    return f"{LOCAL_MIRROR}/{day}.md"
+
+
+def note_mirror(author: str, text: str, *, room: str = "") -> None:
+    """Write down one line of a room - who, where, what. Never raises.
+
+    Same contract as note() and note_said(): a record, not a dependency. If it
+    cannot be written the conversation carries on and the failure is swallowed.
+
+    The room is named on the line because the file is a whole DAY, not a whole
+    channel, so a line without its room could not be placed. A DM has no name and
+    says so rather than guessing at one.
+    """
+    try:
+        body = _one_line(text, MIRROR_LINE_MAX)
+        if not body or body == "[redacted]":
+            return
+        who = _clean(author) or "someone"
+        name = _clean(room).lstrip("#").strip()
+        where = f"[#{name}]" if name else "[no room]"
+        day = today()
+        rel = _mirror_rel(day)
+        existing = paths.read_text(rel, default="")
+        if not existing:
+            existing = f"# Mirror - {day}\n\n"
+            # The first line of a new day is the moment to let the old ones go:
+            # pruning here needs no timer and no loop, and three files covers the
+            # window from any hour of any day. Only what has already fallen out
+            # of it is ever touched.
+            _prune_mirror()
+        line = (f"- **{datetime.now().strftime('%H:%M')}** {where} "
+                f"{who}: {body}\n")
+        paths.write_text(rel, existing + line, internal=True)
+    except Exception:
+        return
+
+
+def _prune_mirror(keep_days: int = MIRROR_KEEP_DAYS) -> int:
+    """Delete the day files that have fallen out of the window.
+
+    Whole DAYS leave, which is why the default is 3 and not 2: a day file has to
+    stay while any part of it could still be inside the window, and the window is
+    counted in hours from now, not in midnights.
+    """
+    removed = 0
+    try:
+        folder = paths.resolve(LOCAL_MIRROR)
+        if not folder.is_dir():
+            return 0
+        oldest_kept = shift(today(), -(keep_days - 1))
+        for path in folder.glob("*.md"):
+            day = path.stem
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+                continue
+            if day < oldest_kept:      # ISO dates sort as strings
+                path.unlink()
+                removed += 1
+    except Exception:
+        return removed
+    return removed
+
+
+def _mirror_cutoff(hours: int = MIRROR_WINDOW_HOURS) -> datetime:
+    """The oldest moment a search will look back to."""
+    return datetime.now() - timedelta(hours=hours)
+
+
+def _in_window(day: str, at: str, cutoff: datetime) -> bool:
+    """Is a mirror line stamped `day at HH:MM` inside the window?
+
+    Split out as its own function - and not buried in the search loop - because
+    it is the one piece of the window that has to be provable without waiting 48
+    hours, or trusting whatever time of day a test happens to run at.
+    """
+    try:
+        when = datetime.strptime(f"{day} {at}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return False
+    return when >= cutoff
+
+
+def _mirror_entries(day: str) -> list[tuple[str, str, str]]:
+    """(time, [room], rest) for every line in a day's mirror, in file order."""
+    out = []
+    body = paths.read_text(_mirror_rel(day), default="")
+    for line in body.splitlines():
+        match = re.match(r"^- \*\*(\d{2}:\d{2})\*\* (\[[^\]]*\]) (.*)$", line)
+        if match:
+            out.append((match.group(1), match.group(2), match.group(3)))
+    return out
+
+
+def search_mirror(query: str = "", hours: int = MIRROR_WINDOW_HOURS,
+                  room: str = "") -> str:
+    """Search the last `hours` of the mirror by keyword, newest line first.
+
+    Every word in the query has to appear on the line, so two words ask a
+    narrower question than one. `room` narrows it to a single room, spelled
+    however I spell it. The window is master's 48 hours; asking for longer is
+    capped rather than refused, because the files do not go back further and a
+    refusal would say nothing about where the edge actually is.
+    """
+    terms = [word for word in _clean(query).lower().split() if word]
+    if not terms:
+        return ("give me a word to look for - a name, or the thing that was "
+                "said - and I will find the lines it was in")
+    try:
+        hours = int(hours or MIRROR_WINDOW_HOURS)
+    except (TypeError, ValueError):
+        hours = MIRROR_WINDOW_HOURS
+    hours = max(1, min(hours, MIRROR_WINDOW_HOURS))
+    cutoff = _mirror_cutoff(hours)
+    wanted = _clean(room).lstrip("#").strip().lower()
+
+    found: list[tuple[datetime, str]] = []
+    for offset in range(MIRROR_KEEP_DAYS):
+        day = shift(today(), -offset)
+        for at, where, rest in _mirror_entries(day):
+            if not _in_window(day, at, cutoff):
+                continue
+            if wanted and wanted not in where.lower():
+                continue
+            line = f"- **{day} {at}** {where} {rest}"
+            if all(term in line.lower() for term in terms):
+                found.append((datetime.strptime(f"{day} {at}",
+                                                "%Y-%m-%d %H:%M"), line))
+
+    if not found:
+        out = [f"nothing in the last {hours} hours matches "
+               f"{' and '.join(terms)}"]
+        if wanted:
+            out.append(f"in a room matching '{wanted}'")
+        out.append(". That is not the same as it never happening: this record "
+                   "only starts from when master had it built on 2026-09-22, "
+                   "and my own sent lines stay readable in read_said.")
+        return "".join(out).replace(" matches in", " matches in")
+
+    found.sort(key=lambda pair: pair[0], reverse=True)      # newest first
+    lines = [line for _, line in found]
+    kept: list[str] = []
+    spent = 0
+    for line in lines:
+        if spent + len(line) > MIRROR_SEARCH_MAX:
+            break
+        kept.append(line)
+        spent += len(line) + 1
+    if not kept:                     # one enormous line still gets shown, cut
+        kept = [lines[0][:MIRROR_SEARCH_MAX]]
+
+    head = f"the last {hours}h of the mirror"
+    if wanted:
+        head += f", room matching '{wanted}'"
+    head += f": {len(found)} line(s) matched, newest first"
+    if len(kept) < len(found):
+        head += f" - showing the newest {len(kept)}"
+    return head + "\n\n" + "\n".join(kept)
 
 
 def read_den(day: str = "", days: int = 1) -> str:

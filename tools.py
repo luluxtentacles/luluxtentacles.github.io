@@ -477,6 +477,52 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "read_said",
+            "description": (
+                "Read back what I ACTUALLY said - my own sent lines, on disk, by "
+                "room and by day. Use it when master asks whether I said "
+                "something ('did you just call him that in the room') instead of "
+                "guessing at my own mouth. Holds my replies, my chatter and "
+                "anything I sent into another room; NOT my status lines "
+                "(progress pings, restart notices, reports). Room matches how I "
+                "spell it - 'general', '#general' or 'GEN' are all the same room."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today"},
+                    "room": {"type": "string", "description": "a channel name, or empty for every room"}
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_mirror",
+            "description": (
+                "Search the last 48 hours of the rooms I am in, by keyword, both "
+                "sides of the conversation. Use it when something was said in a "
+                "channel and I need to know what - 'did anyone mention X', 'what "
+                "happened while I was restarting'. Every word I give it has to "
+                "appear on the line, so more words is a narrower question. Holds "
+                "only the last 48 hours, counted from now."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "the word(s) to look for"},
+                    "room": {"type": "string", "description": "one channel name, or empty for every room"},
+                    "hours": {"type": "integer", "description": "how far back, up to 48"}
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "write_diary",
             "description": (
                 "Write a line in MY OWN diary for today - what happened to me here. "
@@ -2452,6 +2498,16 @@ def read_journal(day: str = "") -> str:
     return journal.read_journal(day)
 
 
+def read_said(day: str = "", room: str = "") -> str:
+    """My own sent lines, read-only. The only record of my own half."""
+    return journal.read_said(day, room)
+
+
+def search_mirror(query: str = "", room: str = "", hours: int = 0) -> str:
+    """Keyword search over the last 48 hours of rooms, both sides."""
+    return journal.search_mirror(query, hours or journal.MIRROR_WINDOW_HOURS, room)
+
+
 def learn_person(text: str, who: str = "") -> str:
     """Remember a fact about someone. Defaults to whoever is talking to me."""
     target = (who or "").strip()
@@ -3051,6 +3107,10 @@ DISPATCH = {
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "read_journal": lambda a: read_journal(a.get("day", "")),
+    "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
+    "search_mirror": lambda a: search_mirror(a.get("query", ""),
+                                             a.get("room", ""),
+                                             a.get("hours", 0)),
     "free_time": lambda a: free_time(),
     "propose_patch": lambda a: propose_patch(a.get("path", ""), a.get("content", ""),
                                              a.get("why", ""), a.get("brief", "")),

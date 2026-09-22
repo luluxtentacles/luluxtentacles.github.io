@@ -1887,6 +1887,9 @@ class Lulu(discord.Client):
             sent = await message.channel.send(_expand_short_emojis(answer[:MAX_MESSAGE],
                                                        message.channel))
             self._note(message.channel.id, SELF_LABEL, answer[:MAX_MESSAGE],
+                       getattr(sent, "id", None),
+                       room=getattr(message.channel, "name", "") or "")
+            self._said(message.channel, answer[:MAX_MESSAGE],
                        getattr(sent, "id", None))
         except discord.HTTPException:
             LOG.warning("chatter send failed in %s", message.channel.id)
@@ -2469,7 +2472,9 @@ class Lulu(discord.Client):
         try:
             sent = await target.send(said[:MAX_MESSAGE])
             self.own_message_ids.add(sent.id)
-            self._note(target.id, SELF_LABEL, said[:MAX_MESSAGE], sent.id, None)
+            self._note(target.id, SELF_LABEL, said[:MAX_MESSAGE], sent.id, None,
+                       room=getattr(target, "name", "") or "")
+            self._said(target, said[:MAX_MESSAGE], sent.id)
             LOG.info("resume note posted into #%s", where)
         except Exception as exc:
             LOG.warning("could not post the resume note in #%s: %s", where, exc)
@@ -2598,7 +2603,9 @@ class Lulu(discord.Client):
         try:
             sent = await target.send(answer[:MAX_MESSAGE])
             self.own_message_ids.add(sent.id)
-            self._note(target.id, SELF_LABEL, answer[:MAX_MESSAGE], sent.id, None)
+            self._note(target.id, SELF_LABEL, answer[:MAX_MESSAGE], sent.id, None,
+                       room=getattr(target, "name", "") or "")
+            self._said(target, answer[:MAX_MESSAGE], sent.id)
             LOG.info("resume turn spoken in #%s", where)
         except Exception as exc:
             LOG.warning("could not speak the resume turn in #%s: %s", where, exc)
@@ -2817,6 +2824,7 @@ class Lulu(discord.Client):
             self.readable_text(message),
             getattr(message, "id", None),
             getattr(ref, "message_id", None) if ref else None,
+            room=getattr(message.channel, "name", "") or "",
         )
 
         addressed = self.is_addressed(message)
@@ -3022,6 +3030,10 @@ class Lulu(discord.Client):
                                                                   target))
                     LOG.info("say: posted %d chars into #%s", len(text), name)
                 self.own_message_ids.add(sent.id)
+                # Speaking into a room she is not in: the same act as a reply, so
+                # it goes in her own log too. The caption is empty on a bare
+                # attachment and note_said drops an empty line on its own.
+                self._said(target, text or "", sent.id)
             except Exception as exc:
                 LOG.warning("say: could not post into #%s: %s", name, exc)
 
@@ -3071,8 +3083,15 @@ class Lulu(discord.Client):
 
     def _note(self, channel_id, author: str, text: str,
               message_id: int | None = None,
-              reply_to: int | None = None) -> None:
+              reply_to: int | None = None, room: str = "") -> None:
         """Record one line of a channel: the order AND the branch.
+
+        Two stores, one call. The RAM ring is what reaches the prompt this turn
+        and dies with the process; `journal.note_mirror` puts the same line on
+        disk so a room can be searched by word across a restart, which is the
+        half master asked for on 2026-09-22. The ring stays clipped to
+        MIRROR_LINE_CHARS because it is spent from a fixed prompt budget; the
+        disk copy is not, because a search must never be able to answer "no".
 
         Raw on the way in, sanitised on the way out - the house rule everywhere
         else in here, and it matters more for a store that is read back into a
@@ -3091,8 +3110,28 @@ class Lulu(discord.Client):
                 "text": line[:MIRROR_LINE_CHARS],
                 "reply_to": reply_to,
             })
+            journal.note_mirror(author or "someone", line, room=room)
         except Exception as exc:
             LOG.warning("could not note a channel line: %s", exc)
+
+    def _said(self, channel, text: str, message_id: int | None = None) -> None:
+        """Write down one line I actually sent - the durable half of _note.
+
+        Separate from _note on purpose, and the difference is the whole point of
+        the file: the mirror is RAM and clips to MIRROR_LINE_CHARS, so it is the
+        wrong store to answer "did I say that" out of - a line cut at 240 chars
+        could answer no. This one goes to disk at full length, with the room on
+        it, and survives a restart.
+
+        Called beside every _note(SELF_LABEL, ...) and by the say/attach drain:
+        those are the places my own words leave. Never fatal, same as _note - a
+        log is never worth a lost reply.
+        """
+        try:
+            journal.note_said(text, room=getattr(channel, "name", "") or "",
+                              message_id=message_id)
+        except Exception as exc:
+            LOG.warning("could not note what I said: %s", exc)
 
     def _begin_turn(self, channel_id: int, *, owner: bool) -> int | None:
         """Claim the turn slot for a channel, superseding whatever holds it.
@@ -3754,7 +3793,9 @@ class Lulu(discord.Client):
             # she answered. Without it the mirror would hold every question and
             # no answers, and a reply chain would read one-sided.
             self._note(message.channel.id, SELF_LABEL, chunk, sent.id,
-                       getattr(message, "id", None))
+                       getattr(message, "id", None),
+                       room=getattr(message.channel, "name", "") or "")
+            self._said(message.channel, chunk, sent.id)
 
 
 def _pid_alive(pid: int) -> bool | None:

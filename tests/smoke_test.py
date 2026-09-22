@@ -61,6 +61,13 @@ REDIRECTED = (
     "memory/health.marker", "memory/bot.pid", "memory/chatter.json",
     "memory/people.json", "memory/restart_notice.json", "memory/spend.json",
     "memory/diary", "memory/journal",
+    # What she said - her own sent lines. Live: a check writing it would put
+    # words she never said into the record she is supposed to trust about her
+    # own mouth, which is the one thing this file must never be wrong about.
+    "memory/said",
+    # The room's own last-48-hours record. Live too, and for the same reason:
+    # a test line left in it would be a line somebody appears to have said.
+    "memory/mirror",
     # The reason the supervisor records for the next start, and her own record of
     # which start she has announced. Both are live paths: a check that wrote
     # either would be relabelling a real restart.
@@ -135,6 +142,8 @@ def sandbox_live_paths() -> dict:
     people.LOCAL = f"{SANDBOX_NAME}/people.json"
     journal.LOCAL_DIARY = f"{SANDBOX_NAME}/diary"
     journal.LOCAL_REL = f"{SANDBOX_NAME}/journal"
+    journal.LOCAL_SAID = f"{SANDBOX_NAME}/said"
+    journal.LOCAL_MIRROR = f"{SANDBOX_NAME}/mirror"
     # The purse. It has to point INSIDE the wall, so the sandbox is named
     # relative to her folder (discord/), not to the repo. Two ways that fail,
     # both tried: the absolute temp path is refused because resolve() rejects
@@ -3146,7 +3155,8 @@ MODULE_API = {
     "webtool": ("fetch",),
     "shared_memory": ("context_block", "remember", "search"),
     "journal": ("note", "read_diary", "write_diary", "read_journal",
-                "note_digest", "read_digest"),
+                "note_digest", "read_digest", "note_said", "read_said",
+                "note_mirror", "search_mirror"),
     "brain": ("complete", "reply", "gemini_complete"),
     "digest": ("settings", "due", "watch", "maybe_run", "collect",
                "summarise", "channel_names"),
@@ -5678,6 +5688,166 @@ def _digest() -> str:
     return "a long day reads from both ends, and digests round-trip"
 
 
+# -- 16b. her own mouth, on disk --------------------------------------------
+# The journal holds what was said TO her and the mirror is RAM that dies with
+# the process, so her own half of a conversation had nowhere durable to live.
+# This is the check on the replacement, and the invariant that matters most is
+# the third one: a long line must NOT be clipped on the way in. A log of her own
+# mouth that can be wrong about her own mouth is worse than no log, because she
+# would answer master out of it.
+def _said() -> str:
+    import journal
+    import lulu_bot
+
+    # A real long message is prose. NOT a run of one character: redact() masks any
+    # long unbroken token as credential-shaped, which is the house rule and is
+    # pinned separately below - a fake 'x' * 1800 is a blob, not a message, and
+    # writing the test around it would have been testing the masker instead.
+    #
+    # `stored` is the whitespace-collapsed form on purpose: one entry is one line,
+    # which is what the room filter reads by. So the comparison is against what the
+    # file is supposed to hold, not against the raw string, and the raw string here
+    # ends in a space precisely so that rule is exercised rather than dodged.
+    long_line = ("a real long message about the room and what happened in it "
+                 * 40)[:1800]
+    expect(long_line.endswith(" "), "this check no longer tests the collapse")
+    stored = " ".join(long_line.split())
+    journal.note_said("roast for the room", room="general")
+    journal.note_said("the quiet one", room="secret")
+    journal.note_said(long_line, room="general")
+    journal.note_said("that was a DM", room="")        # no channel name
+
+    everything = journal.read_said()
+    expect("roast for the room" in everything, "a sent line did not round-trip")
+    expect("in #general" in everything, "the room was not written down")
+    expect("in #secret" in everything, "a second room was lost")
+    expect("in a DM" in everything, "a DM has no room and should say so")
+
+    only = journal.read_said(room="#GEN")        # how she actually spells it
+    expect("roast for the room" in only, "the room filter missed its own room")
+    expect("the quiet one" not in only, "the room filter is not a filter")
+    expect("not the same as never" in journal.read_said(room="nowhere"),
+           "an empty filter result reads back as 'I never said it'")
+
+    kept = journal.read_said(room="general")
+    expect(stored in kept,
+           f"her own {len(stored)}-char line did not survive - the log would "
+           f"answer 'no' about something she did say")
+    expect(len(stored) > 1500,
+           "the test line is too short to prove anything about clipping")
+    expect(journal.MAX_SAID_LINE >= lulu_bot.MAX_MESSAGE,
+           "the log's cap is below what she can send, so a real message can be "
+           "clipped in it")
+
+    before = journal.read_said()
+    journal.note_said("   ")
+    journal.note_said("")
+    expect(journal.read_said() == before, "a blank line got written down")
+
+    # The mask still runs, and it still wins. A message that is one long unbroken
+    # token looks like a credential, and the rule in every other record of hers is
+    # that such a string does not land on disk. Pinned so the limit is known: a
+    # line like that is NOT in the log, and that is a known gap, not a surprise.
+    journal.note_said("sk-" + "a1b2c3d4" * 20, room="general")
+    expect("a1b2c3d4" not in journal.read_said(),
+           "a credential-shaped line reached the log of her own mouth")
+
+    # A busy day still shows both ends - the same promise read_journal makes.
+    for i in range(300):
+        journal.note_said(f"busy line {i} " + "y" * 200, room="busy")
+    big = journal.read_said(room="busy")
+    expect(len(big) <= journal.MAX_READ_CHARS, "a busy day blew the read budget")
+    expect("busy line 299" in big, "the NEWEST line of a busy day fell off")
+    expect("busy line 0" in big, "the start of a busy day fell off")
+
+    # The writer her process actually calls, driven with a stub channel. The
+    # routing is what matters here, not the module function beside it.
+    class _Room:
+        name = "general"
+
+    lulu_bot.Lulu._said(None, _Room(), "via the bot path")
+    expect("via the bot path" in journal.read_said(room="general"),
+           "the bot's own send path does not reach her log")
+    return ("her lines land on disk by room, read back by any spelling of it, "
+            "and a long one is not clipped")
+
+
+# -- 16c. the room's own record, searchable by word --------------------------
+# The mirror that goes into the prompt is a RAM ring that dies with the process,
+# so "what was said in that room" had no answer across a restart. Master,
+# 2026-09-22: keep the last 48 hours so it can be searched by keyword. What this
+# pins: a line written through the bot's OWN path is findable, the search is
+# scoped by word and by room, an empty result says what it does NOT mean, and the
+# window is really 48 hours - proven on the window function directly, because
+# waiting two days to watch a line fall out is not a test, it is a vigil.
+def _mirror_search() -> str:
+    import types
+    from collections import defaultdict, deque
+    from datetime import datetime
+
+    import journal
+    import lulu_bot
+    import paths
+
+    bot = types.SimpleNamespace(mirror=defaultdict(lambda: deque(maxlen=5)))
+    lulu_bot.Lulu._note(bot, 42, "Tentacles", "did you just call him the room",
+                        None, None, room="general")
+    lulu_bot.Lulu._note(bot, 42, "Nyan", "she said what", None, None, room="general")
+    lulu_bot.Lulu._note(bot, 7, "someone", "unrelated chatter", None, None,
+                        room="secret")
+
+    hit = journal.search_mirror("room")
+    expect("did you just call him the room" in hit,
+           "a line written through the bot's own path is not searchable")
+    expect("unrelated chatter" not in hit, "the search is not keyword-scoped")
+
+    scoped = journal.search_mirror("said", room="#GEN")
+    expect("she said what" in scoped, "the room filter missed its own room")
+    expect("unrelated chatter" not in scoped, "the room filter is not a filter")
+
+    expect("give me a word" in journal.search_mirror(""),
+           "an empty search did not ask for a word")
+    expect("not the same as it never happening" in journal.search_mirror("zzznope"),
+           "an empty result reads back as 'it never happened'")
+
+    # The window itself, proven directly and without depending on the clock.
+    # `cutoff` is the OLDEST moment still inside the window, so a stamp is in
+    # when it is at or after it. The edge matters: a line sitting exactly on the
+    # 48-hour mark is the one a "roughly two days" search would quietly lose.
+    cutoff = datetime(2026, 9, 22, 16, 0)
+    expect(journal._in_window("2026-09-22", "17:00", cutoff),
+           "a line newer than the cutoff was counted as outside the window")
+    expect(journal._in_window("2026-09-22", "16:00", cutoff),
+           "a line exactly on the cutoff fell out of the window")
+    expect(not journal._in_window("2026-09-22", "15:00", cutoff),
+           "a line older than the cutoff was let into the window")
+    expect(not journal._in_window("2026-09-20", "15:00", cutoff),
+           "a line two days old was let into the window")
+    expect(not journal._in_window("not-a-day", "15:00", cutoff),
+           "a malformed stamp was let into the window")
+    expect(journal.MIRROR_WINDOW_HOURS == 48,
+           f"the window is no longer master's 48 hours: {journal.MIRROR_WINDOW_HOURS}")
+    expect(journal.MIRROR_KEEP_DAYS >= 3,
+           "fewer days kept than the window spans, so a search can miss a day it "
+           "should have found")
+
+    # Pruning: whole days leave, and only ones outside the window.
+    old_day = journal.shift(journal.today(), -10)
+    kept_day = journal.shift(journal.today(), -1)
+    paths.write_text(f"{journal.LOCAL_MIRROR}/{old_day}.md", "# old\n", internal=True)
+    paths.write_text(f"{journal.LOCAL_MIRROR}/{kept_day}.md", "# kept\n", internal=True)
+    paths.write_text(f"{journal.LOCAL_MIRROR}/notes.txt", "not a day\n", internal=True)
+    journal._prune_mirror()
+    expect(not paths.resolve(f"{journal.LOCAL_MIRROR}/{old_day}.md").exists(),
+           "a mirror day from ten days ago survived the prune")
+    expect(paths.resolve(f"{journal.LOCAL_MIRROR}/{kept_day}.md").exists(),
+           "the prune ate a day that is still inside the window")
+    expect(paths.resolve(f"{journal.LOCAL_MIRROR}/notes.txt").exists(),
+           "the prune deleted a file that is not a day")
+    return ("the room is searchable by word and by room, the window is 48h, and "
+            "old days are pruned without touching the live ones")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5719,6 +5889,8 @@ CHECKS = [
     ("entrypoint", _entrypoint),
     ("api", _api),
     ("digest", _digest),
+    ("said", _said),
+    ("mirror-search", _mirror_search),
     ("propose", _propose),
     ("entrypoints", _entrypoints),
     ("supervisor", _supervisor),
