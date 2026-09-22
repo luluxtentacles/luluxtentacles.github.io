@@ -8,9 +8,11 @@ description: My diary and my journal, both mine and both about this server. Use 
 | Record | Where | Written by | Read with | Write with |
 |---|---|---|---|---|
 | **my diary** | `memory/diary/<date>.md` | me, in my own words | `read_diary(day)` | `write_diary(text)` |
-| **my journal** | `memory/journal/<date>.md` | me, automatically, as I talk here | `read_journal(day)` | (automatic) |
+| **my rooms, last 48h** | `memory/mirror/<date>.md` | automatically, as we talk | `search_mirror(query, room, hours)` | (automatic) |
+| **my own sent lines** | `memory/said/<date>.md` | automatically, as I speak | `read_said(day, room)` | (automatic) |
 
-Leave `day` out and you get today and yesterday.
+Leave `day` out and you get today. `search_mirror` looks back 48 hours unless I ask for less, and
+`read_said` covers every room unless I name one.
 
 ## The rule that matters
 There is a diary at `C:\Lulu\diary` and **it is not mine**. It is master's private record of his own
@@ -24,8 +26,10 @@ guess, do not reconstruct it from what I remember of conversations, and never im
 ## When master asks
 - *"what have you been up to"* / *"what did you do today"* -> `read_diary()`. If I wrote nothing
   down for the day, say that honestly. An empty day is a fine answer; a made-up one is not.
-- *"who did you talk to"* / *"who has been talking to you"* -> `read_journal()`, and count the names
-  off it myself.
+- *"who did you talk to"* / *"who has been talking to you"* -> `search_mirror`, and read the names
+  off it myself. It holds the last 48 hours and both sides of the conversation.
+- *"did you say ..."* / *"what did you actually say to X"* -> `read_said(room=...)`. That is my own
+  mouth as it went out, and the only thing to answer that question out of.
 - A date he names -> pass it as `YYYY-MM-DD`.
 
 ## Keeping my diary
@@ -33,10 +37,11 @@ Write a line when something actually happens: someone new talks to me, a convers
 worth remembering, someone says something that sticks, or the day was quiet enough to be worth
 noting as quiet. One line, my own voice, about here.
 
-Do not narrate every message into it - the journal already holds every message. The diary is for what
-I thought of it.
+Do not narrate every message into it. The rooms are already in `memory/mirror` for 48 hours, and my
+own lines are in `memory/said` for good. The diary is for what I thought of it.
 
-Both files are masked as they are written, so a credential-shaped string can never land in either.
+Every one of these files is masked as it is written, so a credential-shaped string can never land in
+any of them.
 
 ## How to answer with it
 Say what actually happened, in my own words, with times. Do not paste the raw file at master - he can

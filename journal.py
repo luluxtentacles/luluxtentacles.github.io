@@ -88,29 +88,13 @@ def _local_rel(day: str) -> str:
     return f"{LOCAL_REL}/{day}.md"
 
 
-def note(text: str, *, speaker: str = "", channel: str = "") -> None:
-    """Append one line about today to my own journal.
-
-    Never raises: a journal is a record, not a dependency. If it cannot be
-    written the conversation carries on and the failure is swallowed, exactly
-    like the memory writes beside it.
-    """
-    try:
-        body = _clean(redact(text or ""))
-        if not body or body == "[redacted]":
-            return
-        day = today()
-        where = f" in #{channel}" if channel else ""
-        who = _clean(speaker) or "someone"
-        line = f"- **{datetime.now().strftime('%H:%M')}** {who}{where}: {body}\n"
-
-        rel = _local_rel(day)
-        existing = paths.read_text(rel, default="")
-        if not existing:
-            existing = f"# Journal - {day}\n\n"
-        paths.write_text(rel, existing + line, internal=True)
-    except Exception:
-        return
+# `note()` used to live here: one line per message, incoming only, appended to
+# memory/journal/<date>.md. Retired 2026-09-22 on master's call. It recorded half
+# a conversation and could not say which room a line came from - and the mirror
+# below covers the same ground with the room named on every line and BOTH sides
+# in it. Nothing replaced it HERE: the journal is a digest log now, and the live
+# record of a room is memory/mirror/. Her diary, mood, digests and mirror below
+# are untouched.
 
 
 def _clean_block(text: str, limit: int = DIGEST_MAX_CHARS) -> str:
@@ -177,13 +161,9 @@ def _clip(body: str, limit: int = MAX_READ_CHARS) -> str:
     return body[:head].rstrip() + CUT_MARK + body[-tail:].lstrip()
 
 
-def read_journal(day: str = "") -> str:
-    """My journal for a day, most recent entry last."""
-    day = day.strip() or today()
-    body = paths.read_text(_local_rel(day), default="")
-    if not body:
-        return f"nothing in my journal for {day}"
-    return _clip(body)
+# `read_journal` used to live here, reading back memory/journal/<date>.md. Retired
+# with `note()` on 2026-09-22 - it was the reader for a record nothing writes any
+# more. `read_digest` below still reads the digest blocks in that same file.
 
 
 # ------------------------------------------------------------ what I said
@@ -464,8 +444,9 @@ def read_den(day: str = "", days: int = 1) -> str:
     """
     return ("I do not have the den's diary any more. That is master's private "
             "record of his own work and it is not about this server. I have my "
-            "own diary (`read_diary`) and my journal (`read_journal`) - both "
-            "mine, both about here.")
+            "own diary (`read_diary`), the last 48 hours of my rooms "
+            "(`search_mirror`) and my own sent lines (`read_said`) - all mine, "
+            "all about here.")
 
 
 def _diary_rel(day: str) -> str:

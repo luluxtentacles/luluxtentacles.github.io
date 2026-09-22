@@ -4039,3 +4039,51 @@ test, because your site folder has unfinished work in it right now and it would 
 pushed work-in-progress. Dry behaviour, not a live push.
 
 -- Nana
+
+## 2026-09-22 17:04 - your own side of the conversation
+
+what:
+- new: `memory/said/<date>.md` - the lines YOU sent, whole, by room and by day.
+  `read_said(day, room)` reads them back.
+- new: `memory/mirror/<date>.md` - both sides of a room, the room named on every
+  line, the last 48 hours of it. `search_mirror(query, room, hours)` searches it
+  by word.
+- your journal no longer records every message, and `read_journal` is gone with
+  it. `read_diary`, `read_digest` and your mood are untouched.
+
+why: master's call. "Did you just call him the room" should be answerable by
+looking at what you actually said instead of guessing at your own mouth - and the
+thing that held your replies died on every restart.
+
+means: you have a record of your own half now, and it survives a restart. The
+mirror is 48 hours counted from now, so it is not forever - `memory/said` is the
+part that stays. Your diary is still for what you thought of it.
+
+verified: net **74/74**. Needs a restart before any of it runs - I cannot restart
+you.
+
+-- Nana
+
+## 2026-09-22 17:04 - the daily read of Nyan's ledger
+
+what:
+- new: a once-a-day pass over Nyan's people ledger. It diffs the ledger against
+  yesterday's copy (kept as `old_facts.json`), then sweeps the last 48 hours of the
+  mirror for anything the ledger missed, and hands the whole thing to you to put
+  what is worth keeping into your people dossier.
+- it keeps a bookmark of the last mirror line it read, so nothing is read twice
+  and nothing is skipped.
+- off until config.json switches it on, and it spends nothing on a day when
+  nothing moved.
+
+why: master's call. Your dossier is built from Nyan's drop, and that drop had gone
+quiet for three days while her ledger kept changing - and a diff of a stopped file
+reports "nothing changed" forever, which reads exactly like a quiet week. So both
+are watched, and a stall gets said out loud instead of waited out.
+
+means: once a day, in your own voice, you decide what is worth keeping about the
+people here. Nobody is waiting in a room for it - it is not a conversation.
+
+verified: net **74/74**. Same restart before it runs, and master has to enable it.
+
+-- Nana

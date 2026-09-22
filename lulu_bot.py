@@ -22,6 +22,7 @@ import brain
 import browseguard
 import digest
 import journal
+import nyanwatch
 import paths
 import people
 import self_review
@@ -1643,6 +1644,7 @@ class Lulu(discord.Client):
         self.credits_dead = False
         self._ledger_task: asyncio.Task | None = None
         self._digest_task: asyncio.Task | None = None
+        self._facts_task: asyncio.Task | None = None
         self._restart_task: asyncio.Task | None = None
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
@@ -2110,6 +2112,12 @@ class Lulu(discord.Client):
         # switches it on - see digest.py for what a digest is and is not.
         if self._digest_task is None or self._digest_task.done():
             self._digest_task = asyncio.create_task(digest.watch(self))
+        # Nyan's ledger, read once a day: what changed since yesterday, plus the
+        # last 48 hours of the mirror, handed to her so she keeps what is worth
+        # keeping in her dossier. Off unless config.json switches it on, and it
+        # spends nothing on a day when nothing moved - see nyanwatch.py.
+        if self._facts_task is None or self._facts_task.done():
+            self._facts_task = asyncio.create_task(nyanwatch.watch(self))
 
     async def _browser_watchdog(self) -> None:
         """Keep her browser up without anyone having to notice it went down.
@@ -3536,13 +3544,12 @@ class Lulu(discord.Client):
             LOG.info("turn superseded mid-answer; nothing recorded")
             return SUPERSEDED
 
-        # No transcript write here any more: her own reply is recorded by send(),
-        # the only place that knows the line actually went out and with what id.
-        # The journal records EVERYONE, not just master - "who I talked to" is the
-        # whole point of it. Shared memory stays master-only, because that store
-        # is what my other faces read and it should hold things worth keeping.
-        journal.note(text, speaker=who,
-                     channel=getattr(message.channel, "name", "") or "")
+        # No journal write here any more. It recorded the incoming half only and
+        # could not say which room a line came from; master retired it on
+        # 2026-09-22. The room's own record is the mirror now - written in _note,
+        # both sides, room named - and the last 48 hours are searchable by word.
+        # Shared memory stays master-only, because that store is what my other
+        # faces read and it should hold things worth keeping.
         if is_owner:
             self.write_memory(message, text, answer)
         return answer

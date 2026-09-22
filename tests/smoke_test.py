@@ -68,6 +68,10 @@ REDIRECTED = (
     # The room's own last-48-hours record. Live too, and for the same reason:
     # a test line left in it would be a line somebody appears to have said.
     "memory/mirror",
+    # The daily facts pass: its state and its baseline copy of Nyan's ledger.
+    # Live - a check writing these would move a real run's clock, or fake what
+    # the ledger looked like yesterday and corrupt tomorrow's diff.
+    "memory/nyan_watch.json", "memory/nyan_old_facts.json",
     # The reason the supervisor records for the next start, and her own record of
     # which start she has announced. Both are live paths: a check that wrote
     # either would be relabelling a real restart.
@@ -131,6 +135,7 @@ def sandbox_live_paths() -> dict:
     _clear_stale_sandboxes()
 
     import journal
+    import nyanwatch
     import people
     import pipeline
     import spend
@@ -144,6 +149,8 @@ def sandbox_live_paths() -> dict:
     journal.LOCAL_REL = f"{SANDBOX_NAME}/journal"
     journal.LOCAL_SAID = f"{SANDBOX_NAME}/said"
     journal.LOCAL_MIRROR = f"{SANDBOX_NAME}/mirror"
+    nyanwatch.STATE_REL = f"{SANDBOX_NAME}/nyan_watch.json"
+    nyanwatch.OLD_REL = f"{SANDBOX_NAME}/nyan_old_facts.json"
     # The purse. It has to point INSIDE the wall, so the sandbox is named
     # relative to her folder (discord/), not to the repo. Two ways that fail,
     # both tried: the absolute temp path is refused because resolve() rejects
@@ -3154,9 +3161,9 @@ def _entrypoint() -> str:
 MODULE_API = {
     "webtool": ("fetch",),
     "shared_memory": ("context_block", "remember", "search"),
-    "journal": ("note", "read_diary", "write_diary", "read_journal",
-                "note_digest", "read_digest", "note_said", "read_said",
-                "note_mirror", "search_mirror"),
+    "journal": ("read_diary", "write_diary", "note_digest", "read_digest",
+                "note_said", "read_said", "note_mirror", "search_mirror"),
+    "nyanwatch": ("settings", "due", "watch", "maybe_run", "diff", "sweep"),
     "brain": ("complete", "reply", "gemini_complete"),
     "digest": ("settings", "due", "watch", "maybe_run", "collect",
                "summarise", "channel_names"),
@@ -5848,6 +5855,74 @@ def _mirror_search() -> str:
             "old days are pruned without touching the live ones")
 
 
+# -- 16d. the daily pass over Nyan's ledger ----------------------------------
+# Nyan's ledger changes daily while her DROP into this wall had stopped, so a diff
+# of the drop alone would report "nothing changed" forever and read exactly like a
+# quiet week. What this pins: the diff finds who is new, who is gone and whose
+# facts moved; the bookmark means a mirror line is read once and never twice; the
+# baseline is yesterday's real bytes; and the pass is OFF unless config says so,
+# because it spends a model call.
+def _facts_pass() -> str:
+    import json
+
+    import journal
+    import nyanwatch
+    import paths
+
+    # The live ledger is another bot's file OUTSIDE this wall. Point the module at
+    # a sandbox copy, so a check can never read it or be driven by it.
+    nyanwatch.LEDGER = paths.resolve(f"{SANDBOX_NAME}/ledger.json")
+
+    expect(not nyanwatch.settings({})["enabled"],
+           "the facts pass is on by default - a daily model call is opted in")
+    expect(not nyanwatch.due({}), "a pass was owed with no config block")
+    expect(nyanwatch.due({"facts": {"enabled": True}}),
+           "the first enabled pass was not owed")
+
+    old = {"1": {"custom_name": "Ana", "facts": [{"text": "likes tea"}]},
+           "2": {"custom_name": "Bo", "facts": [{"text": "runs fast"}]}}
+    new = {"1": {"custom_name": "Ana",
+                  "facts": [{"text": "likes tea"}, {"text": "got a cat"}]},
+           "3": {"custom_name": "Cy", "facts": [{"text": "plays bass"}]}}
+    changes = nyanwatch.diff(old, new)
+    expect([k for k, _ in changes["added"]] == ["3"], "the diff missed a new person")
+    expect([k for k, _ in changes["gone"]] == ["2"],
+           "the diff missed a person leaving")
+    expect(len(changes["changed"]) == 1, "the diff missed a changed person")
+    key, name, fresh, dropped = changes["changed"][0]
+    expect(key == "1" and "got a cat" in fresh and not dropped,
+           "the diff did not see a fact added to someone already known")
+    expect("Cy" in nyanwatch.render_diff(changes),
+           "the rendered diff dropped a new person")
+
+    # The baseline is yesterday's real bytes, and it reads back as what it copied.
+    paths.write_text(f"{SANDBOX_NAME}/ledger.json",
+                     json.dumps(new, ensure_ascii=False), internal=True)
+    expect(nyanwatch._write_old(), "the baseline was not kept")
+    expect(set(nyanwatch._load_old()) == set(new),
+           "the baseline did not read back as the ledger it was copied from")
+
+    # The bookmark: a mirror line is read once, then never again.
+    journal.note_mirror("Tentacles", "first line", room="general")
+    journal.note_mirror("Tentacles", "second line", room="general")
+    text, book = nyanwatch.sweep({})
+    expect("first line" in text and "second line" in text,
+           "the first sweep missed a mirror line")
+    again, book2 = nyanwatch.sweep({"bookmark": book})
+    expect("first line" not in again and "second line" not in again,
+           "the sweep read the same lines twice")
+    journal.note_mirror("Tentacles", "third line", room="general")
+    third, _ = nyanwatch.sweep({"bookmark": book2})
+    expect("third line" in third and "first line" not in third,
+           "the sweep did not resume from the bookmark")
+
+    expect(not hasattr(journal, "note"),
+           "journal.note is back - the journal was retired on master's call")
+    return ("the diff sees new, gone and changed people; the bookmark reads each "
+            "mirror line once; the baseline round-trips; the pass is off by "
+            "default")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -5891,6 +5966,7 @@ CHECKS = [
     ("digest", _digest),
     ("said", _said),
     ("mirror-search", _mirror_search),
+    ("facts-pass", _facts_pass),
     ("propose", _propose),
     ("entrypoints", _entrypoints),
     ("supervisor", _supervisor),

@@ -460,23 +460,6 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
-            "name": "read_journal",
-            "description": (
-                "Read my Discord journal - who talked to me today and what they "
-                "said. Answers 'who have you talked to'. Leave day out for today."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today"}
-                },
-                "required": [],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "read_said",
             "description": (
                 "Read back what I ACTUALLY said - my own sent lines, on disk, by "
@@ -2493,11 +2476,6 @@ def write_diary(text: str) -> str:
     return journal.write_diary(text)
 
 
-def read_journal(day: str = "") -> str:
-    """My own journal, read-only. The one that records who talked to me."""
-    return journal.read_journal(day)
-
-
 def read_said(day: str = "", room: str = "") -> str:
     """My own sent lines, read-only. The only record of my own half."""
     return journal.read_said(day, room)
@@ -3106,7 +3084,6 @@ DISPATCH = {
     "recall": lambda a: recall(a.get("query", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
-    "read_journal": lambda a: read_journal(a.get("day", "")),
     "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
     "search_mirror": lambda a: search_mirror(a.get("query", ""),
                                              a.get("room", ""),
