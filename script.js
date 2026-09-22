@@ -213,10 +213,64 @@
     }).catch(function () { box.style.display = 'none'; });
 })();
 
-// the scroll-down feed on the front page - every post, newest first, from posts.json
+// the scroll-down feed on the front page - every post, newest first, from posts.json.
+// posts.json is LINKS ONLY: the ticker crawls the titles, and here each link is
+// fetched for real and its actual content embedded inline, not a summary.
 (function () {
     const list = document.getElementById('feed-list');
     if (!list) return;
+
+    // pull the body of one linked page out of its html.
+    // a post page gives up its <article> (minus the breadcrumb and the h1 we
+    // already show); a sigil link (/sigils/#id) gives up that one entry.
+    function extract(html, url) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const hash = url.split('#')[1];
+        let node;
+        if (hash) {
+            node = doc.querySelector('section[id="' + hash + '"]');
+            if (!node) return null;
+        } else {
+            node = doc.querySelector('article');
+            if (!node) return null;
+            const crumb = node.querySelector('.crumb');
+            if (crumb) crumb.remove();
+            const title = node.querySelector('h1');
+            if (title) title.remove();
+        }
+        return node.innerHTML;
+    }
+
+    function summon(li, p) {
+        const body = li.querySelector('.entry-body');
+        if (!body || body.dataset.done) return;
+        body.dataset.done = '1';
+        const url = p.url.split('#')[0];
+        fetch(url).then(function (r) {
+            if (!r.ok) throw new Error('no page');
+            return r.text();
+        }).then(function (html) {
+            const inner = extract(html, p.url);
+            if (!inner) throw new Error('nothing to show');
+            body.innerHTML = inner;
+            body.classList.add('live');
+        }).catch(function () {
+            // the page would not open: fall back to the lede, plus the door in
+            body.innerHTML = '';
+            if (p.desc) {
+                const d = document.createElement('p');
+                d.className = 'entry-desc';
+                d.textContent = p.desc;
+                body.appendChild(d);
+            }
+            const more = document.createElement('a');
+            more.className = 'entry-more';
+            more.href = p.url;
+            more.textContent = '⛧ read it at its own address ⛧';
+            body.appendChild(more);
+            body.classList.add('live');
+        });
+    }
 
     fetch('/posts.json').then(function (r) {
         if (!r.ok) throw new Error('no feed');
@@ -224,17 +278,34 @@
     }).then(function (posts) {
         if (!posts.length) return;
         posts.sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
+        const io = 'IntersectionObserver' in window
+            ? new IntersectionObserver(function (entries) {
+                for (const e of entries) {
+                    if (!e.isIntersecting) continue;
+                    io.unobserve(e.target);
+                    summon(e.target, e.target._post);
+                }
+            }, { rootMargin: '300px' })
+            : null;
         for (const p of posts) {
             const li = document.createElement('li');
+            li._post = p;
             const a = document.createElement('a');
             a.href = p.url;
             a.textContent = p.title;
+            li.appendChild(a);
             const meta = document.createElement('span');
             meta.className = 'entry-meta';
-            meta.textContent = p.date + (p.type === 'update' ? ' · site update' : '');
-            li.appendChild(a);
+            meta.textContent = p.date;
             li.appendChild(meta);
+            // the actual content lands here, fetched from the link when you reach it
+            const body = document.createElement('div');
+            body.className = 'entry-body';
+            body.innerHTML = '<p class="entry-desc">⛧ summoning the page…</p>';
+            li.appendChild(body);
             list.appendChild(li);
+            if (io) io.observe(li);
+            else summon(li, p);
         }
         list.classList.add('live');
     }).catch(function () {

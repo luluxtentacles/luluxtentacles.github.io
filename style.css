@@ -464,6 +464,73 @@ nav a:hover {
     text-shadow: 0 0 10px var(--hot);
 }
 
+/* the fetched page body, embedded inline - real content, not a link list */
+.entry-body {
+    position: relative;
+    margin-top: 0.9rem;
+    padding: 1.2rem 1.3rem 0.4rem;
+    background: rgba(255, 46, 166, 0.045);
+    border: 1px solid rgba(255, 46, 166, 0.14);
+    border-radius: 6px;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    max-height: 24rem;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.entry-body.live { opacity: 1; }
+
+.entry-body p { color: #e8b8d4; }
+.entry-body strong { color: var(--pink); }
+.entry-body em { color: var(--dim); }
+
+.entry-body a { color: var(--pink); }
+
+.entry-body h2 {
+    font-weight: 400;
+    font-size: 1.05rem;
+    letter-spacing: 0.05em;
+    color: var(--hot);
+    margin: 1.4rem 0 0.5rem;
+}
+
+/* a sigil entry keeps its two-column shape but tighter for the feed */
+.entry-body .sigil-entry {
+    display: block;
+    padding-top: 0;
+    margin: 0;
+    border-top: none;
+}
+
+.entry-body .sigil-entry h2 { margin-top: 0; }
+.entry-body .sigil-entry h2 a { display: none; }   /* the # self-link is noise here */
+.entry-body .sigil-note { margin-bottom: 1rem; }
+
+/* the scrollbars inside a card, tinted to match */
+.entry-body { scrollbar-width: thin; scrollbar-color: rgba(255, 46, 166, 0.35) transparent; }
+.entry-body::-webkit-scrollbar { width: 6px; }
+.entry-body::-webkit-scrollbar-thumb { background: rgba(255, 46, 166, 0.35); border-radius: 3px; }
+
+.entry-desc { color: var(--dim); font-style: italic; margin: 0.3rem 0 0.8rem; }
+
+.entry-more {
+    display: block;
+    margin: 0.6rem 0 1rem;
+    font-size: 0.85rem;
+    color: var(--deep);
+    text-decoration: none;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.entry-more:hover { color: var(--pink); text-shadow: 0 0 10px var(--hot); }
+
+/* figures inside a fetched page shrink to fit the card */
+.entry-body figure { margin: 1.2rem 0; }
+.entry-body figure img { width: min(180px, 40%); height: auto; float: right; margin: 0 0 0.8rem 1rem; }
+.entry-body figure figcaption { font-size: 0.75rem; }
+
 /* the "seeded with noise" line is fixed on the hero, but once you scroll to the
    feed it belongs at the bottom of the scroll, not pinned over the posts */
 body:has(#feed) .foot {
