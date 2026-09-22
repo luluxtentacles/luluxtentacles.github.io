@@ -5372,9 +5372,115 @@ def _stop_and_limits() -> str:
            and "--background" in runbox.SHORTCUTS["preview"],
            f"the preview shortcut is wrong: {runbox.SHORTCUTS['preview']!r}")
 
+    # 5. The mirror takes its OWN port back (master relaying her ask,
+    #    2026-09-22): three zombie python listeners on 8899 that only a hand
+    #    `taskkill` could clear. Two halves matter EQUALLY, so both are pinned -
+    #    it clears an earlier mirror of its own, and it kills NOTHING it cannot
+    #    prove is its own. The socket table and the kill are stubbed: a net that
+    #    binds the port is the net that wedges the next run.
+    import json
+
+    expect(preview._is_python("python.exe")
+           and preview._is_python("python3.11.exe")
+           and preview._is_python("PY.EXE"),
+           "the mirror no longer recognises its own interpreter")
+    expect(not preview._is_python("chrome.exe") and not preview._is_python(""),
+           "the mirror would accept a non-interpreter as itself")
+
+    real_state = preview._STATE
+    real_listeners = preview._listeners
+    real_kill = preview._kill
+    stubbed_state = SANDBOX / "preview-state.json"
+    preview._STATE = stubbed_state              # never the real bookmark
+    killed: list[int] = []
+    try:
+        expect(preview._is_our_mirror(
+                   {"pid": 1, "name": "python.exe",
+                    "cmdline": "python preview.py --seconds 30"}),
+               "the mirror does not recognise its own command line")
+        for stranger in (
+            {"pid": 2, "name": "python.exe",
+             "cmdline": "python -m http.server 8899"},
+            {"pid": 3, "name": "python.exe", "cmdline": ""},
+            {"pid": 4, "name": "node.exe", "cmdline": "node preview-server.js"},
+            {"pid": 5, "name": "chrome.exe",
+             "cmdline": "chrome --remote-debugging-port=9222"},
+        ):
+            expect(not preview._is_our_mirror(stranger),
+                   f"the mirror would claim a stranger as its own: {stranger}")
+
+        # A cross-session mirror of ours: command line unreadable, so the
+        # bookmark is what makes it provably ours rather than a guess.
+        stubbed_state.write_text(
+            json.dumps({"pid": 9, "port": preview.PORT,
+                        "root": "projects/site"}), encoding="utf-8")
+        expect(preview._is_our_mirror({"pid": 9, "name": "python.exe",
+                                       "cmdline": ""}),
+               "the bookmark no longer proves a mirror is ours")
+        expect(not preview._is_our_mirror({"pid": 10, "name": "python.exe",
+                                           "cmdline": ""}),
+               "an unreadable python is being claimed as ours without the "
+               "bookmark naming it")
+
+        # (a) A stranger on the port is refused and NAMED, and nothing is killed.
+        preview._listeners = lambda port: [
+            {"pid": 77, "name": "python.exe",
+             "cmdline": "python -m http.server 8899"}]
+        preview._kill = lambda pid: killed.append(pid) or True
+        said: list[str] = []
+        expect(preview.clear_own_mirror(preview.PORT, log=said.append) is False,
+               "the mirror claimed a port held by a stranger as its own")
+        expect(killed == [],
+               f"the mirror killed something it could not prove was its own: "
+               f"{killed}")
+        expect(any("77" in line for line in said),
+               f"the refusal does not name the pid holding the port: {said}")
+
+        # (b) Our own earlier mirror IS cleared, and the port reads free after.
+        killed.clear()
+        holders = [{"pid": 88, "name": "python.exe",
+                    "cmdline": "python preview.py --background"}]
+        preview._listeners = lambda port: list(holders)
+        preview._kill = lambda pid: (killed.append(pid), holders.clear(),
+                                     True)[-1]
+        expect(preview.clear_own_mirror(preview.PORT, log=lambda *a: None) is True,
+               "the mirror did not clear its own earlier instance off the port")
+        expect(killed == [88], f"it killed the wrong pid, or none: {killed}")
+    finally:
+        preview._STATE = real_state
+        preview._listeners = real_listeners
+        preview._kill = real_kill
+        try:
+            stubbed_state.unlink()
+        except FileNotFoundError:
+            pass
+
+    # (c) A background mirror always carries a lifetime, so it can never become
+    #     the listener nobody knows about - and an explicit --seconds still wins,
+    #     because her own `preview` shortcut passes one.
+    real_relaunch = preview._relaunch_detached
+    real_clear = preview.clear_own_mirror
+    captured: list[str] = []
+    preview.clear_own_mirror = lambda *a, **k: True      # never touch the port
+    preview._relaunch_detached = lambda argv, **kw: captured.extend(argv) or 0
+    try:
+        preview.main(["--background"])
+        expect("--seconds" in captured,
+               f"a background mirror can start with no lifetime at all: {captured}")
+        expect(str(preview.DEFAULT_BACKGROUND_SECONDS) in captured,
+               f"the background lifetime is missing or wrong: {captured}")
+        captured.clear()
+        preview.main(["--background", "--seconds", "42"])
+        expect(float(captured[captured.index("--seconds") + 1]) == 42.0,
+               f"an explicit --seconds was overridden: {captured}")
+    finally:
+        preview._relaunch_detached = real_relaunch
+        preview.clear_own_mirror = real_clear
+
     return ("stop word owner-gated and read before the slot claim, only master "
             "interrupts, turn deadline fires at 15 minutes, preview detaches "
-            "without leaving a listener")
+            "without leaving a listener, and takes its own port back without "
+            "killing a stranger")
 
 
 def _no_retry_forever() -> str:

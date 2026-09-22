@@ -66,15 +66,34 @@ one day, and it was wrong for that whole day.
 `--seconds` is the other half and it is not a convenience either: a preview that
 outlives its use is a door left open, so it shuts itself. Both are documented on
 the `website` shelf, where she will actually look for them.
+
+Taking the port back
+--------------------
+A mirror started detached cannot be reaped by whoever launched it, so an old one
+can still be holding 8899 when a new one starts - and until 2026-09-22 the only
+answer was a hand `taskkill`, one pid at a time. Master, relaying her own ask:
+*"make it detect and clear its own zombie instance on 8899 instead of leaving me
+to taskkill three dead listeners by hand."*
+
+So starting this clears an earlier mirror of OURS off the port first, and it
+PROVES ownership before it kills anything: the listener's command line names
+`preview.py`, or our own bookmark in `logs/preview.pid` names that pid. A
+listener it cannot prove is left running and reported with its pid, because
+`127.0.0.1:8899` is not "the preview port" to the rest of this machine - it is
+just a port, and one of the other listeners on it is her own browser's steering
+wheel. A background launch also now always carries a lifetime, so a mirror can
+no longer be started with no way to end on its own.
 """
 from __future__ import annotations
 
 import argparse
 import http.server
+import json
 import os
 import subprocess
 import sys
 import threading
+import time
 import urllib.parse
 from pathlib import Path
 
@@ -95,6 +114,13 @@ BIND_HOST = "127.0.0.1"
 # through paths.resolve(), so the wall decides where this can point - not a flag
 # from a caller, and not something a page can ask for.
 DEFAULT_ROOT = "projects/site"
+
+# A background launch with no `--seconds` is a listener with no way to end itself
+# and nobody left who knows it exists - the exact zombie this file learned to
+# clear. So a detached mirror always carries a lifetime, and this is the one it
+# gets when the caller did not choose. The `preview` shortcut passes its own
+# 300s, so this is a floor for a launch that forgot, not a change to her path.
+DEFAULT_BACKGROUND_SECONDS = 900
 
 # Extensions worth naming. Anything else is served as a download rather than
 # guessed at, because a wrong Content-Type is how a stylesheet turns into a blank
@@ -316,6 +342,208 @@ def _relaunch_detached(argv: list[str],
     return 0
 
 
+# ---------------------------------------------------------------------------
+# Taking the port back from an earlier mirror
+# ---------------------------------------------------------------------------
+#
+# Master, 2026-09-22, relaying her own words: *"make it detect and clear its own
+# zombie instance on 8899 instead of leaving me to taskkill three dead listeners
+# by hand."* The fault is structural rather than careless: this server is started
+# DETACHED on purpose, so nothing the launcher does can reap it - not the 900s
+# tree-kill, not a closed shell. A listener nobody can see becomes a chore for
+# whoever happens to be standing there, and a process that cannot clear up after
+# itself is unfinished.
+#
+# The rule is deliberately narrow: a listener is cleared only when it can be
+# PROVEN to be one of ours - its command line names `preview.py`, or our own
+# bookmark in `logs/preview.pid` names that pid. Anything unprovable is left
+# running and REPORTED with its pid. "Kill whatever holds 8899" is the version of
+# this that becomes the next bug: 8899 is not "the preview port" to the rest of
+# this machine, it is just a port, and her own browser's CDP endpoint is another
+# loopback listener entirely - one whose process is worth more than a tidy port.
+#
+# SO_REUSEADDR is not the answer here, and it gets a sentence so nobody adds it
+# later: on Windows it genuinely lets a second socket bind a port another socket
+# is holding, and which of the two answers a connection is then undefined. That
+# is a mirror served out of an invisible process - a worse failure than refusing,
+# and a much quieter one.
+
+_STATE = paths.ROOT / "logs" / "preview.pid"
+
+
+def _is_python(image: str | None) -> bool:
+    """Is this image an interpreter? Prefix test, so `python3.11.exe` counts."""
+    name = (image or "").strip().lower()
+    return name.startswith("python") or name == "py.exe"
+
+
+def _image_name(pid: int) -> str:
+    """One pid's image name from tasklist. Only the netstat fallback needs it."""
+    try:
+        done = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV",
+                               "/NH"],
+                              capture_output=True, text=True, timeout=15)
+        first = done.stdout.strip().splitlines()[0]
+        return first.split('","')[0].strip('"')
+    except Exception:
+        return ""
+
+
+def _listeners(port: int) -> list[dict]:
+    """Everything LISTENing on `port`, as [{"pid", "name", "cmdline"}].
+
+    psutil when it happens to be installed - it answers all three in one pass -
+    and the OS's own socket table when it is not. psutil is deliberately NOT a
+    dependency of this file: a mirror that refused to start because an optional
+    helper was missing would be a worse bug than the one being fixed, so every
+    failure below falls through to the floor instead of raising.
+    """
+    found: dict[int, dict] = {}
+
+    try:
+        import psutil
+    except Exception:
+        psutil = None
+
+    if psutil is not None:
+        try:
+            for conn in psutil.net_connections(kind="tcp"):
+                if conn.status != psutil.CONN_LISTEN or not conn.laddr:
+                    continue
+                if conn.laddr.port != port or not conn.pid:
+                    continue
+                name = cmdline = ""
+                try:
+                    proc = psutil.Process(conn.pid)
+                    name = proc.name()
+                    cmdline = " ".join(proc.cmdline())
+                except Exception:
+                    # Another session's process, or one that exited between the
+                    # table read and this one: a pid and no proof.
+                    pass
+                found[conn.pid] = {"pid": conn.pid, "name": name,
+                                   "cmdline": cmdline}
+        except Exception:
+            found = {}
+
+    if not found and os.name == "nt":
+        try:
+            table = subprocess.run(["netstat", "-ano"], capture_output=True,
+                                   text=True, timeout=15).stdout
+        except Exception:
+            table = ""
+        for line in table.splitlines():
+            parts = line.split()          # Proto  Local  Foreign  State  PID
+            if len(parts) < 5 or parts[0].upper() != "TCP":
+                continue
+            if parts[3].upper() != "LISTENING":
+                continue
+            if parts[1].rsplit(":", 1)[-1] != str(port):
+                continue
+            try:
+                pid = int(parts[4])
+            except ValueError:
+                continue
+            found[pid] = {"pid": pid, "name": _image_name(pid), "cmdline": ""}
+
+    return list(found.values())
+
+
+def _read_state() -> dict:
+    try:
+        return json.loads(_STATE.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _write_state(root: Path) -> None:
+    """Bookmark this pid as the mirror. Best-effort, never fatal: a mirror that
+    cannot write a note about itself is still a mirror."""
+    try:
+        _STATE.parent.mkdir(parents=True, exist_ok=True)
+        _STATE.write_text(json.dumps({
+            "pid": os.getpid(),
+            "port": PORT,
+            "root": str(root),
+            "started": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _clear_state() -> None:
+    """Drop the bookmark, but only while it is still ours - a newer mirror may
+    already have claimed it, and it must not be un-claimed from under that one."""
+    try:
+        if _read_state().get("pid") == os.getpid():
+            _STATE.unlink()
+    except OSError:
+        pass
+
+
+def _is_our_mirror(entry: dict) -> bool:
+    """PROOF, not resemblance. Is this listener one of our own mirrors?"""
+    if not _is_python(entry.get("name")):
+        return False
+    if "preview.py" in (entry.get("cmdline") or "").lower():
+        return True
+    state = _read_state()
+    return bool(state) and state.get("pid") == entry.get("pid") \
+        and state.get("port") == PORT
+
+
+def _kill(pid: int) -> bool:
+    argv = (["taskkill", "/F", "/T", "/PID", str(pid)] if os.name == "nt"
+            else ["kill", "-9", str(pid)])
+    try:
+        done = subprocess.run(argv, capture_output=True, text=True, timeout=20)
+    except Exception:
+        return False
+    return done.returncode == 0
+
+
+def _listen_holders(port: int, tries: int = 20, pause: float = 0.2) -> list[dict]:
+    """`_listeners`, polled briefly - a killed socket is not instantly gone."""
+    for _ in range(tries):
+        holders = _listeners(port)
+        if not holders:
+            return []
+        time.sleep(pause)
+    return _listeners(port)
+
+
+def clear_own_mirror(port: int = PORT, log=print) -> bool:
+    """Free `port` from an EARLIER MIRROR OF OURS. True when the port is free.
+
+    False is not a failure to hide: it means something is still holding the port
+    that cannot be proven to be ours, and the caller is told which pid, so the
+    next step is a decision rather than a guess.
+    """
+    holders = _listeners(port)
+    if not holders:
+        return True
+
+    mine = [h for h in holders if _is_our_mirror(h)]
+    for entry in mine:
+        log(f"clearing my own earlier mirror on {BIND_HOST}:{port} "
+            f"(pid {entry['pid']})")
+        _kill(entry["pid"])
+
+    # Only a kill needs waiting for: a socket takes a moment to leave the table.
+    # A stranger is answered immediately - there is nothing to wait on.
+    remaining = _listen_holders(port) if mine else _listeners(port)
+    if not remaining:
+        return True
+
+    for entry in remaining:
+        proof = "provably mine" if _is_our_mirror(entry) else "NOT provably mine"
+        log(f"  pid {entry['pid']} ({entry.get('name') or 'name unreadable'}) is "
+            f"still holding {BIND_HOST}:{port} - {proof}")
+    log("to finish it by hand, from an elevated shell:")
+    log("  taskkill /F /T /PID " + ",".join(str(e["pid"]) for e in remaining))
+    return False
+
+
 def serve(root_relative: str = DEFAULT_ROOT, seconds: float | None = None,
           quiet: bool = False) -> int:
     """Mirror one folder until stopped, or until `seconds` elapses."""
@@ -331,17 +559,22 @@ def serve(root_relative: str = DEFAULT_ROOT, seconds: float | None = None,
     Handler.root = root
     Handler.quiet = quiet
 
+    # An earlier mirror of mine may still own this port. Clearing it is the
+    # difference between "start a preview" and "go taskkill something first", and
+    # it lives here rather than in the launcher so a direct run gets it too.
+    if not clear_own_mirror(PORT):
+        return 3
     try:
         httpd = http.server.ThreadingHTTPServer((BIND_HOST, PORT), Handler)
     except OSError as exc:
-        # Two ways to get here and both are worth saying out loud: something else
-        # already holds the port, or a preview of hers is still running. The
-        # second is normal while she is iterating, so it is not an error to fear.
         print(f"could not listen on {BIND_HOST}:{PORT} - {exc}")
-        print("something already holds that port. If it is a preview you started "
-              "earlier, it is already serving this same port - use it, or wait for "
-              "it to exit on its own.")
+        print("that port is held by something I could not prove is mine, so it is "
+              "still running - I would rather refuse than kill a stranger.")
         return 3
+
+    # The bookmark that turns the next run's "is this mine?" from a resemblance
+    # into a proof. Written only once the port is actually ours.
+    _write_state(root)
 
     print(f"mirroring {root}")
     print(f"open it at http://{BIND_HOST}:{PORT}/")
@@ -363,6 +596,7 @@ def serve(root_relative: str = DEFAULT_ROOT, seconds: float | None = None,
         if timer is not None:
             timer.cancel()
         httpd.server_close()
+        _clear_state()
     return 0
 
 
@@ -387,13 +621,20 @@ def main(argv: list[str] | None = None) -> int:
     # if the port has to move, and change it in one place.
     args = parser.parse_args(argv)
     if args.background:
+        # Clear the port HERE, in the process whose output the caller can see. The
+        # child's streams go to the null device, so a line it printed about what
+        # it cleared would be a line nobody ever reads.
+        if not clear_own_mirror(PORT):
+            return 3
         # Pass only what the caller changed, so the defaults stay defined in one
         # place, and leave --background itself out or the child recurses forever.
         child: list[str] = []
         if args.root != DEFAULT_ROOT:
             child += ["--root", args.root]
-        if args.seconds:
-            child += ["--seconds", str(args.seconds)]
+        # Always a lifetime, even when the caller gave none: a detached mirror
+        # with no end IS the zombie, so this is a floor rather than a default
+        # that can be forgotten.
+        child += ["--seconds", str(args.seconds or DEFAULT_BACKGROUND_SECONDS)]
         if args.quiet:
             child += ["--quiet"]
         return _relaunch_detached(child)

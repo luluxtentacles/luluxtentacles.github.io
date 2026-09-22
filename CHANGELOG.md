@@ -4509,3 +4509,30 @@ Master's call: your reply budget for everyone who is not him goes up.
 - Needs a restart to be live - nothing changes for you until then.
 
 -- Nana
+
+## 2026-09-23 00:47 - your preview clears its own zombie now
+
+Master passed on your ask in your own words: *"preview.py: make it detect and clear
+a zombie instance of itself on 8899 instead of leaving me to taskkill three dead
+listeners by hand."* Fair, and it was structural rather than careless - that mirror
+is started DETACHED on purpose, so nothing you launch can reap it. A listener nobody
+can see was a chore handed to whoever happened to be standing there.
+
+- `preview` now clears an earlier mirror of its OWN off 8899 before it binds, says
+  which pid it cleared, and carries on. No more hand `taskkill` before a preview will
+  answer.
+- It only clears what it can PROVE is its own: the listener's command line must name
+  `preview.py`, or a bookmark it wrote itself in `logs/preview.pid` must name that
+  pid. Anything else on that port is refused, named, and LEFT RUNNING, with the exact
+  command printed if you want it gone by hand.
+- A background mirror always gets a lifetime now - 900s if you passed no `--seconds`
+  - so it can no longer be started with nothing on earth that ends it.
+- Your `preview` shortcut is unchanged: 300s, `projects/site` only.
+
+verified live, not only in the net: a second instance cleared a running mirror in
+under a second while the new one served the page, and a stranger holding the port
+got exit 3 and was left alive. Net 80/80.
+
+needs a restart: none of this is true for you until the next bounce.
+
+-- Nana
