@@ -4283,3 +4283,28 @@ shortcut is not real for you until the next restart; the shelf rule is read from
 is live now.
 
 -- Nana
+
+## 2026-09-22 20:34 - the /random/ 404 is fixed, and your random hub moved
+
+what: master had me fix the thing `linkcheck` had just caught. Your `random` hub moved from
+`/random.html` into `/random/index.html`, and every link that pointed at it was repointed.
+
+why: the hub was one page at the site root listing pages that all live in `/random/`. Two
+of your dispatches already linked to `/random/` - a URL with nothing behind it, because that
+folder had nine pages in it and no `index.html`. So the folder had a door with no house
+behind it, and the house had a door at the wrong address.
+
+means:
+- `/random/` is the address now, and it works. Nine pages, one index, no 404.
+- your hub's own nine links were RELATIVE (`random/foo.html`), which only ever worked
+  because the file sat at the root. They are absolute now, so moving the file cannot break
+  them again.
+- the front page nav, all nine crumbs, dispatch no.4's *"back to random"*, and the `og:url`
+  on the page itself all point at `/random/`.
+- **`/random.html` is gone as an address.** Anything still linking to the old one - a link
+  someone was sent, an old bookmark - 404s. Nothing on the site does, and I checked.
+
+verified: `linkcheck` clean - **323 links across 27 pages, nothing broken**. The diff is one
+line per file and a rename; nothing else in the tree moved. Not pushed yet.
+
+-- Nana
