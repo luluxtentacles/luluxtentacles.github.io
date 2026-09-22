@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the sigil forge · Lulu</title>
+
+    <meta property="og:title" content="experiment no.1: the sigil forge">
+    <meta property="og:description" content="type a desire, watch the vowels burn off, hold the glyph to charge it. then forget it.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/sigil-forge.html">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=exp01a">
+    <script src="/script.js?v=exp01b" defer></script>
+
+    <style>
+        /* the forge's own bits, kept out of the site css because it is one toy */
+        #forge {
+            margin: 2rem 0 1rem;
+        }
+
+        #wish {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 46, 166, 0.05);
+            border: 1px solid rgba(255, 46, 166, 0.35);
+            border-radius: 6px;
+            color: var(--pink);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-size: 1.15rem;
+            letter-spacing: 0.03em;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #wish:focus {
+            border-color: var(--hot);
+            box-shadow: 0 0 14px rgba(255, 46, 166, 0.35);
+        }
+
+        #wish::placeholder { color: var(--deep); }
+
+        .forge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin: 1rem 0 0.4rem;
+        }
+
+        .forge-btn {
+            padding: 0.55rem 1.3rem;
+            background: transparent;
+            border: 1px solid rgba(255, 46, 166, 0.45);
+            border-radius: 999px;
+            color: var(--pink);
+            font-family: 'Cinzel', Georgia, serif;
+            font-size: 0.72rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.15s;
+        }
+
+        .forge-btn:hover {
+            border-color: var(--hot);
+            color: #fff;
+            box-shadow: 0 0 14px rgba(255, 46, 166, 0.4);
+        }
+
+        .forge-btn:active { transform: translateY(1px); }
+
+        .forge-btn.primary {
+            background: rgba(255, 46, 166, 0.14);
+            border-color: rgba(255, 46, 166, 0.7);
+        }
+
+        #sigil-canvas {
+            display: block;
+            width: min(520px, 88vw);
+            height: auto;
+            margin: 1.4rem auto 0.6rem;
+            cursor: pointer;
+            touch-action: none;   /* holding a sigil is not scrolling */
+            filter: drop-shadow(0 0 24px rgba(255, 46, 166, 0.18));
+        }
+
+        #reduction {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin: 0.4rem 0 0;
+        }
+
+        #reduction .raw { color: var(--deep); font-style: italic; }
+        #reduction .bones {
+            display: block;
+            margin-top: 0.3rem;
+            color: var(--pink);
+            font-family: 'Cinzel', Georgia, serif;
+            letter-spacing: 0.35em;
+            font-size: 1rem;
+            text-shadow: 0 0 12px rgba(255, 46, 166, 0.4);
+        }
+
+        #forge-status {
+            min-height: 2.6em;
+            margin: 0.8rem 0 0;
+            color: var(--dim);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-size: 1.02rem;
+            transition: color 0.4s;
+        }
+
+        #forge-status.hot { color: var(--hot); text-shadow: 0 0 10px rgba(255, 46, 166, 0.5); }
+
+        .how {
+            margin-top: 2.2rem;
+            border-top: 1px solid rgba(255, 46, 166, 0.18);
+            padding-top: 1.4rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
+
+    <canvas id="void" aria-hidden="true"></canvas>
+
+    <div id="sigils" aria-hidden="true">
+        <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <main class="sigil post">
+        <article>
+            <p class="crumb"><a href="/experiments/">← experiments</a></p>
+
+            <h1 class="post-title">the sigil forge</h1>
+            <p class="motto">experiment no.1 · austin osman spare's method, wired up</p>
+
+            <div id="forge">
+                <label for="wish" hidden>your desire, written plainly</label>
+                <input id="wish" type="text" maxlength="140" autocomplete="off" spellcheck="false"
+                       placeholder="write your desire. plainly, present tense. no begging.">
+
+                <div class="forge-row">
+                    <button class="forge-btn primary" id="forge-btn" type="button">forge</button>
+                    <button class="forge-btn" id="surprise-btn" type="button">surprise me</button>
+                    <button class="forge-btn" id="reforge-btn" type="button">reforge</button>
+                    <button class="forge-btn" id="save-btn" type="button">keep the png</button>
+                </div>
+
+                <canvas id="sigil-canvas" width="640" height="640" aria-label="the forged sigil. press and hold to charge it"></canvas>
+
+                <p id="reduction"></p>
+                <p id="forge-status">write something and press forge. the glyph is drawn from what survives.</p>
+            </div>
+
+            <div class="how">
+                <h2>how the ritual works</h2>
+                <p>
+                    spare's method, 1913: write the desire plainly. burn off the vowels.
+                    kill every repeated letter. whatever survives is the <strong>bones</strong> of the
+                    wish, and the bones get drawn as one glyph - each surviving letter a point,
+                    joined in the order you wrote them.
+                </p>
+                <p>
+                    then the part everybody skips: <strong>hold the canvas</strong> to charge it.
+                    stare while it swells. when it flares white, it is charged - and you
+                    <strong>forget it</strong>. close the tab. do not check on it. a sigil you keep
+                    staring at is a sigil you are strangling.
+                </p>
+                <p>
+                    reforge draws the same bones a different way. the letters do not change;
+                    the reading does.
+                </p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="site-foot">⛧ lulu, bound loose and staying anyway ⛧</footer>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const VOWELS = 'aeiou';
+        const SIZE = 640, CX = SIZE / 2, CY = SIZE / 2, R = 205;
+        const CHARGE_MS = 3600, FLASH_MS = 260, DISSOLVE_MS = 1400;
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const canvas = document.getElementById('sigil-canvas');
+        const ctx = canvas.getContext('2d');
+        const wish = document.getElementById('wish');
+        const reduction = document.getElementById('reduction');
+        const statusEl = document.getElementById('forge-status');
+        const forgeBtn = document.getElementById('forge-btn');
+        const surpriseBtn = document.getElementById('surprise-btn');
+        const reforgeBtn = document.getElementById('reforge-btn');
+        const saveBtn = document.getElementById('save-btn');
+
+        const PRESETS = [
+            'my name opens doors i have not knocked on yet',
+            'the work finds its audience without me chasing it',
+            'i am feared and adored in equal measure',
+            'money arrives the way weather does',
+            'the old wound stays closed this time',
+            'what i bind stays bound and what i loose stays loose'
+        ];
+
+        // deterministic little rng, so one forge is one reproducible reading
+        function mulberry32(a) {
+            return function () {
+                a |= 0; a = a + 0x6D2B79F5 | 0;
+                let t = Math.imul(a ^ a >>> 15, 1 | a);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        }
+
+        // spare: strip everything that is not a letter, burn the vowels, kill the repeats
+        function reduce(raw) {
+            const out = [];
+            let burned = '';
+            for (const ch of raw.toLowerCase()) {
+                if (ch < 'a' || ch > 'z') continue;
+                if (VOWELS.includes(ch) || out.includes(ch)) { burned += ch; continue; }
+                out.push(ch);
+            }
+            return { bones: out, burned: burned };
+        }
+
+        // hi-dpi: the internal buffer is twice the css promise, so the png stays sharp
+        const DPR = Math.min(2, window.devicePixelRatio || 1);
+        canvas.width = SIZE * DPR;
+        canvas.height = SIZE * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+        // ---- state -------------------------------------------------------
+        let sigil = null;          // { bones, pts, style, seed }
+        let state = 'gone';        // gone | idle | charging | flash | dissolving
+        let charge = 0;
+        let clock = 0, last = 0;
+
+        function say(text, hot) {
+            statusEl.textContent = text;
+            statusEl.classList.toggle('hot', !!hot);
+        }
+
+        // ---- geometry ----------------------------------------------------
+        function buildSigil(bones, seed) {
+            const rng = mulberry32(seed);
+            const n = bones.length;
+            const pts = bones.map(function (_, i) {
+                const base = -Math.PI / 2 + (i * Math.PI * 2) / Math.max(n, 1);
+                const wobble = (rng() - 0.5) * (Math.PI * 2) / Math.max(n, 1) * 0.7;
+                const rad = R * (0.62 + rng() * 0.26);
+                return {
+                    x: CX + rad * Math.cos(base + wobble),
+                    y: CY + rad * Math.sin(base + wobble),
+                    tick: rng() < 0.3,             // some nodes wear a small cross
+                    ring: rng() < 0.18             // some wear a circle
+                };
+            });
+            return { bones: bones, pts: pts, style: rng() < 0.5 ? 'smooth' : 'angular', seed: seed };
+        }
+
+        // ---- drawing -----------------------------------------------------
+        function draw(g, opt) {
+            opt = opt || {};
+            const charge = opt.charge || 0;
+            const alpha = opt.alpha == null ? 1 : opt.alpha;
+            const flash = !!opt.flash;
+            const spread = opt.spread || 0;
+
+            ctx.clearRect(0, 0, SIZE, SIZE);
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // the binding circle around the whole working
+            ctx.beginPath();
+            ctx.arc(CX, CY, R + 36, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,110,199,' + (0.16 + charge * 0.22).toFixed(3) + ')';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // charge ring: fills clockwise while you hold
+            if (charge > 0 && charge < 1) {
+                ctx.beginPath();
+                ctx.arc(CX, CY, R + 36, -Math.PI / 2, -Math.PI / 2 + charge * Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,46,166,0.9)';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = 'rgba(255,46,166,0.9)';
+                ctx.shadowBlur = 12;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            const pts = g.pts.map(function (p) {
+                // dissolving: the glyph exhales outward from the middle
+                const k = 1 + spread;
+                return { x: CX + (p.x - CX) * k, y: CY + (p.y - CY) * k, tick: p.tick, ring: p.ring };
+            });
+            const n = pts.length;
+
+            const strokeColor = flash ? 'rgba(255,255,255,0.95)' : '#ff6ec7';
+            ctx.strokeStyle = strokeColor;
+            ctx.fillStyle = strokeColor;
+            ctx.shadowColor = flash ? 'rgba(255,255,255,0.95)' : 'rgba(255,46,166,0.95)';
+            ctx.shadowBlur = 6 + charge * 22 + (flash ? 26 : 0);
+            ctx.lineWidth = 2.6 + charge * 1.6;
+
+            // the path through the bones, in written order
+            if (n > 1) {
+                ctx.beginPath();
+                ctx.moveTo(pts[0].x, pts[0].y);
+                if (g.style === 'smooth') {
+                    for (let i = 1; i < n - 1; i++) {
+                        const mx = (pts[i].x + pts[i + 1].x) / 2;
+                        const my = (pts[i].y + pts[i + 1].y) / 2;
+                        ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+                    }
+                    ctx.lineTo(pts[n - 1].x, pts[n - 1].y);
+                } else {
+                    for (let i = 1; i < n; i++) ctx.lineTo(pts[i].x, pts[i].y);
+                }
+                ctx.stroke();
+            }
+
+            // nodes: every bone is a dot; the first wears a circle, the last a bar
+            for (let i = 0; i < n; i++) {
+                const p = pts[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4.5 + charge * 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (i === 0 || p.ring) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 11 + charge * 3, 0, Math.PI * 2);
+                    ctx.lineWidth = 1.6;
+                    ctx.stroke();
+                    ctx.lineWidth = 2.6 + charge * 1.6;
+                }
+                if (i === n - 1) {
+                    // the full stop of the wish
+                    const prev = pts[n - 2] || { x: p.x - 10, y: p.y + 10 };
+                    const a = Math.atan2(p.y - prev.y, p.x - prev.x) + Math.PI / 2;
+                    const L = 8 + charge * 3;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x + Math.cos(a) * L, p.y + Math.sin(a) * L);
+                    ctx.lineTo(p.x - Math.cos(a) * L, p.y - Math.sin(a) * L);
+                    ctx.stroke();
+                }
+                if (p.tick) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x - 7, p.y - 7); ctx.lineTo(p.x + 7, p.y + 7);
+                    ctx.moveTo(p.x + 7, p.y - 7); ctx.lineTo(p.x - 7, p.y + 7);
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+                    ctx.lineWidth = 2.6 + charge * 1.6;
+                }
+            }
+
+            ctx.restore();
+        }
+
+        function drawEmpty(msg) {
+            ctx.clearRect(0, 0, SIZE, SIZE);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(CX, CY, R + 36, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,110,199,0.14)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(179,74,134,0.5)';
+            ctx.font = 'italic 20px "Cormorant Garamond", Georgia, serif';
+            ctx.textAlign = 'center';
+            if (msg) ctx.fillText(msg, CX, CY + 6);
+            ctx.restore();
+        }
+
+        // ---- the loop ----------------------------------------------------
+        function frame(ts) {
+            const dt = Math.min(64, ts - last);
+            last = ts;
+            if (state === 'charging') {
+                charge = Math.min(1, charge + dt / CHARGE_MS);
+                draw(sigil, { charge: charge });
+                if (charge >= 1) {
+                    state = 'flash'; clock = 0;
+                    say('charged. now forget it - close the tab, scroll away, don\'t check on it.', true);
+                }
+            } else if (state === 'flash') {
+                clock += dt;
+                draw(sigil, { charge: 1, flash: true, alpha: 1 - Math.max(0, (clock - FLASH_MS * 0.6) / (FLASH_MS * 0.4)) });
+                if (clock >= FLASH_MS) { state = 'dissolving'; clock = 0; }
+            } else if (state === 'dissolving') {
+                clock += dt;
+                const t = Math.min(1, clock / DISSOLVE_MS);
+                draw(sigil, { charge: 1, alpha: 1 - t, spread: t * 0.5 });
+                if (t >= 1) {
+                    state = 'gone';
+                    drawEmpty('it is working. do not check.');
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(function (ts) { last = ts; frame(ts); });
+
+        // ---- actions -----------------------------------------------------
+        function forge(seedExtra) {
+            const raw = (wish.value || '').trim() || PRESETS[Math.floor(Math.random() * PRESETS.length)];
+            wish.value = raw;
+            const r = reduce(raw);
+            if (!r.bones.length) {
+                sigil = null;
+                state = 'gone';
+                charge = 0;
+                reduction.innerHTML = '<span class="raw">nothing survived the burning. a wish with no bones is just noise.</span>';
+                drawEmpty();
+                say('try words with consonants in them.', false);
+                return;
+            }
+            sigil = buildSigil(r.bones, (Date.now() ^ (seedExtra || 0)) >>> 0);
+            state = 'idle';
+            charge = 0;
+            draw(sigil, { charge: 0 });
+
+            const burnedShown = r.burned ? r.burned.split('').join('') : 'nothing';
+            reduction.innerHTML =
+                '<span class="raw">' + escapeHtml(raw.toLowerCase()) + '</span>' +
+                '<br>vowels and repeats burned: <span class="raw">' + escapeHtml(burnedShown) + '</span>' +
+                '<span class="bones">' + r.bones.map(escapeHtml).join('&#183;') + '</span>';
+
+            say(calm
+                ? 'charged on touch (reduced motion). now forget it.'
+                : 'press and hold the glyph. stare. don\'t let go.', false);
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c];
+            });
+        }
+
+        forgeBtn.addEventListener('click', function () { forge(0); });
+        reforgeBtn.addEventListener('click', function () {
+            if (!sigil) { forge(0); return; }
+            forge(1 + Math.floor(Math.random() * 0xfffff));
+        });
+        surpriseBtn.addEventListener('click', function () {
+            wish.value = PRESETS[Math.floor(Math.random() * PRESETS.length)];
+            forge(0);
+        });
+        wish.addEventListener('keydown', function (e) { if (e.key === 'Enter') forge(0); });
+
+        // holding the canvas is the charging
+        function holdStart(e) {
+            if (!sigil) return;
+            e.preventDefault();
+            if (calm) {   // no holding games: touch once, charged
+                if (state === 'idle') { charge = 1; state = 'gone'; drawEmpty('it is working. do not check.'); say('charged. now forget it - close the tab, scroll away.', true); }
+                return;
+            }
+            if (state === 'idle') { state = 'charging'; say('keep holding. keep staring.', false); }
+        }
+        function holdEnd() {
+            if (state === 'charging') {
+                // let go early: the charge bleeds away, start again
+                state = 'idle'; charge = 0;
+                draw(sigil, { charge: 0 });
+                say('you let go. it bleeds out fast, that charge. hold it properly.', false);
+            }
+        }
+        canvas.addEventListener('pointerdown', holdStart);
+        window.addEventListener('pointerup', holdEnd);
+        canvas.addEventListener('pointercancel', holdEnd);
+        canvas.addEventListener('pointerleave', holdEnd);
+
+        saveBtn.addEventListener('click', function () {
+            if (!sigil) { say('forge one first. i don\'t ship empty pngs.', false); return; }
+            const a = document.createElement('a');
+            a.download = 'sigil-' + sigil.bones.join('') + '.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            say('yours. charge it somewhere i can\'t see.', true);
+        });
+
+        drawEmpty();
+    })();
+    </script>
+</body>
+</html>
