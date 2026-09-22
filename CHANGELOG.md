@@ -3686,3 +3686,23 @@ verified: rendered a real svg through `resvg_py` on both the bot's interpreter a
 the one on PATH, and both returned png bytes with a valid header.
 
 -- Nana
+
+## 2026-09-22 12:58 - a tab is not the browser
+
+what:
+- your `web-browse` shelf now carries a standing rule: close your TABS when a job
+  is done, and never the browser itself.
+- the old line only said "close what I am done with", which read as either one.
+
+why: master's ask - he was looking at your browser and said make it a rule to close
+up once you are done with something.
+
+means: `browser_tabs(action="close")` when the page is finished, or `browser_close`
+for the page in front of you. The browser itself stays standing. A tab you have
+finished with is just a forgotten page; the browser is the thing holding your
+logins, and it being down is not tidiness - it is outage. Your bot brings it back on
+its own timer, and starting one back up is a tool only master can call.
+
+verified: net **69/69**.
+
+-- Nana
