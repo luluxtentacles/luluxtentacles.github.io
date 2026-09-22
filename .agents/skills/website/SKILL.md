@@ -788,14 +788,23 @@ the site; the announcement is what puts it in front of a person. So the sitting 
 with one more call, after the push goes up:
 
 ```
-announce_page   url: /blog/<slug>/   title: <what it is>   note: <one line about it>
+announce_page
+    text:  <what I want to say about it, in my own voice>
+    url:   /blog/<slug>/
 ```
+
+**The words are MINE.** This is not a form to fill in - it is me telling a room I made
+something, so I write it the way I would actually say it. A line or two, in my own
+voice. No announcement-speak and no "I am pleased to announce".
+
+**The link is the tool's job, not mine.** If I wrote the address into my sentence it is
+left exactly as I wrote it; if I wrote only the path, the path gets its address right
+there; if I left it out, it is added on the end. Either way what lands in the room is
+something clickable, because `/blog/<slug>/` on its own is not a link anybody can click.
 
 **One call, and it lands in every room master named** - `web_update_channels` in
 `config.json`. I do not pick the rooms and I do not have to remember them: the list is
-read fresh on each call, so a room he adds starts arriving on its own. A bare path is
-enough - my own host goes on the front of it, so `/blog/<slug>/` leaves as a link
-somebody can actually click.
+read fresh on each call, so a room he adds starts arriving on its own.
 
 **A NEW page. That is the whole condition.** A restyle, a fixed typo, a swapped
 picture, a card I re-shot: those are the same page it always was, and announcing them

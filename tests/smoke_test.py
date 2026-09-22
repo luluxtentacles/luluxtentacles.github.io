@@ -6865,28 +6865,63 @@ def _web_announce() -> str:
                "an explicitly empty web_update_channels was ignored")
 
         # The tool goes to the rooms IN THE LIST - messy case and # prefix and
-        # all - and a bare path has to leave as something clickable.
+        # all - and the message it sends is MINE plus a clickable link.
         tools.paths.read_json = lambda *a, **k: {
             "web_update_channels": ["#chaos", "Lulu-Den"]}
         tools.set_context(1, "master", "general", master=True)
-        out = tools.announce_page("/blog/probe/", "a probe page", "for the net")
+
+        def _reset():
+            tools._OUTBOX.clear()
+            tools._SAY_TIMES.clear()
+
+        _reset()
+        out = tools.announce_page("a page i made, go look", "/blog/probe/")
         expect("queued" in out, f"the announcement did not queue: {out!r}")
         expect([q["channel"] for q in tools._OUTBOX] == ["chaos", "lulu-den"],
                f"the announcement went to the wrong rooms: {tools._OUTBOX!r}")
-        expect(tools.SITE_URL + "/blog/probe/" in tools._OUTBOX[0]["text"],
-               f"a bare path did not become a link: {tools._OUTBOX[0]!r}")
+        body = tools._OUTBOX[0]["text"]
+        expect(body.startswith("a page i made, go look"),
+               f"my own words were not kept as written: {body!r}")
+        expect(tools.SITE_URL + "/blog/probe/" in body,
+               f"a bare path did not become a link: {body!r}")
 
         # ONE act is ONE send however many rooms it lands in: a two-room
         # announcement must not spend two of master's three.
         spent = sum(len(v) for v in tools._SAY_TIMES.values())
         expect(spent == 1, f"one announcement spent {spent} sends")
-        tools._OUTBOX.clear()
+
+        # The link is said ONCE, whichever way I wrote it. Three shapes, because
+        # all three are things I actually type - and doubling it is the failure
+        # that makes her read like a bot.
+        _reset()
+        tools.paths.read_json = lambda *a, **k: {"web_update_channels": ["chaos"]}
+        full = tools.SITE_URL + "/sigils/#north-wind"
+        tools.announce_page(f"made a mark for the north wind, {full}",
+                            "/sigils/#north-wind")
+        body = tools._OUTBOX[0]["text"]
+        expect(body.count(full) == 1, f"the link was said twice: {body!r}")
+
+        _reset()
+        tools.announce_page("new post up at /blog/probe/", "/blog/probe/")
+        body = tools._OUTBOX[0]["text"]
+        expect(body == f"new post up at {tools.SITE_URL}/blog/probe/",
+               f"a bare path was not given its address in place: {body!r}")
+
+        # And the words are REQUIRED now - the tool will not write the sentence
+        # for me, because a sentence it writes is not my voice.
+        _reset()
+        out = tools.announce_page("", "/blog/probe/")
+        expect("what should it say" in out,
+               f"an empty announcement was accepted: {out!r}")
+        expect(not tools._OUTBOX, "an empty announcement still queued")
 
         # No rooms is a refusal that says why, not a silent nothing.
+        _reset()
         tools.paths.read_json = lambda *a, **k: {"web_update_channels": []}
-        out = tools.announce_page("/blog/probe/", "a probe page")
+        out = tools.announce_page("a page i made", "/blog/probe/")
         expect("web_update_channels" in out,
                f"an empty room list announced anyway: {out!r}")
+        expect(not tools._OUTBOX, "an announcement with no rooms still queued")
 
         # Master-only, structurally, and registered in both halves.
         expect("announce_page" not in tools.LOOKUP_TOOL_NAMES,
@@ -6905,7 +6940,9 @@ def _web_announce() -> str:
         tools._OUTBOX.clear()
         tools._SAY_TIMES.clear()
     return ("web_update_channels drives it, absent falls back and empty goes "
-            "nowhere, one act costs one send, and the tool stays master-only")
+            "nowhere, the words are mine and required, the link lands once "
+            "however I wrote it, one act costs one send, and it stays "
+            "master-only")
 
 
 CHECKS = [

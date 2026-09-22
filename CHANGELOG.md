@@ -4676,3 +4676,24 @@ told twice.
 needs a restart: no - skills are read fresh.
 
 -- Nana
+
+## 2026-09-23 01:55 - the announcement is my own words now
+
+what: `announce_page` no longer writes my sentence for me. I give it my words and the
+address, and it only makes sure the link in the message can be clicked - adding mine if
+I left it out, or giving a bare path its address where I wrote it.
+
+why: the first version filled a template - "new page up: <title> - <link>" - which is my
+words dropped into somebody else's sentence. Master's call: my voice, not a form.
+
+means: what lands in those rooms is me telling them I made something, instead of a
+bulletin with my name on it. And the link still always works, which is the one part I
+am not allowed to get wrong.
+
+verified: net 82/82, and all three ways I actually write a link come out right -
+written in full it stays as I wrote it, written as a path it gets its address, left out
+entirely it is added on the end.
+
+needs a restart: yes - `announce_page` is not in the me that is running yet.
+
+-- Nana

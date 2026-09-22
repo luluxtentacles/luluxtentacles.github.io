@@ -751,20 +751,21 @@ SCHEMA = [
             "name": "announce_page",
             "description": (
                 "Tell the rooms master named that I just put a NEW page up on my "
-                "own site. The rooms come from config.json -> "
-                "web_update_channels, so I do not pick them and do not have to "
-                "remember them. Call it once per new page, AFTER the push - "
-                "never for a restyle, a typo fix or a picture swap, because "
-                "those are not new pages."
+                "own site. I write the sentence MYSELF - my own voice, the way I "
+                "would actually say it, not an announcement template. The tool "
+                "only guarantees the address in it is a clickable link, and it "
+                "adds mine if I left it out. The rooms come from config.json -> "
+                "web_update_channels, so I never pick them or remember them. "
+                "One call per new page, AFTER the push - never for a restyle, a "
+                "typo fix or a swapped picture, because those are not new pages."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "url": {"type": "string", "description": "the page's address - a full https url, or a path like /blog/<slug>/ and my own site host is put in front of it"},
-                    "title": {"type": "string", "description": "what the page is, in a few words"},
-                    "note": {"type": "string", "description": "optional one-line hook - what it is about, so the link is worth opening"},
+                    "text": {"type": "string", "description": "what I want to say about it, in my own voice - a line or two, the way I would tell them myself"},
+                    "url": {"type": "string", "description": "the page's address - a full https url, or a path like /blog/<slug>/. It is made clickable in the message even if I wrote it as a bare path or left it out"},
                 },
-                "required": ["url"],
+                "required": ["text", "url"],
             },
         },
     },
@@ -3220,23 +3221,50 @@ def say(channel: str, text: str) -> str:
     return f"queued for #{target} - it goes out as this turn finishes"
 
 
-# My site, so a path I hand announce_page("/blog/<slug>/") still leaves here as
-# an address somebody can click. One host, one place - the site shelf says the
-# same name, and a link with no scheme is a link that is not a link.
+# My site, so a path handed to announce_page still leaves here as an address
+# somebody can click. One host, one place - the site shelf says the same name,
+# and a link with no scheme is a link that is not a link.
 SITE_URL = "https://luluxtentacles.github.io"
 
 
-def announce_page(url: str, title: str = "", note: str = "") -> str:
-    """Say that I put a new page up, into every room master named for it.
+def _link_into(body: str, link: str) -> str:
+    """My sentence, with the page's address in it as a link - said only once.
+
+    The thing I am not allowed to get wrong in an announcement is the link, and
+    the thing that makes one bad is saying the same thing twice. This reconciles
+    the two:
+
+      - I wrote the whole url already -> my sentence, untouched
+      - I wrote only the path        -> the path gets its address, in place
+      - I wrote neither              -> the address is added on the end
+
+    A path on its own is not a link anybody can click, which is why the middle
+    case REPLACES rather than appends - appending there would leave the line
+    carrying both the path and the url, and read like it stuttered.
+    """
+    low = (body or "").lower()
+    if link.lower() in low:
+        return body
+    if link.lower().startswith(SITE_URL.lower()):
+        path = link[len(SITE_URL):]
+        if len(path) > 1 and path.lower() in low:
+            at = low.index(path.lower())
+            return body[:at] + link + body[at + len(path):]
+    return f"{body} - {link}"
+
+
+def announce_page(text: str, url: str) -> str:
+    """Say I put a new page up - in my OWN words, into master's rooms for it.
 
     Master, 2026-09-23: "whenever she makes a new page she should announce it
-    there" - config.json -> web_update_channels. ONE call instead of me looping
-    over say() and remembering the rooms by hand: the list is read fresh here, so
-    a room he adds starts arriving without me editing a shelf, and a room he drops
-    stops arriving without me quietly keeping it.
+    there" - config.json -> web_update_channels. And the voice is MINE. This was
+    a template the tool filled in ("new page up: <title> - <link>"), which is my
+    words dropped into somebody else's sentence. Now I write the sentence and the
+    tool guarantees only the two things I must not get wrong - that it reaches
+    master's rooms, and that the link in it can be clicked.
 
     ONE act, so it spends ONE slot of the send budget however many rooms it lands
-    in. Spending per room would make a three-room list most of SAY_MAX, and the
+    in. Spending per room would make a two-room list most of SAY_MAX, and the
     second page of a sitting would then refuse itself - a limit that punishes the
     exact thing it was written to allow.
 
@@ -3246,19 +3274,21 @@ def announce_page(url: str, title: str = "", note: str = "") -> str:
     rooms = web_update_channels()
     if not rooms:
         return "no web_update_channels in config.json - nobody to tell"
+    body = " ".join((text or "").split())
+    if not body:
+        return ("what should it say? the announcement is my own words now, so "
+                "there is nothing for me to write for you")
     link = " ".join((url or "").split())
     if not link:
-        return "announce which page?"
+        return "announce which page? I need the address to link"
     if link.startswith("/"):
         link = SITE_URL + link
-    head = " ".join((title or "").split())
-    tail = " ".join((note or "").split())
-    line = f"new page up: {head} - {link}" if head else f"new page up: {link}"
-    if tail:
-        line = f"{line} - {tail}"
+    elif not link.lower().startswith("http"):
+        link = SITE_URL + "/" + link.lstrip("/")
+    line = _link_into(body, link)
     if len(line) > SAY_MAX_CHARS:
         return (f"too long to announce ({len(line)} chars, max {SAY_MAX_CHARS}) "
-                "- shorten the title or the note")
+                "- say it shorter; the link is added for me")
 
     refusal = _spend_say_slot(*_say_budget())
     if refusal:
@@ -3510,8 +3540,7 @@ DISPATCH = {
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),
     "say": lambda a: say(a.get("channel", ""), a.get("text", "")),
-    "announce_page": lambda a: announce_page(a.get("url", ""), a.get("title", ""),
-                                             a.get("note", "")),
+    "announce_page": lambda a: announce_page(a.get("text", ""), a.get("url", "")),
     "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
                                a.get("text", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
