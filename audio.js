@@ -888,53 +888,7 @@ function applyChord(now, isInit) {
         }
     }
 }
-    if (!audioNodes) return;
-    const root = currentRootFreq;
-    const offsets = CHORD_LIBRARY[chordIndex].offsets;
-    audioNodes.currentChordOffsets = offsets;
-
-    const voices = audioNodes.padVoices;
-    const currentFreqs = voices.map(v => v.currentFreq);
-    const newFreqs = voiceLeadingFreqs(currentFreqs, offsets, root);
-
-    for (let i = 0; i < voices.length; i++) {
-        const freq = newFreqs[i];
-        voices[i].currentFreq = freq;
-
-        // Long, slow glide — chords should drift into place over several
-        // seconds, not "change"
-        const glideTime = isInit ? 0.1 : 6.0;
-        voices[i].osc1.frequency.setTargetAtTime(freq, now, glideTime);
-        voices[i].osc2.frequency.setTargetAtTime(freq * 1.001, now, glideTime);
-
-        // Gentle envelope: dip then recover, slower and softer
-        if (!isInit) {
-            const v = voices[i];
-            const currentGain = v.gainNode.gain.value;
-            v.gainNode.gain.setTargetAtTime(currentGain * 0.5, now, 1.0);
-            v.gainNode.gain.setTargetAtTime(v.targetGain, now + 2.0, 4.0);
-        }
-    }
-
-    // Keep the continuous bowl-drone voices on chord tones too, up in the
-    // bowl's own register (a couple octaves above the pad), gliding right
-    // along with the chord change.
-    const droneVoices = audioNodes.bowlDroneVoices;
-    if (droneVoices) {
-        const droneOctaveMult = [4, 8, 6]; // spread across ~2-2.5 octaves above root
-        for (let i = 0; i < droneVoices.length; i++) {
-            const off = offsets[i % offsets.length];
-            const freq = root * offsetToRatio(off) * droneOctaveMult[i % droneOctaveMult.length];
-            droneVoices[i].currentFreq = freq;
-            const glideTime = isInit ? 0.1 : 6.0;
-            droneVoices[i].oscs.forEach((o) => {
-                o.osc.frequency.setTargetAtTime(freq * o.mult, now, glideTime);
-            });
-            // No fade-in here — these voices stay silent until bowlRimRun()
-            // drives one through its build/sustain/release arc.
-        }
-    }
-}
+    
 
 // --- Update audio parameters from quantum (no more root changes) ---
 function updateAudioFromTarget(t, bytes) {
