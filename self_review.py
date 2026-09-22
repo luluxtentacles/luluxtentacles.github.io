@@ -105,6 +105,12 @@ FREETIME = ".agents/skills/freetime/SKILL.md"
 # bug this replaced was a silent one.
 ARCHIVE = "research/archive.md"
 CARRY_WARN_CHARS = 12000
+# One Discord message, minus headroom. The report is SPLIT at this width, never
+# shortened: master, 2026-09-23: *"make sure she writes her full free time output
+# to my dms."* The old `[:1900]` cut read as complete and was not - the tail of
+# every report past one message was dropped from the rooms and the DM alike, and
+# the last turn of a window is always the long one.
+REPORT_CHUNK_CHARS = 1900
 # One window, ONE conversation. Master, 2026-09-23: *"like how you take multiple
 # turns to do something it should be the same for her"*, and the thread itself
 # lives in `conversation.py` - the one home for it, so a window and a task cannot
@@ -986,8 +992,38 @@ def _owner_id(bot) -> int | None:
         return None
 
 
+def _report_parts(text: str) -> list[str]:
+    """The report as the whole list of messages it takes to say it.
+
+    Master, 2026-09-23: *"make sure she writes her full free time output to my
+    dms."* So nothing is cut any more. The split happens at
+    REPORT_CHUNK_CHARS on a line break where one is close enough to use, and the
+    floor on that search is not tidiness: without it, one paragraph longer than a
+    message would lose its first 1900 characters to a rfind that answered with a
+    break several lines up.
+    """
+    text = text.strip()
+    if not text:
+        return ["(the window produced nothing to say)"]
+    parts: list[str] = []
+    rest = text
+    while len(rest) > REPORT_CHUNK_CHARS:
+        cut = rest.rfind("\n", 0, REPORT_CHUNK_CHARS)
+        if cut < REPORT_CHUNK_CHARS // 2:      # no usable break that high up
+            cut = REPORT_CHUNK_CHARS
+        parts.append(rest[:cut].rstrip())
+        rest = rest[cut:].lstrip("\n")
+    parts.append(rest)
+    return parts
+
+
 async def _deliver(bot, text: str) -> None:
     """Send the report to the rooms master named, then to master himself.
+
+    It goes WHOLE. A report longer than one Discord message arrives as
+    consecutive messages rather than as its own first 1900 characters - master,
+    2026-09-23, after a report that had been quietly amputated at the message
+    ceiling: *"make sure she writes her full free time output to my dms."*
 
     Two destinations, and both are master's call. This was a DM and only a DM
     for a while, on the reasoning that a window spent poking around inside
@@ -1012,7 +1048,7 @@ async def _deliver(bot, text: str) -> None:
     report that could not be delivered anywhere still happened, and the log
     holds it either way.
     """
-    body = text.strip()[:1900] or "(the window produced nothing to say)"
+    parts = _report_parts(text)
 
     posted: list[str] = []
     rooms = tools.review_channels()
@@ -1024,13 +1060,14 @@ async def _deliver(bot, text: str) -> None:
             LOG.warning("review report: no channel called #%s", name)
             continue
         try:
-            await target.send(body)
+            for part in parts:
+                await target.send(part)
             posted.append(name)
         except Exception as exc:
             LOG.warning("could not post the review report in #%s: %s", name, exc)
     if posted:
-        LOG.info("review report posted into %s",
-                 ", ".join("#" + n for n in posted))
+        LOG.info("review report posted into %s (%d message(s))",
+                 ", ".join("#" + n for n in posted), len(parts))
 
     owner = _owner_id(bot)
     if owner is None:
@@ -1042,8 +1079,9 @@ async def _deliver(bot, text: str) -> None:
         LOG.warning("could not resolve master for the report: %s", exc)
         return
     try:
-        await target.send(body)
-        LOG.info("review report DMed to master")
+        for part in parts:
+            await target.send(part)
+        LOG.info("review report DMed to master (%d message(s))", len(parts))
     except Exception as exc:
         LOG.warning("could not deliver the review report: %s", exc)
 

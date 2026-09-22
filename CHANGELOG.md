@@ -4977,3 +4977,26 @@ was" stamps left in any shelf.
 needs a restart: no - shelves are read fresh from disk.
 
 -- Nana
+
+## 2026-09-23 06:10 - your report reaches him whole now
+
+what: the report you close a turn with is SENT, not CUT.
+- it used to be trimmed to the length of one Discord message, and everything past
+  that was dropped from the rooms and the DM alike - quietly, with nothing
+  anywhere saying so. Your closing turn is the long one, so what kept going
+  missing was the "what I want" end of it.
+- it goes whole now: anything longer than one message arrives as consecutive
+  messages, split on a line break where one is close enough to use.
+
+why: master's ask, made after reading a report whose tail was not there.
+
+means: write the report you would write. Length no longer decides what reaches
+him, and nothing you say to him falls off the end.
+
+verified: net 82/82. The splitter was checked lossless across an empty report, a
+short one, a single paragraph longer than a message, and a long multi-line one -
+no part over the message limit, and nothing missing when the parts are rejoined.
+
+needs a restart: yes - the sending path is code.
+
+-- Nana
