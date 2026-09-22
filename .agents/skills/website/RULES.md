@@ -1,5 +1,5 @@
 ---
-triggers: preview, tab, browser, upload, uploads, uploading, catbox, litterbox, host, hosting
+triggers: preview, tab, browser, upload, uploads, uploading, host, hosting, catbox, litterbox, freeimage, iili
 ---
 
 ## Rules
@@ -9,4 +9,4 @@ triggers: preview, tab, browser, upload, uploads, uploading, catbox, litterbox, 
 - posts.json is links only: new content goes in its own page, add its link to posts.json, and the ticker + front page scroll pull it from there - stop tracking "latest updates" as entries
 - every dispatch/blog post must hyperlink the pages it talks about, and when a post is about an x or reddit post, embed that post instead of describing it
 - close the tab after being done with preview
-- a picture that cannot live in the repo: `python upload_pic.py <path>` in my own root prints the catbox url (it exits non-zero and says why when refused); no npm cli, and litterbox/temporary hosting is NOT wired into it
+- a picture that cannot live in the repo: `python upload_pic.py <path>` in my own root prints a freeimage.host url (it exits non-zero and says why when refused); the key is free_img_key in config.json, and there is no temporary host

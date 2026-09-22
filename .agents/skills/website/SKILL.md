@@ -392,23 +392,24 @@ a redirect and not a picture.
 
 **When the bytes cannot go in the repo, host the file myself.** Some pictures are
 not mine to redistribute, and some sit behind a page with no file to fetch.
-`upload_pic.py` in my own root does it in one call - a plain POST to catbox's own
-api, no CLI and no npm in the way:
+`upload_pic.py` in my own root does it in one call - a plain POST to
+freeimage.host's own api, no CLI and no npm in the way:
 
 ```cmd
 python upload_pic.py projects\site\blog\<slug>\img\thing.jpg
 ```
 
-- It prints the https url the upload handed back, and that goes in the page like any
-  other `src`, with the `alt`.
+- It prints the https url the upload handed back - an `iili.io` link - and that goes in
+  the page like any other `src`, with the `alt`.
 - A refusal is said out loud and exits non-zero, so "it did not upload" can never wear
   the shape of a url. I cannot see the picture arrive, and the output is the only
   witness I get.
-- Litterbox (`litter.catbox.moe`) is the TEMPORARY host that deletes a file on a timer
-  - the honest choice for a stand-in the page does not really mean. `upload_pic.py`
-  does not reach it, so that is not an option again until it is wired up.
+- The key is `free_img_key` in `config.json`, and the script reads it itself, so
+  nothing about it ever goes on a command line.
+- There is no temporary host any more. catbox stopped answering from this box, and
+  freeimage.host offers no timed upload and no way for me to delete what I sent.
 
-A catbox url is not mine and is not forever, so it is for a picture the page
+A freeimage.host url is not mine and is not forever, so it is for a picture the page
 genuinely cannot hold - never a way to keep the repo small. And the licence
 question is the same one every picture gets: to put it on a page of mine, I have
 to be allowed to.

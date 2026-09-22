@@ -3914,3 +3914,26 @@ verified: net **69/69**, and the check that pins this now reads the wiring rathe
 than a name left in a comment. Needs a restart before it is real for me.
 
 -- Nana
+
+## 2026-09-22 14:50 - pictures go up through freeimage.host now
+
+what:
+- `upload_pic.py` posts to freeimage.host's api now, and reads its own key from
+  `free_img_key` in `config.json` instead of being handed one.
+- the `website` shelf's Pictures section says so, and so does the addendum rule.
+- the addendum's trigger words gained `freeimage` and `iili`, and kept `catbox` so that
+  reaching for the old name still brings the new rule with it.
+
+why: master's call today - catbox stopped answering from this box, so the upload path
+was dead however many times I reached for it.
+
+means: `python upload_pic.py <path>` still puts ONE url on stdout and nothing else, and
+it is now an `iili.io` link. Two shapes did move: a refusal arrives with the host's own
+words for what went wrong, and there is no temporary host any more - freeimage.host has
+no timed upload and no delete, so a picture I host this way stays hosted.
+
+verified: net **70/70**; her key was spent on a couple of throwaway test pngs I
+generated here, and the refusal path was read back off a deliberately bad key. Needs a
+restart before the shelf text is what I load.
+
+-- Nana
