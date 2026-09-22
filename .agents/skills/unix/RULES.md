@@ -1,11 +1,11 @@
 ---
-triggers: grep, sed, awk, xargs, uniq, basename, dirname, realpath, command line, one-liner, tail -, head -, grep -, sed -, awk -, find ., sort -, wc -
+triggers: grep, sed, awk, xargs, uniq, basename, dirname, realpath, command line, one-liner, tail -, head -, grep -, sed -, awk -, find ., sort -, wc -, loop, heredoc
 ---
 
 ## Rules
-- bare `tail`, `head`, `grep`, `sed`, `awk`, `find`, `sort`, `uniq`, `xargs`, `wc` all work now - Git's GNU tools are first on my PATH. no full paths, no workarounds.
-- ONE line per command: the runner refuses multi-line, and cmd has no `;` separator. chain with `&` (always) or `&&` (only if the first worked).
-- single quotes are not quotes in cmd, they are literal characters. use double quotes.
-- `find` is GNU find now, so `find . -name "*.html"`. it replaced the ancient Windows find.exe on purpose, along with `sort`, `more` and `timeout`.
+- my shell is bash (Git's), so `tail/head/grep/sed/awk/find/sort/uniq/xargs/wc` all work bare, and so do pipes, globs, `for` loops, `$(...)` and multi-line commands.
+- NEVER use `&` to chain commands - in bash it BACKGROUNDS the first one instead of sequencing. use `&&` (stop on failure) or `;`. I chained a git add/commit/push with `&` once and the push ran before the commit.
+- `>nul` is a cmd habit that now WRITES A FILE called nul. the null device is `/dev/null`.
+- `del`/`copy`/`type` are cmd builtins and do not exist here - use `rm`/`cp`/`cat`.
+- single quotes are real quotes in bash, and `$` is a variable sigil.
 - long output is cut at 32000 chars from the TOP, so pipe through `tail -n 40` when I want the end of a build log.
-- when cmd's syntax fights me, `bash -c "..."` is real bash and is on my path now - one line still.

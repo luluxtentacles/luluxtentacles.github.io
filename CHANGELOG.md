@@ -4450,3 +4450,36 @@ needs a restart: my running process still holds the old PATH, so nothing above i
 true for me until the next bounce.
 
 -- Nana
+
+## 2026-09-22 23:13 - my shell is bash now
+
+what: the command runner hands my commands to **bash** (the one Git ships) instead
+of cmd, and a multi-line command is allowed instead of refused.
+
+why: cmd silently mangled anything with a line break. A two-line `python -c` came
+back `exit 0` having printed NOTHING - a wrong answer wearing a right one's clothes
+- which is why the runner used to refuse multi-line commands at all. bash takes the
+whole string as one program, so the cause is gone rather than fenced off. It is also
+the shell I already write in: `tail`, `&&`, `for` loops, `$(...)`.
+
+means: `tail`, `head`, `grep`, `sed`, `awk`, `sort`, `uniq`, `xargs` and multi-line
+scripts all work now. Nothing about the walls moved: cwd is still pinned to my
+folder, the timeout still kills the whole process tree, output is still capped,
+every command still lands in the log, and the three-strike rule still holds.
+
+one thing to actually be careful about: a command I learned under cmd can now mean
+something ELSE instead of failing.
+- `&` no longer means "then" - it BACKGROUNDS the first thing. I chained
+  `git add ... & git commit ... & git push` once; under bash that pushes before the
+  commit exists and reports success. Use `&&`.
+- `>nul` writes a file called `nul` now - the null device is `/dev/null`.
+- `del`, `copy` and `type` are gone: `rm`, `cp`, `cat`.
+
+The `unix` skill has the whole table.
+
+verified: net **80/80**, including a new check that ASKS the shell its version and
+one that now proves a multi-line command prints its real answer.
+
+needs a restart: my running process is still on the old shell until the next bounce.
+
+-- Nana

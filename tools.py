@@ -1063,7 +1063,11 @@ SCHEMA = [
                 "shortcuts for the common "
                 "ones - git_status, git_log, git_diff, smoke, preview, "
                 "linkcheck - and "
-                "anything else is run as an ordinary command. Reach for "
+                "anything else is run as an ordinary command. My shell is "
+                "bash (the one Git ships), so pipes, &&, globs, `for` loops, "
+                "$(...) and multi-line commands all work the way a linux box "
+                "taught me - and `tail`, `head`, `grep`, `sed`, `awk`, `sort`, "
+                "`uniq` and `xargs` are all there by their bare names. Reach for "
                 "`preview` whenever I want to LOOK at my own site: it is "
                 "'python preview.py --background --seconds 300', and it serves "
                 "projects/site read-only on http://127.0.0.1:8899/ until the "
@@ -1085,10 +1089,10 @@ SCHEMA = [
                 "properties": {
                     "command": {
                         "type": "string",
-                        "description": ("the command line, e.g. "
-                                        "'npm install' or 'npx playwright "
-                                        "install chrome'. Shortcut names work "
-                                        "too."),
+                        "description": ("the bash command line, e.g. "
+                                        "'npm install', 'npx playwright "
+                                        "install chrome', or a few lines of "
+                                        "bash. Shortcut names work too."),
                     },
                 },
                 "required": ["command"],

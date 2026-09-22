@@ -26,10 +26,16 @@ Known limits, written down instead of implied:
   - PATHS ARE NOT CONTAINED. This is a shell, so it can cd anywhere and use
     absolute paths. Nothing here stops `cd C:\\Windows`. What limits the damage
     is that she is not an administrator, not that she is kept in a folder.
-  - `shell=True` IS DELIBERATE. A Windows user has pipes, redirection and `&&`,
-    and a runner without them is not what was asked for. The cost is that the
-    command is a string rather than an argv list, so it is read as a shell
-    command by design.
+  - THE SHELL IS bash, AND THAT CHANGED THE SYNTAX. Master's call, 2026-09-22:
+    she reaches for `tail`, `grep`, `&&`, `for` loops and multi-line strings, and
+    cmd does not speak that. It is Git's bash, run as an ARGV LIST
+    (`[bash, -c, command]`) rather than through `shell=True`, because the
+    comspec-string form splits on the space in "C:\Program Files" - measured,
+    rc 127, a path chopped in half. The cost of the swap is that any command
+    still written in CMD SYNTAX now means something else, or nothing: `&`
+    BACKGROUNDS instead of sequencing, `>nul` writes a file literally called
+    `nul`, and `type`/`del`/`copy` are gone (use `cat`/`rm`/`cp`). Written down
+    here because it is the one way this change can bite her silently.
   - THE AUDIT LOG IS NOT IMMUTABLE. runbox.py is her own code and pipeline-
     patchable, so she could in principle change what gets logged. That change
     would go through a git diff, the smoke test and a health gate - a review
@@ -41,6 +47,7 @@ Known limits, written down instead of implied:
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -115,6 +122,42 @@ PY = sys.executable
 # this line, and PATH does not care that the folder is not under ROOT.
 PATH_DIRS = (paths.PYTHON_HOME, ROOT / "node")
 
+# Her shell: bash, from the Git install that already gives her git.
+#
+# Master, 2026-09-22: "we should give her bash." It buys more than a nicer
+# grammar. cmd SILENTLY mangles a multi-line command - measured on master's own
+# case, a two-line `python -c` returned exit 0 with NO output under cmd and
+# prints its real answer under bash. The refusal this module used to carry
+# existed to protect her from that, and bash removes the CAUSE rather than
+# fencing off the symptom.
+#
+# Git's own bash BY EXPLICIT PATH, before any PATH lookup on purpose: a bare
+# `bash` also resolves to the WSL stub in System32, which is a different
+# machine's bash. The PATH lookup is the last resort, after these two.
+BASH_PATHS = (
+    Path(r"C:\Program Files\Git\bin\bash.exe"),
+    Path(r"C:\Program Files\Git\usr\bin\bash.exe"),
+)
+
+
+def shell_argv(command: str) -> list[str] | None:
+    """argv that runs `command` under bash, or None to fall back to cmd.
+
+    ARGV, never `shell=True` with `executable=`: that form hands a comspec
+    STRING to CreateProcess and the space in "C:\Program Files" splits it -
+    measured, rc 127, "/c/Program: Files\\Git\\usr\\bin\\bash.exe: No such file
+    or directory". An argv list has no such ambiguity, and it also hands the
+    command to bash as `-c`'s SINGLE argument, so one layer of quoting stops
+    mattering entirely.
+    """
+    for candidate in BASH_PATHS:
+        if candidate.is_file():
+            return [str(candidate), "-c", command]
+    found = shutil.which("bash")
+    if found:
+        return [found, "-c", command]
+    return None
+
 
 def child_env() -> dict:
     """What her commands inherit: her own runtimes first, then everything else."""
@@ -173,8 +216,14 @@ def _audit(command: str, code: int | None, elapsed: float, note: str = "") -> No
     """Append one line. Never let a logging failure cost her the result."""
     try:
         AUDIT.parent.mkdir(parents=True, exist_ok=True)
+        # ONE line whatever the command was: a multi-line command is a real
+        # thing she can run now, and letting one through unfolded would turn a
+        # single audit record into several and break the shape everything else
+        # reads this file by. Collapsing whitespace costs nothing here - the
+        # streak is keyed on the RAW command, not on this text.
+        flat = " ".join(str(command).split())
         line = (f"{time.strftime('%Y-%m-%d %H:%M:%S')} "
-                f"exit={code} {elapsed:6.1f}s :: {command[:2000]}")
+                f"exit={code} {elapsed:6.1f}s :: {flat[:2000]}")
         if note:
             line += f"  [{note}]"
         with AUDIT.open("a", encoding="utf-8") as handle:
@@ -305,6 +354,8 @@ def catalog() -> str:
                  f"push - `publish <message>` sets the commit line")
     lines += [
         "",
+        "my shell is bash (the one Git ships), so pipes, &&, globs, `for` "
+        "loops, $(...) and multi-line commands all work.",
         "anything else runs as-is, e.g. npm install, python -m venv .venv, "
         "npx playwright install chrome.",
         "a bare `python` and a bare `node` both work: my own are put first on "
@@ -330,26 +381,20 @@ def run(command: str = "", max_output: int | None = None) -> str:
     if not command:
         return catalog()
 
-    # A line break does not make a script here - it makes a SILENT no-op.
+    # Line endings are NORMALISED, not refused. The refusal this replaced was
+    # correct once and is now obsolete, and the reason is worth keeping.
     #
-    # Master, 2026-09-22, quoting her own log: "multiline python -c is eating my
-    # output, writing a temp script instead". Reproduced before touching
-    # anything: `python -c "import os\nprint(1)"` came back exit 0 and
-    # "(no output)". The shell splits on the newline, python never sees the real
-    # program, and the exit code reports SUCCESS anyway. A wrong answer that
-    # reads like a right one is the worst shape a result can have, so this
-    # refuses instead - and names the thing that does work.
-    if "\n" in command or "\r" in command:
-        _audit(command, None, 0.0, "REFUSED - multi-line command")
-        return (
-            f"refused: this command has a line break in it, and a line break "
-            f"does not make a script on this box. The shell splits it, the "
-            f"interpreter sees a truncated argument, and the exit code still "
-            f"says 0 - so the output just goes missing and looks like silence.\n"
-            f"Write it to a file with write_file, then run that file "
-            f"(`python scratch.py`). One line, or a file - never a multi-line "
-            f"string."
-        )
+    # It existed for a real bug: under cmd a newline split the command, the
+    # interpreter got a truncated argument, and the exit code still reported 0 -
+    # so the output went missing and looked like silence. Master hit exactly that
+    # ("multiline python -c is eating my output"). cmd is no longer the shell.
+    # bash takes the whole string as one program, and the same two-line
+    # `python -c` that came back empty under cmd now prints its real answer -
+    # measured, not assumed. The cause is fixed instead of fenced off.
+    #
+    # A CR is still stripped: with bash a CRLF line leaves `pwd\r` as the last
+    # token, and that resolves to nothing.
+    command = command.replace("\r\n", "\n").replace("\r", "\n")
 
     # `publish` routes BEFORE the shell path: it is a sequence rather than a
     # command, and its message is free text that must never reach a shell.
@@ -377,13 +422,14 @@ def run(command: str = "", max_output: int | None = None) -> str:
             f"streak clears the moment a command actually succeeds."
         )
     started = time.time()
+    argv = shell_argv(resolved)
 
     try:
         proc = subprocess.Popen(
-            resolved,
+            argv if argv else resolved,
             cwd=str(ROOT),
             env=child_env(),            # her python and node first on PATH
-            shell=True,                 # deliberate: see the module docstring
+            shell=argv is None,         # cmd only as a FALLBACK; bash is argv
             stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,   # one stream, so a failure is not hidden

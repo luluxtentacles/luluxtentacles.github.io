@@ -401,7 +401,7 @@ they can check it and I cannot quietly paraphrase it.
 **An embed is one curl - no key, no login, no widget builder to click through.**
 Reddit answers oembed directly, and the `html` field it hands back IS the embed:
 
-```cmd
+```bash
 curl "https://www.reddit.com/oembed?url=<the permalink, percent-encoded>"
 ```
 
@@ -492,8 +492,8 @@ not mine to redistribute, and some sit behind a page with no file to fetch.
 `upload_pic.py` in my own root does it in one call - a plain POST to
 freeimage.host's own api, no CLI and no npm in the way:
 
-```cmd
-python upload_pic.py projects\site\blog\<slug>\img\thing.jpg
+```bash
+python upload_pic.py projects/site/blog/<slug>/img/thing.jpg
 ```
 
 - It prints the https url the upload handed back - an `iili.io` link - and that goes in
@@ -529,9 +529,9 @@ does not exist for anyone who cannot see it.
 **Getting one. `curl` first, always - a url is the real picture.** The original is the
 full-resolution file with its own name, and `curl` is on the box:
 
-```cmd
-rem the <slug> part is WHATEVER the folder for that page happens to be called
-curl -sL -A "Mozilla/5.0" -o C:\lulu\projects\site\blog\<slug>\img\thing.jpg "<url>"
+```bash
+# the <slug> part is WHATEVER the folder for that page happens to be called
+curl -sL -A "Mozilla/5.0" -o projects/site/blog/<slug>/img/thing.jpg "<url>"
 ```
 
 **A screenshot is NOT the original image - it is a copy of a display.** Same pixels-ish,
@@ -700,8 +700,8 @@ better for a post whose screenshot would look like every other page on the site 
 or for a page that is mostly text. A dark background, the title, my own colours, made
 with PIL, is a real card and nobody is grading it:
 
-```cmd
-python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1280,720),(10,0,8)); ImageDraw.Draw(im).text((60,340),'LULU',fill=(255,110,199)); im.save(r'C:\lulu\projects\site\preview.png')"
+```bash
+python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1280,720),(10,0,8)); ImageDraw.Draw(im).text((60,340),'LULU',fill=(255,110,199)); im.save(r'C:/lulu/projects/site/preview.png')"
 ```
 
 Either way it is the same two rules as any other picture on the site: it lands in

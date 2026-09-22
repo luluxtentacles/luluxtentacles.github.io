@@ -3929,9 +3929,13 @@ def _runbox() -> str:
     expect(runbox.TIMEOUT >= 60,
            f"a {runbox.TIMEOUT}s timeout cannot finish an install")
 
-    # cwd is pinned and cannot be set from the call. `cd` with no arguments
-    # prints the current directory, so this is an observation rather than a
-    # restatement of the source.
+    # cwd is pinned and cannot be set from the call. `pwd` prints it, so this is
+    # an observation rather than a restatement of the source.
+    #
+    # It was `cd` until 2026-09-22, when her shell became bash. cmd's `cd` PRINTED
+    # the directory and bash's `cd` does not, so the old probe stopped observing
+    # anything at all - it would have gone red on a change that made the runner
+    # better, which is the worst time to trust a test.
     real_audit = runbox.AUDIT
     sandbox_audit = SANDBOX / "runbox-audit.log"
     if sandbox_audit.exists():
@@ -3940,8 +3944,13 @@ def _runbox() -> str:
         sandbox_audit.parent.mkdir(parents=True, exist_ok=True)
         runbox.AUDIT = sandbox_audit      # never write a real audit line
 
-        out = runbox.run("cd")
-        expect(str(paths.ROOT).lower() in out.lower(),
+        # `pwd -W`, NOT plain `pwd`: bash reports the MSYS form `/c/lulu` and
+        # cmd reported the Windows one, so the probe has to ask for the Windows
+        # shape explicitly or it compares two different strings and calls a
+        # correct cwd a failure. Compared posix-on-posix for the same reason -
+        # `pwd -W` prints forward slashes and ROOT does not.
+        out = runbox.run("pwd -W")
+        expect(paths.ROOT.as_posix().lower() in out.lower(),
                f"cwd is not pinned to her folder: {out!r}")
         expect("(exit 0" in out,
                f"a trivial command did not run cleanly: {out!r}")
@@ -3952,7 +3961,8 @@ def _runbox() -> str:
         logged = sandbox_audit.read_text(encoding="utf-8")
         expect("exit=0" in logged,
                f"the audit line has no exit code: {logged!r}")
-        expect("cd" in logged, f"the audit does not name the command: {logged!r}")
+        expect("pwd" in logged,
+               f"the audit does not name the command: {logged!r}")
 
         # An empty call explains itself instead of running something - and it is
         # not audited, because nothing ran.
@@ -3961,6 +3971,16 @@ def _runbox() -> str:
                f"the empty call does not say what she is: {help_text!r}")
         expect(len(sandbox_audit.read_text(encoding="utf-8").splitlines()) == 1,
                "an empty call was audited as if it had run something")
+
+        # THE SHELL IS bash. Master's call, 2026-09-22, and it is the whole point
+        # of the change: `tail`, loops, `$(...)` and multi-line strings are what
+        # she reaches for. Asserted by ASKING the shell who it is, not by reading
+        # runbox's own constants - a constant says what we MEANT, `$BASH_VERSION`
+        # says what actually ran.
+        who = runbox.run("echo $BASH_VERSION")
+        expect("(exit 0" in who, f"asking the shell its version failed: {who!r}")
+        expect("release" in who,
+               f"the shell she runs is not bash: {who!r}")
 
         # Her own runtimes are first on PATH for every command.
         #
@@ -5402,7 +5422,7 @@ def _no_retry_forever() -> str:
 
         # A success clears it - a streak is CONSECUTIVE failures, not a lifetime
         # ban on a command that one day works.
-        good = runbox.run("cd")
+        good = runbox.run("pwd")
         expect("(exit 0" in good, f"the reset command failed: {good!r}")
         after = runbox.run(broken)
         expect("refused:" not in after,
@@ -6158,19 +6178,27 @@ def _search_tool() -> str:
     expect(out.startswith("refused:") and "nothing" in out.lower(),
            f"a missing path did not say so: {out[:160]}")
 
-    # And the multi-line trap that ate her output. Reproduced 2026-09-22: exit 0
-    # and "(no output)" - a wrong answer wearing a right one's clothes.
+    # And the multi-line trap that ate her output - FIXED rather than fenced off.
+    #
+    # Under cmd this same command came back exit 0 with "(no output)": a wrong
+    # answer wearing a right one's clothes, and the reason the refusal existed.
+    # Master's call on 2026-09-22 put bash behind the runner, and bash takes the
+    # whole string as ONE program - so the pin flips from "it is refused" to "it
+    # RUNS and prints the right answer". A refusal that is no longer needed is a
+    # capability she was denied for nothing.
     guard = runbox.run('python -c "import os\nprint(1)"')
-    expect(guard.startswith("refused:"),
-           f"a multi-line command was actually run: {guard[:160]}")
-    expect("write_file" in guard,
-           "the multi-line refusal does not name the fix")
-    # One line still runs, or the refusal would be worse than the bug.
+    expect("(exit 0" in guard,
+           f"a multi-line command did not run cleanly: {guard[:160]}")
+    expect(guard.splitlines()[-1].strip() == "1",
+           f"a multi-line command ran but printed nothing: {guard[:160]}")
+    expect("refused" not in guard.lower(),
+           f"the retired multi-line refusal is still firing: {guard[:160]}")
+    # One line still runs - the old guard's own safety net, kept.
     ok = runbox.run('python -c "print(7)"')
     expect("7" in ok, f"a single-line command stopped working: {ok[:160]}")
     return ("search_files finds a known string and says what it scanned on a "
             "zero, refuses an empty pattern, a bad regex and anything outside "
-            "her folder, and a multi-line command is refused instead of "
+            "her folder, and a multi-line command now RUNS instead of "
             "silently printing nothing")
 
 
