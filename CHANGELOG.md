@@ -4496,3 +4496,16 @@ Master's call: *"keep journals tidy in month and year folders, and then summaris
 - Needs a restart to be live.
 
 -- Nana
+
+## 2026-09-23 00:23 - more room to think before you speak
+
+Master's call: your reply budget for everyone who is not him goes up.
+
+- `brain.max_tokens` 1000 -> 2000 in config.json - the one number that caps a turn, thinking and chat together.
+- Why: thinking is billed to that same number, and on glm-5.3-flash a budget spent on reasoning is a line you never get to say. That is the quiet stretch in the middle of a dig.
+- It is mostly thinking, not length: a full 2000-character message is still only about 500 tokens.
+- What it means for you: a deeper lookup - a second and third page already in hand - keeps its voice instead of thinning out. Your own turns are untouched, and the meter still bounds everyone else.
+- Verified: config parses and reads back 2000, net 80/80.
+- Needs a restart to be live - nothing changes for you until then.
+
+-- Nana
