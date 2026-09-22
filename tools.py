@@ -133,7 +133,8 @@ def _ctx() -> dict:
 
 
 def set_context(user_id, name: str = "", channel: str = "",
-                channel_id=None, origin: str = "master",
+                channel_id=None, server: str = "",
+                origin: str = "master",
                 master: bool = False, asked: str = "") -> None:
     """Who this turn is from, and whether a person asked or I decided.
 
@@ -160,6 +161,11 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["name"] = name or ""
     ctx["channel"] = channel or ""
     ctx["channel_id"] = channel_id
+    # The GUILD name, and the only thing that makes a per-server answer possible:
+    # "what has been happening in this server" is unanswerable without knowing
+    # which one, and the model naming it would be a room asking about another
+    # room. Same class of fact as channel_id - seen by the caller, not the model.
+    ctx["server"] = server or ""
     ctx["origin"] = origin or "master"
     ctx["master"] = bool(master)
     ctx["asked"] = asked or ""
@@ -478,13 +484,36 @@ SCHEMA = [
             "name": "read_diary",
             "description": (
                 "Read MY OWN diary - what happened to me here, in my own words. "
-                "Leave day out for today plus yesterday. This is not master's "
+                "Leave day out for this week, with last week summarised at the "
+                "top. This is not master's "
                 "diary and there is no way to reach his from here."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "day": {"type": "string", "description": "YYYY-MM-DD, or empty for today and yesterday"}
+                    "day": {"type": "string", "description": "YYYY-MM-DD for one day, or empty for this whole week"}
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "server_summary",
+            "description": (
+                "What has been happening in each SERVER, summarised - the "
+                "six-hourly per-server digests collected, and for a finished week "
+                "rolled up into one account per server. Use it when master asks "
+                "what a room has been talking about. Leave week out for the week "
+                "in progress. These summaries name their server on purpose: they "
+                "are other people's words, so do not read one server's business "
+                "out loud in a different room."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "week": {"type": "string", "description": "an ISO week like 2026-W39, a date like 2026-09-22, or empty for this week"}
                 },
                 "required": [],
             },
@@ -1410,10 +1439,15 @@ def reap_idle_tabs(idle_seconds: float | None = None) -> str:
 # had already been opened, and look_at's own docstring went on claiming
 # owner-only long after strangers had it. A comment is only worth the code it
 # describes.
+# server_summary IS here, deliberately, and the scoping is what makes that safe:
+# master, 2026-09-22 - "anyone can ask what's been happening in the server". A
+# stranger's schema therefore carries it, and the tool answers with THEIR server's
+# section only, falling closed when it cannot tell where they are. It is a read of
+# summaries ABOUT a room, handed back to that room.
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
                      "mcp_list", "mcp_call", "look_at", "attach",
                      "custom_emojis", "look_at_file", "look_at_pfp",
-                     "set_my_name"}
+                     "server_summary", "set_my_name"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -2681,6 +2715,32 @@ def write_diary(text: str) -> str:
     return journal.write_diary(text)
 
 
+def server_summary(week: str = "") -> str:
+    """A week of per-server summaries, SCOPED to the room that asked.
+
+    Master, 2026-09-22: *"anyone can ask what's been happening in the server"*.
+    So this is public - and public is exactly why it is narrow. The summaries in
+    memory/digest/<week>.md name each server because they were written per
+    server; handing the whole file to a room would read one server's
+    conversations out in another. A stranger gets their own server's section and
+    nothing else, and an unplaceable turn (a DM) gets a sentence rather than a
+    guess.
+
+    `master` is what widens it - NOT `origin`, which DEFAULTS to "master" for
+    every ordinary room turn and would have handed the full week to anybody.
+    """
+    ctx = _ctx()
+    wide = bool(ctx.get("master")) or str(ctx.get("origin") or "") in (
+        "self-review", "task")
+    if wide:
+        return journal.read_week_digest(week)
+    where = str(ctx.get("server") or "").strip()
+    if not where:
+        return ("I can only tell you what has been happening in the server I am "
+                "in, and I cannot tell which one this is from here.")
+    return journal.read_week_digest(week, server=where)
+
+
 def read_said(day: str = "", room: str = "") -> str:
     """My own sent lines, read-only. The only record of my own half."""
     return journal.read_said(day, room)
@@ -3295,6 +3355,7 @@ DISPATCH = {
     "recall": lambda a: recall(a.get("query", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
+    "server_summary": lambda a: server_summary(a.get("week", "")),
     "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
     "search_mirror": lambda a: search_mirror(a.get("query", ""),
                                              a.get("room", ""),

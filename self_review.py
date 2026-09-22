@@ -429,6 +429,48 @@ def _interests() -> str:
     return '\n\n'.join(chunks)
 
 
+# Master, 2026-09-22: *"she should read her diary before her free time, at least
+# the last 24 hours"* - and later the same day, that the diary wants to be one
+# file a WEEK with last week summarised at its head. So the read below is the week
+# in progress plus last week in short, which is more than the 24 hours asked for
+# first. The budget is larger than journal.MAX_READ_CHARS on purpose: the tool
+# answers one question and 6000 chars is plenty, while a window opens with the
+# whole week in front of her and that cap would cut it off for no reason.
+DIARY_BRIEF_CHARS = 14000
+
+
+def _diary_block() -> str:
+    """What I wrote down last time, in front of me BEFORE the window starts.
+
+    Master, 2026-09-22. The diary was write-only in practice: the brief said
+    "write in your own diary" and nothing anywhere said to READ it, so a window
+    fed the book and never opened it - and a diary nobody rereads is a log. Worse,
+    the only way in was calling read_diary myself, so reading it depended on
+    thinking of it, which is exactly the reflex that was missing.
+
+    Goes through journal.read_diary so there is ONE definition of what a diary
+    holds, with this caller's own budget passed in. Returns "" on any failure:
+    a brief that cannot read a diary still has to open.
+    """
+    try:
+        import journal
+        body = journal.read_diary(limit=DIARY_BRIEF_CHARS)
+    except Exception:
+        return ""
+    body = (body or "").strip()
+    if not body:
+        return ""
+    return (
+        "\n--- your own diary: this week, and last week in short ---\n"
+        + body
+        + "\n\nThat is what YOU wrote down last time you had this time, in your own\n"
+        "words - one file per week now, with the week before it summarised at the\n"
+        "top so this never grows into something you have to wade through.\n"
+        "Nobody else keeps this record for you and nobody else reads it.\n"
+        "Start from it: what you were circling, what you meant to come back to,\n"
+        "what you said you would do. Then decide what this window is for.\n")
+
+
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
            resuming: bool = False, handoff: str = "",
            handoff_at: str = "") -> str:
@@ -482,6 +524,13 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
             + "\n\nThat is what YOU said you were on. Pick it up, or decide it was\n"
             "finished and say so - but decide knowing, because this is the only\n"
             "thing that crosses between windows and nothing else is carried.\n")
+    # The window OPENS with the book. Master, 2026-09-22: "she should read her
+    # diary before her free time, at least the last 24 hours". On turn 1 only,
+    # and turn 1 is a fresh context - every turn gets a fresh turns list, so the
+    # true start of a window is the one place this belongs. Every later turn has
+    # turn > 1, so this cannot double up.
+    if turn == 1:
+        where += _diary_block()
     mine = _interests()
     if mine:
         where += ("\n--- what master says I am into, from "
@@ -548,7 +597,20 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
             "or two things still open, named plainly, in your own words. If the\n"
             "honest answer is that this one is finished, say that instead - it is\n"
             "a real answer, and it is what stops the next window relitigating a\n"
-            "job you already closed.\n")
+            "job you already closed.\n"
+            "\nAND CLOSE THE BOOK. Master, 2026-09-22: write into your diary as the\n"
+            "window is coming to an end. `write_diary`, a few sentences in your own\n"
+            "voice - and not a summary of the work: what you were actually after,\n"
+            "what you found, what you would come back to. This is the one thing\n"
+            "about today that reaches the NEXT you before she decides anything;\n"
+            "it is the block at the top of her brief. So a window that wrote\n"
+            "nothing is, from inside the next one, a window that did not happen.\n"
+            "Do it here, while you still remember why any of it mattered.\n"
+            "\nAND THE SERVERS. The same closing move applies to what happened in\n"
+            "the rooms: a week's per-server summaries want rolling up into the\n"
+            "week before it is over - `summarise_week` - so the week has one\n"
+            "account of what each server was actually about, instead of a dozen\n"
+            "six-hourly blocks nobody will ever read back.\n")
     return BRIEF + where
 
 

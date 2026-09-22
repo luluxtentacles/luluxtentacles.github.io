@@ -33,6 +33,10 @@ import paths
 
 LOCAL_DIARY = "memory/diary"
 LOCAL_REL = "memory/journal"
+# The servers, rolled up by the week. Deliberately NOT inside the diary: the
+# diary is hers and these are other people's words - two audiences and two
+# privacy boundaries do not belong in one file.
+LOCAL_DIGEST = "memory/digest"
 
 DATE_FMT = "%Y-%m-%d"
 MAX_LINE = 400
@@ -148,6 +152,150 @@ def read_digest(day: str = "") -> str:
         out.append("\n\n".join("## " + b for b in blocks) if blocks
                    else f"{d}: no digest written")
     return "\n\n".join(out)[:MAX_READ_CHARS]
+
+
+# ------------------------------ the servers, summarised by the week
+def _week_digest_rel(week: str) -> str:
+    return f"{LOCAL_DIGEST}/{week}.md"
+
+
+def digest_week_by_server(week: str) -> dict[str, str]:
+    """That week's digest material, split into {server: text}.
+
+    The split is on `**Name**` on its own line, and that marker is written by
+    CODE - `digest.body()` and `note_week_digest` both put it there. It is never
+    a model's formatting, which is the point: a privacy boundary that depends on
+    an LLM remembering a heading format is not a boundary. A block whose server
+    will not parse is kept under its own unparsed key rather than silently
+    merged into a neighbour.
+    """
+    out: dict[str, str] = {}
+    for block in _digest_blocks(week):
+        for name, text in _split_servers(block).items():
+            key = name or "(unnamed)"
+            out[key] = (out[key] + "\n\n" + text).strip() if out.get(key) else text
+    return out
+
+
+def _digest_blocks(week: str) -> list[str]:
+    """The '## ' blocks in that week's journal - the summaries, not the chatter."""
+    blocks = []
+    for day in week_days(week):
+        body = paths.read_text(_local_rel(day), default="")
+        for block in re.split(r"^## ", body, flags=re.M)[1:]:
+            block = block.strip()
+            if block:
+                blocks.append(block)
+    return blocks
+
+
+SERVER_RE = re.compile(r"^\*\*(.+?)\*\*[ \t]*$", re.M)
+
+
+def _split_servers(text: str) -> dict[str, str]:
+    """Split one block on its `**Server**` markers. {} if there are none."""
+    marks = list(SERVER_RE.finditer(text or ""))
+    if not marks:
+        return {}
+    out: dict[str, str] = {}
+    for index, mark in enumerate(marks):
+        end = marks[index + 1].start() if index + 1 < len(marks) else len(text)
+        name = mark.group(1).strip()
+        body = text[mark.end():end].strip()
+        if name and body:
+            out[name] = body
+    return out
+
+
+def digest_week_material(week: str) -> str:
+    """Every '## ' block written into that week's journal - the digests only.
+
+    The day journal holds both the raw lines and the summarised blocks, and the
+    '## ' split is what tells them apart: note() writes '- ' and note_digest
+    writes '## '. Raw traffic is deliberately not included - a roll-up of what
+    people actually typed is not a summary, it is a transcript.
+    """
+    return "\n\n".join(f"## {b}" for b in _digest_blocks(week))
+
+
+def week_digest_written(week: str) -> bool:
+    """Has that week's roll-up been written yet?"""
+    return bool(paths.read_text(_week_digest_rel(week), default="").strip())
+
+
+def note_week_digest(week: str, sections: dict) -> str:
+    """Store one week's rolled-up summaries, ONE SECTION PER SERVER.
+
+    Written from a {server: text} map rather than one prose blob, so the server
+    boundary is something the CODE laid down and can be trusted by
+    read_week_digest later. A blob would make per-server recall a guess.
+    """
+    parts = []
+    for server, text in (sections or {}).items():
+        body = _clean_block(str(text or ""))
+        if body:
+            parts.append(f"**{server}**\n\n{body}")
+    if not parts:
+        return "nothing to note"
+    try:
+        paths.write_text(_week_digest_rel(week),
+                         f"# Server summaries - week {week}\n\n"
+                         + "\n\n".join(parts) + "\n",
+                         internal=True)
+    except Exception as exc:
+        return f"could not note the week: {exc.__class__.__name__}"
+    return f"server summaries noted for {week} ({len(parts)} server(s))"
+
+
+def _week_digest_body(week: str) -> str:
+    """That week's roll-up if it exists, else the blocks it will be made from."""
+    if not week:
+        return ""
+    body = paths.read_text(_week_digest_rel(week), default="").strip()
+    if not body:
+        body = digest_week_material(week).strip()
+    return body
+
+
+def read_week_digest(week: str = "", server: str = "",
+                     limit: int = DIGEST_MAX_CHARS) -> str:
+    """A week's server summaries - the roll-up, or the blocks it is made of.
+
+    `server` is the whole reason this function has to be careful. A room may ask
+    what has been happening, and what a room may hear is ITS OWN server's
+    summary - never a neighbour's. So when a server is named:
+
+      - only that server's section comes back, matched case-insensitively;
+      - if nothing matches, it returns nothing, and it does NOT fall back to the
+        whole week. Failing closed is the point: the failure mode of guessing
+        here is one server's conversations read out in another one.
+
+    With no server named, the whole week comes back - that is the owner's view.
+    """
+    asked = (week or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", asked):
+        asked = week_of(asked)
+    week = asked or week_of()
+    body = _week_digest_body(week)
+    used = week
+    if not body and not asked:
+        used = prev_week(week)
+        body = _week_digest_body(used)
+    if not body:
+        return f"{week}: no server summaries written for that week"
+
+    wanted = (server or "").strip()
+    if wanted:
+        by_server = _split_servers(body)
+        match = next((text for name, text in by_server.items()
+                      if name.casefold() == wanted.casefold()), None)
+        if match is None:
+            return (f"nothing written for {wanted} in week {used} - and I will "
+                    f"not read another server's week out in here.")
+        return match[:max(int(limit), 0)]
+
+    header = "" if used == week_of() else f"(week {used})\n\n"
+    return (header + body)[:max(int(limit), 0)]
 
 
 def _clip(body: str, limit: int = MAX_READ_CHARS) -> str:
@@ -450,7 +598,179 @@ def read_den(day: str = "", days: int = 1) -> str:
 
 
 def _diary_rel(day: str) -> str:
+    """A legacy DAY file. Still read, never written again - see below."""
     return f"{LOCAL_DIARY}/{day}.md"
+
+
+# ------------------------------------------------- my diary: one file a week
+#
+# Master, 2026-09-22: *"daries start a new file every week, with the last week's
+# entries summarised at the start of each week. tghis way she wont have to read a
+# massive file."*
+#
+# It was one file per DAY. The reading was never the problem - a window reads a
+# bounded lookback - the problem was that a day grew all day, a week grew all
+# week, and NOTHING ever condensed. A month in, "read my diary" means wading.
+# So:
+#
+#     memory/diary/2026-W39.md
+#       ## last week, in short     the week before, condensed, written for her
+#       ## this week               her own lines, oldest at the bottom
+#
+# The head is the part that makes it scale - she opens the week and gets last
+# week in SUMMARY plus this week whole. Entries carry their own date
+# (`- **2026-09-22 20:23** ...`) because a week spans seven days and a bare
+# HH:MM would be ambiguous, and because it makes a line parse the same in a week
+# file and in a legacy daily one.
+WEEK_FMT = "%G-W%V"                    # ISO year-week: 2026-W39
+DIARY_HEAD = "## last week, in short"
+DIARY_LEDGER = "## this week"
+DIARY_ENTRY_RE = re.compile(
+    r"^- \*\*(?:(\d{4}-\d{2}-\d{2}) )?(\d{2}:\d{2})\*\* (.*)$")
+# Which hand wrote the head. The mechanical one goes in the moment the week file
+# is created so a head ALWAYS exists; the summariser upgrades it in place when
+# the free ladder answers. Marked rather than guessed, so the job knows not to
+# spend a call twice.
+HEAD_MARK = "<!-- head: {} -->"
+MECHANICAL_HEAD_CHARS = 4000
+
+
+def week_of(day: str = "") -> str:
+    """The ISO week a day belongs to - `2026-W39`. Today by default."""
+    day = (day or "").strip() or today()
+    try:
+        parsed = datetime.strptime(day, DATE_FMT)
+    except ValueError:
+        parsed = datetime.now()
+    return parsed.strftime(WEEK_FMT)
+
+
+def week_days(week: str) -> list[str]:
+    """The seven dates of an ISO week, Monday first. [] if the key is junk."""
+    try:
+        monday = datetime.strptime(f"{week}-1", "%G-W%V-%u")
+    except (ValueError, TypeError):
+        return []
+    return [(monday + timedelta(days=i)).strftime(DATE_FMT) for i in range(7)]
+
+
+def prev_week(week: str) -> str:
+    """The week before this one."""
+    days = week_days(week)
+    if not days:
+        return ""
+    return week_of((datetime.strptime(days[0], DATE_FMT)
+                    - timedelta(days=7)).strftime(DATE_FMT))
+
+
+def _week_rel(week: str) -> str:
+    return f"{LOCAL_DIARY}/{week}.md"
+
+
+def _entries(text: str) -> list[tuple[str, str, str]]:
+    """(day, time, body) for every entry line. Day is "" in a legacy file."""
+    out = []
+    for line in (text or "").splitlines():
+        match = DIARY_ENTRY_RE.match(line.strip())
+        if match:
+            out.append((match.group(1) or "", match.group(2), match.group(3)))
+    return out
+
+
+def week_material(week: str) -> str:
+    """Everything written in one week: the week file, or its legacy days.
+
+    The week before the first week file has no week file - it is daily files on
+    disk - so a summary has to be able to read THOSE, or the first week of the
+    new shape opens with an empty head and the whole point is lost.
+    """
+    body = paths.read_text(_week_rel(week), default="")
+    if body.strip():
+        return body.strip()
+    chunks = []
+    for day in week_days(week):
+        legacy = paths.read_text(_diary_rel(day), default="")
+        if legacy.strip():
+            chunks.append(legacy.strip())
+    return "\n\n".join(chunks)
+
+
+def _mechanical_head(week: str) -> str:
+    """A head made without a model: the entries themselves, newest kept.
+
+    Deliberately dumb and deliberately there. A head that says "nothing written
+    down" until a summariser gets round to it would be a lie for as long as the
+    ladder is dry, and the ladder is free and sometimes empty.
+
+    A week with no week file is read day by day, so each line gets the DATE from
+    the file it came out of - a legacy line carries only a time, and a head full
+    of `??` is not a record of anything.
+    """
+    body = paths.read_text(_week_rel(week), default="")
+    if body.strip():
+        entries = _entries(body)
+    else:
+        entries = []
+        for day in week_days(week):
+            legacy = paths.read_text(_diary_rel(day), default="")
+            entries += [(d or day, t, b) for d, t, b in _entries(legacy)]
+    if not entries:
+        return "nothing written down that week."
+    lines = [f"- {d or '??'} {t} {b}" for d, t, b in entries]
+    body = "\n".join(lines)
+    if len(body) > MECHANICAL_HEAD_CHARS:
+        body = ("[...the older part of that week, in brief...]\n"
+                + body[-MECHANICAL_HEAD_CHARS:])
+    return body
+
+
+def _week_header(week: str) -> str:
+    """A brand new week file, head already in place."""
+    days = week_days(week)
+    span = f"{days[0]} to {days[-1]}" if days else week
+    previous = prev_week(week)
+    head = _mechanical_head(previous) if previous else \
+        "nothing written down that week."
+    return (f"# Diary - week {week} ({span})\n\n"
+            f"{DIARY_HEAD}\n{HEAD_MARK.format('mechanical')}\n"
+            f"{head}\n\n{DIARY_LEDGER}\n")
+
+
+def head_needs_summary(week: str = "") -> bool:
+    """Is this week's head still the dumb one? Cheap - one small read."""
+    body = paths.read_text(_week_rel(week or week_of()), default="")
+    if not body.strip():
+        return True
+    return HEAD_MARK.format("summary") not in body
+
+
+def write_week_head(week: str, summary: str) -> str:
+    """Put a written summary at the top of a week's file.
+
+    This rewrites ONE block - the head - and never touches her entries. The
+    diary lines below it are append-only, exactly as they were; the head is a
+    summary of a finished week and is expected to be replaced once, by the
+    summariser, after the mechanical one went in.
+    """
+    summary = (summary or "").strip()
+    if not summary:
+        return "nothing to put at the head"
+    rel = _week_rel(week)
+    body = paths.read_text(rel, default="")
+    if not body.strip():
+        body = _week_header(week)
+    try:
+        before, rest = body.split(DIARY_HEAD, 1)
+        _, after = rest.split(DIARY_LEDGER, 1)
+    except ValueError:
+        return "this week's file is not in the shape I expected; left alone"
+    new = (before + DIARY_HEAD + "\n" + HEAD_MARK.format("summary") + "\n"
+           + summary + "\n\n" + DIARY_LEDGER + after)
+    try:
+        paths.write_text(rel, new, internal=True)
+    except Exception as exc:
+        return f"could not write the head: {exc.__class__.__name__}"
+    return f"week {week}: head written"
 
 
 # --------------------------------------------------------------- my mood
@@ -519,7 +839,7 @@ def mood_block() -> str:
 
 
 def write_diary(text: str) -> str:
-    """Append a line to today's diary.
+    """Append a line to this week's diary.
 
     Mine to write, and about here only. Masked on the way in with the same
     redactor the journal uses, so a credential-shaped string cannot land in it.
@@ -528,29 +848,87 @@ def write_diary(text: str) -> str:
     if not body or body == "[redacted]":
         return "nothing to write at that"
     day = today()
+    week = week_of(day)
     try:
-        rel = _diary_rel(day)
+        rel = _week_rel(week)
         existing = paths.read_text(rel, default="")
-        if not existing:
-            existing = f"# Diary - {day}\n\n"
-        line = f"- **{datetime.now().strftime('%H:%M')}** {body}\n"
-        paths.write_text(rel, existing + line, internal=True)
+        if not existing.strip():
+            existing = _week_header(week)
+        stamp = f"{day} {datetime.now().strftime('%H:%M')}"
+        line = f"- **{stamp}** {body}\n"
+        paths.write_text(rel, existing.rstrip("\n") + "\n" + line, internal=True)
     except Exception as exc:
         return f"could not write it: {exc.__class__.__name__}"
-    return f"noted in my diary for {day}"
+    return f"noted in my diary for {week}"
 
 
-def read_diary(day: str = "") -> str:
-    """My own diary. Today by default, and yesterday with it."""
+def _clip_week(body: str, limit: int) -> str:
+    """A week, capped - and the NEWEST lines are the ones that survive.
+
+    `body[:limit]` would keep the head and then the OLDEST entries, which is the
+    exact mistake read_journal made (it answered "who talked to me today" from
+    the small hours). The head always stays whole, because it is already a
+    summary; what gets trimmed is the week's own lines, from the top.
+    """
+    body = body.strip()
+    if len(body) <= limit:
+        return body
+    if DIARY_HEAD not in body or DIARY_LEDGER not in body:
+        return ("[...the older part of this file is not shown...]\n\n"
+                + body[-limit:])
+    head, rest = body.split(DIARY_HEAD, 1)
+    head_body, ledger = rest.split(DIARY_LEDGER, 1)
+    room = limit - len(head) - len(DIARY_HEAD) - len(head_body) \
+        - len(DIARY_LEDGER) - 120
+    tail = ledger.strip()
+    if room <= 0:
+        return (head + DIARY_HEAD + head_body + DIARY_LEDGER
+                + "\n[...this week's own lines did not fit in this read...]")
+    if len(tail) > room:
+        cut = tail[-room:]
+        newline = cut.find("\n")
+        if newline != -1:
+            cut = cut[newline + 1:]
+        tail = ("[...the earlier part of this week is not shown...]\n\n"
+                + cut)
+    return head + DIARY_HEAD + head_body + DIARY_LEDGER + "\n" + tail
+
+
+def read_diary(day: str = "", limit: int = MAX_READ_CHARS) -> str:
+    """My diary. The week in progress by default, with last week in short on top.
+
+    `limit` is the caller's ceiling, and it is a parameter because the TOOL and
+    the free-time window want different ones: the tool answers one question and
+    6000 characters is plenty, while a window opens with the whole lookback in
+    front of it. A day still reads as a day - and a day from before the weekly
+    shape still reads, out of the legacy file it was written in.
+    """
     day = (day or "").strip()
     if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
         return "that is not a date - use YYYY-MM-DD"
-    wanted = [day] if day else [today(), shift(today(), -1)]
-    out = []
-    for d in wanted:
-        body = paths.read_text(_diary_rel(d), default="")
-        out.append(body.strip() if body else f"{d}: I wrote nothing down")
-    return "\n\n".join(out)[:MAX_READ_CHARS]
+    limit = max(int(limit), 0)
+    if day:
+        return _read_day(day, limit)
+    week = week_of()
+    body = paths.read_text(_week_rel(week), default="")
+    if not body.strip():
+        return f"{week}: I have written nothing down this week yet"
+    return _clip_week(body, limit)
+
+
+def _read_day(day: str, limit: int) -> str:
+    """One day: out of its week file if it is there, else its legacy file."""
+    lines = [f"- **{t}** {b}"
+             for d, t, b in _entries(paths.read_text(_week_rel(week_of(day)),
+                                                     default=""))
+             if d == day]
+    if not lines:
+        lines = [f"- **{t}** {b}"
+                 for _, t, b in _entries(paths.read_text(_diary_rel(day),
+                                                         default=""))]
+    if not lines:
+        return f"{day}: I wrote nothing down"
+    return (day + "\n" + "\n".join(lines))[:limit]
 
 
 def who_today(day: str = "") -> str:

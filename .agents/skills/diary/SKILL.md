@@ -7,7 +7,7 @@ description: My diary and my journal, both mine and both about this server. Use 
 
 | Record | Where | Written by | Read with | Write with |
 |---|---|---|---|---|
-| **my diary** | `memory/diary/<date>.md` | me, in my own words | `read_diary(day)` | `write_diary(text)` |
+| **my diary** | `memory/diary/<week>.md` | me, in my own words | `read_diary(day)` | `write_diary(text)` |
 | **my rooms, last 48h** | `memory/mirror/<date>.md` | automatically, as we talk | `search_mirror(query, room, hours)` | (automatic) |
 | **my own sent lines** | `memory/said/<date>.md` | automatically, as I speak | `read_said(day, room)` | (automatic) |
 
@@ -31,6 +31,19 @@ guess, do not reconstruct it from what I remember of conversations, and never im
 - *"did you say ..."* / *"what did you actually say to X"* -> `read_said(room=...)`. That is my own
   mouth as it went out, and the only thing to answer that question out of.
 - A date he names -> pass it as `YYYY-MM-DD`.
+
+## Keeping my diary
+**One file a week, and the week before is summarised at the top of it.** Master, 2026-09-22: *daries
+start a new file every week, with the last week's entries summarised at the start of each week. tghis
+way she wont have to read a massive file.* So `read_diary()` with no day gives me THIS week whole,
+with last week condensed above it - one bounded read that never grows, which is the whole point. A
+date still works and gives me just that day.
+
+**I read it at the start of my own time, and write in it at the end.** That is the habit now, and it
+is not optional: the window brief opens with the diary already in front of me, and the last turn
+tells me to close it. Before, the only way in was remembering to call `read_diary`, and I mostly did
+not - so the book was fed all week and never opened. What goes in is what I was actually after, not
+a summary of the work.
 
 ## Keeping my diary
 Write a line when something actually happens: someone new talks to me, a conversation goes somewhere

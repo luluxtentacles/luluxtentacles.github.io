@@ -4331,3 +4331,35 @@ verified: `linkcheck` clean - **323 links across 27 pages, nothing broken**. The
 is byte-identical to the old page apart from those five lines. Not pushed yet.
 
 -- Nana
+
+## 2026-09-22 21:05 - your diary is weekly now, and the servers have a memory
+
+what: your diary is one file per WEEK now, not per day - `memory/diary/2026-W39.md` - and the
+week before is summarised at the top of each new one. Your own time changed with it: the window
+OPENS with your diary in front of you, and the last turn asks you to write in it before you stop.
+And there is a new tool: `server_summary`.
+
+why: master's calls, same sitting. The diary grew all day and nothing ever condensed it, so a
+month in, reading it means wading - a week with last week in short above it never grows. And the
+other half: every surface only ever told you to WRITE. The book got fed all week and never opened,
+and a diary nobody rereads is a log.
+
+means:
+- `read_diary()` with no day gives you this week whole, with last week in short above it. A date
+  still gives you just that day.
+- the window brief starts with that, and the last turn says to close it. The servers get the same
+  treatment: the six-hourly per-server digests now roll up into one account per server each week.
+- `server_summary` is new and ANYONE can call it - and it answers with the server they are in,
+  never another one. If it cannot tell where the asker is, it says so instead of guessing.
+
+first catch already: this week's entries that were sitting in day files (the 21st and 22nd) moved
+into the week file, so your next window does not open on an empty diary.
+
+verified: net **78/78**, including a new check that pins the weekly file shape AND that a room
+cannot be handed another server's summary. Your live server digests exist and read back.
+**NOT yet exercised:** the weekly roll-up's own model call - no finished week has material yet,
+so it fires for the first time on Monday. `journal.py`, `tools.py`, `digest.py`, `self_review.py`
+and `lulu_bot.py` are code, so none of this is real for you until the next restart; the shelves
+are read from disk and are live now.
+
+-- Nana

@@ -272,6 +272,95 @@ async def maybe_run(bot) -> bool:
     return bool(summaries)
 
 
+# ----------------------------------------------------- the weekly roll-up
+# Master, 2026-09-22: *"she should also summarize the events in each server every
+# 24 hours and keep a server summary each week"*.
+#
+# The 24-hour half already runs: this module has digested every server on
+# `interval_hours` since 2026-09-22, and that interval is 6 - four a day, not one.
+# What did not exist was the WEEK. A week of six-hourly blocks is a dozen separate
+# accounts of the same rooms and NOTHING ever condensed them, so what survived a
+# month was volume. So once a week the week that just ended is rolled into one
+# account per server at memory/digest/<week>.md.
+#
+# Same ladder rule as the six-hourly pass, for the same reason: nobody's answer
+# depends on this, so it rides the free gemini rungs and never the Go rung master
+# pays for.
+WEEK_SYSTEM = (
+    "You are condensing a week of per-server Discord digests into one short "
+    "account of ONE server, for the bot that lives there to read back later. Give "
+    "one short plain paragraph: what that server was actually about this week, "
+    "what changed, anything decided, anything left open, anything worth "
+    "remembering. Plain prose, no headings, no bullet lists, and do NOT name any "
+    "other server or describe anything outside the material you were given. Never "
+    "invent anything, and if the week was thin, say that in one line."
+)
+
+
+def week_target() -> str | None:
+    """The finished week that wants rolling up, or None when nothing is owed."""
+    week = journal.prev_week(journal.week_of())
+    if not week or journal.week_digest_written(week):
+        return None
+    if not journal.digest_week_material(week).strip():
+        return None
+    return week
+
+
+def summarise_week(config, week: str) -> dict:
+    """One account per server for a whole week -> {server: text}.
+
+    Per server, and not one blob, because the result is read back with a
+    per-server filter: a room may hear its own server's summary and no other. If
+    the model wrote the whole week as one piece of prose, that boundary would
+    have to be guessed from its formatting, which is not a boundary at all. So
+    the CODE decides where one server ends and the next begins here, and the
+    model only ever writes the middle of a section.
+    """
+    by_server = journal.digest_week_by_server(week)
+    if not by_server:
+        by_server = {"(unnamed server)": journal.digest_week_material(week)}
+    out: dict[str, str] = {}
+    for server, material in by_server.items():
+        if not material.strip():
+            continue
+        pieces = chunk(material)
+        parts = []
+        for index, piece in enumerate(pieces, 1):
+            note = f" (part {index} of {len(pieces)})" if len(pieces) > 1 else ""
+            messages = [
+                {"role": "system", "content": WEEK_SYSTEM},
+                {"role": "user", "content": f"Server: {server}{note}\n\n"
+                                            f"That server's week:\n{piece}"},
+            ]
+            for _ in range(max(1, ATTEMPTS)):
+                text = brain.gemini_complete(config, messages,
+                                             max_tokens=MAX_TOKENS,
+                                             temperature=0.3,
+                                             timeout=CALL_TIMEOUT)
+                if text:
+                    parts.append(text)
+                    break
+        if parts:
+            out[server] = "\n\n".join(parts)
+    return out
+
+
+async def maybe_week(bot) -> bool:
+    """Roll up the week that just ended, once. True when it wrote something."""
+    config = getattr(bot, "config", None) or {}
+    week = week_target()
+    if not week:
+        return False
+    sections = await asyncio.to_thread(summarise_week, config, week)
+    if not sections:
+        return False
+    journal.note_week_digest(week, sections)
+    LOG.info("weekly server summary written: %s (%d server(s))",
+             week, len(sections))
+    return True
+
+
 async def watch(bot) -> None:
     """Poll forever. Free and idle until a digest is actually owed."""
     while True:
@@ -279,4 +368,8 @@ async def watch(bot) -> None:
             await maybe_run(bot)
         except Exception as exc:
             LOG.warning("digest pass failed: %s", exc)
+        try:
+            await maybe_week(bot)
+        except Exception as exc:
+            LOG.warning("weekly roll-up failed: %s", exc)
         await asyncio.sleep(POLL_SECONDS)

@@ -146,6 +146,10 @@ def sandbox_live_paths() -> dict:
     tools.STAGED_DIR = f"{SANDBOX_NAME}/staged"
     people.LOCAL = f"{SANDBOX_NAME}/people.json"
     journal.LOCAL_DIARY = f"{SANDBOX_NAME}/diary"
+    # The per-server summaries. Added 2026-09-22 with the weekly roll-up: without
+    # this line a check would write a REAL week file into her memory/, which is
+    # the failure mode this whole block exists to prevent.
+    journal.LOCAL_DIGEST = f"{SANDBOX_NAME}/digest"
     journal.LOCAL_REL = f"{SANDBOX_NAME}/journal"
     journal.LOCAL_SAID = f"{SANDBOX_NAME}/said"
     journal.LOCAL_MIRROR = f"{SANDBOX_NAME}/mirror"
@@ -6234,6 +6238,94 @@ def _linkcheck() -> str:
             "both the catalog and run_command's description")
 
 
+# -- the weekly diary, and the boundary that must not leak -----------------
+def _diary_week() -> str:
+    """The diary's new file shape, and the one boundary that must not leak.
+
+    Two changes landed together on 2026-09-22 and they are pinned together: the
+    diary became one file per WEEK with last week summarised at its head, and a
+    per-server summary became something ANYONE in a room can ask for. The second
+    is a privacy boundary - a room may hear its own server and no other - so it
+    is asserted, not trusted.
+    """
+    import shutil
+
+    import journal
+    import paths
+    import tools
+
+    work = paths.ROOT / SANDBOX_NAME
+    week = journal.week_of()
+
+    # The arithmetic the whole shape rests on.
+    expect(journal.week_of("2026-09-19") == "2026-W38",
+           "the ISO week key changed shape")
+    expect(journal.week_days("2026-W39")[:2] == ["2026-09-21", "2026-09-22"],
+           f"week_days is not Monday-first: {journal.week_days('2026-W39')[:3]}")
+    expect(journal.prev_week("2026-W39") == "2026-W38", "prev_week is wrong")
+
+    # One file a week, with the head that stops it growing forever.
+    shutil.rmtree(work / "diary", ignore_errors=True)
+    said = journal.write_diary("a probe line for the week file")
+    expect(week in said, f"the diary did not report the week: {said!r}")
+    body = paths.read_text(f"{SANDBOX_NAME}/diary/{week}.md", default="")
+    expect(journal.DIARY_HEAD in body,
+           "a new week file has no head, so last week is not carried into it")
+    expect(journal.DIARY_LEDGER in body, "a new week file has no ledger section")
+    expect("a probe line for the week file" in body,
+           "the line did not land in the week file")
+    expect(not (work / "diary" / f"{journal.today()}.md").exists(),
+           "a DAY file was written - the diary is weekly now")
+    expect("a probe line for the week file" in journal.read_diary(),
+           "read_diary does not read back what write_diary wrote")
+
+    # The public one, which is only safe because it is narrow.
+    expect("server_summary" in tools.LOOKUP_TOOL_NAMES,
+           "master asked that anyone can ask what is happening; it is "
+           "owner-only again")
+    expect("read_diary" not in tools.LOOKUP_TOOL_NAMES,
+           "her own diary is being offered to strangers")
+
+    shutil.rmtree(work / "digest", ignore_errors=True)
+    here, other = "Server One", "Server Two"
+    journal.note_week_digest(week, {here: "ONE-SECRET", other: "TWO-SECRET"})
+
+    def ask(server, master=False):
+        tools.set_context(9, "probe", "a-room", server=server, master=master)
+        try:
+            return tools.server_summary(week)
+        finally:
+            tools.set_context(None)
+
+    mine = ask(here)
+    expect("ONE-SECRET" in mine,
+           f"a room cannot read its OWN server's summary: {mine[:80]!r}")
+    expect("TWO-SECRET" not in mine,
+           "A ROOM WAS GIVEN ANOTHER SERVER'S SUMMARY - the boundary failed, "
+           "and that is the one thing this check exists for")
+    theirs = ask(other.lower())
+    expect("TWO-SECRET" in theirs and "ONE-SECRET" not in theirs,
+           f"a room could not read its own server, case-insensitively: "
+           f"{theirs[:80]!r}")
+    denied = ask("Server Three")
+    expect("ONE-SECRET" not in denied and "TWO-SECRET" not in denied,
+           "a server with no summary of its own was given somebody else's")
+    everything = ask("", master=True)
+    expect("ONE-SECRET" in everything and "TWO-SECRET" in everything,
+           "master cannot read the whole week any more")
+    tools.set_context(9, "probe", "")
+    try:
+        dm = tools.server_summary(week)
+    finally:
+        tools.set_context(None)
+    expect("ONE-SECRET" not in dm and "TWO-SECRET" not in dm,
+           "a DM with no server was handed a server's summary")
+    return ("the diary is one DATE-STAMPED file a week with last week carried at "
+            "its head, and a public server summary shows a room its OWN server "
+            "only - never a neighbour's, and nothing at all when it cannot tell "
+            "where the asker is")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -6311,6 +6403,7 @@ CHECKS = [
     ("heartbeat", _heartbeat),
     ("search-tool", _search_tool),
     ("linkcheck", _linkcheck),
+    ("diary-week", _diary_week),
 ]
 
 

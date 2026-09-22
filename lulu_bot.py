@@ -2899,6 +2899,12 @@ class Lulu(discord.Client):
             who,
             getattr(message.channel, "name", "") or "",
             channel_id=getattr(message.channel, "id", None),
+            # WHICH SERVER this turn is in, captured from the message for the same
+            # reason channel_id is: only the caller saw it. A tool that answers
+            # "what has been happening in this server" has to know WHICH server,
+            # and asking the model to name one would let a room ask for another
+            # room's week. Empty in a DM - there is no server there.
+            server=getattr(getattr(message, "guild", None), "name", "") or "",
             master=is_owner,
             # What was actually said to me, captured HERE because it is the last
             # moment it exists: by the time a restart notice is read back at
