@@ -145,6 +145,13 @@ SHORTCUTS: dict[str, str] = {
     # herself the first time she used the mirror by hand, and it comfortably
     # covers resize -> navigate -> console -> screenshot -> look.
     "preview": f'"{PY}" preview.py --background --seconds 300',
+    # The other half of looking at her own site. `preview` shows her a page;
+    # this says whether the links on it still resolve, which is the part she
+    # cannot see at all - every restructure used to end in somebody opening
+    # pages by hand. Master, 2026-09-22: *"a little crawler that walks
+    # projects/site and reports broken internal links, because I hand-audit them
+    # after every restructure and it's the same job every time."*
+    "linkcheck": f'"{PY}" linkcheck.py',
 }
 
 # `publish` is deliberately NOT in the dict above: it is the one shortcut that

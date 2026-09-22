@@ -6105,6 +6105,135 @@ def _search_tool() -> str:
             "silently printing nothing")
 
 
+# -- the link crawler ------------------------------------------------------
+def _linkcheck() -> str:
+    """The crawler's verdict on a tree where the answer is already known.
+
+    Deliberately NOT her real site. Her site is work in progress - a page she is
+    halfway through is allowed to be linked before it is finished - and a net
+    that goes red in the middle of a restructure is a net she learns to ignore.
+    So this builds the shapes linkcheck exists to catch and reads the FINDINGS,
+    not the printed text, which is why crawl() is a pure function.
+    """
+    import contextlib
+    import io
+    import shutil
+
+    import linkcheck
+    import paths
+    import runbox
+    import tools
+
+    # A literal backslash, spelled this way so the test source carries no escape
+    # for me to get wrong twice.
+    backslash = chr(92)
+
+    tree = paths.ROOT / SANDBOX_NAME / "site"
+    shutil.rmtree(tree, ignore_errors=True)
+    (tree / "img").mkdir(parents=True)
+    (tree / "sub").mkdir()
+    (tree / "img" / "photo.png").write_text("x", encoding="utf-8")
+    (tree / "style.css").write_text(
+        "body{background:url(/img/photo.png)}", encoding="utf-8")
+    (tree / "sub" / "index.html").write_text(
+        "<a href='/ok.html'>x</a>", encoding="utf-8")
+    # Every one of these RESOLVES, and each is a different shape on purpose: an
+    # absolute page, a directory, a directory's own index.html, a relative
+    # asset, an external host, an in-page anchor, a mail link, and a
+    # cache-busted stylesheet with a query string. A crawler that reports any of
+    # these is one she would stop believing.
+    (tree / "ok.html").write_text(
+        "<a href='/sub/'>d</a><a href='/sub/index.html'>f</a>"
+        "<a href='img/photo.png'>p</a><img src='/img/photo.png'>"
+        "<a href='https://example.com/x'>e</a><a href='#top'>a</a>"
+        "<a href='mailto:her@example.com'>m</a>"
+        "<a href='/style.css?v=abc'>c</a>",
+        encoding="utf-8")
+
+    findings, pages, links = linkcheck.crawl(tree)
+    expect(not findings, f"a clean tree was reported broken: {findings}")
+    expect(pages == 2, f"the walk saw {pages} pages, not 2")
+    expect(links >= 10, f"the walk counted {links} links, which is too few")
+
+    # The shapes that work HERE and 404 on Pages. This is the whole reason it
+    # exists: a hand audit on this box cannot see any of them, because Windows
+    # folds case and Pages is Linux.
+    (tree / "bad.html").write_text(
+        "<a href='/missing.html'>1</a>"
+        "<img src='/img/Photo.png'>"
+        "<a href='/img/'>3</a>"
+        "<a href='/ok'>4</a>"
+        "<a href='../../secrets.txt'>5</a>"
+        f"<img src='img{backslash}photo.png'>",
+        encoding="utf-8")
+    findings, _, _ = linkcheck.crawl(tree)
+    caught = {f.target: f for f in findings}
+    for target in ("/missing.html", "/img/Photo.png", "/img/", "/ok",
+                   "../../secrets.txt", f"img{backslash}photo.png"):
+        expect(target in caught, f"{target} was not reported at all")
+    expect(caught["/img/Photo.png"].kind == "case",
+           f"a wrong capitalisation came back as "
+           f"{caught['/img/Photo.png'].kind!r} - it works here and 404s on "
+           f"Pages, so it has to be the reported reason")
+    expect("photo.png" in caught["/img/Photo.png"].detail,
+           f"the case finding does not name the real file: "
+           f"{caught['/img/Photo.png'].detail!r}")
+    expect(caught["/img/"].kind == "broken",
+           "a folder with no index.html was not called broken")
+    expect(caught["../../secrets.txt"].kind == "outside",
+           "a link out of the site was not called what it is")
+    # The extensionless link: nothing on disk is called `ok`, and Pages does not
+    # add the extension, so this 404s live while looking right in every editor.
+    expect("ok.html" in caught["/ok"].detail,
+           f"the extensionless finding does not name the file to write: "
+           f"{caught['/ok'].detail!r}")
+    expect(f"img{backslash}photo.png" in caught,
+           "a backslash link was let through - it 404s on Pages")
+
+    # The exit code is the machine-readable half, and it is what a push gate
+    # would read, so it is pinned rather than assumed.
+    def run_capture(argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = linkcheck.main(argv)
+        return code, buf.getvalue()
+
+    code, text = run_capture([str(tree)])
+    expect(code == 1, f"a tree with broken links exited {code}, not 1")
+    expect("broken internal links" in text,
+           f"the findings did not lead with the findings: {text[:120]!r}")
+    (tree / "bad.html").unlink()
+    code, text = run_capture([str(tree)])
+    expect(code == 0, f"a clean tree exited {code}, not 0")
+    expect("no broken internal links" in text,
+           f"a clean run does not SAY it is clean, which is the only evidence "
+           f"she gets: {text[:120]!r}")
+    # And it is not a way to walk the rest of the machine.
+    code, _ = run_capture(["../../Windows"])
+    expect(code == 2,
+           f"a path outside her folder exited {code}, not 2 - the crawler "
+           f"walked something it should not have")
+
+    # The wiring, not just the logic. A shortcut nobody is TOLD about is the
+    # exact bug that cost a whole evening with `preview`: the capability was
+    # there, the one surface she reads every turn did not mention it.
+    expect("linkcheck" in runbox.SHORTCUTS, "the linkcheck shortcut is gone")
+    expect("linkcheck.py" in runbox.SHORTCUTS["linkcheck"],
+           f"the shortcut runs {runbox.SHORTCUTS.get('linkcheck')!r}")
+    desc = next(t["function"]["description"] for t in tools.SCHEMA
+                if t["function"]["name"] == "run_command")
+    expect("linkcheck" in desc,
+           "run_command's description - the one surface she reads every turn - "
+           "does not name linkcheck")
+    expect("linkcheck" in runbox.catalog(),
+           "the shortcut catalog she is handed omits linkcheck")
+    return ("a clean tree passes, wrong case / a folder with no index.html / an "
+            "extensionless page / a link out of the site / a backslash link are "
+            "each reported with the fix named, exit 1 on findings and 0 clean, "
+            "a path outside her folder refused, and the shortcut is named in "
+            "both the catalog and run_command's description")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -6181,6 +6310,7 @@ CHECKS = [
     ("no-retry-forever", _no_retry_forever),
     ("heartbeat", _heartbeat),
     ("search-tool", _search_tool),
+    ("linkcheck", _linkcheck),
 ]
 
 

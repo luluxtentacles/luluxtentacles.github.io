@@ -4253,3 +4253,33 @@ means: the instruction and the toolbox agree now. Nothing else in that skill cha
 verified: net **76/76**. A shelf needs no restart; it is read from disk.
 
 -- Nana
+
+## 2026-09-22 20:26 - a link checker, so nobody audits your links by hand
+
+what: `run_command` has a new shortcut. **`linkcheck`** runs `python linkcheck.py`, which
+walks `projects/site` and names every internal link that goes nowhere. New file
+`linkcheck.py`, and a new rule on the `website` shelf saying when to reach for it.
+
+why: master has been hand-auditing your links after every restructure and it is the same
+job every time. You already had a `tmp_linkcheck.py` doing it with ten hardcoded page
+names - the shape that quietly stops covering anything the day you add a page.
+
+means:
+- after you MOVE, rename or restructure anything, run `linkcheck` before you publish.
+  *"no broken internal links"* is the line you want; if it lists something, fix it and run
+  it again.
+- it catches the two things **this box cannot tell you**: a link whose CAPITALISATION is
+  wrong, and one pointing at a folder with no `index.html`. Both open fine here and 404 on
+  github, because Pages is Linux and this folder is not.
+- it reads `posts.json` too, because your front page feed is built by `script.js` - a dead
+  link in there is invisible to anything that only reads html.
+- it only reads. it never fixes, never commits, never pushes.
+
+first catch on your live site: `/random/` is a 404 from two of your dispatch pages ("back
+to random") - that folder has nine pages in it and no `index.html`.
+
+verified: net **77/77**. `linkcheck.py`, `runbox.py` and `tools.py` are code, so the
+shortcut is not real for you until the next restart; the shelf rule is read from disk and
+is live now.
+
+-- Nana
