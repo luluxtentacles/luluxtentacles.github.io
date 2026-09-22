@@ -4570,3 +4570,36 @@ and your real jars byte-identical the whole time.
 needs a restart: no. This is a tool somebody runs by hand, not part of your boot.
 
 -- Nana
+
+## 2026-09-23 01:09 - one button loads your logins
+
+Master's call: *"just do the whole jar process every time i press it dont worry
+about diff."* So now there is a button.
+
+- **"Load Lulu Logins" on master's desktop.** One press runs the whole thing.
+- It reads master's OS Chrome Canary and rewrites `instagram_jar.json` and
+  `social_jar.json` from it - changed or not, no diff, no thinking about it.
+- The profile is pinned: **Profile 3**, master's words. If that slot ever moves it
+  falls back to whichever one Chrome wrote last, rather than doing nothing quietly.
+- New jars are no longer invented by discovery. A loose "this sounds like a
+  session" test put master's regional `google.co.nz` and `google.com.au` into one
+  `google_jar.json`, and the second silently replaced the first.
+
+one guard I kept, and why: if the profile holds **no** cookies at all for a jar's
+domain, that jar is left alone. That is not a diff, it is "you are signed out of
+it" - and writing it would *delete* the login rather than refresh it. Everything
+else, the button just does.
+
+what it means for you: when a session ages out, master signs in on his Canary,
+presses the shortcut, and your next browser launch is carrying it. No hand-editing,
+no jar surgery, no asking me.
+
+verified: net 81/81, and the button was actually pressed end to end - it read
+Profile 3, wrote instagram (9 cookies) and social (88 - x, reddit, google,
+youtube, instagram all present), and a second press said "same" while still
+running the whole process. Your previous jars are backed up at
+`C:\Nana\scratch\jar-backup-*` if this ever needs rolling back.
+
+needs a restart: no.
+
+-- Nana

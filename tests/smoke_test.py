@@ -6757,6 +6757,28 @@ def _grab_session() -> str:
     expect("expires" not in an_entry,
            "a session cookie was given an expiry it does not have")
 
+    # The OS Canary is why resolve_profile exists: its User Data root holds
+    # several slots and the one master signs into is not always Default.
+    import shutil as _shutil
+    ud = SANDBOX / "canary-userdata"
+    for name, age in (("Default", 4000), ("Profile 3", 0)):
+        slot = ud / name / "Network"
+        slot.mkdir(parents=True, exist_ok=True)
+        (slot / "Cookies").write_text("x", encoding="utf-8")
+        stamp = time.time() - age
+        os.utime(slot / "Cookies", (stamp, stamp))
+    (ud / "Local State").write_text("{}", encoding="utf-8")
+    _, picked = gs.resolve_profile(ud, newest=True)
+    expect(picked.name == "Profile 3",
+           f"--newest picked the wrong profile slot: {picked.name}")
+    _, picked = gs.resolve_profile(ud, newest=False)
+    expect(picked.name == "Default",
+           f"without --newest the Default slot should win: {picked.name}")
+    root, picked = gs.resolve_profile(ud / "Profile 3")
+    expect(root == ud and picked.name == "Profile 3",
+           "a direct slot path no longer resolves to its user-data root")
+    _shutil.rmtree(ud, ignore_errors=True)
+
     # The merge, against a sandbox jar dir so no real jar is touched.
     live_canary = "LEAK-CANARY-LIVE-SESSION"
     new_canary = "LEAK-CANARY-NEW-SESSION"
@@ -6770,31 +6792,47 @@ def _grab_session() -> str:
 
     real_browser = gs.BROWSER
     real_read = gs.read_cookies
-    gs.BROWSER = jars
-    # Signed out of reddit entirely, signed in to github.
-    gs.read_cookies = lambda profile: [
-        {"name": "session", "value": new_canary, "domain": ".github.com",
-         "path": "/", "secure": True, "httpOnly": True}]
-    out = io.StringIO()
-    try:
-        with contextlib.redirect_stdout(out):
-            gs.main(["--profile", "not-a-real-profile"])
-    finally:
-        gs.BROWSER = real_browser
-        gs.read_cookies = real_read
 
-    printed = out.getvalue()
+    def run(extra, cookies):
+        out = io.StringIO()
+        gs.BROWSER = jars
+        gs.read_cookies = lambda profile, **kw: cookies
+        try:
+            with contextlib.redirect_stdout(out):
+                gs.main(["--profile", "not-a-real-profile"] + extra)
+        finally:
+            gs.BROWSER = real_browser
+            gs.read_cookies = real_read
+        return out.getvalue()
+
+    signed_in_github = [{"name": "session", "value": new_canary,
+                         "domain": ".github.com", "path": "/", "secure": True,
+                         "httpOnly": True}]
+
+    # (a) Signed IN to github, OUT of reddit. A new jar is named with --domain,
+    #     never inferred: a loose session-name test put master's regional
+    #     google.co.nz and google.com.au into one google_jar.json and the second
+    #     replaced the first. Reddit must meanwhile keep the jar it already has.
+    printed = run(["--domain", "github.com"], signed_in_github)
     expect((jars / "reddit_jar.json").read_text(encoding="utf-8") == before,
            "a logged-out domain EMPTIED a working jar - that is her login gone")
     expect((jars / "github_jar.json").is_file(),
-           "a newly signed-in domain was not jarred at all")
+           "an explicitly named new domain was not jarred at all")
     expect(live_canary not in printed and new_canary not in printed,
            "the harvester printed a cookie VALUE - it may only ever name files")
+
+    # (b) --force is the desktop button - it rewrites everything it CAN. The one
+    #     thing it must still refuse is blanking a jar whose domain the profile
+    #     holds nothing for, because that is her login deleted, not refreshed.
+    (jars / "github_jar.json").unlink()
+    run(["--force"], [])
+    expect((jars / "reddit_jar.json").read_text(encoding="utf-8") == before,
+           "--force blanked a jar the profile held no cookies for")
     for f in jars.glob("*_jar.json"):
         f.unlink()
 
-    return ("jars diffed without corrupting a value, without emptying a "
-            "signed-out jar, and without printing a secret")
+    return ("jars written force or diff, a new one named not inferred, never "
+            "emptying a signed-out jar, and never printing a secret")
 
 
 CHECKS = [

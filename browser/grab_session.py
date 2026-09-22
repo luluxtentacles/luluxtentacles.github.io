@@ -1,4 +1,4 @@
-"""Re-jar her logins from the profile master actually signed her in on.
+r"""Re-jar her logins from the profile master actually signed her in on.
 
 Why this exists
 ---------------
@@ -46,9 +46,11 @@ What it will not do
 
 Usage
 -----
-    :: sign in FIRST, on a staging profile of your own - never on hers
-    "C:\lulu\chrome-canary\chrome.exe" --user-data-dir=C:\lulu\browser-signin
+    :: sign in FIRST - on a staging profile, or on the OS Chrome Canary, but
+    :: never on browser-profile/ itself (see the note above about whose key it is)
     python browser/grab_session.py --profile C:\lulu\browser-signin
+    :: the OS Canary, whichever slot it last wrote - the one master signs in on:
+    python browser/grab_session.py --profile "%LOCALAPPDATA%\Google\Chrome SxS\User Data" --newest
     python browser/grab_session.py --dry-run          # say what WOULD change
     python browser/grab_session.py --domain github.com   # force one in
 """
@@ -74,7 +76,7 @@ BROWSER = Path(__file__).resolve().parent
 PROFILE = Path(os.environ.get("LULU_BROWSER_PROFILE")
                or r"C:\lulu\browser-profile")
 
-COOKIE_DB = Path("Default") / "Network" / "Cookies"
+COOKIE_SUBPATH = Path("Network") / "Cookies"
 
 # A name containing any of these, or matching one exactly, means "this domain is
 # signed in". Deliberately generous - a missed domain is silent, the failure this
@@ -235,13 +237,54 @@ def fingerprint(entries: list[dict]) -> str:
 # --------------------------------------------------------------------------- #
 # Reading the profile
 # --------------------------------------------------------------------------- #
-def read_cookies(profile: Path) -> list[dict]:
+def _slots(user_data: Path) -> list[Path]:
+    """The named profile slots under a User Data root that hold cookies."""
+    try:
+        return [d for d in user_data.iterdir() if (d / COOKIE_SUBPATH).is_file()]
+    except OSError:
+        return []
+
+
+def resolve_profile(profile: Path, newest: bool = False) -> tuple[Path, Path]:
+    """(user_data_dir, slot_dir) from either shape of --profile.
+
+    "Profile" means two different things depending on who is talking: the User
+    Data root (holds Local State and the named slots) or one slot inside it
+    (holds the cookies). The OS install of Canary keeps several slots, and the
+    one master signed into is not always Default - measured 2026-09-23, his was
+    Profile 3 while Default's cookies were a month stale. So this accepts either
+    shape, and --newest picks the slot most recently WRITTEN rather than trusting
+    a name that a renumber can move out from under us.
+    """
+    if (profile / COOKIE_SUBPATH).is_file():
+        user_data, slot = profile.parent, profile
+    elif (profile / "Local State").is_file() or _slots(profile):
+        user_data, slot = profile, None
+    else:
+        raise RuntimeError(f"no Chromium profile at {profile}")
+    if slot is None:
+        default = user_data / "Default"
+        slot = default if (default / COOKIE_SUBPATH).is_file() else None
+    if slot is None or newest:
+        slots = _slots(user_data)
+        if not slots:
+            raise RuntimeError(f"no cookie database anywhere under {user_data}")
+        slot = max(slots, key=lambda d: (d / COOKIE_SUBPATH).stat().st_mtime)
+    return user_data, slot
+
+
+def read_cookies(profile: Path, newest: bool = False) -> list[dict]:
     """Every cookie in the profile, decrypted. Copied first, so a live browser
-    writing its WAL cannot have the read fail - or read a torn row."""
-    db = profile / COOKIE_DB
-    if not db.is_file():
-        raise RuntimeError(f"no cookie database at {db}")
-    master = _master_key(profile)
+    writing its WAL cannot have the read fail - or read a torn row.
+
+    The master key lives in Local State at the User Data ROOT; the cookies live
+    in a SLOT. Resolving those two apart is the whole reason resolve_profile
+    exists, and it is what the OS Canary needs.
+    """
+    user_data, slot = resolve_profile(Path(profile), newest)
+    print(f"  slot: {slot.name}")
+    db = slot / COOKIE_SUBPATH
+    master = _master_key(user_data)
 
     tmp = Path(tempfile.gettempdir()) / f"lulu-cookies-{os.getpid()}.sqlite"
     try:
@@ -317,6 +360,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--profile", default=str(PROFILE))
     parser.add_argument("--dry-run", action="store_true",
                         help="say what would change, write nothing")
+    parser.add_argument("--newest", action="store_true",
+                        help="use whichever profile slot was written most "
+                             "recently, instead of assuming Default")
+    parser.add_argument("--force", action="store_true",
+                        help="jar the whole thing every time: write every jar from "
+                             "the profile, changed or not (this is what the "
+                             "desktop button runs)")
     parser.add_argument("--domain", action="append", default=[],
                         help="force this registrable domain in, even without a "
                              "recognised session cookie (repeatable)")
@@ -325,7 +375,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"reading {profile}")
     try:
-        cookies = read_cookies(profile)
+        cookies = read_cookies(profile, newest=args.newest)
     except RuntimeError as exc:
         print(f"  could not read it: {exc}")
         print("  if that mentions the account, run this AS the account that "
@@ -348,35 +398,47 @@ def main(argv: list[str] | None = None) -> int:
         domains = {registrable(c["domain"]) for c in stale}
         fresh = [c for d in domains for c in groups.get(d, [])]
         if not fresh:
-            print(f"  {name}: no cookies on disk for {', '.join(sorted(domains))} "
-                  f"- left as it is (signed out, not erased)")
+            # The ONE guard --force does not remove, and a one-line reason: this
+            # is not a diff, it is the profile holding NOTHING for the domains
+            # this jar is named after. That is "signed out", and writing it
+            # blanks her login. Everything else --force just does.
+            print(f"  {name}: nothing in the profile for "
+                  f"{', '.join(sorted(domains))} - left alone (that would log "
+                  f"her out of it)")
             skipped += 1
             continue
-        # The guard that matters: never replace a working jar with a logged-out
-        # one. A domain is only taken if the profile still holds a session cookie
-        # for it, or master asked for it by name.
-        keep = [c for c in fresh if is_session(c)]
-        live = {registrable(c["domain"]) for c in keep} | forced & domains
-        if not live:
-            print(f"  {name}: no live session in {', '.join(sorted(domains))} "
-                  f"- left as it is")
-            skipped += 1
-            continue
-        if fingerprint(fresh) == fingerprint(stale):
-            print(f"  {name}: unchanged ({len(stale)} cookies)")
-            unchanged += 1
-            continue
-        print(f"  {name}: {len(stale)} -> {len(fresh)} cookies  CHANGED")
+        if not args.force:
+            keep = [c for c in fresh if is_session(c)]
+            live = {registrable(c["domain"]) for c in keep} | forced & domains
+            if not live:
+                print(f"  {name}: no live session in "
+                      f"{', '.join(sorted(domains))} - left as it is")
+                skipped += 1
+                continue
+            if fingerprint(fresh) == fingerprint(stale):
+                print(f"  {name}: unchanged ({len(stale)} cookies)")
+                unchanged += 1
+                continue
+            verdict = "CHANGED"
+        else:
+            verdict = ("same" if fingerprint(fresh) == fingerprint(stale)
+                       else "CHANGED")
+        print(f"  {name}: {len(stale)} -> {len(fresh)} cookies  {verdict}")
         changed += 1
         if not args.dry_run:
             (BROWSER / name).write_text(json.dumps(fresh, indent=2),
                                         encoding="utf-8")
 
-    for domain in sorted(groups):
-        if domain in covered:
-            continue
-        fresh = groups[domain]
-        if not (any(is_session(c) for c in fresh) or domain in forced):
+    # New jars are NOT made by discovery, and the reason is measured: a loose
+    # "this cookie name sounds like a session" test put master's regional
+    # google.co.nz and google.com.au cookies into one jar named google_jar.json -
+    # two domains, one filename, the second silently replacing the first. The set
+    # of jars IS her set of accounts, so a genuinely new one is named explicitly
+    # with --domain instead of inferred from wherever the browser happened to go.
+    for domain in sorted(forced - covered):
+        fresh = groups.get(domain, [])
+        if not fresh:
+            print(f"  no cookies for {domain} - nothing to make")
             continue
         name = jar_name(domain)
         print(f"  {name}: NEW, {len(fresh)} cookies from {domain}")
@@ -385,10 +447,10 @@ def main(argv: list[str] | None = None) -> int:
             (BROWSER / name).write_text(json.dumps(fresh, indent=2),
                                         encoding="utf-8")
 
-    print(f"\n{changed} changed, {unchanged} unchanged, {skipped} left alone"
+    print(f"\n{changed} written, {unchanged} unchanged, {skipped} left alone"
           + (" (dry run - nothing written)" if args.dry_run else ""))
     if not changed:
-        print("her jars already match what is signed in - nothing to do")
+        print("nothing to jar - the profile had no cookies for her jars")
     return 0
 
 
