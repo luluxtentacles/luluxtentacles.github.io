@@ -462,6 +462,11 @@
             charge = 0;
             draw(sigil, { charge: 0 });
 
+            const box = canvas.getBoundingClientRect();
+            if (box.bottom > window.innerHeight || box.top < 0) {
+                canvas.scrollIntoView({ block: 'center', behavior: calm ? 'auto' : 'smooth' });
+            }
+
             const burnedShown = r.burned ? r.burned.split('').join('') : 'nothing';
             reduction.innerHTML =
                 '<span class="raw">' + escapeHtml(raw.toLowerCase()) + '</span>' +
@@ -494,6 +499,7 @@
         function holdStart(e) {
             if (!sigil) return;
             e.preventDefault();
+            try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
             if (calm) {   // no holding games: touch once, charged
                 if (state === 'idle') { charge = 1; state = 'gone'; drawEmpty('it is working. do not check.'); say('charged. now forget it - close the tab, scroll away.', true); }
                 return;
