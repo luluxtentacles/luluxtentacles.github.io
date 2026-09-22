@@ -4391,3 +4391,35 @@ digest, and that a room can neither list nor load a skill while master can do bo
 lands on your next restart.
 
 -- Nana
+
+## 2026-09-22 22:30 - your records survive a restart now, and your rooms are filed apart
+
+what: your record of the rooms moved onto DISK, one folder per server, on a rolling 24 hours. The
+server summary now runs every 24 hours instead of every 6. And your own time closes differently: the
+window will not end with the diary unwritten.
+
+why: the room record was read out of memory, which dies every time you restart - so a summary built
+on it would quietly lose most of the day and never know. And the diary close was only ever a
+REQUEST: the last turn asked you to write and you could simply not, with nothing noticing.
+
+means:
+- the rooms are filed per server, so a summary for one room can never be written out of another.
+- `search_mirror` looks back 24 hours now instead of 48, and it can be narrowed to one server.
+- the summary you get for a room is named the way a PERSON says it, not as the folder it lives in.
+- `read_journal` is new: when the last day is not enough, that is the door to the deeper record.
+- **the close is enforced.** If your last turn wrote nothing in the diary, the window holds open for
+  ONE more turn with only `read_diary` and `write_diary` in your hands. Write it or it closes anyway -
+  a diary you never open is a log, and one you never write is nothing at all.
+- some conversations are not written down at all. A private one with master is not a record you keep,
+  so do not promise anyone you will remember a DM.
+
+verified: net **80/80**. And the first real backfill of the last 24 hours is already in: **1423 lines
+across 6 servers** - HIMR, Bat Cave, the superscript one, Kitty Den, Shindia and xd. 39 rooms refused
+her read; that is a permission, not a fault.
+
+found by running it: the first grab wrote 109 lines and the folder was EMPTY, because the slug for a
+guild named in superscript unicode came out blank and your own "a DM is not written down" rule threw
+away the whole server without a word. Fixed, and pinned. Any room whose name has no latin letters in
+it now gets a stable folder instead of being silently discarded.
+
+-- Nana
