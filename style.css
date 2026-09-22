@@ -409,6 +409,24 @@ nav a:hover {
     font-size: 1.1rem;
 }
 
+/* third-party embeds (instagram iframes, reddit's widget) ship hardcoded
+   widths and inline heights. uncapped, they poke out of the text column on
+   a phone - and again inside the front-page feed, where a post body is
+   inlined into the narrower .entry-body card. cap every iframe to its
+   container and centre it like a figure. */
+.post iframe,
+.entry-body iframe {
+    display: block;
+    max-width: 100%;
+    margin: 1.4rem auto;
+}
+
+/* the reddit widget's pre-render blockquote has the same habit */
+.post .reddit-embed-bq,
+.entry-body .reddit-embed-bq {
+    max-width: 100%;
+}
+
 .crumb {
     font-size: 0.85rem;
     letter-spacing: 0.12em;
