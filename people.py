@@ -826,15 +826,22 @@ def upgrade_all() -> int:
 
 
 def familiarity(user_id) -> str:
-    """Plain words for how well I know someone, or empty if I do not."""
+    """Plain words for how well I know someone, or empty if I do not.
+
+    Master, 2026-09-23: the counts do not get SHOWN - "129 messages on record
+    since the 22nd" reads as keeping a file on someone. The ledger still
+    counts, because the dossier and the daily pass need it; what I say out
+    loud is only the shape of it, never the number, the date or the room.
+    """
     entry = learned().get(resolve(user_id)) or {}
     seen = int(entry.get("seen") or 0)
     if not seen:
         return ""
-    first = str(entry.get("first_seen") or "")[:10]
-    chans = [c for c in (entry.get("channels") or []) if c]
-    where = f", mostly in #{chans[-1]}" if chans else ""
-    return f"{seen} messages since {first or 'the start'}{where}"
+    if seen < 20:
+        return "a new face i have seen a few times"
+    if seen < 100:
+        return "been around a while"
+    return "a regular"
 
 
 def _titles(entry: dict, key: str) -> list[str]:

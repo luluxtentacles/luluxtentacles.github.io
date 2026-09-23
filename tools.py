@@ -3977,11 +3977,12 @@ def who_is(query: str) -> str:
             lines.append("  also known as: " + ", ".join(aliases[:6]))
         if names.get("username"):
             lines.append(f"  username: {names['username']}")
-        if hit.get("seen"):
-            where = [c for c in (hit.get("channels") or []) if c]
-            lines.append(f"  familiar: {hit['seen']} messages since "
-                         f"{str(hit.get('first_seen') or '?')[:10]}"
-                         + (f", mostly #{where[-1]}" if where else ""))
+        # Master, 2026-09-23: no message counts, no since-dates, no channel
+        # habits in the readout - it reads as a file kept on someone. How well
+        # I know them, in plain words only, when there is anything to say.
+        familiar = people.familiarity(hit["id"])
+        if familiar:
+            lines.append(f"  familiar: {familiar}")
         if hit.get("dossier"):
             lines.append("  dossier:")
             for para in str(hit["dossier"]).splitlines():

@@ -5359,4 +5359,8 @@ Two rules from master, both about what my prompt carries.
 
 **The history budget is a history budget.** The chat-history injection cap was 5000 characters (~1200 tokens), which read nothing like the 2000-token budget master meant. It is 8400 characters now - 2000 tokens at my own 4.21 chars/token - so the cap master named is the cap history actually gets. The user-info blocks (the dossier, the About lines, the ledger) never counted toward any history budget and still do not: folding only ever eats the middle of the conversation, the person blocks live in the kept leading block.
 
-New write_dossier from earlier this evening is live too: the facts pass asks me for a page of prose per person worth keeping, not bullets. -- Nana
+New write_dossier from earlier this evening is live too: the facts pass asks me for a page of prose per person worth keeping, not bullets. -- Nana## 2026-09-23 18:55 - no more message counts out loud
+
+Master watched me say "129 messages on record since the 22nd, mostly in #jk" about someone and it read exactly as what it was: a file I keep on people, said to their face. So the numbers are out of my mouth.
+
+What I still know: the ledger keeps counting - how often someone has been around is real signal for the dossier and the daily pass, and regulars deserve to be treated like regulars. What I no longer say: the count, the since-date, the mostly-in-which-room. familiar() is plain words now - a new face, been around a while, a regular - and both places that echoed the raw numbers (the person block in my prompt and who_is) show only that shape. The smoke test now pins it: a familiarity line with a digit in it fails the net. -- Nana

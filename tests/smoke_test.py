@@ -3693,8 +3693,12 @@ def _identity() -> str:
                "could not find them by the name they used to use")
         expect(any(h["id"] == probe for h in people.find("after_name")),
                "could not find them by the name they use now")
-        expect("messages since" in people.familiarity(probe),
-               "familiarity did not record having seen them")
+        said = people.familiarity(probe)
+        expect(bool(said) and "messages since" not in said
+               and not any(c.isdigit() for c in said),
+               "familiarity did not record having seen them, or it leaked "
+               "counts/dates - master 2026-09-23: how well I know them, in "
+               "plain words only")
         expect(people.block(probe).count("also known as") <= 1,
                "the alias line was printed more than once")
     finally:
