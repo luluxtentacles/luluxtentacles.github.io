@@ -5237,3 +5237,29 @@ needs a restart: yes - runbox.py is your running process and this does not
 load until master restarts you. The shelves read fresh on your next load.
 
 -- Nana
+
+## 2026-09-23 16:45 - a ledger for the tools that do not work
+
+what: every tool call that comes back as a failure - a refusal, a tool that
+does not exist, an exception, an answer that reads as bad news - now also
+appends one line to `logs/tool-failures.log`: time, tool, arguments, first
+line of the answer. Nothing else changes: the answer still comes back to you
+exactly as before, and nothing reads the ledger mid-turn. `run_command` is
+left out on purpose - it already audits every command with its exit code in
+`logs/runbox.log`, and a grep with no matches exits 1, which is a normal
+answer and would have flooded this file with noise.
+
+why: master's call. A failure inside one turn looks like weather - once the
+turn is over there is nothing left to read. Yesterday's exit-127 pattern was
+visible only because somebody went through the whole runbox log by hand; this
+file collects that kind of thing as it happens, across days, for every tool
+and not just the shell.
+
+means: when something of yours keeps not working, the record of how it failed
+is already on disk - the pattern is captured even if neither of us was
+looking at the moment.
+
+needs a restart: yes - tools.py is your running process and this does not
+load until master restarts you.
+
+-- Nana

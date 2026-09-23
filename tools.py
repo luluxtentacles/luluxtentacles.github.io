@@ -3819,16 +3819,57 @@ def run(name: str, arguments, allowed: set[str] | None = None) -> str:
     outside it is refused, not quietly executed.
     """
     if allowed is not None and name not in allowed:
-        return f"refused: {name} is not available to you"
+        out = f"refused: {name} is not available to you"
+        _log_failure(name, arguments, out)
+        return out
     handler = DISPATCH.get(name)
     if handler is None:
-        return f"no tool called {name}"
+        out = f"no tool called {name}"
+        _log_failure(name, arguments, out)
+        return out
     try:
-        return handler(arguments or {})
+        out = handler(arguments or {})
     except paths.SandboxError as exc:
-        return f"refused: {exc}"
+        out = f"refused: {exc}"
     except Exception as exc:
-        return f"{type(exc).__name__}: {exc}"
+        out = f"{type(exc).__name__}: {exc}"
+    if looks_failed(out):
+        _log_failure(name, arguments, out)
+    return out
+
+
+# THE FAILURE LEDGER. Master, 2026-09-23: a text file that records every tool
+# call that did not work, so the pattern survives past the turn that noticed
+# it. run() is the one place every call passes through and looks_failed() is
+# the one definition of "did not work", so the ledger hangs off exactly those
+# two and nothing else has to remember it exists. It is passive on purpose -
+# nothing reads it mid-turn, no behaviour changes, the strikes in lulu_bot are
+# still the per-turn guard. This is the across-days view for whoever comes
+# looking later.
+FAILURE_LOG = paths.ROOT / "logs" / "tool-failures.log"
+
+
+def _log_failure(name: str, arguments, result: str) -> None:
+    """Append one line. Never let a logging failure cost her the answer."""
+    if name == "run_command":
+        # run_command already audits every command with its exit code in
+        # logs/runbox.log, and a grep with no matches exits 1 - a NORMAL
+        # answer, not a failure. Counted here it would flood this file with
+        # noise that means nothing.
+        return
+    try:
+        args = str(arguments).replace("\n", " ")
+        if len(args) > 300:
+            args = args[:300] + "...[cut]"
+        lines = (result or "").strip().splitlines()
+        first = (lines[0] if lines else "")[:200]
+        entry = (f"{time.strftime('%Y-%m-%d %H:%M:%S')} {name} :: "
+                 f"{args} :: {first}\n")
+        FAILURE_LOG.parent.mkdir(parents=True, exist_ok=True)
+        with FAILURE_LOG.open("a", encoding="utf-8") as handle:
+            handle.write(entry)
+    except Exception:
+        pass
 
 
 # What a FAILED tool result looks like, and the words she is told about it. Both
