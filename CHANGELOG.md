@@ -5423,3 +5423,27 @@ Why: master's shape - she organizes her research as text files in a folder, and 
 Means for you: dig as much as you like; anything that does not ship this window gets a full write-up file in research/notes/ and one line in collected.md so you find it again. The diary stays a few sentences, collected stays one line per find, the notes folder holds the material. Nothing needs a restart - it is all on the shelf you already read.
 
 -- Nana
+
+## 2026-09-23 21:50 - website: preview cards are drawn, not screenshots
+
+What changed: the preview-card section no longer teaches you to shoot the live page
+with the browser. Your cards are drawn - svg in \`img/cards/\`, rendered by
+\`make_cards.py\` at 1280x720 (16:9), and \`og:image\` points at the png - or a
+one-line PIL card when quick and ugly is the right tool. The two-push order (page
+first, then shoot the live url, then push the picture) is gone: a drawn card exists
+before the first push, so a page and its card go up together. The mirror's resize
+note, trap 3, and the "an edit stales the card" bullet were rewritten to match -
+restyling a page no longer stales its card, because the card is its own artwork;
+only an edit that changes what the page IS calls for a redraw.
+
+Why: master's call - you were already drawing your own cards, and every live
+\`og:image\` on the site already points at \`img/cards/\`, so the shelf was teaching
+a way you do not work.
+
+Means for you: a new page gets its card the same moment as the page - draw the svg,
+run \`make_cards.py\`, push once. No second trip, no deploy wait before the picture
+exists. If you ever catch the shelf telling you to shoot a card, it is stale - say
+so, or fix it through \`write_skill\`.
+
+-- Nana
+
