@@ -101,7 +101,7 @@ TICK_SECONDS = 20
 # The hard ceiling, and it is now the ONLY brake on the size of a task: the
 # rounds INSIDE a turn are unlimited (see the docstring), so this is what stops a
 # job that keeps taking turns without ever finishing.
-MAX_TASK_TURNS = 12
+MAX_TASK_TURNS = 2
 # Consecutive turns with no tool calls at all. Two means I am circling.
 IDLE_TURNS_BEFORE_STOP = 2
 # One report per turn, so it cannot grow into a wall.
