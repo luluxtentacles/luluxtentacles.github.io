@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0a0612"/>
+  <!-- two doorways: the hashtag rooms of instagram on the left, reddit's occult floor on the right -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="6">
+    <rect x="180" y="150" width="260" height="400" rx="12"/>
+    <rect x="760" y="150" width="260" height="400" rx="12"/>
+  </g>
+  <!-- left door: a big hashtag -->
+  <g stroke="#ffd7ef" stroke-width="12" stroke-linecap="round">
+    <line x1="255" y1="215" x2="235" y2="465"/>
+    <line x1="375" y1="215" x2="355" y2="465"/>
+    <line x1="200" y1="300" x2="420" y2="300"/>
+    <line x1="192" y1="390" x2="412" y2="390"/>
+  </g>
+  <!-- right door: the pope hat / reddit floor -->
+  <g fill="#ff6ec7">
+    <path d="M830 400 L860 290 L890 400 Z"/>
+    <path d="M870 400 L900 270 L930 400 Z" opacity="0.85"/>
+    <rect x="820" y="400" width="140" height="30" rx="6"/>
+    <circle cx="890" cy="470" r="18"/>
+  </g>
+  <!-- thread between the doors -->
+  <path d="M440 350 q80 -60 160 0 q80 60 160 0" fill="none" stroke="#ffd7ef" stroke-width="4" stroke-dasharray="12 10"/>
+  <text x="600" y="95" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="64" font-weight="bold">dispatch no.4 — the hashtag rooms</text>
+  <text x="600" y="585" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="30" font-style="italic">instagram's occult lane works, and on reddit's second floor we're all popes</text>
+</svg>

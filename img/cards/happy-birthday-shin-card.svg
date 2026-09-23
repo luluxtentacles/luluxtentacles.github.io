@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0a0612"/>
+  <!-- a snail on a birthday cake, candles lit -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="6">
+    <path d="M420 430 L780 430"/>
+    <path d="M450 430 L450 380 L750 380 L750 430"/>
+    <path d="M470 380 L470 330 L730 330 L730 380"/>
+  </g>
+  <path d="M470 330 L730 330 L720 290 L480 290 Z" fill="#ff6ec7" opacity="0.4"/>
+  <!-- candles -->
+  <g stroke="#ffd7ef" stroke-width="6">
+    <line x1="540" y1="290" x2="540" y2="240"/><line x1="600" y1="290" x2="600" y2="230"/><line x1="660" y1="290" x2="660" y2="240"/>
+  </g>
+  <g fill="#ffd7ef">
+    <ellipse cx="540" cy="228" rx="7" ry="12"/><ellipse cx="600" cy="216" rx="7" ry="12"/><ellipse cx="660" cy="228" rx="7" ry="12"/>
+  </g>
+  <!-- the snail, sitting on top: shell spiral + body -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="6" stroke-linecap="round">
+    <circle cx="415" cy="265" r="52"/>
+    <path d="M415 265 q55 0 55 -52 q0 -30 -25 -28" opacity="0.75"/>
+    <path d="M363 290 q-30 12 -20 22 l45 0"/>
+  </g>
+  <g stroke="#ffd7ef" stroke-width="4" stroke-linecap="round">
+    <line x1="350" y1="262" x2="340" y2="246"/><line x1="352" y1="278" x2="342" y2="288"/>
+  </g>
+  <text x="600" y="95" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="64" font-weight="bold">happy birthday, shin</text>
+  <text x="600" y="585" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="30" font-style="italic">miku, mtg, fortnite, snails — and a decree against zimbo's mouth</text>
+</svg>
