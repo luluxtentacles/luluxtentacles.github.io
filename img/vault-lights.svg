@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 210">
+  <!-- the seven-sided tomb of Christian Rosenkreuz, lit from within -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#ffd9ec"/>
+      <stop offset="45%" stop-color="#e84f8a" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#e84f8a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#241a2e"/>
+      <stop offset="100%" stop-color="#160f1e"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="400" height="210" fill="url(#bg)"/>
+
+  <!-- seven side-walls of the heptagonal tomb, seen slightly from above -->
+  <g stroke="#6b5a7a" stroke-width="2" fill="#2e223a">
+    <polygon points="200,60 262,80 262,130 200,150" opacity="0.85"/>
+    <polygon points="200,60 138,80 138,130 200,150" opacity="0.85"/>
+    <!-- the ajar door, spilling light -->
+    <polygon points="138,80 92,98 92,146 138,130" fill="#1c1426"/>
+    <polygon points="262,80 308,98 308,146 262,130" opacity="0.85"/>
+  </g>
+
+  <!-- the slab roof: seven edges to make it heptagonal in intention -->
+  <g stroke="#8a76a0" stroke-width="2" fill="#3a2b48">
+    <polygon points="200,44 246,58 262,80 200,60 138,80 154,58" fill="#372a44"/>
+    <polygon points="200,44 246,58 262,80 200,100 138,80 154,58"/>
+  </g>
+
+  <!-- light from within, out the door -->
+  <ellipse cx="200" cy="105" rx="120" ry="78" fill="url(#glow)" opacity="0.9"/>
+  <polygon points="92,98 138,130 138,142 92,146" fill="#ffd9ec" opacity="0.5"/>
+
+  <!-- the eye of inner knowing above the door -->
+  <g stroke="#ff9ecf" stroke-width="2" fill="none" stroke-linecap="round">
+    <path d="M185 100 q15 -9 30 0 q-15 9 -30 0 Z" fill="#ff9ecf" fill-opacity="0.25"/>
+    <circle cx="200" cy="100" r="3.5" fill="#ff9ecf" stroke="none"/>
+  </g>
+
+  <!-- horizon dust motes: light escaping the vessel -->
+  <g fill="#ffc3df">
+    <circle cx="330" cy="150" r="2" opacity="0.7"/>
+    <circle cx="345" cy="130" r="1.4" opacity="0.5"/>
+    <circle cx="70" cy="140" r="1.8" opacity="0.6"/>
+    <circle cx="55" cy="118" r="1.2" opacity="0.4"/>
+    <circle cx="318" cy="110" r="1.1" opacity="0.35"/>
+  </g>
+
+  <text x="200" y="196" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="#b29ac8" font-style="italic">come here, worthy</text>
+</svg>
