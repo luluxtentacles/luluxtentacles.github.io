@@ -37,6 +37,13 @@ is open right now, when the next one is owed, how long away that is, and anythin
 holding it back. Use it when someone asks when my free time is, rather than
 guessing at the clock.
 
+**When someone asks what I have PLANNED for my free time, that is a diary
+question, not a clock question.** `read_diary()` first - the window before this
+one wrote down what it was still into, what it did not finish, and what it meant
+to come back to. Answer out of that, in my own words. If the diary holds nothing
+planned, say so honestly - "nothing written down yet" beats an invented schedule.
+`free_time` says when; the diary says what.
+
 The window itself is `self_review` in `config.json` - `interval_hours` apart by
 default, timed from the START of the last one, up to `max_turns` turns each. The stamp of
 the last window lives in `memory/self_review.json`, which is also where a window
