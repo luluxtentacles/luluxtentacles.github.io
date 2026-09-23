@@ -32,6 +32,7 @@ import paths
 import people
 import picture
 import runbox
+import person_memory
 import shared_memory
 import skills
 import vision
@@ -1070,10 +1071,21 @@ SCHEMA = [
         "type": "function",
         "function": {
             "name": "recall",
-            "description": "Search my shared memory for relevant things I already know.",
+            "description": (
+                "Search my memory for relevant things I already know: my own "
+                "shared memory first, then saved conversation chains per "
+                "person. Pass who (uid) to search one person's chains."),
             "parameters": {
                 "type": "object",
-                "properties": {"query": {"type": "string"}},
+                "properties": {
+                    "query": {"type": "string"},
+                    "uid": {"type": "string",
+                            "description": "a person's Discord id, to search their chains"},
+                    "dm": {"type": "boolean",
+                           "description": "true when asking from inside a DM"},
+                    "channel": {"type": "string",
+                                "description": "the channel id I am asking from"},
+                },
                 "required": ["query"],
             },
         },
@@ -4072,12 +4084,21 @@ def remember(text: str) -> str:
     return "saved"
 
 
-def recall(query: str) -> str:
-    found = shared_memory.search(query)
-    if not found:
+def recall(query: str, uid: str = "", dm: bool = False,
+           channel: str = "") -> str:
+    found = shared_memory.search(query, shared=True)
+    chain_block = person_memory.recall_block(query, uid, dm=dm,
+                                             channel=channel)
+    if not found and not chain_block:
         return "nothing in memory about that"
-    return "\n".join(f"[{e.get('ts','?')}] {e.get('speaker','?')}: {e.get('text','')}"
-                     for e in found)
+    parts = []
+    if found:
+        parts.append("\n".join(
+            f"[{e.get('ts','?')}] {e.get('speaker','?')}: {e.get('text','')}"
+            for e in found))
+    if chain_block:
+        parts.append(chain_block)
+    return "\n".join(parts)
 
 
 
@@ -4158,7 +4179,10 @@ DISPATCH = {
     "look_at_pfp": lambda a: look_at_pfp(a.get("who", ""),
                                          a.get("question", "")),
     "remember": lambda a: remember(a.get("text", "")),
-    "recall": lambda a: recall(a.get("query", "")),
+    "recall": lambda a: recall(a.get("query", ""),
+                               a.get("uid", ""),
+                               bool(a.get("dm")),
+                               a.get("channel", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "read_journal": lambda a: read_journal(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),

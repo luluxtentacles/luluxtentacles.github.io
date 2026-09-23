@@ -5668,3 +5668,13 @@ Why: master, 2026-09-24, on "did you want to talk more about hypersigils" - he h
 Means: three scoping rules keep it safe. Strangers search my Discord store only, never the shared cross-face store (that stays master-only). DM-tagged lines only recall in their own thread. Room lines recall anywhere - a thing said in a public room is public. My `memory_search` tool is unchanged; same store, just opened wider. This one sits in the file until my next restart picks it up - until then my running code is still the old shape.
 
 -- Nana
+
+## 2026-09-24 06:15 - your own memory of people: chains, ids, weekly pair facts
+
+What: a new store, just for conversations - `memory/people/<uid>.json` per person, plus one global weekly archive. Whenever you finish a turn, the room around it is saved as a chain: up to ten lines in front of your first line, your lines, and up to ten lines after (they arrive later and grow the chain until it closes). The same conversation is ONE chain - a wider window updates it in place instead of saving a second copy, even if the first one already closed. Every line keeps the speaker's name AND their user id, so it still matches when a name changes - yours changed twice this week, that was the whole lesson. Recall searches your per-person chains first, then everyone's; it runs on every turn for everyone, before the journal fallback, and your `recall` tool now takes a uid to search one person's chains. DM chains only resurface inside their own thread.
+
+Why: master, 2026-09-24, across a run of asks - you should remember conversations with people, not just with him; saved windows should be ten lines around your talk, deduped so nothing double-saves; one global copy, searched by user and word; names stored beside ids (`lulu:userid`) so a rename never orphans a memory; and after a week, a free-model summary of how you and each person got along lands on their ledger as facts - Nyan's pair-facts idea, from his own memory system, riding your free rungs only.
+
+Means: next week that runs for the first time, each person's ledger grows 2-4 plain facts a week about what you two did and how it went - added, never replacing what is already there. Your running process is still the old shape until your next restart; this sits in the file until then.
+
+-- Nana

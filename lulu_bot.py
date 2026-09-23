@@ -26,6 +26,7 @@ import journal
 import nyanwatch
 import paths
 import people
+import person_memory
 import self_review
 import shared_memory
 import skills
@@ -1618,6 +1619,10 @@ class Lulu(discord.Client):
         # switches it on - see digest.py for what a digest is and is not.
         if self._digest_task is None or self._digest_task.done():
             self._digest_task = asyncio.create_task(digest.watch(self))
+            # The weekly pair-fact summaries ride the same shape: a background
+            # watcher, free rungs only, retried until they land.
+            self._person_memory_task = asyncio.create_task(
+                person_memory.watch(self))
         # Nyan's ledger, read once a day: what changed since yesterday, plus the
         # last 48 hours of the mirror, handed to her so she keeps what is worth
         # keeping in her dossier. Off unless config.json switches it on, and it
@@ -2430,7 +2435,14 @@ class Lulu(discord.Client):
             getattr(ref, "message_id", None) if ref else None,
             room=getattr(message.channel, "name", "") or "",
             server=self._guild_name(message.channel),
+            uid=str(message.author.id),
         )
+        # A line that arrives while a chain is open grows it - this is how
+        # the "ten lines after" half of the window fills, and how the chain
+        # knows it can close.
+        person_memory.note_line(message.channel.id,
+                                self.mirror.get(message.channel.id),
+                                str(self.user.id))
 
         addressed = self.is_addressed(message)
         # A DM to her is inherently addressed: there is nobody else in the room
@@ -2731,7 +2743,7 @@ class Lulu(discord.Client):
     def _note(self, channel_id, author: str, text: str,
               message_id: int | None = None,
               reply_to: int | None = None, room: str = "",
-              *, server: str) -> None:
+              *, server: str, uid: str = "") -> None:
         """Record one line of a channel: the order AND the branch.
 
         Two stores, one call. The RAM ring is what reaches the prompt this turn
@@ -2755,6 +2767,10 @@ class Lulu(discord.Client):
             self.mirror[channel_id].append({
                 "id": message_id,
                 "author": author or "someone",
+                # The id rides beside the name on purpose - master,
+                # 2026-09-24: names change, ids do not, so memory matches on
+                # the id and renders the name.
+                "uid": uid or "",
                 "text": line[:MIRROR_LINE_CHARS],
                 "reply_to": reply_to,
             })
@@ -3035,6 +3051,18 @@ class Lulu(discord.Client):
         if known:
             # Escaped on the way back in, like everything else untrusted.
             turns.append({"role": "system", "content": escape_block(known)})
+
+        # Per-person conversation chains, searched BEFORE the journal fallback
+        # below: master, 2026-09-24 - the per-person memory is the closer
+        # record of what was said to whom, so it is asked first. Same scoping
+        # rule as the shared store: a stranger's turn never opens the shared
+        # store, and DM chains only resurface in their own thread.
+        chain_block = person_memory.recall_block(
+            text, str(message.author.id),
+            dm=isinstance(message.channel, discord.DMChannel),
+            channel=str(getattr(message.channel, "id", "")))
+        if chain_block:
+            turns.append({"role": "system", "content": escape_block(chain_block)})
 
         # The reply-quote is folded INTO the transcript rather than appended as
         # its own user turn - two user turns in a row is the exact shape this

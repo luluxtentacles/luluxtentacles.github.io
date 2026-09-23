@@ -350,7 +350,8 @@ def _compiles() -> str:
 def _imports() -> str:
     import paths
     paths.pin_cwd()  # narrows writes to her folder; same as startup does
-    mods = ["paths", "brain", "skills", "shared_memory", "people", "journal",
+    mods = ["paths", "brain", "skills", "shared_memory", "people",
+            "person_memory", "journal",
             "webtool", "tools", "bot_text", "bot_restart", "lulu_bot"]
     bad = []
     for name in mods:
@@ -3314,6 +3315,8 @@ def _entrypoint() -> str:
 MODULE_API = {
     "webtool": ("fetch",),
     "shared_memory": ("context_block", "remember", "search"),
+    "person_memory": ("note_lulu_turn", "note_line", "recall_block",
+                      "search", "summarize_due"),
     "journal": ("read_diary", "write_diary", "note_digest", "read_digest",
                 "note_said", "read_said", "note_mirror", "search_mirror"),
     "nyanwatch": ("settings", "due", "watch", "maybe_run", "diff", "sweep"),
