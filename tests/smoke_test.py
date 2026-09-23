@@ -5813,6 +5813,8 @@ def _skill_rules() -> str:
     # The guarantee, before anything else: the curated file does not move.
     skill_md = paths.resolve(".agents/skills/website/SKILL.md")
     before = skill_md.read_bytes()
+    rules_md = paths.resolve(".agents/skills/website/RULES.md")
+    rules_before = rules_md.read_bytes() if rules_md.is_file() else None
 
     captured = []
     real_patch = tools.propose_patch
@@ -5834,22 +5836,32 @@ def _skill_rules() -> str:
         expect(not captured,
                "a rule with no home was staged - the menu is not a patch")
 
+        # Master, 2026-09-23: a rule is written STRAIGHT to the addendum - the
+        # shelf is re-read on every catalog() call, so staging only delayed the
+        # rule going live and bounced her for nothing. The curated SKILL.md
+        # above is the thing that stays gated.
         out = tools.add_rule("website", "keep the top ticker current",
                              "site, ticker")
         expect(not out.startswith("refused:"), f"a plain rule was refused: {out!r}")
+        expect(not captured,
+               "a rule reached the staging pipeline - it goes straight to disk")
+        expect("live now" in out, "a filed rule did not say it went live")
+        expect(rules_md.is_file(), "the filed rule never reached the addendum")
+        on_disk = rules_md.read_text(encoding="utf-8")
+        expect("ticker" in on_disk and "triggers:" in on_disk,
+               "the filed addendum lost the rule or its declared triggers")
+        expect(skill_md.read_bytes() == before,
+               "add_rule modified website/SKILL.md - the addendum exists so "
+               "the curated file stays byte-identical")
+        # Idempotence: the fixture rule must not survive the test, or the
+        # next run dedupes it and fails against its own leavings.
+        if rules_before is None:
+            if rules_md.exists():
+                rules_md.unlink()
+        else:
+            rules_md.write_bytes(rules_before)
     finally:
         tools.propose_patch = real_patch
-
-    expect(captured, "add_rule staged nothing at all")
-    path, content = captured[0]
-    expect(path == ".agents/skills/website/RULES.md",
-           f"a rule was staged somewhere else: {path!r}")
-    expect("SKILL.md" not in path, "a rule was written into the skill itself")
-    expect("ticker" in content and "triggers:" in content,
-           "the staged addendum lost the rule or its declared triggers")
-    expect(skill_md.read_bytes() == before,
-           "add_rule modified website/SKILL.md - the addendum exists so the "
-           "curated file stays byte-identical")
 
     # The refusals that keep an addendum honest.
     try:

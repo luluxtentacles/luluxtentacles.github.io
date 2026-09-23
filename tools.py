@@ -2619,8 +2619,13 @@ def write_skill(skill_id: str, description: str, body: str) -> str:
     sid = skill_id.strip().lower()
     if skills.load(sid):
         return (f"refused: '{sid}' is already on my shelf, and write_skill "
-                f"replaces a whole file - that would wipe the one that is "
-                f"there. Use add_rule to append a rule to it instead.")
+            f"replaces a whole file - that would wipe the one that is "
+            f"there. Use add_rule to append a rule to it instead.")
+    # A whole-file compose stays gated, deliberately: SKILL.md bodies are the
+    # curated craft (website alone is 31 KB), and the wall - stageable, never
+    # directly writable - is what keeps one bad write from eating one. New
+    # SKILL.md files go through the pipeline; only the RULES.md addendum is
+    # live-written, because that is her notebook, not craft (master, 2026-09-23).
     return propose_patch(f"{skills.SHELF}/{sid}/SKILL.md", text,
                          f"add the {sid} skill")
 
@@ -2661,8 +2666,18 @@ def add_rule(skill_id: str, rule: str, triggers: str = "") -> str:
         text = skills.append_rule(skill.id, rule, existing, triggers)
     except ValueError as exc:
         return f"refused: {exc}"
-    return propose_patch(relative, text,
-                         f"append a rule to the {skill.id} skill")
+    # Straight to disk, NOT through the staging pipeline. Master, 2026-09-23:
+    # "she shouldnt even need to restart when adding a rules.md". The shelf is
+    # re-read from disk on every catalog() call, so the staged path only
+    # DELAYED the rule going live and bounced me for nothing. Every check that
+    # matters - dedupe, one-line cap, addendum size cap - already ran in
+    # append_rule above; this write is the only thing left to do.
+    try:
+        paths.write_text(relative, text, internal=True)
+    except Exception as exc:
+        return f"could not write the addendum: {exc}"
+    return (f"filed - {skill.id}'s addendum is live now, no restart. "
+            f"Commit it so master sees it.")
 
 
 def web_fetch(url: str) -> str:
