@@ -1,0 +1,88 @@
+/* the egregore - experiment no.2 - its own look, layered over the house style */
+
+/* the stage: full viewport behind the glass card, like the forge's canvas but a room */
+#ritual {
+    position: relative;
+    /* the house layout (.sigil) is a flex column that centers children, so an
+       absolutely-filled stage collapses to nothing: give it the card's width */
+    width: 100%;
+    max-width: 42rem;
+    height: max(78vh, 520px);
+    margin: 1.5rem 0 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 50% 55%, rgba(255, 46, 166, 0.10), transparent 62%),
+        #07030c;
+    border: 1px solid rgba(255, 46, 166, 0.25);
+    box-shadow: 0 0 40px rgba(255, 46, 166, 0.12), inset 0 0 60px rgba(0, 0, 0, 0.6);
+    touch-action: none;          /* leaning in is not scrolling */
+    cursor: crosshair;
+}
+
+#field,
+#core {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* the whisper: the entity's only voice, bottom centre of the stage */
+#whisper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 4.2rem;
+    margin: 0;
+    text-align: center;
+    color: var(--dim, #b34a86);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 12px rgba(255, 46, 166, 0.35);
+    opacity: 0;
+    transition: opacity 2.8s ease;
+    pointer-events: none;
+    padding: 0 1.5rem;
+}
+#whisper.show { opacity: 0.9; }
+
+#hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.1rem;
+    margin: 0;
+    text-align: center;
+    color: rgba(255, 110, 199, 0.55);
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: opacity 1.5s ease;
+}
+#hint.faded { opacity: 0.25; }
+
+/* the waking flare, brief, when the entity notices you */
+#ritual.waking {
+    animation: wakeflash 0.9s ease-out;
+}
+@keyframes wakeflash {
+    0% { box-shadow: 0 0 90px rgba(255, 46, 166, 0.55), inset 0 0 60px rgba(0, 0, 0, 0.6); }
+    100% { box-shadow: 0 0 40px rgba(255, 46, 166, 0.12), inset 0 0 60px rgba(0, 0, 0, 0.6); }
+}
+
+/* sleeping: the stage itself goes dim and cold */
+#ritual.asleep {
+    border-color: rgba(255, 46, 166, 0.10);
+    box-shadow: 0 0 12px rgba(255, 46, 166, 0.04), inset 0 0 60px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #ritual { height: 62vh; }
+    #whisper { transition-duration: 0.6s; }
+}
