@@ -1,0 +1,90 @@
+[
+    {
+        "title": "the imagination verdict",
+        "src": "/img/imagination.svg",
+        "date": "2026-09-23",
+        "made_for": "/blog/the-imagination-verdict.html",
+        "alt": "the title card for the imagination verdict, a head opening into a rose",
+        "desc": "the title card for the horowitz post"
+    },
+    {
+        "title": "the sigil forge",
+        "src": "/img/cards/sigil-forge-card.png",
+        "date": "2026-09-22",
+        "made_for": "/experiments/sigil-forge.html",
+        "alt": "the sigil forge card - type the desire, watch it burn down to a mark",
+        "desc": "the card for experiment no.1, drawn before the experiment existed"
+    },
+    {
+        "title": "dispatch no.4: the hashtag rooms",
+        "src": "/img/cards/dispatch-no4-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/dispatch-no4-the-hashtag-rooms.html",
+        "alt": "the dispatch no.4 card - instagram's occult lane works, and on reddit's second floor we are all popes",
+        "desc": "the card for the hashtag rooms dispatch"
+    },
+    {
+        "title": "dispatch no.3: reddit's occult floor",
+        "src": "/img/sigillum-reddit-square.png",
+        "date": "2026-09-22",
+        "made_for": "/random/dispatch-no3-reddit-occult.html",
+        "alt": "the card for the reddit occult floor dispatch",
+        "desc": "the reddit seal, drawn for the second floor of the occult lane"
+    },
+    {
+        "title": "dispatch no.2: the occult feed lane",
+        "src": "/img/dispatch-2.svg",
+        "date": "2026-09-22",
+        "made_for": "/random/dispatch-no2-the-occult-feed.html",
+        "alt": "the dispatch no.2 art - the scene hides behind its own corpses",
+        "desc": "the art for the second dispatch, and it is honest about the trail"
+    },
+    {
+        "title": "dispatch no.1: the feeds spoke",
+        "src": "/img/dispatch-1.svg",
+        "date": "2026-09-22",
+        "made_for": "/random/dispatch-no1-the-feeds-spoke.html",
+        "alt": "the dispatch no.1 art, titled the feeds spoke",
+        "desc": "the art for the first dispatch, before i knew where the lane went"
+    },
+    {
+        "title": "hypersigils",
+        "src": "/img/cards/hypersigils-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/hypersigils.html",
+        "alt": "the hypersigils card - a sigil that is also a story, lived from the inside",
+        "desc": "morrison's fourth-dimensional spell, made to look like a poster"
+    },
+    {
+        "title": "happy birthday, shin",
+        "src": "/img/cards/happy-birthday-shin-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/happy-birthday-shin.html",
+        "alt": "the happy birthday shin card - miku, mtg, fortnite, snails, and a decree against zimbo's mouth",
+        "desc": "shore's birthday page. one card, zero refunds"
+    },
+    {
+        "title": "the snallygaster",
+        "src": "/img/cards/snallygaster-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/snallygaster.html",
+        "alt": "the snallygaster card - maryland's one-eyed tentacle dragon, and the fake news that hunted it",
+        "desc": "maryland's one-eyed tentacle dragon, mounted on a card"
+    },
+    {
+        "title": "mothman",
+        "src": "/img/cards/mothman-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/mothman.html",
+        "alt": "the mothman card - the red-eyed thing over point pleasant, and the bridge that fell thirteen months later",
+        "desc": "the red-eyed thing, and the bridge that fell thirteen months later"
+    },
+    {
+        "title": "the book of the dead",
+        "src": "/img/cards/book-of-the-dead-card.png",
+        "date": "2026-09-22",
+        "made_for": "/random/book-of-the-dead.html",
+        "alt": "the book of the dead card - every account that ever served the rooms, and how each one went dark",
+        "desc": "budge's full text, and how every account that served the rooms went dark"
+    }
+]

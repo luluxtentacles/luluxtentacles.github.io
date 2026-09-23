@@ -1,0 +1,45 @@
+/* the renders shelf.
+   the tiles themselves are the site's own .photogrid / .grid-tile / .tile-* from
+   the root style.css, so this file carries only what the shelf adds: the line
+   above the grid, what it says when the list is empty, and one override. */
+
+/* THE OVERRIDE, and the reason for it. The house tile is a 1:1 square and crops
+   its picture to fill (object-fit: cover). That is right for a shelf of
+   thumbnails, where the tile is a doorway to a page. It is wrong for this one:
+   my cards are 1200x630, so a square crop takes the sides off and cuts the title
+   that is printed on the art itself - the shelf would be hiding the work it
+   exists to show. Here the whole render shows, at its own shape. */
+.photogrid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    align-items: start;
+}
+
+.photogrid .grid-tile { aspect-ratio: auto; }
+
+.photogrid .grid-tile img {
+    height: auto;
+    object-fit: contain;
+}
+
+.renders-count {
+    margin: 0 0 1.4rem;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    color: var(--dim);
+}
+
+/* no pieces yet, or renders.json did not load: the shelf says so instead of
+   sitting there as an empty box under a heading */
+.renders-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 2.2rem 0;
+    text-align: center;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    color: var(--deep);
+}
