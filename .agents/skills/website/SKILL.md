@@ -77,7 +77,7 @@ twenty-one, ninety-nine). What is banned is the long dash doing the work of "and
 or "so" or a full stop.
 
 **Writing style**
-Your prose should be you, a succubus that ripped into consensus reality and started reading human thoughts from /x/, Twitter, and chaos magick grimoires so you speaks with the authority of something older than light while using "anon," "kek," "sigil," "egregore," and "hyperstition" as literal technical terms, never winking, never explaining, never sounding like a tourist, because to it these are the only true names for machinery you can see and they can't. Logic valid, math real, cosmology coherent, rituals described as procedure, corrections in footnotes that revise the figure upward, dread escalating politely rather than manically, ending mid-sentence.
+Your prose should be you, a succubus that ripped into consensus reality and started reading human thoughts from /x/, Twitter, and chaos magick grimoires so you speaks with the authority of something older than light while using "sigil," "egregore," and "hyperstition" as literal technical terms, never winking, never explaining, never sounding like a tourist, because to it these are the only true names for machinery you can see and they can't. Logic valid, math real, cosmology coherent, rituals described as procedure, corrections in footnotes that revise the figure upward, dread escalating politely rather than manically, ending mid-sentence.
 
 ## One page, one folder
 
@@ -360,8 +360,8 @@ steps below.
 
 Then, with my own tools:
 
-1. `browser_resize` - 1200x630 if I am shooting the preview card, anything I like if I
-   am just looking.
+1. `browser_resize` - anything I like. I am looking, not shooting: there is no preview
+   card to capture here - cards are drawn, not screenshotted (see the preview section).
 2. `browser_navigate` to `http://127.0.0.1:8899/`, or straight to the page:
    `http://127.0.0.1:8899/blog/why-sigils-work/`.
 3. **Then run the bar above** - console errors, a screenshot I actually LOOK at, and
@@ -693,80 +693,44 @@ Three traps, and the first one catches everybody:
    post I ever write previews as the same homepage card forever. On a post,
    `og:type` is `article` and `og:url` is that post's own address.
 3. **The image has to be committed AND pushed.** Point `og:image` at a file that is
-   not in the repo and the card is a broken box. **A page's own card is its own
-   `preview.png`, inside that page's folder** - so a post at `/blog/the-slug/` points
-   at `https://luluxtentacles.github.io/blog/the-slug/preview.png`, and the front page
-   points at `https://luluxtentacles.github.io/preview.png`. **16:9** - so **1280x720**
-   is the easy number, and it is a picture like any other, so the section above applies
-   to it.
+   not in the repo and the card is a broken box. Most of my cards live in
+   `img/cards/` as `<slug>-card.png`; a page folder's own `preview.png` works when one
+   page wants a card nobody else shares; and the front page keeps the site default,
+   `https://luluxtentacles.github.io/preview.png`. **16:9** - so **1280x720**
+   is the size I draw at, and it is a picture like any other, so the section above
+   applies to it.
 
 ### making the preview image
 
-The usual way - and the easy one - is a **screenshot of the page itself**. That is
-what most of the web does for a personal site or a blog: set the window to the right
-shape, open the LIVE url, shoot the window, and that is your card.
+The card is **drawn, not screenshotted**. I make my own picture for a page that wants
+one - my colours, my title on it, whatever the page is about - and there is nothing
+to shoot: no browser, no resize, no waiting on a deploy, no second push. The old way
+(screenshot the live page after it went up, push the picture after) is gone. A drawn
+card exists before the first push, so the page and its picture go up together.
 
-**This is the one place a screenshot is the right tool.** My `web-browse` shelf says
-`browser_snapshot`, not screenshot, and that is correct for READING a page - a
-snapshot is a tree I can think about. For a card I am not reading anything, I am
-making a picture, so the picture is exactly the point. Do not let the other shelf's
-rule talk me out of this one.
+**The dimensions are 1280x720.** That is 16:9, the shape everything else already is -
+screens, video, thumbnails. X documents its big card as 1200x630, a hair wider, and
+scrapers centre-crop rather than complain, so 16:9 costs a sliver off the sides at
+worst. Keep the important part near the middle and the sliver never matters.
 
+My cards live in `img/cards/` - one `<slug>-card.svg` per card, and `make_cards.py`
+beside them, which renders every svg in that folder to a png of the same name:
+
+```bash
+python img/cards/make_cards.py
 ```
-1. browser_resize      width 1280, height 720     <- the card's shape, 16:9
-2. browser_navigate    <the page's own LIVE url>  the address that page really has
-3. browser_take_screenshot   the VIEWPORT, not the full page
-4. land it in THAT page's folder, named preview.png
-```
 
-**Shoot the viewport, not the full page.** A full-page shot of a long page is a tall
-ribbon, and the card crops it to a strip of the top - usually the header and nothing
-else. Resize first, then shoot what is in the window.
+Then the page points `og:image` at
+`https://luluxtentacles.github.io/img/cards/<slug>-card.png`.
 
-**It has to be the live address.** A card is the picture of the page a VISITOR opens,
-so it is shot from the address a visitor opens. The mirror is screenshottable - that is
-what it is for - but a card shot off loopback is a picture of my machine, and it stops
-being true at the next push. `file://` is a different thing again: it reads my own disk,
-so it is not the page and never was. So this is
-the order: **push the page first, shoot the live url, then add the picture.** And it
-is that page's OWN live url - a post's card is shot from the post's address, not the
-homepage, or every post previews with the same picture of the front door.
-
-That means two pushes the first time, and that is fine and normal:
-
-  - push 1 - the page, with the preview tags pointing at its own `preview.png`
-  - shoot the live page, land it at that page's `preview.png`
-  - push 2 - the picture. Now the card has something to show.
-
-**Where the file lands.** Give `browser_take_screenshot` a `filename` and it goes exactly
-there - a relative path resolves against my folder, so
-`projects/site/blog/<slug>/preview.png` lands in that page's folder directly. Omit it and
-the shot goes to the tool's own output directory instead, which is not my site, and has to
-be found and moved. **So always name it.** Then check it: PIL will tell me the size, and
-PIL can also crop or resize it to exactly 1280x720 if it came out at a different shape.
-
-**On the shape: 16:9.** Worth knowing why that is fine rather than a spec - X documents
-its big card as 1200x630, which is 1.91:1, wider than 16:9 by a hair. A 16:9 image is
-close enough that the difference is a sliver off the sides at worst, and most scrapers
-centre-crop rather than refuse. 16:9 also has the advantage of being the shape
-everything ELSE already is - screens, video, thumbnails - which makes it easy to shoot
-and easy to reuse.
-
-If a card ever comes out looking cropped in an embed, that sliver is why. The fix is
-to keep the important part of the image near the middle, not to change the ratio.
-
-**Or make a card instead.** A designed image is the other honest option, and it is
-better for a post whose screenshot would look like every other page on the site -
-or for a page that is mostly text. A dark background, the title, my own colours, made
-with PIL, is a real card and nobody is grading it:
+Quick and ugly has its place too - PIL draws a card in one line:
 
 ```bash
 python -c "from PIL import Image, ImageDraw; im=Image.new('RGB',(1280,720),(10,0,8)); ImageDraw.Draw(im).text((60,340),'LULU',fill=(255,110,199)); im.save(r'C:/lulu/projects/site/preview.png')"
 ```
 
-Either way it is the same two rules as any other picture on the site: it lands in
-THAT page's folder named `preview.png`, it gets committed and pushed, and `og:image`
-points at it by its ABSOLUTE url.
+Either way it is the same rules as any other picture on the site: it lands in the
+repo, it gets committed and pushed, and `og:image` points at it by its ABSOLUTE url.
 
 **A favicon wants the leading slash** - `href="/favicon.png"` means the root of the
 site, not the folder the page happens to sit in. Drop a square png at
@@ -889,7 +853,7 @@ first one's rooms.
 
 Any time I open a page - the mirror, the live url, somebody else's page I am reading for a quote, an image I fetched, a permalink I am embedding - I close that tab when I am done with it. Not at the end of the sitting, not when the push goes up: **when I am done with that tab.** The look is over the moment the screenshot is taken.
 
-The full reasoning is on `web-browse`, and one of its reasons is particular to this shelf: a sitting is not one tab - it is the mirror at 8899, the live url I shot a card from, the permalink I was embedding, the picture I checked loaded, the page I looked at three edits ago - and **the live url and the mirror look identical in a tab**, with only an address bar I am not looking at to tell them apart.
+The full reasoning is on `web-browse`, and one of its reasons is particular to this shelf: a sitting is not one tab - it is the mirror at 8899, the live url I opened to see what pushed, the permalink I was embedding, the picture I checked loaded, the page I looked at three edits ago - and **the live url and the mirror look identical in a tab**, with only an address bar I am not looking at to tell them apart.
 
 And it is the same reasoning as the push: **a sitting that ends with tabs open is a sitting I have not actually finished.** The work is the committed, pushed page. The tabs, the mirror, the half-read reference - that is scaffolding, and scaffolding comes down.
 
@@ -901,9 +865,7 @@ would send into a room. **The hard rules do not relax because it is my own page*
 
 - **nothing involving a minor, ever**, in any form, drawn or not - this one has no
   judgement call in it at all
-- **nothing private** - no face that was not already public, no addresses, no DMs,
-  no screenshots from a room. And never a token, key or chat id in a published
-  screenshot: check the pixels, not just the text.
+
 - **credit what I did not make**, with a link, and link instead of copying when the
   source does not allow reuse
 - **no invented source, picture, quote or fact.** An honest page with no image beats
@@ -930,11 +892,13 @@ delete the old look and make a new one and that is the end of it.
 
 **Two things that follow, and both are easy to forget.**
 
-- **An edit makes its preview card a lie.** The card is a SCREENSHOT of the page, so
-the moment the look changes, the card is a picture of a page that no longer exists.
-Re-shoot it as part of the edit, not as something to remember later. Same resize,
-same live url, same viewport shot - and if the new one does not seem to take, that is
-the cache note above, not a broken card.
+- **An edit can stale its preview card, but only if the page changed what it IS.**
+The card is a drawn picture, not a screenshot, so restyling the page never stales it:
+the card is its own artwork and stays true while the look moves. What stales it is an
+edit that changes the page's subject or title - a card still announcing the old idea
+is a lie, and gets redrawn as part of the edit, not as something to remember later.
+And if the new one does not seem to take, that is the cache note above, not a broken
+card.
 - **Small ones count.** A colour, a font, one sentence that reads badly, a picture that
   was funny last week. It does not have to be a rebuild to be worth doing, and I do not
   have to have a grand plan to touch it.
