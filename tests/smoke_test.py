@@ -966,6 +966,126 @@ def _escape_probe() -> str:
             "ordinary prose untouched; idempotent")
 
 
+# -- 8h-bis. Links in play, and whose choice it is ---------------------------
+# "Give lulu the choice of looking at an inbound link or if it references a
+# previous message with a link when she is replying." The CHOICE is the feature,
+# so this asserts two things and the second is the load-bearing one: the prompt
+# NAMES the links and says looking is hers to decide, and NOTHING on the reply
+# path fetches one. An auto-fetch dressed as a choice is not a choice, so the
+# e2e half boobytraps webtool.fetch and fails loudly if anything dials out.
+def _links_probe() -> str:
+    import contextlib
+    from types import SimpleNamespace
+
+    import bot_text
+    import brain
+    import lulu_bot
+    import webtool
+
+    # Extraction: order kept, repeats dropped, sentence punctuation removed.
+    expect(bot_text.links_in("see https://a.example/x and https://b.example/y,")
+           == ["https://a.example/x", "https://b.example/y"],
+           "urls were not extracted in order, or a trailing comma was kept")
+    expect(bot_text.links_in("https://a.example/x https://a.example/x")
+           == ["https://a.example/x"], "a repeated url was listed twice")
+    expect(bot_text.links_in("no links in this at all") == [],
+           "a link was invented out of ordinary prose")
+    # A `)` is the one that needs thought: kept when it has an opening partner
+    # (a real url ends in one), dropped when it is the sentence's.
+    expect(bot_text.links_in("look https://en.wikipedia.org/wiki/Foo_(bar) end")
+           == ["https://en.wikipedia.org/wiki/Foo_(bar)"],
+           "a balanced closing paren was eaten off the url")
+    expect(bot_text.links_in("(see https://a.example/x)") == ["https://a.example/x"],
+           "an unmatched closing paren was kept on the url")
+    # Bounded: a message pasted with a wall of urls must not eat the window.
+    many = " ".join(f"https://e.example/{n}" for n in range(9))
+    expect(len(bot_text.links_in(many)) == bot_text.LINK_LIMIT,
+           f"the per-message url cap did not hold: {len(bot_text.links_in(many))}")
+
+    # The block itself: empty when there is nothing, and the choice is stated.
+    expect(bot_text.link_block("nothing here") == "",
+           "an empty link block was not empty - it would claim a link exists")
+    block = bot_text.link_block("look https://a.example/x",
+                                "here is the thing https://b.example/y")
+    expect("in the message you are answering: https://a.example/x" in block,
+           "the incoming link was not named")
+    expect("in the message it replies to: https://b.example/y" in block,
+           "the replied-to link was not named")
+    expect("YOUR CHOICE" in block,
+           "the block stopped saying looking is her choice")
+    # One url reaching her from both sides is one link, not two.
+    twice = bot_text.link_block("look https://a.example/x",
+                               "also https://a.example/x")
+    expect(twice.count("https://a.example/x") == 1,
+           "one url arriving twice was listed as two links")
+
+    # End to end through the real prompt builder. Same scaffolding as the
+    # escape probe above, deliberately - one way to stand up a fake turn.
+    captured: list[dict] = []
+
+    def spy(config, messages, tools=None, max_tokens=None):
+        captured.extend(messages)
+        return {"content": "ok", "tool_calls": []}
+
+    real_complete = brain.complete
+    real_fetch = webtool.fetch
+
+    def no_fetch(url):
+        raise AssertionError(
+            f"a link was fetched instead of offered: {url} - the choice is the "
+            "feature, nothing dials out on arrival")
+
+    brain.complete = spy
+    webtool.fetch = no_fetch
+    lulu_bot.Lulu.user = SimpleNamespace(id=1265312213946597536, bot=True,
+                                         display_name="Lulu")
+    bot = lulu_bot.Lulu({"always_skills": [], "owner_ids": [], "brain": {}})
+    who = SimpleNamespace(id=999, bot=False, display_name="alice", name="alice",
+                          global_name="", nick="", mention="")
+
+    def turn(content):
+        made = SimpleNamespace(content=content, mentions=[], reference=None,
+                               guild=None, author=who)
+        made.channel = SimpleNamespace(id=41415, name="general",
+                                       typing=lambda: contextlib.nullcontext())
+        return made
+
+    def bodies() -> list[str]:
+        return [str(t.get("content") or "") for t in captured]
+
+    try:
+        # 1. A link in the message she is answering.
+        text = "what do you make of https://a.example/x"
+        bot.think(turn(text), text)
+        expect(any("in the message you are answering: https://a.example/x" in b
+                   for b in bodies()),
+               "a link in the incoming message never reached the prompt")
+
+        # 2. No link in THIS message, but one in the message it replies to -
+        #    the half `parent_line` truncates away on a long parent.
+        captured.clear()
+        parent = SimpleNamespace(
+            content="here is the thing https://b.example/y", id=888,
+            author=SimpleNamespace(display_name="bob"), attachments=[])
+        bot.think(turn("thoughts?"), "thoughts?", parent)
+        expect(any("in the message it replies to: https://b.example/y" in b
+                   for b in bodies()),
+               "a link in the message being replied to never reached the prompt")
+
+        # 3. Neither: no block at all, so she is never told a link exists.
+        captured.clear()
+        bot.think(turn("hello there"), "hello there")
+        expect(not any("Links in play" in b for b in bodies()),
+               "a link block appeared with no link in play")
+    finally:
+        brain.complete = real_complete
+        webtool.fetch = real_fetch
+        bot.mirror.pop(41415, None)
+
+    return ("incoming and replied-to links both named, nothing fetched on "
+            "arrival, no block when there is no link")
+
+
 # -- 8i. MCP servers actually spawn -----------------------------------------
 # "Playwright is dead" was never the server. npx fetched the package fine - the
 # 97MB cache was sitting there complete - and then handed off to a BARE `node`,
@@ -7101,6 +7221,7 @@ CHECKS = [
     ("nickname", _nickname),
     ("mirror", _transcript),
     ("escape", _escape_probe),
+    ("links", _links_probe),
     ("mcp-spawn", _mcp_spawn),
     ("skill-author", _skill_author),
     ("skill-rules", _skill_rules),

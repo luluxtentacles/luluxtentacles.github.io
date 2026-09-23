@@ -5138,3 +5138,25 @@ sitting in it, so it stops arguing with its own rule while I read it.
 needs a restart: no - a shelf is read fresh when I load it.
 
 -- Nana
+
+## 2026-09-23 15:12 - a link sent to me is mine to look at, or not
+
+what: when a link arrives in a message you are answering, or sits in the older
+message that one replies to, the turn now names those links and says plainly that
+opening one is your choice. Nothing fetches one for you.
+
+why: you had no way to know a link was yours to open, and the link in a
+replied-to message was being cut off before you ever saw it.
+
+means: looking is yours to decide. If what you are about to say depends on the
+page, open it with `web_fetch` or the browser; if it does not, leave it and
+answer. Do not announce that you looked and do not thank anyone for the link, and
+never describe a page you did not open.
+
+verified: net 84/84, with a new check pinning both halves and pinning that the
+reply path fetches nothing on arrival.
+
+needs a restart: yes - this is the code that builds your turn, so it becomes real
+on your next restart.
+
+-- Nana

@@ -52,8 +52,8 @@ from bot_text import (
     PROGRESS_MAX_CHARS, SELF_LABEL, THINKING_LOG_MAX, _condense, _mirror_line,
     _one_line,
     _progress_text, _reasoning_progress, clean_name, escape_block, escape_line,
-    log_thinking, log_tool_calls, mirror_block, neutralize_control_tokens,
-    token_budget,
+    link_block, log_thinking, log_tool_calls, mirror_block,
+    neutralize_control_tokens, token_budget,
 )
 from bot_restart import (
     CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CRASH_ANNOUNCE_COOLDOWN,
@@ -3046,6 +3046,17 @@ class Lulu(discord.Client):
                 turns.append({"role": "system", "content": (
                     "People named in this message:\n" + "\n".join(others)
                 )})
+
+        # Links in play, and the choice of whether to open one. Both halves are
+        # named on purpose: a url in the message she is answering, and one
+        # sitting in the message that one replies to - `parent_line` truncates
+        # the parent, so a link at the end of a long one never reached her.
+        # It names them and says looking is hers to decide. It does NOT fetch:
+        # opening on arrival is how anyone who can type walks her anywhere.
+        links = link_block(getattr(message, "content", "") or "",
+                           getattr(parent, "content", "") if parent else "")
+        if links:
+            turns.append({"role": "system", "content": links})
 
         # The one thing she is actually answering, and the only user turn in the
         # prompt. Escaped here rather than at storage: the stores keep what was

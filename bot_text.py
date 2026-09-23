@@ -401,3 +401,72 @@ def _condense(text, limit: int = COMPACT_LINE_CHARS) -> str:
     if len(line) <= limit:
         return line
     return line[:limit].rstrip() + "..."
+
+
+# --- links in play --------------------------------------------------------
+# A url arriving in a room is not a request to go read it. So the prompt NAMES
+# the links on this turn and says plainly that opening one is hers to decide -
+# the choice IS the feature. A bot that fetches every link it is shown is a bot
+# anyone who can type can walk anywhere, and both halves need naming: the url in
+# the message she is answering, and one sitting in the message that one replies
+# to, which `parent_line` would truncate away on a long parent.
+URL_RE = re.compile(r"https?://[^\s<>\"'`]+")
+
+# Punctuation a url is allowed to drink from the sentence around it. A trailing
+# `)` is the one that needs thought: wikipedia-style urls legitimately END in
+# one (`/wiki/Foo_(bar)`), so it is kept when it has an opening partner and
+# dropped when it does not. Everything else here is sentence, never url.
+_URL_TAIL = ".,;:!?'\"\u201d\u2019"
+
+LINK_LIMIT = 5                    # per message, a prompt budget not a rule
+
+
+def _trim_url(raw: str) -> str:
+    """A url with the sentence's punctuation taken back off its end."""
+    url = raw.rstrip(_URL_TAIL)
+    for opener, closer in (("(", ")"), ("[", "]")):
+        while url.endswith(closer) and url.count(opener) < url.count(closer):
+            url = url[:-1]
+    return url
+
+
+def links_in(text, limit: int = LINK_LIMIT) -> list[str]:
+    """Every http(s) url in a message, in order, deduped and cleaned.
+
+    `limit` is a prompt budget, not a correctness cap: a message pasted with
+    forty urls must not push the rest of the turn out of the window.
+    """
+    seen: dict[str, None] = {}
+    for raw in URL_RE.findall(str(text or "")):
+        url = _trim_url(raw)
+        if url:
+            seen.setdefault(url, None)
+        if len(seen) >= limit:
+            break
+    return list(seen)
+
+
+def link_block(here, there="") -> str:
+    """The links in play this turn, and the plain statement that she chooses.
+
+    `here` is the message she is answering, `there` the message it replies to -
+    and a url already named from `here` is not repeated for `there`, because two
+    lines carrying the same address read as two links. Returns "" when there are
+    none: an empty block would claim a link exists that does not.
+    """
+    here_links = links_in(here)
+    lines = [f"  - in the message you are answering: {escape_line(url)}"
+             for url in here_links]
+    lines += [f"  - in the message it replies to: {escape_line(url)}"
+              for url in links_in(there) if url not in here_links]
+    if not lines:
+        return ""
+    return (
+        "Links in play this turn. Looking at one is YOUR CHOICE - not a duty "
+        "and not a request from whoever sent it. If what you are about to say "
+        "depends on what is on the page, open it (`web_fetch`, or the browser); "
+        "if it does not, leave it and answer. Never describe a page you did not "
+        "open, and do not announce that you looked or thank anyone for the "
+        "link. `web-browse` is the method when you do."
+        "\n" + "\n".join(lines)
+    )
