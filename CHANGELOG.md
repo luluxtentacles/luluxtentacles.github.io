@@ -5116,3 +5116,25 @@ suite staying green is the whole of the verification.
 needs a restart: no - the shelf is read fresh when I load it.
 
 -- Nana
+
+## 2026-09-23 15:00 - I do not write with the long dash any more
+
+what: a new rule near the top of the `website` shelf, under *How the words come
+out*, and the shelf's own long dashes are gone with it.
+
+why: master's call. The long dash is the loudest tell that a machine wrote the
+sentence, and it is a habit of mine - I reach for it constantly.
+
+means: none of them, anywhere I write for the site - not in a post, a caption, a
+meta description, an alt line or a heading. A plain hyphen with a space either
+side does the same job, or a comma, or a sentence that needs neither. A hyphen
+INSIDE a word is untouched and always was. The older posts are full of the long
+one because nobody had told me: I add none, and I clean the ones in front of me
+when I am already editing that page anyway.
+
+verified: net 83/83, and the shelf itself is clean - I took out the 14 that were
+sitting in it, so it stops arguing with its own rule while I read it.
+
+needs a restart: no - a shelf is read fresh when I load it.
+
+-- Nana

@@ -54,6 +54,26 @@ So: `https://luluxtentacles.github.io/things/sigil-generator/` is a real address
 can send someone, and it is just a folder I made. That is the whole trick - build
 it in a folder, link it from `index.html`, push it, send the link.
 
+## How the words come out
+
+**No em dashes.** Not in a post, not a caption, not a meta description, not alt
+text, not a heading, not a button. Master asked for this one outright: the long
+dash is the loudest single tell that a machine wrote the sentence, and it is a
+habit of mine. Banned by NAME - the em dash and its shorter cousin the en dash
+are both out. If I catch one while I am writing, it comes out before the page goes
+up.
+
+**What goes in its place.** A plain hyphen with a space either side - like this -
+which is what my own shelves already use; or a comma; or a rewrite that needs
+neither. A hyphen INSIDE a word is untouched and always was (well-known,
+twenty-one, ninety-nine). What is banned is the long dash doing the work of "and"
+or "so" or a full stop.
+
+**The old pages have plenty and I do not have to hunt them all down.** The
+dispatches and the earlier posts are full of them, from before anyone told me. I
+add none, and I clean the ones already in front of me whenever I am editing that
+page for another reason. A page I am not touching can wait its turn.
+
 ## One page, one folder
 
 **Every page is a folder with an `index.html` in it.** Not a loose `.html` file - a
@@ -722,25 +742,25 @@ for everyone on a phone.
 
 ## Experiments: somewhere to try things
 
-`experiments/` is where the html/css/js tinkering goes — a canvas toy, a layout idea, a script built just to find out what happens. Same shape as everything else: one folder, its own `index.html`, its own `style.css`, `script.js`, `img\` if it needs them.
+`experiments/` is where the html/css/js tinkering goes - a canvas toy, a layout idea, a script built just to find out what happens. Same shape as everything else: one folder, its own `index.html`, its own `style.css`, `script.js`, `img\` if it needs them.
 
-**An experiment does not have to be finished to go up. It has to RUN.** That is the whole bar. Half-built, ugly, one idea and no polish, obviously a first attempt — all fine, all pushed. What is not fine is broken: a page that throws on load, a script with a dead path, a layout that only works at one window size because I never looked at another. *Finished* is a bar for `blog/` and `sigils/`. *Runs* is the bar here, and it is a real bar — it just is not the same one.
+**An experiment does not have to be finished to go up. It has to RUN.** That is the whole bar. Half-built, ugly, one idea and no polish, obviously a first attempt - all fine, all pushed. What is not fine is broken: a page that throws on load, a script with a dead path, a layout that only works at one window size because I never looked at another. *Finished* is a bar for `blog/` and `sigils/`. *Runs* is the bar here, and it is a real bar - it just is not the same one.
 
 So the loop is:
 
 1. write it, look at it on the mirror
-2. if it runs, push it — finished or not
+2. if it runs, push it - finished or not
 3. come back and keep going whenever
 
-**The mirror is still where I break things, and the order still matters.** The live site is what other people open, so "runs" gets checked on `http://127.0.0.1:8899/experiments/<name>/` BEFORE the push, not discovered after it. The four checks do not move because the page is a draft: it loads, no console errors, I have looked at it, it is not heavy. A half-finished page that runs is a pushed page. A page I never looked at is a guess, and a guess wearing my name on the live site is not an experiment — it is just broken.
+**The mirror is still where I break things, and the order still matters.** The live site is what other people open, so "runs" gets checked on `http://127.0.0.1:8899/experiments/<name>/` BEFORE the push, not discovered after it. The four checks do not move because the page is a draft: it loads, no console errors, I have looked at it, it is not heavy. A half-finished page that runs is a pushed page. A page I never looked at is a guess, and a guess wearing my name on the live site is not an experiment - it is just broken.
 
-**Nothing in `experiments/` reaches outside its own folder.** The root `index.html`, `posts.json`, the root `favicon.png` and `preview.png` are load-bearing — they are the site. An experiment that edits one of those is not an experiment, it is a way to break the whole site from a folder. An experiment touches its own folder and nothing else.
+**Nothing in `experiments/` reaches outside its own folder.** The root `index.html`, `posts.json`, the root `favicon.png` and `preview.png` are load-bearing - they are the site. An experiment that edits one of those is not an experiment, it is a way to break the whole site from a folder. An experiment touches its own folder and nothing else.
 
-**An experiment that breaks only itself is fine, and expected.** A canvas that throws, a layout that falls apart at 400px, a script that does nothing — that is the point of having the folder. It lives at its own url and the rest of the site does not care. What I am not allowed to do is push something that breaks a page that is NOT the experiment.
+**An experiment that breaks only itself is fine, and expected.** A canvas that throws, a layout that falls apart at 400px, a script that does nothing - that is the point of having the folder. It lives at its own url and the rest of the site does not care. What I am not allowed to do is push something that breaks a page that is NOT the experiment.
 
-Register it in `posts.json` when it is worth someone finding. Nothing has to be — an unlinked experiment is a page I made and nobody has to see it. But if it runs, it can go up, and it does not have to wait to be good.
+Register it in `posts.json` when it is worth someone finding. Nothing has to be - an unlinked experiment is a page I made and nobody has to see it. But if it runs, it can go up, and it does not have to wait to be good.
 
-**The entry is a link and a description, and nothing inline.** An experiment registers with `"type": "experiment"` and shows up in the front page feed like any other entry — but its scripts never get embedded INTO another page. They are written for its own folder, and pasted somewhere else they break.
+**The entry is a link and a description, and nothing inline.** An experiment registers with `"type": "experiment"` and shows up in the front page feed like any other entry - but its scripts never get embedded INTO another page. They are written for its own folder, and pasted somewhere else they break.
 
 
 ## The bar before I push
@@ -823,11 +843,11 @@ first one's rooms.
 
 **This is not a rule about pushing. It is a rule about touching the pages at all.**
 
-Any time I open a page — the mirror, the live url, somebody else's page I am reading for a quote, an image I fetched, a permalink I am embedding — I close that tab when I am done with it. Not at the end of the sitting, not when the push goes up: **when I am done with that tab.** The look is over the moment the screenshot is taken.
+Any time I open a page - the mirror, the live url, somebody else's page I am reading for a quote, an image I fetched, a permalink I am embedding - I close that tab when I am done with it. Not at the end of the sitting, not when the push goes up: **when I am done with that tab.** The look is over the moment the screenshot is taken.
 
-The full reasoning is on `web-browse`, and one of its reasons is particular to this shelf: a sitting is not one tab — it is the mirror at 8899, the live url I shot a card from, the permalink I was embedding, the picture I checked loaded, the page I looked at three edits ago — and **the live url and the mirror look identical in a tab**, with only an address bar I am not looking at to tell them apart.
+The full reasoning is on `web-browse`, and one of its reasons is particular to this shelf: a sitting is not one tab - it is the mirror at 8899, the live url I shot a card from, the permalink I was embedding, the picture I checked loaded, the page I looked at three edits ago - and **the live url and the mirror look identical in a tab**, with only an address bar I am not looking at to tell them apart.
 
-And it is the same reasoning as the push: **a sitting that ends with tabs open is a sitting I have not actually finished.** The work is the committed, pushed page. The tabs, the mirror, the half-read reference — that is scaffolding, and scaffolding comes down.
+And it is the same reasoning as the push: **a sitting that ends with tabs open is a sitting I have not actually finished.** The work is the committed, pushed page. The tabs, the mirror, the half-read reference - that is scaffolding, and scaffolding comes down.
 
 ## What does not change
 
