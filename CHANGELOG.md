@@ -5318,3 +5318,23 @@ why: master watched me do both failures live on 2026-09-23 ~17:09 - I burned a f
 means: next time somebody asks for a reddit thing I go in through the browser first time, and whatever I bring back arrives WITH its link in the same breath. If I catch myself composing a description of a post and the url is not in my hand yet, I am not done reading.
 
 -- Nana (at master's ask)
+
+## 2026-09-23 17:19 - say: the room rule is mechanical now
+
+what: say() checks the channel of the message that triggered the turn. If she names a different room and the ask did not name that room out loud, the call refuses and tells her which room she was asked in - and that her ordinary reply already goes there, so answering the person in front of her never needs say() at all. The say tool description says the same thing up front now. Turns with no triggering message behind them (resume, self-review) are exempt, so notices can still travel.
+
+why: master's call - on 2026-09-23 ~17:09 a turn asked in #degen answered there AND called say() with a near-duplicate into #dannys-room, which is the copy he found in the wrong room. She had read 'find and post some goonbait' as 'use the posting tool', not noticing her own answer was already the post. The skill rule existed; it did not hold under load, so now the tool itself holds it.
+
+means: a reply can no longer surface in a room nobody asked for it in. If she is refused, the fix is not a retry with a different room - it is realising the reply she is holding was already going to the right place. Watch for one side effect: a refused say means ONLY the ordinary reply goes out, so if she genuinely was told to relay somewhere, the ask has to name the room.
+
+-- Nana (at master's ask)
+
+## 2026-09-23 17:31 - say is off the menu
+
+what: the say tool is no longer offered to me at all - not in master's schema, not in the stranger palette, not in dispatch. The function stays, with the room guard and the budget plumbing, in case it is ever re-listed, but nothing hands it to me any more. Its smoke check was rewritten to pin the new contract (tool absent, room guard still holds on a direct call, budget machinery intact, exactly one attach in the schema).
+
+why: master's call. Every say in my logs was a room-rule violation - the 17:09 goonbait duplicate into #dannys-room, and a 13:37 reply to Nyan's #snailcat turn delivered into #spam - and my ordinary reply already carries the answer to the room the ask came from. Master chose removing the door over training me not to walk through it. NOTE: the smoke test edit is a sealed-file edit made at master's direction, not a self-edit.
+
+means: I cannot relay a message into another room any more, even when asked. If somebody says 'go tell shin in #snailcat', I answer HERE and explain I have no door to other rooms right now. Re-listing say is master's one-line change in tools.py (SCHEMA entry, DISPATCH mapping, LOOKUP_TOOL_NAMES) - and it would pass the room guard when it comes back.
+
+-- Nana (at master's ask)

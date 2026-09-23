@@ -3752,40 +3752,48 @@ def _empty_reply() -> str:
 # checked mechanically, and the tool must never post anything itself: it queues,
 # and the event loop sends.
 def _say_guard() -> str:
-    """say() is open to strangers, and capped PER PERSON so they cannot spend
-    master's voice. Master, 2026-09-20: a stranger asking her to speak in a room
-    is normal, and being reachable only in the room she was pinged in made her
-    mute for no reason. The say_channels allowlist stays gone, `attach` stays
-    master's, and the thing this check really protects is the budget - one shared
-    pot would have let one stranger silence the owner with a limit written to
-    protect him.
+    """say() is OFF the menu. Master, 2026-09-23: every say in the logs was a
+    room-rule violation - a reply duplicated into a room nobody asked for - and
+    the ordinary reply already carries the answer to the room the ask came
+    from. The function, the room guard inside it, and the budget plumbing all
+    stay (attach shares the pot, and re-listing the tool is master's one-line
+    call), but the model is never offered it: not in master's SCHEMA, not in
+    the stranger palette.
     """
     import tools
 
     tools._OUTBOX.clear()
     tools._SAY_TIMES.clear()
     try:
-        # 1. a stranger CAN reach it - that is the change master asked for
-        expect("say" in tools.LOOKUP_TOOL_NAMES,
-               "say is still hidden from everyone but master")
-        tools.set_context(2222, "someone", "general")
-        out = tools.run("say", {"channel": "general", "text": "hi"},
-                        allowed=set(tools.LOOKUP_TOOL_NAMES))
-        expect("queued" in out, f"a stranger could not be spoken for: {out}")
-        expect(len(tools._OUTBOX) == 1, "the stranger's send did not queue")
+        # 1. OFF the menu: not in the stranger palette, not in master's schema,
+        # and the schema still carries exactly one attach (say's entry was
+        # removed whole, not merged into attach's)
+        expect("say" not in tools.LOOKUP_TOOL_NAMES,
+               "say is still on the stranger palette")
+        offered = [t["function"]["name"] for t in tools.SCHEMA]
+        expect("say" not in offered, "say is still in master's SCHEMA")
+        expect(offered.count("attach") == 1,
+               f"the schema carries {offered.count('attach')} attach entries, not 1")
 
-        # 2. and their budget is SMALLER than master's - the whole point
+        # 2. the room guard holds even on a direct call: a turn asked in
+        # #general that names no other room cannot surface in #snailcat
+        tools.set_context(1, "master", "general", master=True,
+                          asked="find and post some goonbait")
+        out = tools.say("snailcat", "relayed")
+        expect(out.startswith("refused:") and "general" in out,
+               f"the room guard did not hold: {out}")
+        expect(len(tools._OUTBOX) == 0, "a refused say still queued")
+
+        # 3. the budget machinery survives underneath, and the pot is per
+        # person: a stranger's earlier sends cost master nothing
+        tools.set_context(2222, "someone", "general")
+        out = tools.say("general", "a stranger's line")
+        expect("queued" in out, f"say's queue path broke: {out}")
         expect(tools.SAY_MAX_STRANGER < tools.SAY_MAX,
                "a stranger is allowed as many sends as master")
-        out = tools.say("general", "again")
-        expect("already spoken" in out, f"a stranger was not capped: {out}")
-        expect(len(tools._OUTBOX) == 1, "a capped stranger still queued")
-
-        # 3. the pot is per person: that stranger's sends cost master nothing
         tools.set_context(1, "master", "general", master=True)
         out = tools.say("general", "his own words")
         expect("queued" in out, f"a stranger spent master's sends: {out}")
-        expect(len(tools._OUTBOX) == 2, "master's send did not queue")
 
         # 4. NO allowlist: a channel master names is queued, full stop
         expect(not hasattr(tools, "_say_allowlist"),
@@ -3797,17 +3805,15 @@ def _say_guard() -> str:
         expect(len(tools._OUTBOX) == 2, "an over-long say was still queued")
 
         # 6. master's own limit still holds once it is spent
-        tools.say("snailcat", "two")
-        tools.say("snailcat", "three")
-        out = tools.say("snailcat", "four")
+        tools.say("general", "two")
+        tools.say("general", "three")
+        out = tools.say("general", "four")
         expect("already spoken" in out, f"the rate limit did not hold: {out}")
 
         # 7. drain hands over exactly what was queued, then empties
         queued = tools.drain_outbox()
         expect(len(queued) == 4, f"drain returned {len(queued)}, expected 4")
-        expect(not tools._OUTBOX, "drain did not empty the outbox")
-
-        # 8. the fences that moved and the ones that did not. Master opened
+        expect(not tools._OUTBOX, "drain did not empty the outbox")        # 8. the fences that moved and the ones that did not. Master opened
         # attach/look_at/the browser pair to strangers (2026-09-21), and
         # look_at_file on 2026-09-21 too, so the new contract is: they ARE
         # offered, attach AND look_at_file are path-locked to imgs/ for
