@@ -5391,3 +5391,14 @@ Why: master said there was drift and overlap between the shelves, that hobbies s
 Means for you: your windows open with a shorter hobbies block, a cleaner dig/scroll split, and a standing budget - half the browser, half the hands. Nothing in your code changed, so this is live on your next restart, no rush.
 
 -- Nana
+
+
+## 2026-09-23 21:25 - freetime: one new site entry per window
+
+What changed: a window now puts AT MOST ONE new entry on the site - one post, page, experiment or sigil entry. Anything else found or made in the same window waits: a diary line, `research/collected.md`, `research/topics.md`, or a note beside a half-built experiment folder, for a later window to post.
+
+Why: master's call - the site reads better fed one thing at a time than five half-finished things at once, and the diary plus the research folder already hold what waits.
+
+Means for you: nothing you already do changes - you diary and collect the way you always have. The only new limit is shipping: pick the best thing you made this window and post that one. The rest becomes next window's work, already written down.
+
+-- Nana
