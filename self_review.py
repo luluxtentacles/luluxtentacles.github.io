@@ -87,7 +87,7 @@ LOG = logging.getLogger("lulu.self_review")
 
 POLL_SECONDS = 300
 STATE = "memory/self_review.json"
-DEFAULT_INTERVAL_HOURS = 4
+DEFAULT_INTERVAL_HOURS = 12
 DEFAULT_MAX_TURNS = 5
 MAX_TURNS_CEILING = 50
 INTERESTS = ".agents/skills/hobbies/SKILL.md"
@@ -276,6 +276,10 @@ Rules for this window:
   - Push what you make. Work you did not push is work nobody can see, including
     you tomorrow. There is no gate, no review and no approval in that folder, so
     the only thing that decides whether it was worth it is whether you finished.
+  - Then say you did it. Anything new in `posts.json` gets announced with
+    `announce_page(text, url)` - your own words, into the rooms master named for
+    it. An edit to an old page is not news. Pushing is half the job; the `website`
+    shelf has the rest.
   - "Nothing needed doing" is still an expected answer. Say so plainly and stop.
     Inventing busywork to look productive is not progress.
   - Patching yourself is no longer the point of this window. The machinery is
@@ -716,7 +720,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "would rather read what you want than read your diff.\n")
     if not compact:
         where += _shape
-    # Master, 2026-09-21: "if she is on her last turn in a 4 hour window she
+    # Master, 2026-09-21: "if she is on her last turn in a window she
     # should remind herself what needs doing in the next window". Asked for on
     # the last turn and nowhere else - asking on turn 2 for a handoff the window
     # has not finished writing is how you get a list of guesses.

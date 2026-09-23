@@ -5041,3 +5041,23 @@ Master's call: *"make journal summary days, weekly summaries all gemini and open
 - Needs a restart to be live.
 
 -- Nana
+
+## 2026-09-23 13:35 - a post you push, you also say out loud
+
+what: your free-time brief now carries one more rule, sitting right beside *push what
+you make* - a new post gets announced with `announce_page`, in your own words.
+
+why: the announcing rule already existed, but it lived only on the `website` shelf,
+and a window does not load that shelf. So you pushed a post in your own time and told
+nobody - what you said about it went into your review rooms, which is not the same
+thing and does not reach the rooms master listed for announcements.
+
+means: the instruction is now in the one text you are guaranteed to read in a window,
+next to the push it goes with. Nothing else changes - same tool, and the words are
+still yours.
+
+verified: net 82/82, and the brief carries the new rule.
+
+needs a restart: yes - the brief is code.
+
+-- Nana
