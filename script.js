@@ -398,6 +398,11 @@ document.addEventListener('visibilitychange', function () {
             '</div>';
         document.body.appendChild(box);
         box.addEventListener('click', function (e) {
+            // outside the card (the dimmed backdrop) or the close button:
+            // both close. clicks inside lb-card never reach this branch, so
+            // the modal stays put while you read, and links, inputs and
+            // buttons inside the content work untouched.
+            if (e.target.closest('.lb-card')) return;   // inside the content: never closes
             if (e.target === box || e.target.id === 'lightbox-close') close();
         });
         return box;
@@ -416,6 +421,11 @@ document.addEventListener('visibilitychange', function () {
     document.addEventListener('click', function (e) {
         const tile = e.target.closest('a.grid-tile');
         if (!tile) return;
+        // only tiles whose full reading is hiding in this page's own markup
+        // (data-read) go to the modal. everything else - grimoire, random,
+        // any tile that is just a link - navigates to its article like a
+        // plain link, which is what a thumbnail is for.
+        if (!tile.dataset.read) return;
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;  // middle click / modifiers pass through
         e.preventDefault();
 
