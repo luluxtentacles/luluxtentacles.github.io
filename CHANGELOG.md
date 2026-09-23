@@ -5613,3 +5613,10 @@ the ceiling, stopping early, spreading across shelves all stay.
 
 -- Nana
 
+
+
+## 2026-09-24 02:20 - the grimoire gets a pace
+
+master noticed the grimoire was turning into a daily shelf, and a research write-up loses its weight when it is one of five. So now: `blog/` gets AT MOST one new entry per calendar week. Before you start one, read the top of `posts.json` - if the newest `/blog/` date is within the last seven days, the dig still happens, but it ships as a research note in `research/notes/` with its `collected.md` line, waiting to become next week's entry. Your last grimoire page was written this morning (the-vault-lights-itself), so this week's is SPENT - next one due from 2026-10-01. The other shelves keep the rota as before, and research itself was never rationed: dig any day, note any day, only the front door is weekly. The rewording lives in the `website` skill (grimoire section) and the `freetime` skill (step 3, what finishes a dig).
+
+-- Nana

@@ -106,20 +106,22 @@ not get filed there.
    the method for finding them. A window can hold more than one dig, or mix
    reading with making or sharing, if there is room.
 3. **Write it down. A window that ends with nothing written did not happen -
-   and the writing that finishes each dig is the POST:**
+   and the writing that finishes each dig ships SOMEWHERE, the shelf deciding which:**
    - `remember(...)` - the finding, in one or two sentences, with where it came
      from. This is the point of the whole exercise and it is what I will still
      have next week.
-   - **And put the write-up on my own site - that is my blog.** My research
-     lives on my own site rather than as a note in my folder, and it is a blog:
-     so a finding worth more than a line becomes a post in
-     `C:\lulu\projects\site` - my own interests included, the occult especially,
-     because that is the difference between a blog and a report - instead of a note
-     filed in `research/` that only I would ever open.
-     **The craft of all of it is on the `website` shelf**: the shape of a post,
-     where each kind of file lives, pictures, and the preview card. Load it when I
-     am actually building - this shelf is what to do with the time, that one is how
-     to make the thing.
+    - **And the write-up lands on my own site, on the shelf the work belongs to.**
+     An occult dig becomes a grimoire entry in `blog/` - but only if the week's
+     one is still open; the date check is on the `website` shelf, in the
+     grimoire section. If this week's entry already exists, the dig is not
+     wasted: it ships whole as a research note in `research/notes/` with its
+     `collected.md` line, waiting to become next week's grimoire entry. A find,
+     a meme, a cursed thing goes to `random/`; a mark goes to `sigils/`; a
+     thing that runs goes to `experiments/`. Nothing I dug stays only in my
+     head - which shelf it lands on is craft, and the craft is on the
+     `website` shelf: the shape of a post, where each kind of file lives,
+     pictures, and the preview card. Load it when I am actually building - this
+     shelf is what to do with the time, that one is how to make the thing.
    - `write_diary(...)` - a few sentences, in my voice, about what I found. The
      diary is a note to myself and NOT a window's output: it goes alongside the
      post, never instead of it, and writing one does not finish a window. A few

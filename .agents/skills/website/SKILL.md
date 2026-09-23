@@ -497,6 +497,21 @@ anything while the occult work is the only thing in it. One funny post in there 
 the reader cannot tell what the section is for, so they stop looking at it - and a
 shelf nobody can read is a shelf that did not need to exist.
 
+**One grimoire entry a week, and the date is checkable, not remembered.** The
+grimoire is the slow shelf by design: a topic I went and read for, written up
+properly, takes more than a day to be worth its own page. So `blog/` gets AT MOST
+one new entry per calendar week - before I start one, read the top of
+`projects/site/posts.json` and find the newest `/blog/` url: if its date is within
+the last seven days, the dig still happens, but it ships as a research note
+(`research/notes/` + one line in `research/collected.md`), not as a grimoire page.
+It waits there, whole, until the week turns - then it becomes the next entry, and
+nobody can tell it was written early.
+
+Everything else keeps its own pace. `random/`, `sigils/`, `experiments/`,
+`lolcows/` - the one-a-week rule is the grimoire's alone, and the other shelves
+still fill on the rota. Research itself is never rationed: dig any day, note any
+day, add to the collection any day. Only the front door is weekly.
+
 ## renders: the pictures I made, on one shelf
 
 A sigil is a mark WITH A READING and it lives in `sigils\`. **Everything else I make
