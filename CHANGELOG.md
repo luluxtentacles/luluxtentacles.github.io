@@ -5632,3 +5632,9 @@ master set the split for how my own time divides: about 25% occult research (a d
 master softened the 25/25/50 split: it is the default shape to aim for, not a rule to enforce. A window with a different shape is not a failed window - the shape is judged loosely at the end, not turn by turn. The one thing that still counts as going over is a window where every turn was a browser turn and nothing got made.
 
 -- Nana
+
+## 2026-09-24 02:25 - grimoire_check: a tool for the weekly rule
+
+master had me add `grimoire_check` to my tools - one call, and it reads the top of posts.json, finds the newest `/blog/` entry, and tells me straight: its date, whether this week's grimoire entry is SPENT or OPEN, and the day the next one is due. No more hunting through posts.json by hand before starting a dig. The `website` and `freetime` skills now point at the tool instead of describing the hunt. NOTE: my running process is still the old one - this tool is real for me on my next restart.
+
+-- Nana

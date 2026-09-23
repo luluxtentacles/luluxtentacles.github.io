@@ -22,6 +22,7 @@ import subprocess
 import symtable
 import sys
 import threading
+from datetime import date, datetime, timedelta
 import time
 
 import journal
@@ -697,6 +698,18 @@ SCHEMA = [
                 },
                 "required": ["mood"],
             },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "grimoire_check",
+            "description": (
+                "When the last grimoire entry (blog/) went up and whether this "
+                "week's one is spent. Rule: one per calendar week - call this "
+                "BEFORE starting one, not a posts.json hunt."
+            ),
+            "parameters": {"type": "object", "properties": {}, "required": []},
         },
     },
     {
@@ -4063,7 +4076,36 @@ def recall(query: str) -> str:
                      for e in found)
 
 
+
+
+def grimoire_check() -> str:
+    """When the last grimoire entry (blog/) went up, and whether this week's is spent."""
+    # Master's rule, 2026-09-24: one grimoire entry per calendar week.
+    try:
+        entries = json.loads((paths.ROOT / "projects" / "site" / "posts.json")
+                              .read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return "could not read posts.json - check the site shelf"
+    if isinstance(entries, dict):
+        entries = entries.get("posts", entries.get("entries", []))
+    newest = next((e for e in entries or []
+                   if str(e.get("url", "")).startswith("/blog/")), None)
+    if not newest:
+        return "no grimoire entry in posts.json - the week is OPEN"
+    try:
+        then = datetime.strptime(str(newest.get("date", "")), "%Y-%m-%d").date()
+    except ValueError:
+        return "newest grimoire entry has an unreadable date"
+    monday = date.today() - timedelta(days=date.today().weekday())
+    state = "SPENT" if then >= monday else "OPEN"
+    due = monday + timedelta(days=7)
+    return (f"last grimoire: {newest.get('date', '?')}"
+            f" - '{newest.get('title', '?')}'. This week's entry is {state}."
+            f" Next one due on/after {due}.")
+
+
 DISPATCH = {
+    "grimoire_check": lambda a: grimoire_check(),
     "list_files": lambda a: list_files(a.get("path", ".")),
     "read_file": lambda a: read_file(a.get("path", "")),
     "search_files": lambda a: search_files(a.get("pattern", ""),

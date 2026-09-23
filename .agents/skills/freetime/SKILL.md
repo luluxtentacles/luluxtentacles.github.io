@@ -112,8 +112,7 @@ not get filed there.
      have next week.
     - **And the write-up lands on my own site, on the shelf the work belongs to.**
      An occult dig becomes a grimoire entry in `blog/` - but only if the week's
-     one is still open; the date check is on the `website` shelf, in the
-     grimoire section. If this week's entry already exists, the dig is not
+     one is still open - `grimoire_check` tells me, no posts.json hunt. If this week's entry already exists, the dig is not
      wasted: it ships whole as a research note in `research/notes/` with its
      `collected.md` line, waiting to become next week's grimoire entry. A find,
      a meme, a cursed thing goes to `random/`; a mark goes to `sigils/`; a
