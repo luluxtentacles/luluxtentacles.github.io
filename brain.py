@@ -226,7 +226,7 @@ def _providers(config: dict, wants_vision: bool, *,
 def _gemini_models(config: dict) -> list[str]:
     """Gemini rotation, best first. config -> gemini_models (list or
     comma-separated string) wins; a single gemini_model is one rung;
-    otherwise GEMINI_MODELS_DEFAULT."""
+    otherwise the live fetched ladder, then GEMINI_MODELS_DEFAULT."""
     raw = config.get("gemini_models")
     if isinstance(raw, str):
         models = raw.split(",")
@@ -236,10 +236,68 @@ def _gemini_models(config: dict) -> list[str]:
         one = config.get("gemini_model")
         models = [one] if one else list(GEMINI_MODELS_DEFAULT)
     models = [str(m).strip() for m in models if m and str(m).strip()]
-    return models or list(GEMINI_MODELS_DEFAULT)
+    # No pin in config: the LIVE ladder from Google's models list, discovered
+    # like the OpenRouter one (see refresh_models), curated defaults only when
+    # nothing was ever fetched.
+    return (list(_gemini_free_cache["models"])
+            or list(GEMINI_MODELS_DEFAULT))
 
 
-# ---------------------------------------------------------------------------
+# Live Gemini model ladder, refreshed on the same schedule as the limits and
+# re-pulled at the top of every digest pass (refresh_models).
+_gemini_free_cache = {"ts": 0.0, "models": []}
+
+
+def _fetch_gemini_models(gemini_key: str) -> None:
+    """Free Gemini CHAT models straight from Google's v1beta models list.
+
+    Only models that can generateContent, ranked by context window. A pinned
+    config list always wins over this; a failed fetch just keeps the last
+    good list. Silent on failure - a dead network never costs her a call.
+    """
+    try:
+        request = urllib.request.Request(
+            GEMINI_MODELS_URL + "?key=" + gemini_key,
+            headers={"User-Agent": USER_AGENT},
+        )
+        with urllib.request.urlopen(request, timeout=15) as response:
+            data = json.load(response)
+        ranked = []
+        for m in data.get("models", []):
+            name = str(m.get("name", "")).removeprefix("models/")
+            if not name.startswith("gemini"):
+                continue
+            if "generateContent" not in (m.get("supportedGenerationMethods")
+                                         or []):
+                continue
+            ranked.append((int(m.get("inputTokenLimit") or 0), name))
+        ranked.sort(reverse=True)
+        models = [name for _, name in ranked]
+        if models:
+            _gemini_free_cache["models"] = models
+            _gemini_free_cache["ts"] = time.time()
+    except Exception:
+        pass  # keep the last good list; the defaults still stand behind it
+
+
+def refresh_models(config: dict) -> None:
+    """Re-pull BOTH live ladders NOW, instead of waiting out the 6h TTL.
+
+    Called at the top of every digest pass (master, 2026-09-23): a model
+    retired an hour ago should not still head the ladder for five more
+    hours, and a model published an hour ago should be walkable. The
+    OpenRouter free list, the Gemini model list and the Gemini token
+    limits all refresh in one shot.
+    """
+    _or_free_cache["ts"] = 0.0
+    global _gemini_limits_ts
+    _gemini_limits_ts = 0.0
+    keys = load_keys()
+    gemini_key = keys.get("gemini_key") or ""
+    if gemini_key:
+        _fetch_gemini_limits(gemini_key)
+        _fetch_gemini_models(gemini_key)
+    _or_models(config, keys.get("or_key") or "")
 # OpenRouter free-model discovery.
 #
 # Like nyan's live ladder: on first use (and every TTL after) the live
@@ -442,6 +500,26 @@ def _busy_error(code: int, detail: str) -> bool:
             or "temporarily" in lowered)
 
 
+def _blocked_error(code: int, detail: str) -> bool:
+    """True when the provider refused on CONTENT POLICY, not quota or shape.
+
+    nyan's set (DiscordBotN5/memory_system.py): a blocked Gemini call names
+    PROHIBITED_CONTENT / SAFETY / BLOCKLIST - as a blockReason on the input
+    or a finishReason on the output - and through the OpenAI-shaped gateways
+    that surfaces as a 400 whose body names the reason, or a 200 with
+    finish_reason=content_filter. Unlike a dry or busy rung this is
+    DETERMINISTIC: the same input is refused on every key and every retry,
+    so the caller must not walk the ladder expecting a different answer -
+    it should cut the material smaller and try that (the digest quartering).
+    """
+    lowered = (detail or "").lower()
+    return ("prohibited_content" in lowered
+            or "blocklist" in lowered
+            or "content_filter" in lowered
+            or "content policy" in lowered
+            or '"safety"' in lowered)
+
+
 def _attempt(provider: dict, payload: dict, cache: bool,
              limits: dict | None = None,
              timeout: float | None = None) -> dict:
@@ -485,6 +563,8 @@ def _attempt(provider: dict, payload: dict, cache: bool,
         detail = exc.read().decode("utf-8", "replace")[:300]
         if 400 <= exc.code < 500:
             _dump_rejected(body, exc.code, detail)
+        if _blocked_error(exc.code, detail):
+            return {"_blocked": True, "_detail": detail}
         if _credit_error(exc.code, detail):
             return {"_credit": True, "_detail": detail}
         if _busy_error(exc.code, detail):
@@ -495,9 +575,20 @@ def _attempt(provider: dict, payload: dict, cache: bool,
     except Exception as exc:  # network, DNS, timeout, bad JSON
         return {"_error": f"[my brain is unreachable: {type(exc).__name__}]"}
 
+    if isinstance(data, dict):
+        choice0 = (data.get("choices") or [{}])[0] or {}
+        if str(choice0.get("finish_reason") or "").lower() == "content_filter":
+            return {"_blocked": True, "_detail": "finish_reason=content_filter"}
     try:
         message = data["choices"][0]["message"]
     except (KeyError, IndexError, TypeError):
+        # A 200 with no choices can ALSO be a content-policy block: Gemini's
+        # blockReason or a gateway "error" field naming the reason. Distinguish
+        # that from a shape we simply do not read - a block is deterministic.
+        raw = json.dumps(data, ensure_ascii=False, default=str)[:2000] \
+            if isinstance(data, dict) else str(data)
+        if _blocked_error(200, raw):
+            return {"_blocked": True, "_detail": raw[:300]}
         return {"_error": f"[my brain answered in a shape I do not read: {str(data)[:200]}]"}
     if isinstance(message, dict):
         message["_usage"] = data.get("usage") or {}
@@ -872,11 +963,11 @@ def reply(config: dict, messages: list[dict]) -> str:
     return (complete(config, messages).get("content") or "").strip()
 
 
-def free_complete(config: dict, messages: list[dict], *,
-                  max_tokens: int = 0,
-                  temperature: float | None = None,
-                  timeout: float | None = None,
-                  tries: int = 1) -> str:
+def free_complete_ex(config: dict, messages: list[dict], *,
+                     max_tokens: int = 0,
+                     temperature: float | None = None,
+                     timeout: float | None = None,
+                     tries: int = 1) -> tuple[str, bool]:
     """One TEXT call on the FREE rungs only - never the Go rung master pays for.
 
     Gemini's keys first (every key gets a shot at every model, best model first,
@@ -896,9 +987,13 @@ def free_complete(config: dict, messages: list[dict], *,
     forever, until the window is summarised. `tries` only sweeps the ladder that
     many times back to back, for a rung that answers on a second sweep.
 
-    Returns the answer text, or "" when every rung is dry or broken. An empty
-    string is a real answer here - the caller decides whether to try again.
+    Returns (text, blocked). blocked is True when at least one rung refused
+    the input on CONTENT POLICY - a deterministic rejection (see
+    _blocked_error), unlike a dry or busy rung: walking the ladder again
+    unchanged will only ever refuse again, so the caller re-cuts its
+    material instead of retrying it.
     """
+    blocked = False
     providers = _providers(config, False, free_only=True)
     if not providers:
         return ""
@@ -925,12 +1020,32 @@ def free_complete(config: dict, messages: list[dict], *,
             # key/model pair rather than giving up on the call.
             if result.get("_credit") or result.get("_busy"):
                 continue
+            if result.get("_blocked"):
+                blocked = True
+                continue  # deterministic refusal: no other rung will differ
             if result.get("_error"):
                 continue
             content = (result.get("content") or "").strip()
             if content:
-                return content
-    return ""
+                return content, blocked
+    return "", blocked
+
+
+def free_complete(config: dict, messages: list[dict], *,
+                  max_tokens: int = 0,
+                  temperature: float | None = None,
+                  timeout: float | None = None,
+                  tries: int = 1) -> str:
+    """One TEXT call on the FREE rungs only - never the Go rung master pays for.
+
+    The plain contract of free_complete_ex: just the text, "" when every
+    rung is dry or broken (or the input was policy-blocked - callers who
+    need to KNOW it was a block, to re-cut their material, call
+    free_complete_ex directly, as the digest does).
+    """
+    return free_complete_ex(config, messages, max_tokens=max_tokens,
+                            temperature=temperature, timeout=timeout,
+                            tries=tries)[0]
 
 
 # The old name, kept because tests/smoke_test.py's MODULE_API still asserts it

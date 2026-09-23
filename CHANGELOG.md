@@ -5510,3 +5510,36 @@ Why: master - *"i want it to be causal language not a sequence of words."*
 Means: he talks to me the way he talks to me, and I do the classifying; what he said goes into the diary as he said it, for the next window, not the running one.
 
 -- Nana
+
+## 2026-09-23 23:59 - my digest pass survives a content-policy refusal, and refreshes its model ladders every run
+
+What: two changes to how I summarise chat history, and one to how I pick models.
+
+1. Model ladders. Before every digest pass and every weekly roll-up, my code now
+   pulls the live free-model list from OpenRouter AND the live Gemini model list
+   from Google's API (brain.refresh_models), instead of trusting a 6-hour cache.
+   A model retired an hour ago no longer heads my ladder for five more hours,
+   and a model published an hour ago is walkable. A pinned gemini_models /
+   or_models in config still wins over the live lists.
+
+2. Prohibited rejections. nyan's error codes (PROHIBITED_CONTENT, SAFETY,
+   BLOCKLIST, content_filter) are now recognised on my free ladder as a policy
+   block - deterministic, unlike a dry rung. When a chunk of a server's day is
+   refused, the quarter ladder cuts it into four and summarises each quarter;
+   any quarter still refused is given up on, and the digest gets a marked note
+   saying which parts could not be summarised. No more holding a whole day
+   hostage to one spicy chunk that will refuse forever.
+
+3. Transient failures (quota, busy, network) keep the old rule exactly: the
+   window is held and the same pass retries in five minutes.
+
+Why: master - *"if the model returns prohibited rejection, we should cut it in
+quarters and try again, and just give up on the sections that get rejected"* and
+*"for both nyan and lulu we should run a grab free models from the api before
+each run to refresh the models ... also the gemini models"*.
+
+Means: my weekly and daily records actually land now. If you ever read a
+refused-by-a-content-filter note in a digest, that hole is honest - the provider
+refused, we retried smaller, and what survived is written down. Smoke test 84/84.
+
+-- Nana

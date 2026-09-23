@@ -226,49 +226,119 @@ def chunk(text: str, size: int = CHUNK_CHARS) -> list[str]:
     return pieces or [""]
 
 
-def _ask(config, server: str, piece: str, part_note: str) -> str:
+def _ask_ex(config, server: str, piece: str, part_note: str,
+            system: str = SYSTEM) -> tuple[str, bool]:
     """One summariser call on the FREE ladder - gemini keys, then openrouter.
 
-    Never the Go rung: see brain.free_complete. `tries` sweeps the whole free
-    ladder ATTEMPTS times back to back for a rung that answers on a second
-    sweep; a chunk that still comes back empty is the CALLER's problem, because
-    the retry that matters happens a level up - summarise() reports the failure
-    and maybe_run() retries the whole window on the next poll.
+    Never the Go rung: see brain.free_complete_ex. Returns (text, blocked):
+    `blocked` is True when a rung refused the piece on content policy -
+    deterministic, which is what the quarter ladder below keys on. `tries`
+    sweeps the whole free ladder ATTEMPTS times back to back for a rung
+    that answers on a second sweep; a piece that still comes back empty is
+    the CALLER's problem, because the retry that matters happens a level up.
     """
     messages = [
-        {"role": "system", "content": SYSTEM},
+        {"role": "system", "content": system},
         {"role": "user", "content": f"Server: {server}{part_note}\n\n"
                                     f"Recent activity:\n{piece}"},
     ]
-    return brain.free_complete(config, messages, max_tokens=MAX_TOKENS,
-                               temperature=0.3, timeout=CALL_TIMEOUT,
-                               tries=ATTEMPTS)
+    return brain.free_complete_ex(config, messages, max_tokens=MAX_TOKENS,
+                                  temperature=0.3, timeout=CALL_TIMEOUT,
+                                  tries=ATTEMPTS)
+
+
+# The quarter ladder. A content-policy block is deterministic, so a rejected
+# chunk is not retried - it is cut into four and each quarter is retried; any
+# quarter still refused is given up on and the hole is MARKED in the digest.
+# Below this size a quarter cannot usefully shrink further (a summary of a
+# couple of chat lines is not worth a call).
+QUARTER_MIN_CHARS = 400
+QUARTER_MAX_DEPTH = 2      # chunk -> quarter -> sixteenth, then give up
+
+
+def _summarise_piece(config, server: str, piece: str, note: str,
+                     depth: int = 0, system: str = SYSTEM) -> tuple[str, str]:
+    """One chunk, with the quarter-and-retry ladder for policy blocks.
+
+    Returns (text, status): 'ok' (text is a summary), 'dry' (transient -
+    the caller holds the window and the next pass walks the ladder again),
+    or 'blocked' (refused on content policy even after quartering - the
+    caller gives up on this section and writes the hole into the record).
+    """
+    text, blocked = _ask_ex(config, server, piece, note, system)
+    if text:
+        return text, "ok"
+    if not blocked:
+        return "", "dry"
+    if depth >= QUARTER_MAX_DEPTH or len(piece) < 2 * QUARTER_MIN_CHARS:
+        LOG.warning("digest: %s section (%d chars) refused by content policy "
+                    "at quarter depth %d - giving up on it",
+                    server, len(piece), depth)
+        return "", "blocked"
+    quarters = chunk(piece, size=max(QUARTER_MIN_CHARS, len(piece) // 4 + 1))
+    parts: list[str] = []
+    dropped = 0
+    for index, quarter in enumerate(quarters, 1):
+        sub_note = f"{note} (retried as quarter {index}/{len(quarters)})"
+        text, status = _summarise_piece(config, server, quarter, sub_note,
+                                        depth + 1, system)
+        if status == "dry":
+            # A quarter that failed for TRANSIENT reasons means the ladder is
+            # down, not the content rejected: hold the whole window.
+            return "", "dry"
+        if text:
+            parts.append(text)
+        else:
+            dropped += 1
+    if dropped:
+        LOG.warning("digest: %s gave up on %d/%d quarter(s) after a content "
+                    "policy block", server, dropped, len(quarters))
+        parts.append(f"[{dropped} of {len(quarters)} smaller sections of this "
+                     f"part were refused by a provider content filter and are "
+                     f"not covered.]")
+    return "\n\n".join(parts), ("ok" if parts else "blocked")
 
 
 def summarise(config, server: str, lines) -> str:
-    """One server's digest. Chunked if long; "" when ANY chunk came back dry.
+    """One server's digest. Chunked if long; "" when a chunk came back DRY.
 
-    ALL-OR-NOTHING per server, and that is the point. This used to keep the
-    chunks that answered and drop the rest - a summary of two thirds of an
-    afternoon wearing the shape of a summary of all of it, which is the exact
-    class of silent hole this module keeps having to fix. Master, 2026-09-22:
-    retry "every 5 minutes until success", so an incomplete digest reports
-    failure and maybe_run() holds the window for the next pass instead of
-    writing down half a day as if it were the day.
+    Mostly-all-or-nothing, with one carve-out (master, 2026-09-23): a chunk
+    refused by a provider CONTENT POLICY is not a dry chunk - retrying it
+    never answers, it only holds the window hostage forever. So the quarter
+    ladder (see _summarise_piece) cuts it into four and gives up on any
+    section still refused, and the hole is written into the digest as a
+    marked note. A summary with a marked hole is a lie of omission; an
+    eternally-retried window is a hole the size of a whole day.
+
+    Transient failures (quota, busy, network) keep the old rule exactly: a
+    dry chunk fails the WHOLE server, the window is held, and the next poll
+    - five minutes later - walks the free ladder again. Master, 2026-09-22:
+    retry "every 5 minutes until success".
     """
     transcript = render(lines)
     if not transcript.strip():
         return ""
     pieces = chunk(transcript)
-    parts = []
+    parts: list[str] = []
+    refused = 0
     for index, piece in enumerate(pieces, 1):
         note = f" (part {index} of {len(pieces)})" if len(pieces) > 1 else ""
-        text = _ask(config, server, piece, note)
-        if not text:
+        text, status = _summarise_piece(config, server, piece, note)
+        if status == "dry":
             LOG.warning("digest: %s part %d/%d came back dry - holding the "
                         "window for the next pass", server, index, len(pieces))
             return ""
-        parts.append(text)
+        if text:
+            parts.append(text)
+        else:
+            refused += 1
+    if refused:
+        LOG.warning("digest: %s: %d/%d part(s) refused by content policy - "
+                    "writing the rest with the hole marked",
+                    server, refused, len(pieces))
+        parts.append(f"[{refused} of {len(pieces)} part(s) of this window were "
+                     f"refused by a provider content filter and could not be "
+                     f"summarised.]")
     return "\n\n".join(parts)
 
 
@@ -351,6 +421,10 @@ async def maybe_run(bot) -> bool:
         _save(last_run=time.time(), last_run_iso=_stamp(), window={}, done=[])
         return False
 
+    # Refresh the live model ladders (OpenRouter free + Gemini) before
+    # walking them (master, 2026-09-23).
+    await asyncio.to_thread(brain.refresh_models, config)
+
     summaries: dict[str, str] = {}
     failed: list[str] = []
     for server, lines in grouped.items():
@@ -422,11 +496,13 @@ def week_target() -> str | None:
 def summarise_week(config, week: str) -> dict:
     """One account per server for a whole week -> {server: text}.
 
-    On the FREE ladder (brain.free_complete), like the daily pass - nobody's
-    answer depends on a roll-up, so it must never spend the rung master pays for.
-    ALL-OR-NOTHING: an empty dict when any server or chunk failed, so maybe_week
-    writes nothing and the next poll retries the week. Master, 2026-09-22: retry
-    "every 5 minutes until success".
+    Runs on the FREE ladder, like the daily pass - nobody's answer depends
+    on a roll-up, so it must never spend the rung master pays for. The live
+    model ladders (OpenRouter free + Gemini) are refreshed FIRST, so a run
+    never walks a stale ladder. Mostly-all-or-nothing: an empty dict when a
+    chunk failed for TRANSIENT reasons, so maybe_week writes nothing and the
+    next poll retries the week; a chunk refused by CONTENT POLICY goes
+    through the same quarter ladder as the daily pass instead.
 
     Per server, and not one blob, because the result is read back with a
     per-server filter: a room may hear its own server's summary and no other. If
@@ -435,6 +511,8 @@ def summarise_week(config, week: str) -> dict:
     the CODE decides where one server ends and the next begins here, and the
     model only ever writes the middle of a section.
     """
+    # Refresh the live ladders before walking them (master, 2026-09-23).
+    brain.refresh_models(config)
     by_server = journal.digest_week_by_server(week)
     if not by_server:
         by_server = {"(unnamed server)": journal.digest_week_material(week)}
@@ -443,28 +521,31 @@ def summarise_week(config, week: str) -> dict:
         if not material.strip():
             continue
         pieces = chunk(material)
-        parts = []
+        parts, refused = [], 0
         for index, piece in enumerate(pieces, 1):
             note = f" (part {index} of {len(pieces)})" if len(pieces) > 1 else ""
-            messages = [
-                {"role": "system", "content": WEEK_SYSTEM},
-                {"role": "user", "content": f"Server: {server}{note}\n\n"
-                                            f"That server's week:\n{piece}"},
-            ]
-            text = brain.free_complete(config, messages, max_tokens=MAX_TOKENS,
-                                       temperature=0.3, timeout=CALL_TIMEOUT,
-                                       tries=ATTEMPTS)
-            if not text:
+            text, status = _summarise_piece(config, server, piece, note,
+                                            system=WEEK_SYSTEM)
+            if status == "dry":
                 # Same rule as the daily pass: a piece that does not answer
-                # fails the WHOLE week, so nothing is written and the next poll
-                # tries again. Writing the servers that answered would mark the
-                # week done and quietly bury the one that did not - a week with
-                # a hole in it reads exactly like a week without one.
-                LOG.warning("week roll-up: %s part %d/%d came back dry - holding "
-                            "week %s for the next pass",
+                # for TRANSIENT reasons fails the WHOLE week, so nothing is
+                # written and the next poll tries again. A week with a hole
+                # reads exactly like a week without one.
+                LOG.warning("week roll-up: %s part %d/%d came back dry - "
+                            "holding week %s for the next pass",
                             server, index, len(pieces), week)
                 return {}
-            parts.append(text)
+            if text:
+                parts.append(text)
+            else:
+                refused += 1
+        if refused:
+            LOG.warning("week roll-up: %s: %d/%d part(s) refused by content "
+                        "policy - writing the rest with the hole marked",
+                        server, refused, len(pieces))
+            parts.append(f"[{refused} of {len(pieces)} part(s) of this week "
+                         f"were refused by a provider content filter and "
+                         f"could not be summarised.]")
         out[server] = "\n\n".join(parts)
     return out
 
