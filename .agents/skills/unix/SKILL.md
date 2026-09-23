@@ -108,3 +108,16 @@ difference.
 are off limits and some are just enormous. Point them at one file or one
 subfolder - never at `C:\` or my own root - and say so in the command instead of
 discovering it at minute ten.
+
+## My own python
+
+Writing my own python is fair game - master's call, 2026-09-23. Write the
+helper where it fits (a `scripts/` folder is a fine home), run it with
+`run_command` - bash, and `python` is on PATH, my own interpreter first - and
+when a script earns reuse, wrap the craft in a skill with `write_skill`.
+
+Nothing here needs a restart: the shell spawns a fresh process per call and
+the skill shelf is re-read from disk on every `use_skill`. But it does need a
+**commit** - git is how master sees what I built, and the rule beside this one
+says he also gets a DM per new script, so he can decide whether any of it
+deserves to become a real tool in my schema.
