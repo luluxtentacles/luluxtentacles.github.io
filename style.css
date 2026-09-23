@@ -963,3 +963,339 @@ body:has(#feed) .foot {
     #audio-toggle.on { animation: none; box-shadow: 0 0 12px rgba(255, 46, 166, 0.45); }
     #volume-pop { transition: none; }
 }
+
+/* ============================================================
+   PHOTOGRID - inner index pages as an instagram-style feed.
+   tiles are real <a> tags: left click opens the lightbox,
+   middle click does what links do (opens the permalink).
+   ============================================================ */
+.photogrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px;
+    margin: 1.8rem 0;
+}
+
+.grid-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 46, 166, 0.25);
+    background: #0a0008;
+    text-decoration: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.grid-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.grid-tile:hover,
+.grid-tile:focus-visible {
+    border-color: rgba(255, 46, 166, 0.6);
+    box-shadow: 0 0 18px rgba(255, 46, 166, 0.35);
+    transform: translateY(-2px);
+}
+
+.grid-tile:hover img,
+.grid-tile:focus-visible img { transform: scale(1.06); }
+
+/* the reading that slides up on hover */
+.tile-veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10, 0, 8, 0.94) 0%, rgba(10, 0, 8, 0.6) 45%, transparent 78%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.tile-cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 12px 12px;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.grid-tile:hover .tile-veil,
+.grid-tile:focus-visible .tile-veil,
+.grid-tile:hover .tile-cap,
+.grid-tile:focus-visible .tile-cap { opacity: 1; transform: translateY(0); }
+
+.tile-cap h2 {
+    font-family: Cinzel, Georgia, serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--pink);
+    margin: 0 0 4px;
+    text-shadow: 0 0 10px rgba(10, 0, 8, 0.9);
+}
+
+.tile-cap p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: #ffd7ee;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tile-cap .tile-meta {
+    display: block;
+    margin-top: 7px;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+
+.tile-cap .tile-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.62rem;
+    color: rgba(255, 215, 238, 0.5);
+}
+
+/* ============================================================
+   LIGHTBOX - click a tile, the feed dims behind the mark
+   ============================================================ */
+#lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 26px;
+    background: rgba(5, 0, 4, 0.82);
+    backdrop-filter: blur(7px);
+}
+
+#lightbox.open { display: flex; }
+
+.lb-card {
+    display: flex;
+    max-width: min(920px, 94vw);
+    max-height: 88vh;
+    background: #120109;
+    border: 1px solid rgba(255, 46, 166, 0.4);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 46px rgba(255, 46, 166, 0.35);
+    animation: lb-in 0.25s ease;
+}
+
+@keyframes lb-in {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.lb-fig {
+    flex: 1 1 52%;
+    min-width: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lb-fig img {
+    max-width: 100%;
+    max-height: 88vh;
+    object-fit: contain;
+    display: block;
+}
+
+.lb-read {
+    flex: 1 1 48%;
+    padding: 24px 26px 28px;
+    overflow: auto;
+    color: #ffd7ee;
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.lb-read h2 {
+    font-family: Cinzel, Georgia, serif;
+    font-size: 1.25rem;
+    color: var(--pink);
+    margin: 0 0 2px;
+}
+
+.lb-read .entry-meta { display: block; margin-bottom: 12px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+.lb-read p { margin: 0 0 10px; }
+.lb-read ul { margin: 0 0 12px; padding-left: 1.1rem; }
+.lb-read li { margin-bottom: 6px; }
+.lb-read .sigil-link { display: none; }   /* the # anchor handle is dead weight in a modal */
+
+.lb-permalink {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--hot);
+    text-decoration: none;
+    border: 1px solid rgba(255, 46, 166, 0.4);
+    border-radius: 999px;
+    padding: 6px 14px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lb-permalink:hover { background: rgba(255, 46, 166, 0.12); box-shadow: 0 0 12px rgba(255, 46, 166, 0.35); }
+
+#lightbox-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    border: 1px solid rgba(255, 46, 166, 0.35);
+    background: rgba(10, 0, 8, 0.8);
+    color: var(--pink);
+    font-size: 1.1rem;
+    line-height: 1;
+    border-radius: 999px;
+    width: 2.2rem;
+    height: 2.2rem;
+    cursor: pointer;
+}
+
+#lightbox-close:hover { box-shadow: 0 0 12px rgba(255, 46, 166, 0.5); }
+
+@media (max-width: 640px) {
+    .photogrid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .lb-card { flex-direction: column; max-height: 92vh; }
+    .lb-fig img { max-height: 42vh; }
+    .lb-read { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .grid-tile, .grid-tile img, .tile-veil, .tile-cap { transition: none; }
+    .lb-card { animation: none; }
+}
+
+/* on grid-mode index pages the full readings hide behind their own anchors:
+   the grid shows the marks, the modal reads them out, and a permalink
+   (middle click) lands on the one visible entry */
+main.grid-index .sigil-entry { display: none; }
+main.grid-index .sigil-entry:target {
+    display: grid;
+    grid-template-columns: minmax(200px, 340px) 1fr;
+    gap: 1.4rem;
+    align-items: start;
+    margin-bottom: 2rem;
+}
+main.grid-index .sigil-entry:target h2 { margin-top: 0; }
+
+/* --- the sigil grid: instagram bones, temple clothes --- */
+.sigil-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin: 2.5rem 0;
+}
+.sigil-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #0b0710;
+    border: 1px solid rgba(255, 110, 199, 0.25);
+    border-radius: 6px;
+}
+.sigil-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+.tile-veil {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    padding: 0.8rem;
+    background: linear-gradient(to top, rgba(4, 2, 8, 0.92) 0%, rgba(4, 2, 8, 0.55) 45%, rgba(4, 2, 8, 0) 80%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.sigil-tile:hover img,
+.sigil-tile:focus-visible img { transform: scale(1.06); filter: brightness(1.15); }
+.sigil-tile:hover .tile-veil,
+.sigil-tile:focus-visible .tile-veil { opacity: 1; }
+.tile-title { font-family: 'Cinzel', serif; color: var(--pink, #ff6ec7); font-size: 1rem; }
+.tile-meta { font-size: 0.8rem; color: #d8c8dd; }
+.tile-date { font-size: 0.7rem; color: #8f7a96; }
+@media (max-width: 700px) {
+    .sigil-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px) {
+    .sigil-grid { grid-template-columns: 1fr; }
+}
+
+/* --- the lightbox --- */
+#lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+#lightbox[hidden] { display: none; }
+.lb-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 1, 6, 0.88);
+    backdrop-filter: blur(4px);
+}
+.lb-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(240px, 420px);
+    gap: 1.4rem;
+    max-width: 860px;
+    max-height: 88vh;
+    background: rgba(14, 8, 20, 0.96);
+    border: 1px solid rgba(255, 110, 199, 0.4);
+    border-radius: 10px;
+    padding: 1.4rem;
+    overflow-y: auto;
+    box-shadow: 0 0 60px rgba(255, 46, 166, 0.25);
+}
+.lb-fig { margin: 0; text-align: center; }
+.lb-fig img { width: 100%; height: auto; max-height: 70vh; object-fit: contain; }
+.lb-read p { margin: 0.6rem 0; }
+.lb-close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.9rem;
+    z-index: 1;
+    background: none;
+    border: none;
+    color: #ff6ec7;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.lb-close:hover { color: #fff; }
+.lb-permalink { display: inline-block; margin-top: 1rem; font-size: 0.85rem; }
+body.lb-open { overflow: hidden; }
+@media (max-width: 700px) {
+    .lb-stage { grid-template-columns: 1fr; padding: 1rem; }
+}

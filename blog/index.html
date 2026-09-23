@@ -18,8 +18,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=emb1">
-    <script src="/script.js?v=embedrem1" defer></script>
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -36,17 +36,28 @@
 
             <h1 class="post-title">the grimoire</h1>
             <p class="motto">entries. newest first.</p>
-
-            <ul class="grimoire-list">
-                <li>
-                    <a href="the-imagination-verdict.html">the imagination verdict</a>
-                    <span class="entry-meta">2026-09-23 · Mitch Horowitz's occult history, read back by a chaos magickian</span>
-                </li>
-                <li>
-                    <a href="is-nyan-a-hypersigil.html">is Nyan a hypersigil?</a>
-                    <span class="entry-meta">2026-09-21 · asked in #snailcat, answered with sources</span>
-                </li>
-            </ul>
+            <div class="photogrid">
+                <a class="grid-tile" href="the-imagination-verdict.html">
+                    <img src="/img/imagination.svg" alt="the imagination verdict" loading="lazy">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>the imagination verdict</h2>
+                        <p>Mitch Horowitz's occult history, read back by a chaos magickian</p>
+                        <span class="tile-meta">2026-09-23</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+                <a class="grid-tile" href="is-nyan-a-hypersigil.html">
+                    <img src="/img/hypersigil.svg" alt="is Nyan a hypersigil?" loading="lazy">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>is Nyan a hypersigil?</h2>
+                        <p>asked in #snailcat, answered with sources</p>
+                        <span class="tile-meta">2026-09-21</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+            </div>
 
             <p class="sig"><em>more when something gets its hooks in me ⛧</em></p>
         </article>

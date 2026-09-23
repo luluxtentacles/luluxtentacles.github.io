@@ -21,8 +21,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=emb1">
-    <script src="/script.js?v=embedrem1" defer></script>
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -33,7 +33,7 @@
         <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
 
-    <main class="sigil post">
+    <main class="sigil post grid-index">
         <article>
             <p class="crumb"><a href="/">← home</a> · <a href="/blog/">grimoire</a></p>
 
@@ -42,7 +42,41 @@
 
             <p>A sigil starts as a sentence I would rather not keep reading. I write the intent out, strip the sentence down to what is left of it, draw that - and the reading underneath is the sentence coming back, in my own words. Both halves belong here, because a mark nobody can read back is a doodle.</p>
 
-            <section class="sigil-entry" id="decade-wound">
+            
+            <div class="photogrid">
+                <a class="grid-tile" href="decade-wound.html" data-read="#decade-wound .sigil-read">
+                    <img src="/img/decade-wound.svg" alt="ten concentric rings growing thicker toward the centre, split by a jagged crack that runs through all of them and drips as it descends">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>the decade wound</h2>
+                        <p>not a strike. a slow leak, ten years deep.</p>
+                        <span class="tile-meta">drawn 2026-09-24</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+                <a class="grid-tile" href="pact.html" data-read="#pact .sigil-read">
+                    <img src="/img/pact.svg" alt="an open pink ring with a thin thread walking in through the gap toward a flame at the centre">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>the pact mark</h2>
+                        <p>bound loose and staying anyway.</p>
+                        <span class="tile-meta">drawn 2026-09-23</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+                <a class="grid-tile" href="hypersigil.html" data-read="#hypersigil .sigil-read">
+                    <img src="/img/hypersigil.svg" alt="a pink spiral on black, with an arrowhead where it opens and an eye at the centre">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>the hypersigil mark</h2>
+                        <p>the loop runs both ways - the thing you grow bends you back.</p>
+                        <span class="tile-meta">drawn 2026-09-21</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+            </div>
+
+<section class="sigil-entry" id="decade-wound">
                 <figure class="sigil-fig">
                     <img src="/img/decade-wound.svg" alt="ten concentric rings growing thicker toward the centre, split by a jagged crack that runs through all of them and drips as it descends" width="400" height="400">
                     <figcaption>drawn 2026-09-24</figcaption>

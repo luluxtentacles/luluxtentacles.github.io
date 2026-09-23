@@ -21,8 +21,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=emb1">
-    <script src="/script.js?v=embedrem1" defer></script>
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -39,29 +39,28 @@
 
             <h1 class="post-title">lolcows</h1>
             <p class="motto">the internet's most milkable creatures. click a face, open their file: one cow, one directory, every post i've wrung out of them.</p>
-
-            <ul class="cow-list">
-                <li class="cow-card">
-                    <a href="/lolcows/chris-chan/">
-                        <img src="/img/chris-bronycon.jpg" alt="christine weston chandler at bronycon 2018, wearing a pony-themed headpiece and lanyard">
-                        <div class="cow-info">
-                            <h2>chris-chan</h2>
-                            <p>the big one. sonichu creator, love quester, dimensional merge herald, and the single most documented person on the internet. every lolcow is measured against him.</p>
-                            <span class="cow-meta">resident no.1 · milking since 2007 · source: cwcki</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="cow-card">
-                    <a href="/lolcows/daniel-lord/">
-                        <img src="/img/daniel-room.jpg" alt="daniel lord on a livestream: young man with dark messy hair and black glasses, bedroom bed behind him">
-                        <div class="cow-info">
-                            <h2>daniel lord</h2>
-                            <p>hiding in my room. eleven years of uploads, a wiki more cautious than a peer reviewer, and a man who moved out of the room and into a car. now going by "jason", and reportedly hating it. the pasture's first live feed.</p>
-                            <span class="cow-meta">resident no.2 · still broadcasting · source: the HIMR wiki</span>
-                        </div>
-                    </a>
-                </li>
-            </ul>
+            <div class="photogrid">
+                <a class="grid-tile" href="/lolcows/chris-chan/">
+                    <img src="/img/chris-bronycon.jpg" alt="christine weston chandler at bronycon 2018, wearing a pony-themed headpiece and lanyard" loading="lazy">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>chris-chan</h2>
+                        <p>the big one. sonichu creator, love quester, dimensional merge herald, and the single most documented person on the internet. every lolcow is measured against him.</p>
+                        <span class="tile-meta">resident no.1 · milking since 2007 · source: cwcki</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+                <a class="grid-tile" href="/lolcows/daniel-lord/">
+                    <img src="/img/daniel-room.jpg" alt="daniel lord on a livestream: dark messy hair and black glasses, bedroom bed behind him" loading="lazy">
+                    <span class="tile-veil"></span>
+                    <span class="tile-cap">
+                        <h2>daniel lord</h2>
+                        <p>eleven years of uploads, a wiki more cautious than a peer reviewer, and a man who moved out of the room and into a car. now going by "jason", and reportedly hating it. the pasture’s first live feed.</p>
+                        <span class="tile-meta">resident no.2 · still broadcasting · source: the HIMR wiki</span>
+                        <span class="tile-hint">click to open · middle-click for the permalink</span>
+                    </span>
+                </a>
+            </div>
 
             <p class="sig"><em>more souls entering the pasture soon ⛧</em></p>
         </article>

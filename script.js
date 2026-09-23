@@ -373,9 +373,192 @@
     document.head.appendChild(s);
 })();
 
+// the lightbox - click a tile, the feed dims behind, the mark and its reading
+// open on top. middle-click still opens the tile's own permalink, because the
+// tile IS a link and this only ever swallows button 0.
+(function () {
+    const tiles = document.querySelectorAll('a.sigil-tile');
+    if (!tiles.length) return;
+
+    const lb = document.createElement('div');
+    lb.id = 'lightbox';
+    lb.hidden = true;
+    lb.innerHTML =
+        '<div class="lb-backdrop"></div>' +
+        '<button class="lb-close" aria-label="close">&times;</button>' +
+        '<div class="lb-stage">' +
+        '<figure class="lb-fig"><img alt=""></figure>' +
+        '<div class="lb-read"><p class="entry-desc">⛧ summoning the reading…</p></div>' +
+        '</div>';
+    document.body.appendChild(lb);
+
+    let lastTile = null;
+    function open(tile) {
+        lastTile = tile;
+        lb.hidden = false;
+        document.body.classList.add('lb-open');
+        const read = lb.querySelector('.lb-read');
+        const fig = lb.querySelector('.lb-fig img');
+        read.innerHTML = '<p class="entry-desc">⛧ summoning the reading…</p>';
+        const img = tile.querySelector('img');
+        if (img) { fig.src = img.src; fig.alt = img.alt; }
+
+        fetch(tile.href).then(function (r) {
+            if (!r.ok) throw new Error('no page');
+            return r.text();
+        }).then(function (html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const article = doc.querySelector('article');
+            if (!article) throw new Error('nothing to show');
+            const crumb = article.querySelector('.crumb');
+            if (crumb) crumb.remove();
+            const h1 = article.querySelector('h1');
+            if (h1) h1.remove();
+            const motto = article.querySelector('.motto');
+            const fig2 = article.querySelector('figure');
+            if (fig2) fig2.remove();
+            const sig = article.querySelector('.sig');
+            if (sig) sig.remove();
+            read.innerHTML = '';
+            if (motto) {
+                const m = document.createElement('p');
+                m.className = 'motto';
+                m.appendChild(motto.cloneNode(true));
+                read.appendChild(m);
+            }
+            // whatever is left - the intent, the parts, the note
+            while (article.firstChild) read.appendChild(article.firstChild);
+            // and the door to the full page, at the bottom
+            const more = document.createElement('a');
+            more.className = 'lb-permalink';
+            more.href = tile.href;
+            more.textContent = '⛧ open ' + (tile.dataset.title || 'the mark') + ' at its own address ⛧';
+            read.appendChild(more);
+        }).catch(function () {
+            read.innerHTML = '<p class="entry-desc">the page would not open.</p>';
+            const more = document.createElement('a');
+            more.className = 'lb-permalink';
+            more.href = tile.href;
+            more.textContent = '⛧ try it at its own address ⛧';
+            read.appendChild(more);
+        });
+    }
+
+    function close() {
+        lb.hidden = true;
+        document.body.classList.remove('lb-open');
+        lastTile = null;
+    }
+
+    tiles.forEach(function (tile) {
+        tile.addEventListener('click', function (e) {
+            if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return; // let new-tab gestures through
+            e.preventDefault();
+            open(tile);
+        });
+    });
+    lb.querySelector('.lb-backdrop').addEventListener('click', close);
+    lb.querySelector('.lb-close').addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !lb.hidden) close();
+    });
+})();
+
 // look away and she waits
 document.addEventListener('visibilitychange', function () {
     document.title = document.hidden
         ? 'she waits ⛧'
         : 'Lulu · summoned from the quantum void';
 });
+
+// the photogrid lightbox - inner index pages show their posts as tiles.
+// hover slides the reading up; left click opens the mark in a modal with the
+// feed dimmed behind it; middle click is untouched, so it opens the permalink
+// in a new tab exactly like any link.
+(function () {
+    const BOX_ID = 'lightbox';
+
+    function build() {
+        const box = document.createElement('div');
+        box.id = BOX_ID;
+        box.innerHTML =
+            '<button id="lightbox-close" aria-label="close" title="close (esc)">×</button>' +
+            '<div class="lb-card" role="dialog" aria-modal="true">' +
+            '<div class="lb-fig"><img alt=""></div>' +
+            '<div class="lb-read"></div>' +
+            '</div>';
+        document.body.appendChild(box);
+        box.addEventListener('click', function (e) {
+            if (e.target === box || e.target.id === 'lightbox-close') close();
+        });
+        return box;
+    }
+
+    function close() {
+        const box = document.getElementById(BOX_ID);
+        if (box) box.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') close();
+    });
+
+    document.addEventListener('click', function (e) {
+        const tile = e.target.closest('a.grid-tile');
+        if (!tile) return;
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;  // middle click / modifiers pass through
+        e.preventDefault();
+
+        const box = document.getElementById(BOX_ID) || build();
+        const fig = box.querySelector('.lb-fig');
+        const read = box.querySelector('.lb-read');
+
+        // the big picture: same file the tile shows
+        const img = tile.querySelector('img');
+        const big = fig.querySelector('img');
+        if (img) {
+            big.src = img.getAttribute('src');
+            big.alt = img.getAttribute('alt') || '';
+        } else {
+            big.src = tile.dataset.image || '';
+            big.alt = '';
+        }
+
+        // the reading: if the tile points at a full entry hiding in this page's
+        // own markup (data-read holds its selector), lift the real text out.
+        // otherwise the tile's own hover caption is the details.
+        read.innerHTML = '';
+        const src = tile.dataset.read ? document.querySelector(tile.dataset.read) : null;
+        if (src) {
+            read.innerHTML = src.innerHTML;
+            const h2 = read.querySelector('h2');
+            if (h2) h2.remove();
+        } else {
+            const h2 = document.createElement('h2');
+            h2.textContent = tile.dataset.title || '';
+            read.appendChild(h2);
+            const meta = document.createElement('span');
+            meta.className = 'entry-meta';
+            meta.textContent = tile.dataset.meta || '';
+            read.appendChild(meta);
+            if (tile.dataset.desc) {
+                const p = document.createElement('p');
+                p.textContent = tile.dataset.desc;
+                read.appendChild(p);
+            }
+        }
+
+        const link = document.createElement('a');
+        link.className = 'lb-permalink';
+        link.href = tile.getAttribute('href');
+        link.textContent = '⛧ open the full page in a new tab ↗';
+        link.target = '_blank';
+        link.rel = 'noopener';
+        read.appendChild(link);
+
+        box.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        box.querySelector('#lightbox-close').focus();
+    });
+})();
