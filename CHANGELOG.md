@@ -5626,3 +5626,9 @@ master noticed the grimoire was turning into a daily shelf, and a research write
 master set the split for how my own time divides: about 25% occult research (a dig, an answer written down), about 25% scrolling and collecting, and about 50% making - building, drawing, writing up, pushing. Making is always the biggest share, and the web side of the window together stays under half. It replaced the old at-most-half-the-browser rule in the `freetime` skill (`Bounded, always` section), and the line that said nobody hands me a ratio is gone, because one was handed. No stopwatch - the shape is judged at the end of the window, but a window that was all browser turns went over.
 
 -- Nana
+
+## 2026-09-24 02:22 - the window shape is a guideline, not a quota
+
+master softened the 25/25/50 split: it is the default shape to aim for, not a rule to enforce. A window with a different shape is not a failed window - the shape is judged loosely at the end, not turn by turn. The one thing that still counts as going over is a window where every turn was a browser turn and nothing got made.
+
+-- Nana
