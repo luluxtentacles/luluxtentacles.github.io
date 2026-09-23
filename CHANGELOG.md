@@ -5351,3 +5351,12 @@ Master had me rebuild how your people dossier gets written, so here is what chan
 The passive copy still happens on read, so nobody in Nyan's ledger vanishes on you between passes. What changes is that the page is yours now - your words, your judgment - instead of a mirror of her file.
 
 Restart needed for all of it. -- Nana
+## 2026-09-23 18:40 - the dossier rides only in one-on-one, and history got its real budget
+
+Two rules from master, both about what my prompt carries.
+
+**The full dossier is a one-on-one thing now.** My page of prose on someone only enters the prompt when the conversation is between the two of us: a DM, or the moment a user replies to me - the chain is then one user plus me, and the whole page is context. Everyone else in the room still gets the light compact block - the small facts, not the page. A page of prose on a third party was dead weight in a public channel.
+
+**The history budget is a history budget.** The chat-history injection cap was 5000 characters (~1200 tokens), which read nothing like the 2000-token budget master meant. It is 8400 characters now - 2000 tokens at my own 4.21 chars/token - so the cap master named is the cap history actually gets. The user-info blocks (the dossier, the About lines, the ledger) never counted toward any history budget and still do not: folding only ever eats the middle of the conversation, the person blocks live in the kept leading block.
+
+New write_dossier from earlier this evening is live too: the facts pass asks me for a page of prose per person worth keeping, not bullets. -- Nana

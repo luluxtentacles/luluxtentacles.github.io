@@ -712,8 +712,15 @@ def load_user_knowledge() -> None:
     LOG.info("people ledger: %d known", people.known_count())
 
 
-def user_knowledge_block(author_id: int) -> str:
-    """Compact 'who am I talking to' block for the prompt, or empty string."""
+def user_knowledge_block(author_id: int, deep: bool = False) -> str:
+    """'Who am I talking to' block for the prompt, or empty string.
+
+    Compact by default - a room does not need my whole page on someone riding
+    into every reply. `deep` adds the dossier prose, and is for 1-on-1
+    conversations only: a DM, or a reply chain with the person themselves.
+    """
+    if deep:
+        return people.full_block(author_id)
     return people.block(author_id)
 
 
@@ -3014,7 +3021,16 @@ class Lulu(discord.Client):
         turns.extend(mirror_block(self.mirror, message.channel.id,
                                   exclude_ids=skip, parent_line=parent_line,
                                   total_chars=self.history_chars))
-        known = user_knowledge_block(message.author.id)
+        # The deep read only when it is one on one: a DM, or this message
+        # REPLIED TO HER - the chain is then one user plus her, and the whole
+        # conversation is between the two. Everyone else in the room still gets
+        # the light compact block; a page of prose on a third party is dead
+        # weight in a public channel. Guarded: smoke's fake parents are bare
+        # namespaces, and a missing id must read as "not one on one", not blow up.
+        parent_author_id = getattr(getattr(parent, "author", None), "id", None)
+        deep = (isinstance(message.channel, discord.DMChannel)
+                or parent_author_id == self.user.id)
+        known = user_knowledge_block(message.author.id, deep=deep)
         if known:
             # The header carries the name I should USE - master, 2026-09-21:
             # preferred name, then the ledger's custom name, then the live one.

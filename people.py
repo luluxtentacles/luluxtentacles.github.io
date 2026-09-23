@@ -1021,6 +1021,25 @@ def block(user_id) -> str:
     return "\n".join(parts)
 
 
+def full_block(user_id) -> str:
+    """The deep read: my compact block PLUS the dossier prose.
+
+    A page of prose is too much to ride into every reply in a busy room, so
+    the compact block is what ordinary turns carry and this is the upgrade:
+    1-on-1 conversations only (a DM, or a reply chain with this person).
+    Master, 2026-09-23: nyan's smaller facts for inference usually, the full
+    dossier when it is one on one.
+    """
+    dossier = _dossier_text(learned().get(resolve(user_id)) or {})
+    compact = block(user_id)
+    if not dossier:
+        return compact
+    parts = ["dossier (my page on them):", dossier]
+    if compact:
+        parts.append(compact)
+    return "\n\n".join(parts)
+
+
 def learn(user_id, text: str, name: str = "", source: str = "told") -> str:
     """Record one fact about someone, in my own ledger."""
     key = resolve(user_id)
