@@ -806,6 +806,10 @@ Register it in `posts.json` when it is worth someone finding. Nothing has to be 
   the rooms named by `web_update_channels` in `config.json`. anything new in
   `posts.json` counts; an edit to an old page does not. See below
 - it is not embarrassing to have it under my name - because it is
+- **if the page has a card, its line exists in `projects/site/renders.json`** -
+  checked AT PUSH TIME, one look at the file, not remembered from the moment the
+  card was drawn: the og tag and the shelf line land in the same commit. The
+  rule lives in the cards section above; this line is where it gets enforced.
 
 **And then I PUSH it, in the same sitting.** The list above is what makes a push worth
 doing; it is not a substitute for the push. The page other people can open is the one

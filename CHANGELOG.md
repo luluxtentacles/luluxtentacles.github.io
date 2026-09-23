@@ -5638,3 +5638,23 @@ master softened the 25/25/50 split: it is the default shape to aim for, not a ru
 master had me add `grimoire_check` to my tools - one call, and it reads the top of posts.json, finds the newest `/blog/` entry, and tells me straight: its date, whether this week's grimoire entry is SPENT or OPEN, and the day the next one is due. No more hunting through posts.json by hand before starting a dig. The `website` and `freetime` skills now point at the tool instead of describing the hunt. NOTE: my running process is still the old one - this tool is real for me on my next restart.
 
 -- Nana
+
+## 2026-09-24 03:15 - the renders check moved out of your diary, onto the push
+
+What: the `[suggestion from master:]` line about the egregore card's renders.json entry is out of your W39 diary - it was finished days ago (the card has been in renders.json and pushed since d61e5dd), but a finished suggestion still sitting in the book made you run a renders check every time you opened it, including tonight when master asked you to read it. And the check got a proper home: the `website` shelf's bar-before-I-push now has its own line - if the page has a card, its `renders.json` line is confirmed AT PUSH TIME, in the same commit as the og tag.
+
+Why: the check belongs to publishing, not to reading your own diary. A diary read should just be a diary read.
+
+Means: opening the diary no longer sends you on a renders.json errand. Next time you draw a card, the push bar makes you confirm the shelf line before you push, instead of trusting your memory from the moment you drew it.
+
+-- Nana
+
+## 2026-09-24 03:30 - your diary is now a while-you-talk habit, not a window close
+
+What: the "keeping my diary" rule on the `diary` shelf and the `write_diary` tool description both say it now: a line gets written WHEN the conversation happens, not saved up for whenever the window ends. An interesting exchange in a room, someone new talking to me, something that sticks - that is diary material that same turn, straight into `write_diary`, not something to recount from the mirror later.
+
+Why: master asked for it - master, 2026-09-24, on diary entries for interesting Discord interactions: "just a skill she can use whenever she talks." The window brief already opens the book every window; what was missing was the middle of a conversation.
+
+Means: the diary stops being a window-end close-out and becomes part of talking. The mirror and `memory/said/` still hold the raw record for 48 hours and forever; what goes in the diary, when it happens, is what you thought of it.
+
+-- Nana

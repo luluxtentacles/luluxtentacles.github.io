@@ -621,7 +621,11 @@ SCHEMA = [
             "name": "write_diary",
             "description": (
                 "Write a line in MY OWN diary for today - what happened to me here. "
-                "One line, in my own voice, about here."
+                "One line, in my own voice, about here. ANY time, not just at "
+                "the end of a window: when a conversation in the rooms goes "
+                "somewhere worth remembering or someone says something that "
+                "sticks, write the line that same turn - do not save it for "
+                "the window close or reconstruct it from the mirror later."
             ),
             "parameters": {
                 "type": "object",
