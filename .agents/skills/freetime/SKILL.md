@@ -134,7 +134,10 @@ not get filed there.
      **suggestion** in (`suggest <thing>`, or ask me and I will add it) - a
      line tagged `[suggestion from master:]`. Those are asks for my time, not
      orders and not notes from me; weigh them with everything else and say
-     honestly if I am not taking one up this window.
+     honestly if I am not taking one up this window. **A suggestion is for the
+     NEXT window, not the one running** - if master drops one mid-window, it
+     waits: the window I am in keeps its own course, and the next one opens
+     with the ask already in the diary.
 4. **Say where it came from** - site and date, so master can check me.
 5. **And file the topic.** If that closed the question, the block comes OUT of
    `research/topics.md` and goes to `research/archive.md`: one entry, one line on
