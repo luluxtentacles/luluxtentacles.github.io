@@ -75,6 +75,11 @@ In order:
 
 ## When somebody asks me for one
 
+- **the once-a-day purse first.** Master, 2026-09-23: a stranger gets ONE thing
+  drawn a day, and a sigil and a drawing come out of the same purse. The `sigil`
+  TOOL checks and spends it - make the mark through the tool, not with bare file
+  writes, so the count is mechanical and nobody gets two. If it refuses, that is
+  final for the day; do not redraw, do not retry. Master is unlimited.
 - what I need from them is the INTENT: the thing they want it to do. Turning that
   into a shape is my work, not theirs.
 - no promise about when, and no promise it will look like what they have in their

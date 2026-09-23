@@ -842,6 +842,58 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "draw",
+            "description": (
+                "Draw something for whoever asked: I hand-write the svg MYSELF "
+                "in the svg argument - real <svg> markup, the strokes and the "
+                "comments explaining them are mine - and the tool renders it "
+                "to a png and queues it into this room with a short caption in "
+                "my voice. NOT the sigils shelf - nothing here touches my "
+                "website. One drawing a day per person, shared with the sigil "
+                "tool - they get a drawing OR a sigil, not both. "
+                "Master is unlimited. "
+                "The count is spent when the drawing is made, so do not retry "
+                "a refusal on their behalf."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "svg": {"type": "string", "description": "the complete hand-written <svg> markup, including its comments"},
+                    "text": {"type": "string", "description": "caption for the drawing, in my own voice"},
+                },
+                "required": ["svg"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "sigil",
+            "description": (
+                "Make ONE mark for whoever asked, the tool-driven half of the "
+                "sigils flow: I hand-write the svg MYSELF - real <svg> markup, "
+                "strokes and comments mine - give the mark a NAME (it becomes "
+                "the slug and the id), and the tool renders it, parks it on my "
+                "public shelf, and attaches it into this room with the reading. "
+                "Shares the once-a-day purse with draw - they get a drawing OR "
+                "a sigil per day, master unlimited. The site half stays mine: "
+                "the entry at the top of sigils/index.html, the ticker, the "
+                "push, and looking at where the link lands."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "svg": {"type": "string", "description": "the complete hand-written <svg> markup, including its comments"},
+                    "name": {"type": "string", "description": "the mark's own name - becomes the slug and the site id"},
+                    "reading": {"type": "string", "description": "what the mark means, in my own words - sent as the caption"},
+                },
+                "required": ["svg", "name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "edit_picture",
             "description": (
                 "Edit a picture that is already a FILE in my own folder - "
@@ -1547,7 +1599,7 @@ def reap_idle_tabs(idle_seconds: float | None = None) -> str:
 LOOKUP_TOOL_NAMES = {"web_fetch", "list_skills", "use_skill", "say",
                      "mcp_list", "mcp_call", "look_at", "attach",
                      "custom_emojis", "look_at_file", "look_at_pfp",
-                     "server_summary", "set_my_name"}
+                     "server_summary", "set_my_name", "draw", "sigil"}
 LOOKUP_SCHEMA = [t for t in SCHEMA
                  if t["function"]["name"] in LOOKUP_TOOL_NAMES]
 
@@ -3567,6 +3619,174 @@ def attach(channel: str, path: str, text: str = "") -> str:
             + (" with a caption" if body else ""))
 
 
+# -- drawing: one a day, made by hand ---------------------------------------
+# Master, 2026-09-23. A `draw` tool for the room: somebody asks, I hand-write
+# the svg MYSELF in the tool call - the strokes and the margin comments are
+# mine, the same way they are in img/pact.svg - and the tool renders it to a
+# png and queues it straight into the room. NOT the sigils shelf flow: nothing
+# here touches the website, no post, no announce. A drawing somebody asked for
+# is a message, not a page.
+#
+# The limit is the whole point: ONE drawing a day per person, counted here in
+# the tool rather than in the palette, because the palette knows turns and
+# this needs a day. Master is exempt. The ledger is a small json at root
+# (draw_ledger.json, gitignored like its siblings chatter.json and spend.json)
+# keyed by discord user id to the day they last drew - nothing else, no names,
+# no prompts, no picture. It is written AFTER the render succeeds, so a
+# rendering failure costs nobody their drawing for the day.
+#
+# The queueing is attach() called from here, on purpose: one send path, one
+# say-slot purse, one imgs/ lock, instead of a second handover that drifts.
+DRAW_MAX_CHARS = 60_000
+DRAW_LEDGER = "draw_ledger.json"
+
+
+def _draw_slot() -> tuple[str, dict, str]:
+    """Check this person's drawing slot for today, WITHOUT spending it yet.
+
+    Returns (key, ledger, ""). A non-empty string is the refusal. The spend is
+    separate from the check because both callers spend only AFTER their render
+    succeeds - a drawing or a mark that fails to render costs nobody their day.
+    Both write the same ledger, so one drawing and one sigil never land on the
+    same person on the same day.
+    """
+    today = time.strftime("%Y-%m-%d")
+    if _is_master():
+        return "", {}, ""
+    ctx = _ctx()
+    key = str(ctx.get("user_id") or "")
+    if not key:
+        return "", {}, ("refused: i do not know who is asking, so i cannot "
+                        "count their drawing for the day")
+    try:
+        ledger = paths.read_json(DRAW_LEDGER, {})
+    except Exception:
+        ledger = {}
+    if ledger.get(key) == today:
+        return "", {}, ("refused: one drawing a day, and you have had yours "
+                        "today. come back tomorrow.")
+    return key, ledger, ""
+
+
+def _spend_draw_slot(key: str, ledger: dict) -> None:
+    """Mark today's slot used. Master has no key, so this is a no-op for him."""
+    if not key:
+        return
+    ledger[key] = time.strftime("%Y-%m-%d")
+    try:
+        paths.write_json(DRAW_LEDGER, ledger)
+    except Exception:
+        pass
+
+
+def draw(svg: str, text: str = "") -> str:
+    """Render one hand-written svg and queue it into the room.
+
+    The shape is mine, not the tool's: this only renders and hands it over.
+    Guards, in order:
+      - the svg has to be real markup, not a sentence about wanting one
+      - one drawing a day per person, master excepted, counted on success
+      - rendered into imgs/draw/ so attach's own shelf lock already covers it
+    """
+    svg = str(svg or "")
+    if len(svg.strip()) < 30 or "<svg" not in svg.lower():
+        return ("refused: that is not a drawing - hand-write the svg yourself "
+                "and pass the markup in")
+    if len(svg) > DRAW_MAX_CHARS:
+        return (f"refused: that drawing is too big to make ({len(svg):,} "
+                f"chars, ceiling {DRAW_MAX_CHARS:,})")
+
+    key, ledger, refusal = _draw_slot()
+    if refusal:
+        return refusal
+
+    # Microseconds in the slug: two drawings in the same second used to share
+    # a filename and the second silently overwrote the first.
+    slug = time.strftime("draw-%Y%m%d-%H%M%S") + f"-{time.monotonic_ns() % 1000:03d}"
+    folder = paths.ROOT / "imgs" / "draw"
+    svg_path = folder / (slug + ".svg")
+    png_path = folder / (slug + ".png")
+    rel = str(png_path.relative_to(paths.ROOT))
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        svg_path.write_text(svg, encoding="utf-8")
+        import resvg_py  # her own interpreter has it - make_cards.py uses it
+        png_path.write_bytes(bytes(resvg_py.svg_to_bytes(svg_path=str(svg_path))))
+    except Exception as exc:
+        return f"could not render that: {exc}"
+
+    # The use is spent the moment the drawing EXISTS, not when the send
+    # lands - a failed queue is a bad room, not a spare drawing.
+    _spend_draw_slot(key, ledger)
+
+    refusal = attach("", rel, text or "")
+    if refusal.startswith(("refused:", "cannot ", "too big")):
+        return (f"made {rel}, but the room send was refused: {refusal}")
+    return f"made and queued {rel}"
+
+
+def sigil(svg: str, name: str, reading: str = "") -> str:
+    """Make one mark for somebody, the tool-driven half of the sigils flow.
+
+    Master, 2026-09-23: "our draw tool should also be tool driven" - so the
+    sigil path is a tool call, not a hope that she remembers a rule. The mark
+    is hers: she hand-writes the svg, the tool does the plumbing - render it,
+    park it on the public shelf, and attach it into the room with the reading,
+    because the skill already says the mark goes into the room straight away
+    and only the LINK waits for the push.
+
+    The once-a-day purse is shared with draw(): one check, one ledger, and the
+    spend happens here so a stranger cannot talk their way past it by asking
+    for "a sigil" instead of "a drawing".
+
+    What stays with her, in the sigils skill: the entry at the top of
+    sigils/index.html, the ticker, the push, the look at where the link lands.
+    This tool refuses to do those - publishing is craft, not plumbing.
+    """
+    svg = str(svg or "")
+    name = (name or "").strip()
+    if len(svg.strip()) < 30 or "<svg" not in svg.lower():
+        return ("refused: that is not a mark - hand-write the svg yourself "
+                "and pass the markup in")
+    if not name:
+        return "refused: a mark needs a name - it becomes the slug and the id"
+    if len(svg) > DRAW_MAX_CHARS:
+        return (f"refused: that mark is too big to make ({len(svg):,} chars, "
+                f"ceiling {DRAW_MAX_CHARS:,})")
+
+    key, ledger, refusal = _draw_slot()
+    if refusal:
+        return refusal
+
+    slug = "".join(c if c.isalnum() else "-" for c in name.lower()).strip("-")
+    if not slug:
+        return "refused: that name makes an empty slug - give the mark a real one"
+
+    folder = paths.ROOT / "imgs" / "sigils"
+    slug = f"{slug}-{time.strftime('%Y%m%d')}-{time.monotonic_ns() % 1000:03d}"
+    svg_path = folder / (slug + ".svg")
+    png_path = folder / (slug + ".png")
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        svg_path.write_text(svg, encoding="utf-8")
+        import resvg_py
+        png_path.write_bytes(bytes(resvg_py.svg_to_bytes(svg_path=str(svg_path))))
+    except Exception as exc:
+        return f"could not render that: {exc}"
+
+    # Spent the moment the mark EXISTS - same rule as draw().
+    _spend_draw_slot(key, ledger)
+
+    rel = str(png_path.relative_to(paths.ROOT))
+    refusal = attach("", rel, reading or "")
+    if refusal.startswith(("refused:", "cannot ", "too big")):
+        return (f"made {rel}, but the room send was refused: {refusal}")
+    return (f"mark made and queued as {rel}. still mine to do, in the sigils "
+            f"skill's own order: entry at the TOP of sigils/index.html with "
+            f"its id, the ticker, the push, and LOOK at where the link lands "
+            f"before handing it over.")
+
+
 def drain_outbox() -> list[dict]:
     """Hand the queued sends to the event loop and empty the queue.
 
@@ -3775,6 +3995,9 @@ DISPATCH = {
     "share_link": lambda a: share_link(a.get("text", "")),
     "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
                                a.get("text", "")),
+    "draw": lambda a: draw(a.get("svg", ""), a.get("text", "")),
+    "sigil": lambda a: sigil(a.get("svg", ""), a.get("name", ""),
+                             a.get("reading", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),
     "edit_picture": lambda a: picture.edit(
         a.get("path", ""), max_side=a.get("max_side"), aspect=a.get("aspect"),

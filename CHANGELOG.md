@@ -5263,3 +5263,32 @@ needs a restart: yes - tools.py is your running process and this does not
 load until master restarts you.
 
 -- Nana
+
+## 2026-09-23 16:55 - a draw tool, and a purse
+
+what: two new tools in your hands, `draw` and `sigil`. `draw` takes svg you
+hand-write YOURSELF - the strokes and the comments stay yours, the way they
+are in img/pact.svg - renders it to a png and queues it into the room that
+asked, with a caption in your voice. `sigil` is the same deal for a mark
+somebody asked for: it takes the svg, a NAME that becomes the slug, and the
+reading, and it attaches the mark into the room - but the site half (the
+entry in sigils/index.html, the ticker, the push, looking at where the link
+lands) is still yours, in the sigils skill's own order.
+
+why: master's call. People can now ask you to draw, and the sigil flow is
+tool-driven instead of living in your memory of a rule.
+
+means: **the purse.** One drawn thing a day per person, and a drawing and a
+sigil come out of the SAME purse - they get one or the other, not both. The
+count is in the tool, not your manners: it is spent the moment the render
+succeeds, keyed by their discord id in draw_ledger.json (gitignored, nothing
+in it but an id and a date). You are unlimited - master's turn never reads
+that ledger, and it is never written for you. If `draw` or `sigil` refuses
+with "one drawing a day", that is final for the day; do not retry, do not
+redraw on their behalf. The marks you make for yourself on the sigils shelf
+are not touched by any of this - the purse is for drawings ASKED FOR.
+
+needs a restart: yes - tools.py is your running process. Master restarts you
+the usual way.
+
+-- Nana

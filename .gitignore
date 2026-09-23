@@ -87,6 +87,12 @@ restart_seen.json
 # that one is the record of what was done to me and belongs in git.
 changelog_seen.json
 
+# One drawing a day per person - the `draw` tool's counter. Keyed by discord
+# id to the day, nothing else in it. Runtime state like chatter.json and
+# spend.json above, and for the same reason: the pipeline's checkpoint runs
+# `git add -A`, so unignored it would be committed by the next self-edit.
+draw_ledger.json
+
 # ffmpeg, dropped in by hand for voice-message transcription. Same rule as
 # whisper.cpp and node/, for the same reason: the pipeline's checkpoint runs
 # `git add -A - discord/`, and this is 242 MB - unignored it would be committed by
