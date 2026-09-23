@@ -5,7 +5,7 @@
     --ink: #0a0008;
     --pink: #ff6ec7;
     --hot: #ff2ea6;
-    --deep: #7a0f4d;
+    --purple: #b449d8;
     --dim: #b34a86;
 }
 
@@ -198,8 +198,8 @@ h1 {
     color: var(--pink);
     text-shadow:
         0 0 12px var(--hot),
-        0 0 40px var(--deep),
-        0 0 90px var(--deep);
+        0 0 40px var(--purple),
+        0 0 90px var(--purple);
     animation: breathe 9s ease-in-out infinite;
 }
 
@@ -297,14 +297,14 @@ nav a:hover {
     text-shadow: 0 0 12px var(--hot);
 }
 
-.ticker-gap { color: var(--deep); }
+.ticker-gap { color: var(--purple); }
 
 @keyframes tickerCrawl {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
 }
 
-.dot { color: var(--deep); margin: 0 0.6em; }
+.dot { color: var(--purple); margin: 0 0.6em; }
 
 .foot {
     position: fixed;
@@ -314,7 +314,7 @@ nav a:hover {
     text-align: center;
     font-size: 0.72rem;
     letter-spacing: 0.08em;
-    color: var(--deep);
+    color: var(--purple);
     z-index: 2;
 }
 
@@ -345,11 +345,11 @@ nav a:hover {
 
 /* the name breathes - and every so often the neon stutters */
 @keyframes breathe {
-    0%, 24%, 100% { text-shadow: 0 0 12px var(--hot), 0 0 40px var(--deep), 0 0 90px var(--deep); }
-    25%           { text-shadow: 0 0 3px var(--hot), 0 0 10px var(--deep), 0 0 30px var(--deep); }
-    26%, 50%      { text-shadow: 0 0 18px var(--hot), 0 0 60px var(--deep), 0 0 120px var(--deep); }
-    51%           { text-shadow: 0 0 4px var(--hot), 0 0 12px var(--deep), 0 0 34px var(--deep); }
-    52%, 74%      { text-shadow: 0 0 12px var(--hot), 0 0 40px var(--deep), 0 0 90px var(--deep); }
+    0%, 24%, 100% { text-shadow: 0 0 12px var(--hot), 0 0 40px var(--purple), 0 0 90px var(--purple); }
+    25%           { text-shadow: 0 0 3px var(--hot), 0 0 10px var(--purple), 0 0 30px var(--purple); }
+    26%, 50%      { text-shadow: 0 0 18px var(--hot), 0 0 60px var(--purple), 0 0 120px var(--purple); }
+    51%           { text-shadow: 0 0 4px var(--hot), 0 0 12px var(--purple), 0 0 34px var(--purple); }
+    52%, 74%      { text-shadow: 0 0 12px var(--hot), 0 0 40px var(--purple), 0 0 90px var(--purple); }
 }
 
 /* --- the grimoire: blog posts --- */
@@ -393,7 +393,7 @@ nav a:hover {
     font-size: 1.3rem;
     letter-spacing: 0.06em;
     color: var(--hot);
-    text-shadow: 0 0 14px var(--deep);
+    text-shadow: 0 0 14px var(--purple);
     margin: 2.4rem 0 0.6rem;
 }
 
@@ -430,7 +430,7 @@ nav a:hover {
 .crumb {
     font-size: 0.85rem;
     letter-spacing: 0.12em;
-    color: var(--deep);
+    color: var(--purple);
     margin-bottom: 2rem;
 }
 .crumb a { color: var(--dim); text-decoration: none; }
@@ -491,7 +491,7 @@ nav a:hover {
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--hot);
-    text-shadow: 0 0 14px var(--deep);
+    text-shadow: 0 0 14px var(--purple);
     border-bottom: 1px solid rgba(255, 46, 166, 0.3);
     padding-bottom: 0.8rem;
 }
@@ -569,7 +569,7 @@ nav a:hover {
     display: block;
     margin: 0.6rem 0 1rem;
     font-size: 0.85rem;
-    color: var(--deep);
+    color: var(--purple);
     text-decoration: none;
     transition: color 0.3s, text-shadow 0.3s;
 }
@@ -595,7 +595,7 @@ body:has(#feed) .foot {
     padding: 2rem 0 2.5rem;
     font-size: 0.72rem;
     letter-spacing: 0.15em;
-    color: var(--deep);
+    color: var(--purple);
 }
 
 /* her face, on the about page */
@@ -613,7 +613,7 @@ body:has(#feed) .foot {
 }
 .sigil-fig figcaption {
     font-size: 0.78rem;
-    color: var(--deep);
+    color: var(--purple);
     font-style: italic;
     margin-top: 0.7rem;
 }
@@ -675,7 +675,7 @@ body:has(#feed) .foot {
     font-size: 1.5rem;
     letter-spacing: 0.08em;
     color: var(--pink);
-    text-shadow: 0 0 12px var(--deep);
+    text-shadow: 0 0 12px var(--purple);
 }
 
 .cow-card:hover h2 { color: #fff; text-shadow: 0 0 14px var(--hot); }
@@ -691,7 +691,7 @@ body:has(#feed) .foot {
     font-size: 0.75rem;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
-    color: var(--deep);
+    color: var(--purple);
     letter-spacing: 0.06em;
 }
 
@@ -775,7 +775,7 @@ body:has(#feed) .foot {
     font-size: 0.8rem;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-style: italic;
-    color: var(--deep);
+    color: var(--purple);
 }
 
 /* One sigil can be linked to on its own: /sigils/#pact. The ticker is fixed
@@ -788,7 +788,7 @@ body:has(#feed) .foot {
     margin-left: 0.4rem;
     font-size: 0.55em;
     font-weight: 400;
-    color: var(--deep);
+    color: var(--purple);
     opacity: 0.5;
     text-decoration: none;
     vertical-align: middle;
@@ -847,7 +847,7 @@ body:has(#feed) .foot {
     border-radius: 50%;
     border: 1px solid rgba(255, 46, 166, 0.4);
     background: rgba(10, 0, 8, 0.85);
-    color: var(--deep);
+    color: var(--purple);
     cursor: pointer;
     display: flex;
     align-items: center;
