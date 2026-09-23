@@ -1,14 +1,14 @@
 /* the renders shelf.
    the tiles themselves are the site's own .photogrid / .grid-tile / .tile-* from
    the root style.css, so this file carries only what the shelf adds: the line
-   above the grid, what it says when the list is empty, and one override. */
+   above the grid, what it says when the list is empty, and two overrides. */
 
-/* THE OVERRIDE, and the reason for it. The house tile is a 1:1 square and crops
-   its picture to fill (object-fit: cover). That is right for a shelf of
-   thumbnails, where the tile is a doorway to a page. It is wrong for this one:
-   my cards are 1200x630, so a square crop takes the sides off and cuts the title
-   that is printed on the art itself - the shelf would be hiding the work it
-   exists to show. Here the whole render shows, at its own shape. */
+/* OVERRIDE 1, the tile. The house tile is a 1:1 square and crops its picture to
+   fill (object-fit: cover). That is right for a shelf of thumbnails, where the
+   tile is a doorway to a page. It is wrong for this one: my cards are 1200x630, so
+   a square crop takes the sides off and cuts the title that is printed on the art
+   itself - the shelf would be hiding the work it exists to show. Here the whole
+   render shows, at its own shape. */
 .photogrid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     align-items: start;
@@ -20,6 +20,47 @@
     height: auto;
     object-fit: contain;
 }
+
+/* OVERRIDE 2, the modal. The house lightbox is a two-column card - picture left,
+   reading right, about half each. On a shelf of wide cards that hands half the
+   modal to a paragraph and shows the art small. Here the picture leads: the card
+   is 80vw wide, the picture fills it, and the words sit underneath. */
+#lightbox .lb-card {
+    flex-direction: column;
+    width: 80vw;
+    max-width: 80vw;
+    max-height: 92vh;
+}
+
+#lightbox .lb-fig {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+}
+
+/* max-height is the card's cap MINUS a fixed allowance for the words, not 80vh.
+   80vh looked right and measured wrong: at 1080p an 80vh picture leaves about
+   12vh under it, and the blurb came up 78px short - it got cut at the card's
+   edge with a scrollbar nobody asked for. The allowance is what keeps the whole
+   blurb visible and lets the picture take everything else, which still puts it
+   at ~80% of the width on a 1280 screen and ~70% on a big one. */
+#lightbox .lb-fig img {
+    max-width: 100%;
+    max-height: calc(92vh - 200px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* the words never get squeezed - the picture yields instead */
+#lightbox .lb-read {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 18px 22px 20px;
+}
+
+#lightbox .lb-read p { margin: 0 0 6px; }
+#lightbox .lb-permalink { margin-top: 10px; }
 
 .renders-count {
     margin: 0 0 1.4rem;
