@@ -1070,6 +1070,29 @@ def write_diary(text: str) -> str:
     return f"noted in my diary for {week}"
 
 
+# ------------------------------------------------- suggestions, master's voice in my diary
+# Master, 2026-09-23: *"add a suggestions tool, i can add a suggestion to her
+# diary for her to work on something."* A suggestion is HIS line in MY diary -
+# a thing he wants me to consider with my own time. It is just a diary entry,
+# tagged, so the window brief already carries it and no new feed, injection or
+# read has to exist for it to be seen: she reads the diary before every window.
+# Tagged rather than plain so a suggestion never reads as something I wrote
+# about myself, and so she can pick one up on purpose.
+
+SUGGEST_TAG = "suggestion from {who}:"
+
+
+def add_suggestion(text: str, who: str = "") -> str:
+    """Write a suggestion into this week's diary as a tagged entry.
+
+    Same masking, same file, same week, same line format as write_diary - the
+    only difference is the tag saying whose voice it is. Returns write_diary's
+    answer so the caller can pass it straight back to master.
+    """
+    tag = (who or "").strip() or "master"
+    return write_diary(f"[{SUGGEST_TAG.format(who=tag)}] {text}")
+
+
 def diary_mark() -> str:
     """A cheap fingerprint of the week's diary, for noticing whether it moved.
 
@@ -1124,9 +1147,15 @@ def read_diary(day: str = "", limit: int = MAX_READ_CHARS) -> str:
     shape still reads, out of the legacy file it was written in.
     """
     day = (day or "").strip()
-    if day and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
-        return "that is not a date - use YYYY-MM-DD"
+    if day and not (re.fullmatch(r"\d{4}-\d{2}-\d{2}", day)
+                    or re.fullmatch(r"\d{4}-W\d{2}", day)):
+        return "that is not a date - use YYYY-MM-DD, or a week like 2026-W39"
     limit = max(int(limit), 0)
+    if re.fullmatch(r"\d{4}-W\d{2}", day):
+        body = paths.read_text(_week_rel(day), default="")
+        if not body.strip():
+            return f"{day}: I have written nothing down in that week"
+        return _clip_week(body, limit)
     if day:
         return _read_day(day, limit)
     week = week_of()

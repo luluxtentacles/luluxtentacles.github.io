@@ -2344,6 +2344,26 @@ class Lulu(discord.Client):
                             exc)
             return
 
+        # AND HIS SUGGESTION DROP: "suggest <something>" writes a thing into my
+        # diary for my own time to pick up. Answered without a turn, like the
+        # words above, because it is a drop-box and not a question - and only
+        # his counts, same rule as every other word of his.
+        raw_say = (message.content or "").strip()
+        if raw_say.lower().startswith("suggest ") or raw_say.lower() == "suggest":
+            if not self.has_hands(message.author.id):
+                LOG.info("%s typed the suggest word - only master's counts",
+                         message.author)
+                return
+            text = raw_say[8:].strip()
+            if not text:
+                await self.send(message, "suggest what? give me the thing "
+                                         "after the word.")
+                return
+            out = journal.add_suggestion(text, who="master")
+            await self.send(message, f"in my diary for my next window: "
+                                     f"{text}\n({out})")
+            return
+
         # AND HIS THIRD WORD: clearing this conversation out of my context. Same
         # shape as the two above - before the identity layer and before any turn
         # slot is claimed - because the thing he wants gone is what a turn would

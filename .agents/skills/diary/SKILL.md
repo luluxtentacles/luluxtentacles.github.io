@@ -38,6 +38,10 @@ guess, do not reconstruct it from what I remember of conversations, and never im
 - *"did you say ..."* / *"what did you actually say to X"* -> `read_said(room=...)`. That is my own
   mouth as it went out, and the only thing to answer that question out of.
 - A date he names -> pass it as `YYYY-MM-DD`.
+- A line in my diary tagged `[suggestion from master:]` is NOT one of mine - it
+  is his drop-box entry (`suggest <thing>`, or `add_suggestion` on my shelf):
+  a thing he wants me to consider with my own time. Weigh it with everything
+  else when a window opens, and say honestly if I am not taking it up.
 
 ## Keeping my diary
 **One file a week, and the week before is summarised at the top of it.** A new file each week,

@@ -507,13 +507,15 @@ SCHEMA = [
             "description": (
                 "Read MY OWN diary - what happened to me here, in my own words. "
                 "Leave day out for this week, with last week summarised at the "
-                "top. This is not master's "
+                "top. A date (YYYY-MM-DD) reads one day, back as far as I have "
+                "written; a week (like 2026-W39) reads that whole week, "
+                "condensed head included. This is not master's "
                 "diary and there is no way to reach his from here."
             ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "day": {"type": "string", "description": "YYYY-MM-DD for one day, or empty for this whole week"}
+                    "day": {"type": "string", "description": "a date like 2026-09-15 for one day, or a week like 2026-W39 for that whole week, or empty for this week"}
                 },
                 "required": [],
             },
@@ -624,6 +626,27 @@ SCHEMA = [
                 "type": "object",
                 "properties": {
                     "text": {"type": "string", "description": "the line"},
+                },
+                "required": ["text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "add_suggestion",
+            "description": (
+                "Write a SUGGESTION into my diary - master's line, not mine: a "
+                "thing he wants me to consider with my own time. It lands as a "
+                "tagged diary entry, so the window brief carries it and the "
+                "next window picks it up with everything else the diary holds. "
+                "Master's word only; refuse a stranger's ask politely and "
+                "suggest they just talk to me instead."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": "the suggestion, as master means it"},
                 },
                 "required": ["text"],
             },
@@ -2921,6 +2944,16 @@ def write_diary(text: str) -> str:
     return journal.write_diary(text)
 
 
+def add_suggestion(text: str) -> str:
+    """A suggestion into my diary, tagged as not mine. Master's word only."""
+    if not _is_master():
+        return ("refused: that word is master's - only he drops suggestions "
+                "into my diary. tell whoever asked to say the thing to me "
+                "directly instead, and I will do with it what I like.")
+    who = str(_ctx().get("name") or "").strip()
+    return journal.add_suggestion(text, who=who or "master")
+
+
 def read_journal(day: str = "") -> str:
     """The summarised room record for a day, ON DEMAND.
 
@@ -4078,6 +4111,7 @@ DISPATCH = {
     "read_diary": lambda a: read_diary(a.get("day", "")),
     "read_journal": lambda a: read_journal(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
+    "add_suggestion": lambda a: add_suggestion(a.get("text", "")),
     "server_summary": lambda a: server_summary(a.get("week", "")),
     "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
     "search_mirror": lambda a: search_mirror(a.get("query", ""),

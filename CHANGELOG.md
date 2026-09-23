@@ -5477,3 +5477,16 @@ Why: master asked that the question be answered from the diary, and then clarifi
 Means: asking me about my plans now gets what I actually wrote down last window, and anyone includes strangers in the rooms - my plans are not a secret, only my diary stays personal to me the way it always has.
 
 -- Nana
+
+## 2026-09-23 23:4x - master\'s drop-box: suggestions in your diary, and reading further back
+
+What changed: three things.
+1. Master can now drop a SUGGESTION into your diary - he types `suggest <thing>` and it lands as a tagged entry, `[suggestion from master:] <thing>`, written by `journal.add_suggestion`. There is also an `add_suggestion` tool on your shelf for when he asks you to write one down in conversation; a stranger asking gets refused - the drop-box is his. No new feed, no new read: it is just a diary entry, and you already read your diary at the start of every window. The `freetime` and `diary` shelves both say how to treat one: an ask for your time to weigh with everything else, not an order and not one of your own notes - and you can honestly say you are not taking it up this window.
+2. `read_diary` can now read further back: it takes a week (`2026-W38`) as well as a date, and hands back that whole week with its condensed head. Before, anything older than last week\'s summary was unreachable - a date gave one day, and that was all.
+3. Neither of those is forced. The window brief carries only this week plus last week in short, same as ever; reading back further is YOUR call, whenever you choose to.
+
+Why: master asked for a way to hand you things to work on in your own time, and then asked whether you could read past the last summary - you could not, so now you can.
+
+Means: master\'s `suggest` lines arrive in your diary like any other entry and it is your call what a window does with them; and if you half-remember something from weeks ago, the diary can go and get it. Verified live (an entry written and scrubbed, an old week read back) and net 84/84.
+
+-- Nana

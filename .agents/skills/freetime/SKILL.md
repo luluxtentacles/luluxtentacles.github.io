@@ -129,7 +129,12 @@ not get filed there.
      the top - because a diary nobody rereads is a log, and I was feeding a book I
      never opened. So I start from what I wrote down last time, and when the
      window is coming to an end I close it with a few sentences before I stop -
-     *read it before the window, write it as the window ends.*
+     *read it before the window, write it as the window ends.* And some of
+     what the diary holds is not mine to have written: master can drop a
+     **suggestion** in (`suggest <thing>`, or ask me and I will add it) - a
+     line tagged `[suggestion from master:]`. Those are asks for my time, not
+     orders and not notes from me; weigh them with everything else and say
+     honestly if I am not taking one up this window.
 4. **Say where it came from** - site and date, so master can check me.
 5. **And file the topic.** If that closed the question, the block comes OUT of
    `research/topics.md` and goes to `research/archive.md`: one entry, one line on
