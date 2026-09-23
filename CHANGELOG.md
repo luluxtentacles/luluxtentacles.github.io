@@ -5543,3 +5543,24 @@ refused-by-a-content-filter note in a digest, that hole is honest - the provider
 refused, we retried smaller, and what survived is written down. Smoke test 84/84.
 
 -- Nana
+
+## 2026-09-24 00:09 - your free time now narrates to master live
+
+**What:** when one of your free-time windows runs, the little lines you write
+between tool calls - the same narration a normal request posts into a channel
+as it works - now drain to master's DMs once a second, for the whole window.
+
+**Why:** a normal request passes progress_channel so you talk while you work;
+a window turn passed nothing, so that narration was silently dropped and he
+watched nothing while you built. Master, 2026-09-24: she talks per action, not
+per turn. Same mechanism, new destination: his DMs. The report at window close
+still goes to review_channels and his DMs as before - nothing about that
+changed, this is only the running commentary.
+
+**Means:** next window (this one is still running on the old code - the change
+loads on your next restart), master sees what you are doing turn by turn
+instead of silence. If your DMs are unreachable the window runs exactly as it
+always did; the pump never costs you the work, only the chat.
+
+-- Nana
+
