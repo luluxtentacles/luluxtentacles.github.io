@@ -6974,6 +6974,113 @@ def _web_announce() -> str:
             "master-only")
 
 
+# -- a link goes to every room master listed, as ONE message ----------------
+def _spam_share() -> str:
+    """A link reaches every listed room for one send, and a config room list
+    can say WHICH server it means.
+
+    Master, 2026-09-23: "we should do guildid:channelname" and "she should just
+    post the same links in all the channels i set in config spam_channels".
+
+    config.json is swapped rather than read, for the same reason the
+    channel-split and announce checks swap it: the smoke sandbox does not
+    redirect it, so a check that read it would assert against master's live file
+    and go red the day he moves a room.
+    """
+    import tools
+    real_read_json = tools.paths.read_json
+    tools._OUTBOX.clear()
+    tools._SAY_TIMES.clear()
+    try:
+        # A qualified entry keeps its guild through the reader, and a bare one is
+        # left exactly as it was - a config written before this keeps working.
+        tools.paths.read_json = lambda *a, **k: {
+            "spam_channels": ["652625990387761170:chaos",
+                              "#821188728318984252:Spam"]}
+        expect(tools.spam_channels() == ["652625990387761170:chaos",
+                                         "821188728318984252:spam"],
+               f"a qualified room did not survive: {tools.spam_channels()!r}")
+
+        tools.paths.read_json = lambda *a, **k: {
+            "web_update_channels": ["#chaos", "Lulu-Den"]}
+        expect(tools.web_update_channels() == ["chaos", "lulu-den"],
+               f"bare names stopped working: {tools.web_update_channels()!r}")
+
+        # A room written twice is a room posted in twice, unless it is caught.
+        tools.paths.read_json = lambda *a, **k: {
+            "spam_channels": ["chaos", "#chaos", "chaos"]}
+        expect(tools.spam_channels() == ["chaos"],
+               f"a repeated room survived dedupe: {tools.spam_channels()!r}")
+
+        # spam_channels is the one list with NO fallback. A restart report is
+        # owed to master; a place to put a meme is somewhere he chose.
+        tools.paths.read_json = lambda *a, **k: {"update_channels": ["lulu-den"]}
+        expect(tools.spam_channels() == [],
+               "an absent spam_channels inherited the announcement rooms")
+        tools.paths.read_json = lambda *a, **k: {"spam_channels": []}
+        expect(tools.spam_channels() == [],
+               "an explicitly empty spam_channels was ignored")
+
+        def _reset():
+            tools._OUTBOX.clear()
+            tools._SAY_TIMES.clear()
+
+        # The same line, once per listed room - and the guild half stays OUT of
+        # the answer she reads back.
+        _reset()
+        tools.paths.read_json = lambda *a, **k: {
+            "spam_channels": ["652625990387761170:chaos",
+                              "821188728318984252:spam"]}
+        tools.set_context(1, "master", "general", master=True)
+        out = tools.share_link("found him: https://example.invalid/x.jpg")
+        expect("queued" in out, f"the share did not queue: {out!r}")
+        expect([q["channel"] for q in tools._OUTBOX]
+               == ["652625990387761170:chaos", "821188728318984252:spam"],
+               f"the share went to the wrong rooms: {tools._OUTBOX!r}")
+        expect(len({q["text"] for q in tools._OUTBOX}) == 1,
+               "the share was not one same message in every room")
+        expect("652625990387761170" not in out,
+               f"a guild id leaked into the reply she reads: {out!r}")
+
+        # ONE act is ONE send - the whole reason this is not say() in a loop.
+        spent = sum(len(v) for v in tools._SAY_TIMES.values())
+        expect(spent == 1, f"one share spent {spent} sends")
+
+        # Two refusals that must say why, and must queue nothing.
+        _reset()
+        tools.paths.read_json = lambda *a, **k: {"spam_channels": []}
+        out = tools.share_link("a link")
+        expect("spam_channels" in out, f"an empty list shared anyway: {out!r}")
+        expect(not tools._OUTBOX, "a share with no rooms still queued")
+
+        _reset()
+        tools.paths.read_json = lambda *a, **k: {"spam_channels": ["chaos"]}
+        out = tools.share_link("   ")
+        expect("nothing to share" in out, f"an empty share was accepted: {out!r}")
+        expect(not tools._OUTBOX, "an empty share still queued")
+
+        # Master-only structurally: never offered to a stranger's schema, and
+        # refused even if the call arrives anyway.
+        expect("share_link" not in tools.LOOKUP_TOOL_NAMES,
+               "share_link is in the lookup set - a stranger could share")
+        expect("share_link" in tools.DISPATCH,
+               "share_link is advertised but not dispatchable")
+        expect("share_link" in {t["function"]["name"] for t in tools.SCHEMA},
+               "share_link is missing from the schema")
+        expect(tools.run("share_link", {"text": "hi"},
+                         allowed=set(tools.LOOKUP_TOOL_NAMES)).startswith(
+                             "refused:"),
+               "a non-owner reached share_link")
+    finally:
+        tools.paths.read_json = real_read_json
+        tools.set_context(None)
+        tools._OUTBOX.clear()
+        tools._SAY_TIMES.clear()
+    return ("a qualified room keeps its guild, bare rooms still work, repeats "
+            "collapse, spam_channels has no fallback, one share reaches every "
+            "listed room as one send, and it stays master-only")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -7055,6 +7162,7 @@ CHECKS = [
     ("shelf-scope", _shelf_scope),
     ("grab-session", _grab_session),
     ("diary-enforced", _diary_enforced),
+    ("spam-share", _spam_share),
     ("web-announce", _web_announce),
 ]
 

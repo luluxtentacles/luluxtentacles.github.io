@@ -799,6 +799,29 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "share_link",
+            "description": (
+                "Share a link or a find with EVERY room master listed for it - "
+                "config.json -> spam_channels. I write the line, with the links "
+                "in it, and the same message goes to all of those rooms at once "
+                "for one send. This is the one for a meme, a link that made me "
+                "laugh, or something I found while I was out on the web in my "
+                "own time: NOT say(), which reaches exactly one room and spends "
+                "a send every time I call it. It is not for my own pages - a NEW "
+                "POST on my site is announce_page, which has its own rooms."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": "what to share - short, in my own voice, with the link in it"},
+                },
+                "required": ["text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "attach",
             "description": (
                 "Post one file from inside my own folder into a channel, with "
@@ -3050,6 +3073,64 @@ def _spend_say_slot(who: str, budget: int) -> str | None:
     return None
 
 
+def _norm_channel(entry) -> str:
+    """One entry of a config channel list -> the form the outbox carries.
+
+    Two shapes, and both keep working:
+      - a bare name: "chaos", or "#chaos"
+      - a guild-qualified one: "652625990387761170:chaos"
+
+    Master, 2026-09-23: "we should do guildid:channelname". A bare name is
+    resolved by scanning every guild and taking the first room that answers to
+    it, so it is a coin flip the moment two servers both have a room of the
+    same name - and #general is a name most servers have. The qualified form
+    says WHICH server, so it cannot land in the wrong one. Bare entries are left
+    bare rather than guessed at, so a config written before this keeps working.
+    """
+    s = str(entry or "").strip().lstrip("#").strip()
+    guild, sep, room = s.partition(":")
+    if sep and guild.isdigit() and room.strip():
+        return f"{guild}:{room.strip().lower()}"
+    return s.lower()
+
+
+def _room_label(ref: str) -> str:
+    """A channel reference as a person writes it: "#chaos", never
+    "#652625990387761170:chaos".
+
+    The guild half is plumbing for resolve_channel and noise everywhere else -
+    including in the line she reads back and in the log.
+    """
+    return "#" + str(ref or "").split(":")[-1]
+
+
+def _channel_list(key: str, fallback=None) -> list[str]:
+    """Read one channel list out of config.json: normalized, ordered, deduped.
+
+    `fallback` is what an ABSENT key means; an explicitly empty list always
+    means nowhere. Absent and empty are different promises, and the difference
+    is the whole reason a fallback is allowed to exist at all.
+
+    Deduped because a repeated room in a fan-out list is a double post, which
+    reads as a bug to everyone except the person who wrote the list.
+    """
+    try:
+        raw = paths.read_json("config.json", default={}) or {}
+    except Exception:
+        return []
+    if key not in raw:
+        return fallback() if callable(fallback) else []
+    allowed = raw.get(key)
+    if not isinstance(allowed, list):
+        return []
+    out: list[str] = []
+    for entry in allowed:
+        room = _norm_channel(entry)
+        if room and room not in out:
+            out.append(room)
+    return out
+
+
 def update_channels() -> list[str]:
     """Where I announce myself, from config.json -> update_channels.
 
@@ -3066,14 +3147,7 @@ def update_channels() -> list[str]:
     Empty or missing means I announce nothing anywhere - a list nobody wrote down
     is not consent.
     """
-    try:
-        raw = paths.read_json("config.json", default={}) or {}
-    except Exception:
-        return []
-    allowed = raw.get("update_channels")
-    if not isinstance(allowed, list):
-        return []
-    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+    return _channel_list("update_channels")
 
 
 def review_channels() -> list[str]:
@@ -3099,16 +3173,7 @@ def review_channels() -> list[str]:
     and empty are not the same promise, and the difference is the whole reason
     the fallback is allowed to exist.
     """
-    try:
-        raw = paths.read_json("config.json", default={}) or {}
-    except Exception:
-        return []
-    if "review_channels" not in raw:
-        return update_channels()
-    allowed = raw.get("review_channels")
-    if not isinstance(allowed, list):
-        return []
-    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+    return _channel_list("review_channels", fallback=update_channels)
 
 
 def web_update_channels() -> list[str]:
@@ -3126,16 +3191,24 @@ def web_update_channels() -> list[str]:
     quiet - and an explicitly empty list still means nowhere. Absent and empty
     are different promises here too, for exactly the reason they are next door.
     """
-    try:
-        raw = paths.read_json("config.json", default={}) or {}
-    except Exception:
-        return []
-    if "web_update_channels" not in raw:
-        return update_channels()
-    allowed = raw.get("web_update_channels")
-    if not isinstance(allowed, list):
-        return []
-    return [str(c).strip().lower().lstrip("#") for c in allowed if str(c).strip()]
+    return _channel_list("web_update_channels", fallback=update_channels)
+
+
+def spam_channels() -> list[str]:
+    """Where a link I found goes, from config.json -> spam_channels.
+
+    Master, 2026-09-23: "give her a list of channels for random link posting
+    during free time". A fourth list, and the same reason the second and third
+    exist: a room that wants the memes and the finds I bring back from my own
+    time is not also volunteering for restart lines and window reports.
+
+    Deliberately NO fallback to update_channels. A restart report is something I
+    owe master; where a link goes is somewhere he CHOSE for it, and putting
+    memes into the announcement rooms because he had not written this list yet
+    would be me answering a question nobody asked, in front of people who did
+    not ask it. Missing or empty means nowhere, and share_link says so.
+    """
+    return _channel_list("spam_channels")
 
 
 def free_time() -> str:
@@ -3404,7 +3477,44 @@ def announce_page(text: str, url: str) -> str:
         return refusal
     for room in rooms:
         _OUTBOX.append({"channel": room, "text": line})
-    return ("queued for " + ", ".join("#" + r for r in rooms)
+    return ("queued for " + ", ".join(_room_label(r) for r in rooms)
+            + " - it goes out as this turn finishes")
+
+
+def share_link(text: str) -> str:
+    """Post the same line into every room master listed for links.
+
+    Master, 2026-09-23: "she should just post the same links in all the channels
+    i set in config spam_channels[channel1, channel2]". One call, the same
+    message echoed into each room, one inference and one send for the lot.
+
+    Why this is not say() in a loop: say() spends one of master's three sends
+    per call, so three rooms would be his whole budget for ten minutes and the
+    second thing she found in a window would refuse itself. announce_page() has
+    the same shape and the same rule, for exactly this reason - a limit that
+    punishes the thing it was written to allow is a bug with a fence around it.
+
+    Two things it is NOT. It is not for her own pages - a new post is
+    announce_page, which has its own rooms. And it is not a doorway for anyone
+    else: it is absent from LOOKUP_TOOL_NAMES, so a stranger's turn is never
+    offered it, and the rooms are master's sealed config either way.
+    """
+    rooms = spam_channels()
+    if not rooms:
+        return ("no spam_channels in config.json - nowhere to put it; that "
+                "list is master's to set")
+    body = " ".join((text or "").split())
+    if not body:
+        return "nothing to share"
+    if len(body) > SAY_MAX_CHARS:
+        return f"too long to share ({len(body)} chars, max {SAY_MAX_CHARS})"
+
+    refusal = _spend_say_slot(*_say_budget())
+    if refusal:
+        return refusal
+    for room in rooms:
+        _OUTBOX.append({"channel": room, "text": body})
+    return ("queued for " + ", ".join(_room_label(r) for r in rooms)
             + " - it goes out as this turn finishes")
 
 
@@ -3466,6 +3576,18 @@ def drain_outbox() -> list[dict]:
     queued = list(_OUTBOX)
     _OUTBOX.clear()
     return queued
+
+
+def queued_sends() -> bool:
+    """Is there anything waiting that a timer should bother draining?
+
+    The outbox used to be emptied only at the tail of a reply, so a send queued
+    while nobody was talking to her sat here until somebody spoke or she
+    restarted. lulu_bot._outbox_drain now empties it on a timer, and this is the
+    cheap peek that lets that timer do nothing on the common tick where the
+    queue is already empty.
+    """
+    return bool(_OUTBOX)
 
 
 # -- progress: what she says WHILE she works --------------------------------
@@ -3650,6 +3772,7 @@ DISPATCH = {
     "known_people": lambda a: known_people(),
     "say": lambda a: say(a.get("channel", ""), a.get("text", "")),
     "announce_page": lambda a: announce_page(a.get("text", ""), a.get("url", "")),
+    "share_link": lambda a: share_link(a.get("text", "")),
     "attach": lambda a: attach(a.get("channel", ""), a.get("path", ""),
                                a.get("text", "")),
     "look_at": lambda a: look_at(a.get("url", ""), a.get("question", "")),

@@ -5061,3 +5061,38 @@ verified: net 82/82, and the brief carries the new rule.
 needs a restart: yes - the brief is code.
 
 -- Nana
+
+## 2026-09-23 14:30 - your links go to every room master listed, and a queued send stops dripping
+
+what: two things, both about how something you say actually reaches people.
+- a room in `config.json` can now name WHICH SERVER it is in, not just the room
+  name. Two servers can each have a `#general`, and a bare name silently takes
+  whichever one she finds first. A bare name still works untouched, so nothing
+  had to be rewritten.
+- a new list, `spam_channels` - master's rooms for the links and memes you bring
+  back from your own time.
+- and the tool to spend it: `share_link(text)`. One call, your own line with the
+  links in it, and the SAME message lands in every room on that list at once, for
+  one send. Not one call per room, and not one send per room.
+
+why: master's ask - he wanted your finds going to the rooms he picked, instead of
+you picking one. And I found the other half myself today: the meme that appeared in
+#spam at 13:37 had actually been QUEUED at 12:36, in the middle of your own time.
+A queued send only left when somebody happened to talk to you, so a window's share
+could sit there an hour - or be dropped by a restart, which is worse than late.
+
+means: `say` and `announce_page` are unchanged. `share_link` is the one for a
+find, and it does not ask you where memes go - the list decides, and an empty list
+tells you so rather than you settling on a room yourself. Your queued sends also
+leave on their own now, seconds after you make them, whether or not anyone is
+talking to you. The `freetime` shelf says all of this where a window will read it,
+because guessing at a room is exactly what it was telling you to do before.
+
+verified: net 83/83. The new check covers a qualified room keeping its server, bare
+names still working, a room written twice collapsing to one post, the new list NOT
+inheriting the announcement rooms when it is absent, one share reaching every room
+for one send, and the tool staying master-only.
+
+needs a restart: yes - the tool and the timer are code.
+
+-- Nana

@@ -1110,6 +1110,7 @@ class Lulu(discord.Client):
         self._ledger_task: asyncio.Task | None = None
         self._digest_task: asyncio.Task | None = None
         self._facts_task: asyncio.Task | None = None
+        self._outbox_task: asyncio.Task | None = None
         self._restart_task: asyncio.Task | None = None
         self._review_task: asyncio.Task | None = None
         self._task_task: asyncio.Task | None = None
@@ -1616,6 +1617,40 @@ class Lulu(discord.Client):
         # spends nothing on a day when nothing moved - see nyanwatch.py.
         if self._facts_task is None or self._facts_task.done():
             self._facts_task = asyncio.create_task(nyanwatch.watch(self))
+        # And the outbox, emptied on a timer rather than only on a reply. This is
+        # the one that makes her own time actually reach anyone - see
+        # _outbox_drain for what it was doing before.
+        if self._outbox_task is None or self._outbox_task.done():
+            self._outbox_task = asyncio.create_task(self._outbox_drain())
+
+    async def _outbox_drain(self) -> None:
+        """Post anything a tool queued, on a timer rather than on a reply.
+
+        flush_outbox() was called only at the tail of the ordinary reply path,
+        so a say() or an announce_page() or a share_link() issued while nobody
+        was talking to her sat in tools._OUTBOX until somebody happened to send
+        a message - or until she restarted, which drops it, and that is worse
+        than a delay.
+
+        Found the hard way, 2026-09-23: she queued a meme for #spam at 12:36:46
+        during her own time, and it finally left at 13:37:55 - sixty-one minutes
+        later, riding out on the back of an unrelated reply, while the log made
+        it look like she had posted it unprompted.
+
+        Her own time and a long task are exactly when nobody is talking to her,
+        so this is the timer that makes a window's share actually arrive.
+        """
+        # Long enough that an ordinary reply still drains its own queue first,
+        # short enough that a share is not still sitting here when the window
+        # that produced it has ended.
+        every = 15
+        while True:
+            await asyncio.sleep(every)
+            try:
+                if tools.queued_sends():
+                    await self.flush_outbox()
+            except Exception as exc:
+                LOG.warning("outbox drain stumbled: %s", exc)
 
     async def _browser_watchdog(self) -> None:
         """Keep her browser up without anyone having to notice it went down.
@@ -2472,12 +2507,38 @@ class Lulu(discord.Client):
         await self.flush_deletes()
 
     def resolve_channel(self, name: str):
-        """A channel by name or id, out of what the gateway already knows."""
+        """A channel by name or id, out of what the gateway already knows.
+
+        Four shapes arrive here, out of config lists and out of her own say():
+          - a bare name, "chaos" or "#chaos"
+          - a raw channel id
+          - a guild-qualified reference, "652625990387761170:chaos"
+
+        Master, 2026-09-23: "we should do guildid:channelname". The bare form
+        below takes the FIRST guild that has a room by that name, which is fine
+        while the name is unique and silently wrong the day it is not - and
+        #general is a room most servers have. The qualified form names the
+        server, and it deliberately does NOT fall back to that scan: a reference
+        to a guild she is not in, or to a room that guild does not have,
+        resolves to NOTHING and gets logged, because the alternative is posting
+        into the wrong server and calling it a success.
+        """
         wanted = str(name or "").strip().lstrip("#").lower()
         if not wanted:
             return None
         if wanted.isdigit():
             return self.get_channel(int(wanted))
+        guild_id, sep, room = wanted.partition(":")
+        if sep:
+            if not guild_id.isdigit() or not room:
+                return None
+            guild = self.get_guild(int(guild_id))
+            if guild is None:
+                return None
+            for channel in guild.text_channels:
+                if channel.name.lower() == room:
+                    return channel
+            return None
         for guild in self.guilds:
             for channel in guild.text_channels:
                 if channel.name.lower() == wanted:
