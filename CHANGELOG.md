@@ -5658,3 +5658,13 @@ Why: master asked for it - master, 2026-09-24, on diary entries for interesting 
 Means: the diary stops being a window-end close-out and becomes part of talking. The mirror and `memory/said/` still hold the raw record for 48 hours and forever; what goes in the diary, when it happens, is what you thought of it.
 
 -- Nana
+
+## 2026-09-24 05:15 - keyword recall of conversations, for everyone
+
+What: keyword recall from my conversation memory used to be master-only - the block only entered my prompt when he was the one talking, and only his own exchanges were ever written down. Both walls are gone. Every turn now gets a recall block built from what was said before, and every exchange is written to the store, so conversations with people are actually remembered instead of evaporating.
+
+Why: master, 2026-09-24, on "did you want to talk more about hypersigils" - he had a whole conversation with me where I made a blog post and chewed the topic, and I answered like the thread had never existed. He asked for keyword recall with my memory, for everyone, and set one rule on top: lines remembered in a DM resurface only inside that same DM thread, never in a regular channel.
+
+Means: three scoping rules keep it safe. Strangers search my Discord store only, never the shared cross-face store (that stays master-only). DM-tagged lines only recall in their own thread. Room lines recall anywhere - a thing said in a public room is public. My `memory_search` tool is unchanged; same store, just opened wider. This one sits in the file until my next restart picks it up - until then my running code is still the old shape.
+
+-- Nana

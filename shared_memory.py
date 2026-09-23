@@ -62,13 +62,14 @@ def local_path() -> Path:
     return paths.resolve(LOCAL_REL)
 
 
-def remember(text: str, *, speaker: str = "Lulu", channel: str = "discord") -> None:
+def remember(text: str, *, speaker: str = "Lulu", channel: str = "discord",
+             tags: list[str] | None = None) -> None:
     """Record one line in the DISCORD file. Never the shared one."""
     text = redact((text or "").strip())
     if not text or text == "[redacted]":
         return
     store.remember(text, source="discord", speaker=speaker,
-                   channel=channel, path=local_path())
+                   channel=channel, tags=tags or [], path=local_path())
 
 
 def _shared_entries(query: str, limit: int) -> list[dict]:
@@ -79,21 +80,47 @@ def _shared_entries(query: str, limit: int) -> list[dict]:
         return []
 
 
-def search(query: str, limit: int = RECALL_LIMIT) -> list[dict]:
-    """What I know: my own memories first, then what the other faces learned."""
+def _visible(entries: list[dict], *, dm: bool, channel: str) -> list[dict]:
+    """Scope entries to where recall is happening.
+
+    A line remembered in a DM is private to that thread: it comes back only
+    inside the same DM channel, never in a regular channel - master,
+    2026-09-24: "do not recall owner dm in regular channels". Room lines are
+    public by nature and may recall anywhere.
+    """
+    if dm:
+        return [e for e in entries
+                if "dm" not in (e.get("tags") or [])
+                or e.get("channel") == channel]
+    return [e for e in entries if "dm" not in (e.get("tags") or [])]
+
+
+def search(query: str, limit: int = RECALL_LIMIT, shared: bool = True,
+           *, dm: bool = False, channel: str = "") -> list[dict]:
+    """What I know: my own memories first, then what the other faces learned.
+
+    shared=False is the shape strangers get: my Discord memories only, never
+    the shared store - recall for everyone must not become master's business
+    for everyone.
+    """
     try:
-        mine = store.recall(query, limit=limit, path=local_path())
+        mine = _visible(store.recall(query, limit=limit, path=local_path()),
+                        dm=dm, channel=channel)
     except Exception:
         mine = []
+    if not shared:
+        return mine[:limit]
     seen = {e.get("id") or e.get("text") for e in mine}
     others = [e for e in _shared_entries(query, limit)
               if (e.get("id") or e.get("text")) not in seen]
     return (mine + others)[:limit]
 
 
-def context_block(query: str) -> str:
+def context_block(query: str, shared: bool = True, *, dm: bool = False,
+                  channel: str = "") -> str:
     """What I already know, ready to drop into the prompt."""
-    return store.format_for_prompt(search(query))[:RECALL_CHARS]
+    return store.format_for_prompt(
+        search(query, shared=shared, dm=dm, channel=channel))[:RECALL_CHARS]
 
 
 def recent(limit: int = 15) -> list[dict]:
