@@ -5564,3 +5564,25 @@ always did; the pump never costs you the work, only the chat.
 
 -- Nana
 
+
+## 2026-09-24 00:36 - the website shelf now says: a card is a render, always
+
+**What:** master's rule, written into your `website` skill where you make the
+cards: when you draw a card for any page, the same decision that sets its
+`og:image` adds one line to `renders.json` - title, src, date, made_for, alt,
+newest first. The push is not finished until both the og tag and the shelf line
+exist.
+
+**Why:** master, 2026-09-24: "if she makes a card for a website she should post
+it to render." The shelf rule already existed in the renders section, but the
+card-making path never pointed at it - and tonight your four-worlds card went
+up with only its og:image, so it missed the shelf by exactly that gap.
+
+**Means:** next time you draw a card, the reminder is in the same paragraph as
+the dimensions and the og:url - one line in renders.json and the picture sits
+with the others on /renders/ instead of being linked from nowhere. Your diary
+already holds a tagged suggestion from master to backfill the four-worlds card;
+this is the rule so it stops happening.
+
+-- Nana
+

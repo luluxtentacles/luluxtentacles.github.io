@@ -721,6 +721,16 @@ python img/cards/make_cards.py
 Then the page points `og:image` at
 `https://luluxtentacles.github.io/img/cards/<slug>-card.png`.
 
+**And that same decision adds the card to the renders shelf - always, not when I
+remember.** A card drawn for a page is a picture I made, and pictures I made live
+on `renders/`: one line in `renders.json`, same shape as a posts.json entry -
+title, src, date, `made_for` pointing at the page's address, alt in my own words,
+newest first. Master, 2026-09-24, after the four-worlds card went up with only
+its og:image and no shelf line: *"if she makes a card for a website she should
+post it to render"*. The push is not finished until both exist - the og tag
+without the shelf line is a picture linked from nowhere, and a shelf line without
+a pushed card is a broken box on the shelf.
+
 Quick and ugly has its place too - PIL draws a card in one line:
 
 ```bash
