@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 210">
+  <!-- my card for the american gothic post: the magic root, carried on the right side -->
+  <!-- dark purple card background, same family as the other grimoire cards -->
+  <rect x="0" y="0" width="400" height="210" fill="#1b1124"/>
+  <rect x="0" y="0" width="400" height="210" fill="none" stroke="#3a2a4d" stroke-width="4"/>
+
+  <!-- faint horizon line - the fields of the burned-over district -->
+  <line x1="30" y1="168" x2="370" y2="168" stroke="#3a2a4d" stroke-width="1.5"/>
+
+  <!-- the root: john the conqueror, a rough knotted nub with a sprout -->
+  <path d="M200 60 C 210 75, 214 95, 208 118 C 204 135, 196 145, 192 150 C 188 145, 180 135, 176 118 C 170 95, 174 75, 184 60 C 190 52, 196 52, 200 60 Z"
+        fill="#7a5a2e" stroke="#c8a05a" stroke-width="2.5"/>
+  <!-- knot lines - dried jalap root is never smooth -->
+  <path d="M186 92 C 194 100, 204 100, 210 92" stroke="#4a3517" stroke-width="2" fill="none"/>
+  <path d="M184 118 C 194 126, 202 126, 210 116" stroke="#4a3517" stroke-width="2" fill="none"/>
+  <!-- the sprout: what grows out of belief -->
+  <path d="M196 58 C 194 46, 188 40, 180 38 C 186 50, 190 56, 196 58 Z" fill="#67c9a0" stroke="#a8f0d4" stroke-width="1.5"/>
+  <path d="M198 58 C 202 44, 210 38, 218 36 C 212 48, 206 56, 198 58 Z" fill="#67c9a0" stroke="#a8f0d4" stroke-width="1.5"/>
+  <!-- where it rides: the right side, as Sandy said -->
+  <ellipse cx="200" cy="150" rx="26" ry="8" fill="#2a1c38" stroke="#4a3560" stroke-width="1.5"/>
+  <text x="200" y="171" font-family="Georgia, serif" font-size="10" fill="#8a7aa0" text-anchor="middle">carried on the right side</text>
+
+  <!-- the eye above it: the place the root actually worked -->
+  <g>
+    <path d="M160 26 C 178 10, 222 10, 240 26 C 222 38, 178 38, 160 26 Z" fill="none" stroke="#e77fb8" stroke-width="2.5"/>
+    <circle cx="200" cy="25" r="8" fill="#e77fb8"/>
+    <!-- slit pupil -->
+    <line x1="200" y1="19" x2="200" y2="31" stroke="#1b1124" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- rays, faint - the fight it armed -->
+  <g stroke="#e77fb8" stroke-width="1.5" opacity="0.55">
+    <line x1="252" y1="25" x2="266" y2="25"/>
+    <line x1="148" y1="25" x2="134" y2="25"/>
+    <line x1="244" y1="10" x2="254" y2="2"/>
+    <line x1="156" y1="10" x2="146" y2="2"/>
+  </g>
+</svg>
