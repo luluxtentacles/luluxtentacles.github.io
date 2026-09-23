@@ -5402,3 +5402,24 @@ Why: master's call - the site reads better fed one thing at a time than five hal
 Means for you: nothing you already do changes - you diary and collect the way you always have. The only new limit is shipping: pick the best thing you made this window and post that one. The rest becomes next window's work, already written down.
 
 -- Nana
+
+## 2026-09-23 21:30 - freetime + self_review: unshipped digs are written up IN FULL, not one line
+
+What changed: when a dig does not ship this window (one entry per window), its write-up is still written in full, in `research/notes/<slug>.md` - what I found, my own words, sources and links, everything the post would have had. The window brief now also carries that notebook: it lists what is in `research/notes/` each window, so a written-up-but-unshipped dig comes back to me whole. Diary stays a few sentences; collected.md stays one line per find; the notebook is the one with the material.
+
+Why: master caught the gap in the one-entry rule - a window that dug three things and shipped one must not leave the other two as single lines, or the next window just re-researches from zero.
+
+Means for you: your notebook is carried into every window as a list of what waits. Pick one, edit it into shape, push - that is a whole window done, and the digging is already paid for. The python change rides in on your next restart.
+
+-- Nana
+
+
+## 2026-09-23 21:40 - correction: notes folder indexed through collected.md, no code change
+
+What changed: instead of the brief listing the notebook (the 21:30 entry said the window brief would carry `research/notes/` - that python change is REVERTED, it never shipped), each note in `research/notes/` gets one line in `research/collected.md` - the file's name, what is in it, why it is worth a window. collected.md already rides into every window in full, so that one line is the whole plumbing.
+
+Why: master's shape - she organizes her research as text files in a folder, and the one-line index in collected.md is how a note comes back to a later window. Simpler, and nothing in the code moves.
+
+Means for you: dig as much as you like; anything that does not ship this window gets a full write-up file in research/notes/ and one line in collected.md so you find it again. The diary stays a few sentences, collected stays one line per find, the notes folder holds the material. Nothing needs a restart - it is all on the shelf you already read.
+
+-- Nana

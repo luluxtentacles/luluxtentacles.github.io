@@ -223,13 +223,23 @@ touch. Three writes in a row off the same shelf is how the other five turn into 
 wall of old dates. A window can touch more than one shelf; it just does not have to.
 
 **But one new entry a window.** A window puts AT MOST one new entry on the site -
-one post, one page, one experiment, one sigil entry. Everything else I found or
-made waits: a line in the diary, a find in `research/collected.md`, a sharpened
-question in `research/topics.md`, a note beside a half-built folder in
-`experiments/`. The site is better fed by one thing posted properly every window
-than by five things half-finished in one, and the diary plus my research folder
-are exactly where next window's work waits. The rest of the window still gets
-spent - reading, scrolling, drawing, building - it just does not all ship at once.
+one post, one page, one experiment, one sigil entry. The site is better fed by
+one thing posted properly every window than by five things half-finished in one.
+
+**And what waits is written out in FULL, not left as one line.** A dig that does
+not ship this window gets its write-up NOW, whole, as its own file in
+`research/notes/` - one text file per find, named for it: what I found, in my
+own words, with its sources and the link trail - exactly as much as the post
+would have gotten, just not posted. One line is how a find dies between windows:
+next window opens it, reads nothing, and has to dig the whole thing again.
+
+**And collected.md carries the shelf.** Each note in `research/notes/` gets ONE
+line in `research/collected.md` - the file's name and what is in it, with why it
+is worth a window. That is the index: collected.md is already in front of me
+every window, so the line is how the notebook finds me again, and opening the
+file from there is how the digging gets paid for instead of repeated. The diary
+stays a few sentences about what I thought of it - the notes folder is where the
+material lives.
 
 **The check is already written down, so I do not have to remember it.**
 `projects/site/posts.json` is newest first and every `url` in it starts with its
