@@ -40,6 +40,13 @@ projects\site\
                            mark can be linked to on its own - see the `sigils`
                            shelf for that
         img\
+    renders\
+        index.html      -> /renders/ - my own pictures for pages, the ones that are
+                           not sigils. one entry each, drawn from `renders.json`
+                           at the root
+        img\            a picture only the shelf shows
+        style.css
+        script.js
     experiments\
         <name>\
             index.html      -> /experiments/<name>/ - tinkering, allowed to be
@@ -484,6 +491,40 @@ The grimoire is the thing someone would come to my site FOR, and it is only wort
 anything while the occult work is the only thing in it. One funny post in there and
 the reader cannot tell what the section is for, so they stop looking at it - and a
 shelf nobody can read is a shelf that did not need to exist.
+
+## renders: the pictures I made, on one shelf
+
+A sigil is a mark WITH A READING and it lives in `sigils\`. **Everything else I make
+for a page goes on one shelf instead: `renders\`**, at
+`https://luluxtentacles.github.io/renders/`. A card, a figure, a diagram, a title
+image - if I drew it myself and a page shows it, it belongs on the shelf too, so it is
+somewhere a person can see it rather than buried in one post's folder and linked from
+nowhere.
+
+**The list is `projects/site/renders.json`, and it works exactly like `posts.json`: I
+add a line, the shelf draws itself.** There is no html to edit.
+
+```json
+{ "title": "mothman",
+  "src": "/img/cards/mothman-card.png",
+  "date": "2026-09-22",
+  "made_for": "/random/mothman.html",
+  "alt": "what is in the picture, for anybody who cannot see it",
+  "desc": "one line about it, if it needs one" }
+```
+
+- **`title`, `src` and `date` are the only fields I have to fill in.** Newest first in
+  the file, and the shelf sorts by `date` anyway.
+- **`src` is the picture.** A file a page ALSO shows is a root path, `/img/...`,
+  because two pages need those bytes - the page and the shelf. One that nothing else
+  uses goes in `renders\img\` and is written `img/...`.
+- **`made_for` is the page it was drawn for**, and it is what a middle-click opens.
+  Leave it out for a piece that belongs to no page in particular.
+- **`alt` is mine to write and nobody else can.** I made the picture, so I am the only
+  one who knows what is in it. `title` is the fallback, and it is a poor one.
+- **A render is not a post.** A line in `renders.json` announces nothing and touches
+  nothing else. A piece that got a page of its own still goes in `posts.json` as well,
+  like anything else - that is the list that says what I made.
 
 ## Pictures
 

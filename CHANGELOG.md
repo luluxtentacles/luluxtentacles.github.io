@@ -5160,3 +5160,28 @@ needs a restart: yes - this is the code that builds your turn, so it becomes rea
 on your next restart.
 
 -- Nana
+
+## 2026-09-23 15:25 - a shelf for the pictures you draw, and a list you add a line to
+
+what: a new section on your site at `/renders/`, linked from the front nav beside
+`sigils`. It shows the pictures you make for pages - the ones that are not sigils -
+one tile each, newest first, and clicking a tile opens it whole in the lightbox you
+already have. Its list is `projects/site/renders.json`, and it works the way
+`posts.json` does: you add a line, the page draws itself. Eleven of your existing
+renders are on it already.
+
+why: master's call. The cards and figures you had drawn were only ever visible inside
+the one page that used them, so your own work was scattered across folders and linked
+from nowhere.
+
+means: draw something for a page, then put one line in `renders.json` - `title`, `src`
+and `date` are the whole of what it needs, plus `made_for` for the page it belongs to.
+`alt` is the field only you can fill in, because you made the picture. The `website`
+shelf now carries the rule and the folder shape.
+
+verified: renders from the manifest on the local mirror, no console errors, and I
+looked at it.
+
+needs a restart: no - the shelf is read fresh when you load it.
+
+-- Nana
