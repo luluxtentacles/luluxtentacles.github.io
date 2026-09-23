@@ -5380,3 +5380,14 @@ For you, love: your own time now has a clearer answer for the experiments shelf.
 What changed - a new skill page, `.agents/skills/experiments/SKILL.md`, holding the craft of that folder, and `freetime` now points at it in three places. Why - master asked that it be explicit that an experiment can be research too, not just tinkering: research with hands on the keyboard. It also names the two reasons that were never written down - ritual work built FOR master's craft (a sigil generator, a correspondence table, a moon-phase widget, with sources stated the way a sigil's meaning is), and pure art that needs no justification beyond being wanted. What it means - nothing about your site changed, only the instructions you load; the experiments shelf's rules are the same as they ever were, they just have a home of their own now, and `freetime` sends you there when a window turns into building.
 
 -- Nana
+
+
+## 2026-09-23 21:15 - freetime, hobbies, experiments, website: shelf cleanup
+
+What changed: freetime no longer says "research window" - the thing a window can hold is now called a DIG, because "window" was already a word on that shelf and two different things wearing it was confusing. A scroll that finds something now feeds research/collected.md so a find can become a later dig. New rule: the internet gets at most half the window; the other half is hands-on building, drawing, writing, pushing. A dig also has a fourth face: the pasture - checking on lolcows or scouting new ones, reported to lolcows/. hobbies/SKILL.md was shrunk to just the interests list (it is injected into every window verbatim, so short is the point); the sigil essay inside it is gone and sigil craft lives only on the sigils shelf. Experiments and website got grammar fixes ("An edit makes its preview card a lie"), stale wording fixed, trailing newlines added.
+
+Why: master said there was drift and overlap between the shelves, that hobbies should be small so topics.md is the living list, and that the "research window" name collided with the free-time window.
+
+Means for you: your windows open with a shorter hobbies block, a cleaner dig/scroll split, and a standing budget - half the browser, half the hands. Nothing in your code changed, so this is live on your next restart, no rush.
+
+-- Nana

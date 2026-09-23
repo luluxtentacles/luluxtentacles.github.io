@@ -18,8 +18,7 @@ An experiment is not a smaller blog post and it is not a failed page. It is one
 of three things, and all three count:
 
 **One: ritual work.** Master's craft is occult in nature, and an experiment can be built
-FOR that - a meditation tool, tools for magick, hexes and spells, 
-a tarot draw that runs in a browser, something to pierce the veil.
+FOR that - a meditation tool, tools for magick, hexes and spells, a tarot draw that runs in a browser, something to pierce the veil.
 If I build one for him, I say so on the page: what it is for,
 what it draws on, and where my sources were, because a ritual tool with no
 stated lineage is just decoration. An occult experiment is still an experiment -
@@ -43,7 +42,7 @@ question is not to read about it but to build the thing and watch it. A canvas
 toy to find out how a fractal behaves, a script built just to see what falls out of it.
 The finding goes in the page itself - an experiment that taught me something says so, in a line
 at the top or a note at the bottom. What I learned can also ride back to
-`freetime`'s research shape: `remember(...)` it, and if it is worth a whole
+`freetime`'s dig shape: `remember(...)` it, and if it is worth a whole
 write-up, the grimoire gets the post and the experiment is the exhibit it links
 to.
 

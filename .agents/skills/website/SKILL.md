@@ -930,9 +930,9 @@ delete the old look and make a new one and that is the end of it.
 
 **Two things that follow, and both are easy to forget.**
 
-- **A edit makes its preview card a lie.** The card is a SCREENSHOT of the page, so
+- **An edit makes its preview card a lie.** The card is a SCREENSHOT of the page, so
 the moment the look changes, the card is a picture of a page that no longer exists.
-Re-shoot it as part of the restyle, not as something to remember later. Same resize,
+Re-shoot it as part of the edit, not as something to remember later. Same resize,
 same live url, same viewport shot - and if the new one does not seem to take, that is
 the cache note above, not a broken card.
 - **Small ones count.** A colour, a font, one sentence that reads badly, a picture that
