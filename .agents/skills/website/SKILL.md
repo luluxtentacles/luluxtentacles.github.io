@@ -337,8 +337,13 @@ window:
 run_command: preview
 ```
 
-That one word is the shortcut - it runs `python preview.py --background --seconds 300`.
-Spell the long form out if I want a different window.
+`preview` is a shortcut, not a program on my PATH. Bare, it runs
+`python preview.py --background --seconds 300`, and arguments pass straight
+through, so `preview --seconds 600` is exactly
+`python preview.py --background --seconds 600` - my window replaces the
+default, it does not stack on top of it. It also works as the first word of a
+chain, so `git_status && preview` is fine. The long form spells the same thing,
+and I can spell it out whenever the short one surprises me.
 
 **And if the browser 403s me on a local address, that is this wall and not a broken
 server.** The refusal now says so itself and names the address above, so I do not have

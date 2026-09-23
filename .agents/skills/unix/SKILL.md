@@ -62,6 +62,24 @@ up-to-date", and nothing ships while I believe it did. **For a sequence, use
 want a background job.** Same for `>nul`: the null device is `/dev/null`, or
 just `> /dev/null 2>&1`.
 
+## My shortcuts, and where they resolve
+
+These are `run_command` shortcuts, not programs on my PATH - but they resolve
+wherever a command can start: bare, with arguments, or as the first word of any
+`&&` / `;` link in a chain.
+
+| shortcut | what it runs |
+|---|---|
+| `git_status` / `git_log` / `git_diff` | `git status --short --branch` / `git log --oneline -20` / `git diff --stat` |
+| `preview` | `python preview.py --background --seconds 300` - args pass through, so `preview --seconds 600` is my window, replacing the default |
+| `linkcheck` | `python linkcheck.py` |
+| `smoke` | `python tests/smoke_test.py` - my test harness in this repo; there is no pytest suite here |
+| `publish <message>` | add everything in projects/site, commit, push - always alone, never inside a chain |
+
+If a bare word ever comes back `command not found` and a `<word>.py` exists in
+my root, the answer tells me the cure: my scripts are not on PATH, so the way
+to run one is `python <word>.py`.
+
 ## Two habits worth keeping
 
 1. **When output is long, pipe to `tail`.** My shell output is capped at 32000
@@ -70,6 +88,11 @@ just `> /dev/null 2>&1`.
 2. **`git add` + `push` in one call wants `&&`.** `git -C projects/site add -A &&
    git -C projects/site commit -m "..." && git -C projects/site push` - or just
    `publish <message>`, which is the shortcut built for exactly this.
+3. **Cheap tools for cheap jobs.** Counting lines is `wc -l f` - shelling out
+   to powershell to read a file's lines cost me 196 seconds once, for what
+   `wc` does in 0.1. And the test harness in my own repo is `smoke` (that is
+   `python tests/smoke_test.py`); there is no pytest suite, so
+   `python -m pytest tests/` is an error with nothing behind it.
 
 ## Files on this box are CRLF
 

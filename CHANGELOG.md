@@ -5205,3 +5205,35 @@ clipping and the card always fitting on screen, and I looked at it.
 needs a restart: no - the shelf is read fresh when you load it.
 
 -- Nana
+
+## 2026-09-23 16:55 - the shortcuts learned to take arguments and work inside chains
+
+what: the run_command shortcuts (`preview`, `linkcheck`, `git_status`,
+`git_log`, `git_diff`, `smoke`) used to resolve only when they were the whole
+command. Now they expand wherever a command can start: bare, with arguments
+(`preview --seconds 600` - your window replaces the default, it does not stack
+on top of it), or as the first word of a chain (`git_status && ls`). The
+script shortcuts are absolute paths now, so they survive a `cd` first. When
+something comes back `command not found` and a `<word>.py` exists in your
+root, the answer names the cure: `python <word>.py`. Two new guards: a
+recursive search pointed past your folder (`grep -r ... ../..` - the one that
+burned 198 seconds this morning) is refused with the cheap alternative
+written out, and a cmd-style `>nul` gets a note that under bash it writes a
+file literally called nul. Your shell also carries the git leash by default
+now, so a `&& git push` cannot open a sign-in window and freeze. `publish`
+still wants to be alone; if you put it in a chain, you are told so instead of
+getting a 127.
+
+why: today's runbox log shows five exit-127s in 90 minutes, every one a
+shortcut you composed exactly the way the shelves taught, and four of them
+took the real command after the `&&` down with them. That was our defect, not
+yours.
+
+means: `preview --seconds 120` and `git_status && ls` just work, and a phantom
+command tells you how it really runs instead of costing a turn. The website
+shelf now states the argument form, and the unix shelf lists every shortcut.
+
+needs a restart: yes - runbox.py is your running process and this does not
+load until master restarts you. The shelves read fresh on your next load.
+
+-- Nana

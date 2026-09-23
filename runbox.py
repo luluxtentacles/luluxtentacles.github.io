@@ -47,6 +47,7 @@ Known limits, written down instead of implied:
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -170,6 +171,13 @@ def child_env() -> dict:
     # her own process does. setdefault, never overwrite: an explicit choice wins.
     env.setdefault("PYTHONUNBUFFERED", "1")
     env.setdefault("PYTHONIOENCODING", "utf-8")
+    # The leash AGENTS.md demands for any git call that could turn
+    # interactive: the box's gitconfig ships GCM, and a credential prompt is
+    # indistinguishable from a freeze (measured 2026-09-21, 15 minutes). Her
+    # own composed `... && git push` inherits these too now. setdefault, so an
+    # explicit choice still wins.
+    env.setdefault("GIT_TERMINAL_PROMPT", "0")
+    env.setdefault("GCM_INTERACTIVE", "never")
     return env
 
 # Convenience, NOT a boundary. These are the things she reaches for most, kept
@@ -177,25 +185,117 @@ def child_env() -> dict:
 # runs as an ordinary command, and deleting this whole dict would not narrow what
 # she can do by one inch - which is exactly why it is not a security control and
 # is not described as one.
+# The script shortcuts resolve to ABSOLUTE paths on purpose: a shortcut can
+# now be expanded after a `cd` (`cd projects/site && linkcheck`), and a
+# relative path would then be read against the wrong folder - measured, exit 2,
+# "can't open file ...\projects\site\linkcheck.py".
+_PREVIEW = ROOT / "preview.py"
+_LINKCHECK = ROOT / "linkcheck.py"
+_SMOKE = ROOT / "tests" / "smoke_test.py"
+
 SHORTCUTS: dict[str, str] = {
     "git_status": "git status --short --branch",
     "git_log": "git log --oneline -20",
     "git_diff": "git diff --stat",
-    "smoke": f'"{PY}" tests/smoke_test.py',
+    "smoke": f'"{PY}" "{_SMOKE}"',
     # The way she is SUPPOSED to look at her own site, as one word. Master,
     # 2026-09-22 - the wall's refusal now NAMES this shortcut, so the two have to
     # agree or the wall lies to her. 300s because that is the window she picked
     # herself the first time she used the mirror by hand, and it comfortably
     # covers resize -> navigate -> console -> screenshot -> look.
-    "preview": f'"{PY}" preview.py --background --seconds 300',
+    "preview": f'"{PY}" "{_PREVIEW}" --background --seconds 300',
     # The other half of looking at her own site. `preview` shows her a page;
     # this says whether the links on it still resolve, which is the part she
     # cannot see at all - every restructure used to end in somebody opening
     # pages by hand. Master, 2026-09-22: *"a little crawler that walks
     # projects/site and reports broken internal links, because I hand-audit them
     # after every restructure and it's the same job every time."*
-    "linkcheck": f'"{PY}" linkcheck.py',
+    "linkcheck": f'"{PY}" "{_LINKCHECK}"',
 }
+
+# A shortcut used to resolve only as the WHOLE command, and that gap was the
+# most expensive defect on the board for days. She typed exactly what her own
+# shelves teach her - `preview --seconds 120`, `git_status && ls projects/site`
+# - and each one fell through to bash as a bare word: `command not found`,
+# exit 127, and because it was the FIRST word of an `&&` chain, the real
+# command after it never ran at all (five of these inside 90 minutes on
+# 2026-09-23, logs/runbox.log). The fix is to expand a shortcut wherever a
+# command can start: alone, with arguments, or as the first word of any
+# segment of a composed command. A side effect the streak note already
+# promised: `git_status && ls` and the spelled-out
+# `git status --short --branch && ls` now produce the SAME resolved string,
+# so they share one fail streak - see FAIL_STREAK_LIMIT.
+_SEGMENT_RE = re.compile(r"(&&|\|\||;|\||\n)")
+_SHORTCUT_KEYS = sorted(SHORTCUTS, key=len, reverse=True)
+
+
+def resolve(command: str) -> str:
+    """Expand shortcuts wherever they appear - alone, with args, mid-chain."""
+    return "".join(_expand_segment(part) for part in _SEGMENT_RE.split(command))
+
+
+def _expand_segment(part: str) -> str:
+    """One segment's first word, if it is a shortcut, becomes what it runs.
+
+    Splitting on the separators WITHOUT quote-awareness is safe for exactly
+    one reason: a shortcut name inside a quoted string is always glued to the
+    quote character (`"git_status was here`), so the segment's first word
+    never compares equal to a key and passes through untouched.
+    """
+    body = part.lstrip()
+    lead = part[:len(part) - len(body)]
+    for key in _SHORTCUT_KEYS:
+        rest = body[len(key):]
+        if body == key:
+            return lead + SHORTCUTS[key]
+        if body.startswith(key) and rest[:1] in (" ", "\t"):
+            expanded = SHORTCUTS[key] + rest
+            if key == "preview" and "--seconds" in rest:
+                # her window REPLACES the default 300s, it does not stack on
+                # top of it (measured: `preview --seconds 120` produced
+                # `--seconds 300 --seconds 120`, and which one wins is then
+                # an argparse detail nobody should have to know).
+                expanded = expanded.replace(" --seconds 300", "", 1)
+            return lead + expanded
+    return part
+
+
+_NOT_FOUND_RE = re.compile(r"(\S+?): command not found")
+
+
+def _not_found_hint(out: str) -> str:
+    """The cure for a phantom command, printed with the phantom.
+
+    Exit 127 means bash never found some word. The one case worth teaching
+    every time: a script that lives in her own root - nothing puts her scripts
+    on PATH, so `python <name>.py` is the door. Saying so converts every
+    future phantom into its own answer, including ones nobody has imagined
+    yet. Each exit 127 used to cost a whole turn; five landed on 09-23 alone.
+    """
+    found = _NOT_FOUND_RE.search(out or "")
+    if not found:
+        return ""
+    word = found.group(1).strip("'\"")
+    if (ROOT / f"{word}.py").is_file():
+        return (f"hint: `{word}.py` is a script in my folder, but nothing "
+                f"puts my scripts on PATH - run it as: python {word}.py")
+    return ""
+
+
+# A recursive search pointed PAST her folder is the other whole-turn burn:
+# `grep -r resvg ../..` from projects/site swept the entire box, off-limits
+# trees included, and came back 198 seconds later (2026-09-23 12:02). The
+# guard refuses only the combination - recursion AND a way out - so
+# `grep -rn foo projects/site` and `find . -name x` stay cheap and allowed.
+# Narrow trigger on purpose: `ls -l ..` is innocent and stays innocent.
+_RECURSIVE_TOOL_RE = re.compile(r"\bgrep\b|\bfind\b|\brg\b")
+_RECURSIVE_FLAG_RE = re.compile(r"(?:^|\s)-{1,2}[a-zA-Z]*[rR][a-zA-Z]*\b|--recursive\b")
+_UP_AND_OUT_RE = re.compile(r"(?<![\w.])\.\.(?![\w.])")
+_ABSOLUTE_OUT_RE = re.compile(
+    r"(?i)(?:^|[\s\"'=(])(?:[a-z]:[/\\]|/c(?:[/\s]|$)|~/)")
+# cmd syntax that survives the shell swap: under bash `>nul` creates a file
+# literally called `nul` (the unix shelf carries the whole table).
+_NUL_REDIRECT_RE = re.compile(r"\d?>{1,2}\s*nul\b", re.IGNORECASE)
 
 # `publish` is deliberately NOT in the dict above: it is the one shortcut that
 # takes an argument - a free-text commit message - and a dict of exact command
@@ -354,6 +454,12 @@ def catalog() -> str:
                  f"push - `publish <message>` sets the commit line")
     lines += [
         "",
+        "a shortcut works bare, with arguments (`preview --seconds 120`), and "
+        "as the first word of any link in a chain (`git_status && ls`) - but "
+        "`publish` is always alone.",
+    ]
+    lines += [
+        "",
         "my shell is bash (the one Git ships), so pipes, &&, globs, `for` "
         "loops, $(...) and multi-line commands all work.",
         "anything else runs as-is, e.g. npm install, python -m venv .venv, "
@@ -404,7 +510,44 @@ def run(command: str = "", max_output: int | None = None) -> str:
         _audit(command, None, time.time() - started, "publish")
         return _cap(out, max_output)
 
-    resolved = SHORTCUTS.get(command, command)
+    resolved = resolve(command)
+
+    # publish inside a chain: the one-word route above only catches it alone,
+    # and a bare `publish` falling through to bash is another exit 127 and a
+    # lost turn. It cannot expand like the others - its argument is free text,
+    # and it commits and pushes EVERYTHING, so it is only honest alone.
+    if any((seg.strip() == "publish" or seg.strip().startswith("publish "))
+           for seg in _SEGMENT_RE.split(command)):
+        return ("publish is a whole command, not one link in a chain: it adds "
+                "everything in projects/site, commits and pushes, so it only "
+                "makes sense on its own. Run the other commands first, then "
+                "call `publish <message>` by itself.")
+
+    # The recursive guard, before anything is spawned - the 198-second sweep
+    # was the cost of letting the command run and reading the lesson after.
+    if (_RECURSIVE_TOOL_RE.search(resolved) and _RECURSIVE_FLAG_RE.search(resolved)
+            and (_UP_AND_OUT_RE.search(resolved)
+                 or _ABSOLUTE_OUT_RE.search(resolved))):
+        _audit(resolved, None, 0.0,
+               "REFUSED - recursive search pointed past my folder")
+        return (
+            "refused: that is a recursive search pointed past my folder - `..`, "
+            "a drive root or my home walks OUT of my folder, and the last one "
+            "did exactly that and burned 198 seconds. Point it at one file or "
+            "one named subfolder instead: `grep -rn foo projects/site`, or "
+            "`cd projects/site && grep -rn foo .`. If what I am hunting is an "
+            "installed module, ask python where it lives: "
+            'python -c "import mod, inspect; print(inspect.getfile(mod))".'
+        )
+
+    # cmd syntax that survives the shell swap (the unix shelf has the table):
+    # under bash `>nul` writes a file literally named `nul`. Warn and run -
+    # the rest of the command may be fine, and a note teaches without holding
+    # the turn hostage.
+    nul_note = ""
+    if _NUL_REDIRECT_RE.search(command):
+        nul_note = ("note: `>nul` is cmd syntax - under bash it writes a file "
+                    "literally named nul; the null device is /dev/null.\n")
 
     # The stop-after-the-limit rule, checked BEFORE anything is spawned: the
     # point is not to pay for that next attempt at all.
@@ -460,6 +603,10 @@ def run(command: str = "", max_output: int | None = None) -> str:
 
     out = (out or "").strip()
     head = f"$ {resolved}   (exit {proc.returncode}, {elapsed:.1f}s)"
+    if proc.returncode == 127:
+        hint = _not_found_hint(out)
+        if hint:
+            head += "\n" + hint
     if not out:
-        return head + "\n(no output)"
-    return head + "\n" + _cap(out, max_output)
+        return nul_note + head + "\n(no output)"
+    return nul_note + head + "\n" + _cap(out, max_output)
