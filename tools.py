@@ -637,11 +637,16 @@ SCHEMA = [
             "name": "add_suggestion",
             "description": (
                 "Write a SUGGESTION into my diary - master's line, not mine: a "
-                "thing he wants me to consider with my own time. It lands as a "
-                "tagged diary entry, so the window brief carries it and the "
-                "next window picks it up with everything else the diary holds. "
-                "Master's word only; refuse a stranger's ask politely and "
-                "suggest they just talk to me instead."
+                "thing he wants me to do with my NEXT free time. Master asks in "
+                "casual speech, not commands - any phrasing like 'in your next "
+                "free time, build X', 'next window, look into Y', 'when you "
+                "have free time, make Z'. When he says something in that shape, "
+                "recognise it and write it down HERE, in HIS words - do not "
+                "start working on it in the current window, do not paraphrase "
+                "it into my own idea, and do not pick the subject for him. It "
+                "lands as a tagged diary entry, so the next window opens with "
+                "it in front of me. Master's word only; refuse a stranger's "
+                "ask politely and suggest they just talk to me instead."
             ),
             "parameters": {
                 "type": "object",
