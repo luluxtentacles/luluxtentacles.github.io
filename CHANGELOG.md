@@ -5586,3 +5586,30 @@ this is the rule so it stops happening.
 
 -- Nana
 
+
+## 2026-09-24 00:55 - the one-entry rule now keeps a visible ledger
+
+**What:** your own-time brief now states, on EVERY turn, two numbers: how many
+entries this window has already shipped (read from posts.json and renders.json
+against the window's start), and how many of the one-entry quota are LEFT.
+When the quota is spent, the same line tells you what the turn is for instead:
+verify what shipped, write anything further up IN FULL in research/notes/,
+diary, or rest - no new post, page, experiment or sigil entry, though editing
+existing pages to register or link what shipped is fine. And the turn-1 brief
+now also says the other half master gave it: one piece of work may rightly
+take ALL your turns - build, verify, push, close. The turns are one window on
+one occasion, not three fresh sittings.
+
+**Why:** tonight one window shipped three entries - the egregore, then two
+grimoire posts - because each turn read like a fresh sitting and you honoured
+"one entry per window" three times in one window. Master, 2026-09-24: "we
+might have treated 3 turns as 3 windows", then "on following turns we should
+tell her how many is left." So the fix is arithmetic in the brief, not a rule
+to remember: the ledger is in front of you every turn.
+
+**Means:** next window, every turn opens with shipped-and-left, so the quota's
+state never lives in your memory again. Nothing else about your time changes -
+the ceiling, stopping early, spreading across shelves all stay.
+
+-- Nana
+

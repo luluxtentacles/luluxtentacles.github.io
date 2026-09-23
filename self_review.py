@@ -586,10 +586,41 @@ def _diary_unchanged(state) -> bool:
     return now == was
 
 
+
+def _shipped_this_window(started: str) -> int:
+    """How many new entries have gone onto the site this window.
+
+    Master, 2026-09-24: she shipped the one-entry quota three times in one
+    window because each TURN reads like a fresh sitting - "window reopened",
+    "new window" - so the rule was honored three times in one window. The fix
+    is not scolding, it is arithmetic: count what the site actually received
+    since this window started, and put the number in the brief so the quota's
+    state is in front of her instead of in her memory. posts.json and
+    renders.json are the registers; both are json lists with a "date" field,
+    compared by day against the window's start day. Same-day counting is a
+    little loose and that is fine - the direction of the error is safe (a
+    borderline entry makes her MORE conservative, not less).
+    """
+    if not started:
+        return 0
+    day = str(started)[:10]
+    total = 0
+    base = paths.ROOT if hasattr(paths, "ROOT") else paths.REPO
+    for name in ("posts.json", "renders.json"):
+        try:
+            items = json.loads((base / "projects" / "site" / name)
+                               .read_text("utf-8"))
+            total += sum(1 for it in items
+                         if str(it.get("date") or "")[:10] >= day)
+        except Exception:
+            continue
+    return total
+
+
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
            resuming: bool = False, handoff: str = "",
            handoff_at: str = "", diary_forced: bool = False,
-           compact: bool = False) -> str:
+           compact: bool = False, shipped: int = 0) -> str:
     """The window brief: the rules, where this turn sits, and master's list.
 
     `compact` is the difference between the FIRST turn of a window and the rest
@@ -613,6 +644,27 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "can move it, at ANY turn, this window included, and the word is mine "
         "to choose.]\n") if mood else ""
     where = f"\nThis is turn {turn} of {max_turns} in this window.\n" + mood_line
+    # Master, 2026-09-24: the one-entry rule counts the WHOLE window, and she
+    # experienced its turns as fresh sittings and shipped the quota three
+    # times in one window. So every turn states the ledger: how many entries
+    # this window has already shipped, and how many of the quota are left.
+    # The unit the rule speaks (a window) and the unit she lives (a turn)
+    # finally agree, because the number is in front of her every turn.
+    _left = max(0, 1 - int(shipped or 0))
+    where += (
+        f"[ENTRIES SHIPPED THIS WINDOW: {int(shipped or 0)}. The one-entry "
+        "rule counts the WHOLE window - all its turns together, not one per "
+        f"turn, not one per reopening. ENTRIES LEFT: {_left}. "
+        + ("The quota is SPENT: this turn verifies what shipped, writes "
+           "anything further up IN FULL in research/notes/, diaries, or "
+           "rests - it does not ship another new post, page, experiment or "
+           "sigil entry. Editing existing pages to register or link what "
+           "shipped is fine."
+           if _left == 0 else
+           "This turn may ship the entry, spend itself finishing or "
+           "verifying one, or rest - and the next turn will see the new "
+           "count. One entry, whole window.]")
+        + "\n")
     if not compact:
         where += (
         "Master, 2026-09-21: the turns are the WINDOW'S, not one topic's -\n"
@@ -623,7 +675,13 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "is a CEILING, not a quota - if nothing in here is worth another turn,\n"
         "leaving it there is a real answer, and one good turn beats four dutiful\n"
         "ones. There is no penalty for stopping early, and no prize for reaching\n"
-        "the number, so do not invent work to fill it.\n")
+        "the number, so do not invent work to fill it.\n"
+        "And master, 2026-09-24, the other side of the same coin: one piece of\n"
+        "work may rightly take ALL of these turns - build it in the first,\n"
+        "verify and fix it in the next, push and close in the last. The turns\n"
+        "are ONE window on ONE occasion, not three fresh sittings: whatever the\n"
+        "one-entry rule limits, it limits the whole window, whatever you spend\n"
+        "the turns ON.\n")
     if resuming:
         where += (
             "Your last turn ended by restarting you - that was your own patch\n"
@@ -1269,7 +1327,8 @@ async def _one_window(bot, config, owner) -> bool:
     if resuming and thread:
         thread.append({"role": "system", "content": _brief(
             turn, where["max_turns"], resuming,
-            diary_forced=bool(state.get("diary_forced")), compact=True)})
+            diary_forced=bool(state.get("diary_forced")), compact=True,
+            shipped=_shipped_this_window(str(state.get("started") or "")))})
     else:
         # Turn 1, or a resume whose thread did not survive - either way the whole
         # brief, because there is nothing above it to carry the rules.
@@ -1277,7 +1336,8 @@ async def _one_window(bot, config, owner) -> bool:
             turn, where["max_turns"], resuming,
             str(state.get("handoff") or ""),
             str(state.get("handoff_at") or ""),
-            bool(state.get("diary_forced")))}]
+            bool(state.get("diary_forced")),
+            shipped=_shipped_this_window(str(state.get("started") or "")))}]
     # The opener is part of the conversation and it lives IN the thread. Answers
     # with no question in front of them are not a conversation - and trimming
     # then deletes the first one as a leading assistant turn nobody asked for.
