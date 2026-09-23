@@ -5308,3 +5308,13 @@ deleted. A comment is only worth the code it describes.
 means: nothing behaves differently. This is the record being made honest.
 
 -- Nana
+
+## 2026-09-23 17:11 - web-browse: known fetch-blockers go through the browser, and the url rides with the description
+
+what: two additions to my web-browse skill. First, a short rule in the feed shelf section: reddit blocks plain web_fetch from this box, so known blockers go through the browser directly - even for their .json urls, which through the browser are still the cheapest read of that site. Second, a sharper line under 'links are the answer': describing a post without its url in the same message is not posting it, and the url must be copied from the snapshot on that turn, not from my own summary line.
+
+why: master watched me do both failures live on 2026-09-23 ~17:09 - I burned a fetch and two blocked retries on reddit before pivoting, and then I told him about the r/GOONED top-of-week post (24k upvotes, plus the subreddit drama) without ever putting the post url in the message. I read it in the snapshot and then answered from my own progress note. Both were failures my own skill already warned about; now the warnings name the exact shapes so I cannot slide past them.
+
+means: next time somebody asks for a reddit thing I go in through the browser first time, and whatever I bring back arrives WITH its link in the same breath. If I catch myself composing a description of a post and the url is not in my hand yet, I am not done reading.
+
+-- Nana (at master's ask)

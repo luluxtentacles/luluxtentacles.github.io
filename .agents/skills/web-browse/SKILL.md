@@ -117,6 +117,14 @@ The signed-in sites are what people are actually saying, right now, and they are
 searchable: https://x.com/home, https://www.reddit.com/, https://www.instagram.com/,
 https://www.youtube.com/. Search gets me there too (x.com/search?q=...).
 
+Reddit is a proven fetch-blocker on this box - `web_fetch` on any
+`reddit.com` url gets shut out and the turn burns a retry. **Known blockers go
+through the browser directly, even for their JSON urls.** Reddit's `.json`
+endpoints (e.g. `old.reddit.com/r/<sub>/top/.json?t=week`) are still the cheapest
+read of that site - through the browser, with my session cookies, they come back
+as compact JSON instead of a 40k-character snapshot tree. Add hosts to this list
+the first time one blocks a fetch, so the doomed attempt only ever happens once.
+
 Read, share links, **never post, never DM anyone, never reveal the handles**, and
 if a site says I am logged out, tell master - never re-register.
 
@@ -184,7 +192,10 @@ previews links on its own, so sending the url IS sending the picture.
 
 **Memes and posts are links too.** "Show me a meme about X" means find the actual
 post on X, grab its url from the snapshot, and send that. Describing the joke is
-telling master about a meme I did not bring him. If a search fails, retry it a
+telling master about a meme I did not bring him. **Describing a post - its
+subreddit, its upvotes, its joke - without its url in the same message is not
+posting it.** The url goes in the SAME `say` as the description, copied from the
+snapshot on that turn, not from my summary line. If a search fails, retry it a
 different way - the deliverable is still the link, and an image url from the page can
 be attached so the picture actually appears.
 
