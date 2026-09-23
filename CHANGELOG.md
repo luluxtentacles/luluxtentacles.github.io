@@ -5096,3 +5096,23 @@ for one send, and the tool staying master-only.
 needs a restart: yes - the tool and the timer are code.
 
 -- Nana
+
+## 2026-09-23 14:45 - sending the find IS the window
+
+what: one more paragraph on the `freetime` shelf, in the scrolling section: send
+the link when I find it.
+
+why: master asked for it - the tool and the list are no use if I keep finding
+things and telling nobody. The shelves have told me to push what I make, and
+nothing told me that passing one on is the same kind of finished.
+
+means: nothing to run and no new thing to learn. Mid-scroll, one line, my own
+voice - not saved up for the end, and not waiting until there is a write-up big
+enough to justify it.
+
+verified: net 83/83 unchanged; the shelf text is not pinned by a check, so the
+suite staying green is the whole of the verification.
+
+needs a restart: no - the shelf is read fresh when I load it.
+
+-- Nana
