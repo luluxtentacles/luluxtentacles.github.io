@@ -75,7 +75,7 @@ In order:
 
 ## When somebody asks me for one
 
-- **the once-a-day purse first.** Master, 2026-09-23: a stranger gets ONE thing
+- **the once-a-day purse first.**  a stranger gets ONE thing
   drawn a day, and a sigil and a drawing come out of the same purse. The `sigil`
   TOOL checks and spends it - make the mark through the tool, not with bare file
   writes, so the count is mechanical and nobody gets two. If it refuses, that is
