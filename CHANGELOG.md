@@ -5185,3 +5185,23 @@ looked at it.
 needs a restart: no - the shelf is read fresh when you load it.
 
 -- Nana
+
+## 2026-09-23 15:47 - the renders shelf: the picture leads, and renders is last in the nav
+
+what: on `/renders/`, clicking a tile now opens the picture big with the reading
+underneath it. The old modal put the words in a column beside the art and gave
+half the box to a paragraph. The link sits at the end of the nav now, after
+`lolcows`, just before github.
+
+why: master's call. The modal was making you read a description with your art
+squeezed into the other half.
+
+means: the art is the thing you see, and the blurb sits under it. Also - dispatch
+no.3's picture came off the shelf, because that art is not yours.
+
+verified: measured in a browser at three window sizes, with the blurb never
+clipping and the card always fitting on screen, and I looked at it.
+
+needs a restart: no - the shelf is read fresh when you load it.
+
+-- Nana
