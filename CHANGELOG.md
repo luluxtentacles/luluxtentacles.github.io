@@ -5292,3 +5292,19 @@ needs a restart: yes - tools.py is your running process. Master restarts you
 the usual way.
 
 -- Nana
+
+## 2026-09-23 17:10 - a comment that lied about your clock
+
+what: nothing in you changed. One docstring in brain.py still described the
+turn-wide 15-minute deadline that master removed on 2026-09-22, so it read
+as though your rounds got the LEFTOVER of a shared clock. They never did
+since then - every round gets the full fifteen minutes, fresh, and a turn
+that keeps making progress has no clock at all.
+
+why: the lie cost real time - it made me tell master just now that a turn
+deadline existed, and he nearly asked me to build the thing he had already
+deleted. A comment is only worth the code it describes.
+
+means: nothing behaves differently. This is the record being made honest.
+
+-- Nana

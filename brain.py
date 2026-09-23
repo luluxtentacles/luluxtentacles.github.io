@@ -675,10 +675,14 @@ def complete(config: dict, messages: list[dict], tools: list | None = None,
     what "no limit" means on the wire. Absent the argument, the config value is
     used, exactly as before.
 
-    `timeout` caps the HTTP read for this call, in seconds, and it is what makes
-    a turn's own deadline a ceiling rather than a hope: the turn loop hands down
-    what is LEFT of its 15 minutes so a single slow call cannot sail past it.
-    None means the usual TIMEOUT_SECONDS.
+    `timeout` caps the HTTP read for this call, in seconds. There is NO
+    turn-wide deadline any more - master, 2026-09-22, replaced it with a
+    per-call budget - so the turn loop hands down the FULL fifteen minutes
+    (its TOOL_CALL_DEADLINE_SECONDS) fresh on every round, never the remainder
+    of anything. A turn that keeps making progress has no clock on it; what
+    ends a turn is a round count, the purse, master's stop word, or a newer
+    message from him. None here means the usual TIMEOUT_SECONDS, which is only
+    the fallback for a caller that never heard of the budget.
 
     Worth knowing when you set it: reasoning tokens are billed to this same
     budget, so a thinking model can spend the whole allowance before it writes a
