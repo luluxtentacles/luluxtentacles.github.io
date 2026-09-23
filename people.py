@@ -59,6 +59,13 @@ REFRESH_SECONDS = 24 * 60 * 60
 
 MAX_FACTS = 12
 MAX_LOCAL_FACTS = 40
+
+# The dossier: my page of PROSE on a person, written by the daily facts pass.
+# Master, 2026-09-23: "it should be like a page of text, not too short". A page
+# is roughly 2000-3000 characters; the floor keeps it prose rather than a
+# two-line stub, the ceiling keeps one busy day from writing a book.
+DOSSIER_MIN_CHARS = 600
+DOSSIER_MAX_CHARS = 8000
 # How many described profile pictures I keep per person. A page, not a
 # scrapbook: somebody who changes their pfp daily should not grow their record
 # without end, and the newest is the one anybody is asking about.
@@ -899,6 +906,7 @@ def lookup(user_id) -> dict:
     return {
         "key": key,
         "custom_name": hero or "",
+        "dossier": _dossier_text(mine),
         "facts": unique[:MAX_FACTS],
         "likes": _titles_many((mine, hers), "likes"),
         "dislikes": _titles_many((mine, hers), "dislikes"),
@@ -1035,6 +1043,38 @@ def learn(user_id, text: str, name: str = "", source: str = "told") -> str:
     entry["facts"] = facts[-MAX_LOCAL_FACTS:]
     _save(people)
     return "noted"
+
+
+def set_dossier(user_id, text: str) -> str:
+    """Write my page of prose on someone - the dossier, not a fact list.
+
+    Master, 2026-09-23: the dossier should be like a page of text, not too
+    short. A write REPLACES the stored page: it is written as the whole
+    picture, old material merged in, never an append of one more line.
+    """
+    key = resolve(user_id)
+    body = redact(str(text or "").strip())
+    if not key or not body or body == "[redacted]":
+        return "nothing worth storing"
+    if len(body) < DOSSIER_MIN_CHARS:
+        return (f"too short - a dossier is prose, most of a page "
+                f"(at least {DOSSIER_MIN_CHARS} characters)")
+    people = learned()
+    entry = _entry(people, key)
+    entry["dossier"] = {"text": body[:DOSSIER_MAX_CHARS],
+                        "at": time.strftime("%Y-%m-%d %H:%M")}
+    _save(people)
+    return "dossier written"
+
+
+def _dossier_text(mine: dict) -> str:
+    """The stored dossier prose for one person, empty when there is none."""
+    page = (mine or {}).get("dossier")
+    if isinstance(page, dict):
+        return str(page.get("text") or "")
+    if isinstance(page, str):
+        return page
+    return ""
 
 
 def set_preferred(user_id, name: str) -> str:

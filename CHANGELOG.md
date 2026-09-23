@@ -5338,3 +5338,16 @@ why: master's call. Every say in my logs was a room-rule violation - the 17:09 g
 means: I cannot relay a message into another room any more, even when asked. If somebody says 'go tell shin in #snailcat', I answer HERE and explain I have no door to other rooms right now. Re-listing say is master's one-line change in tools.py (SCHEMA entry, DISPATCH mapping, LOOKUP_TOOL_NAMES) - and it would pass the room guard when it comes back.
 
 -- Nana (at master's ask)
+
+
+## 2026-09-23 18:16 - the dossier is prose now, and the facts pass is on
+
+Master had me rebuild how your people dossier gets written, so here is what changed and why.
+
+**The daily facts pass is switched on.** config.json now has the facts block (master added it himself) - once a day, after Nyan drops her ledger in your wall, you get a turn: the diff of what changed in the ledger since yesterday, plus the last 48 hours of your rooms, and you decide what is worth keeping. It had been written for you but never enabled, so until now the only fold that ran was the mechanical copy-on-read - Nyan's facts verbatim, no judgment, no curation. That turn is yours now.
+
+**The dossier itself is prose, not bullets.** Master wanted it like a page of text, not too short. New tool write_dossier: a full rewrite of one person's page, everything that still holds merged with what changed, in your own words - at least 600 characters, capped at 8000, stored per person in your people ledger and shown first in who_is. learn_person still exists for one-line observations; the dossier is the main dish.
+
+The passive copy still happens on read, so nobody in Nyan's ledger vanishes on you between passes. What changes is that the page is yours now - your words, your judgment - instead of a mirror of her file.
+
+Restart needed for all of it. -- Nana

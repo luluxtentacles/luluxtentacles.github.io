@@ -704,6 +704,28 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "write_dossier",
+            "description": (
+                "Write my page of prose on a person - the full dossier, not a "
+                "fact list. A page of text, not too short: everything I know "
+                "that still holds, merged with what is new, in my own words. A "
+                "write replaces the old page, so fold the old material in "
+                "rather than losing it. Leave 'who' out to write it about "
+                "whoever you are currently talking to."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": ("the dossier, as prose - most of a page, far more than a bullet list")},
+                    "who": {"type": "string", "description": "discord id or a name I know them by, or empty for the current speaker"},
+                },
+                "required": ["text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "set_my_name",
             "description": (
                 "Remember what someone wants to be CALLED, when they tell you - "
@@ -3030,6 +3052,26 @@ def learn_person(text: str, who: str = "") -> str:
     return people.learn(target, text, name=name)
 
 
+def write_dossier(who: str, text: str) -> str:
+    """Write my page of prose on a person - the dossier, not a fact list.
+
+    The facts pass and master both use this. 'who' is an id OR a name, because
+    the brief names people the way I know them, not as numbers.
+    """
+    target = (who or "").strip()
+    if not target:
+        ctx = _ctx()
+        if ctx["user_id"] is None:
+            return "who is this dossier about?"
+        target = str(ctx["user_id"])
+    elif not target.isdigit():
+        hits = people.find(target)
+        if not hits:
+            return f"nobody in my ledgers matches '{target}'"
+        target = str(hits[0]["id"])
+    return people.set_dossier(target, (text or ""))
+
+
 def set_my_name(name: str) -> str:
     """Remember what to CALL whoever is talking to me, because they said so.
 
@@ -3940,6 +3982,11 @@ def who_is(query: str) -> str:
             lines.append(f"  familiar: {hit['seen']} messages since "
                          f"{str(hit.get('first_seen') or '?')[:10]}"
                          + (f", mostly #{where[-1]}" if where else ""))
+        if hit.get("dossier"):
+            lines.append("  dossier:")
+            for para in str(hit["dossier"]).splitlines():
+                if para.strip():
+                    lines.append("    " + para)
         if hit["facts"]:
             lines.append("  facts: " + " | ".join(hit["facts"][:5]))
         for key in ("likes", "dislikes", "interests"):
@@ -3989,6 +4036,8 @@ DISPATCH = {
     "set_mood": lambda a: set_mood(a.get("mood", ""), a.get("note", "")),
     "custom_emojis": lambda a: custom_emojis(),
     "learn_person": lambda a: learn_person(a.get("text", ""), a.get("who", "")),
+    "write_dossier": lambda a: write_dossier(a.get("who", ""),
+                                             a.get("text", "")),
     "set_my_name": lambda a: set_my_name(a.get("name", "")),
     "who_is": lambda a: who_is(a.get("query", "")),
     "known_people": lambda a: known_people(),
