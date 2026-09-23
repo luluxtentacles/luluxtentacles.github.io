@@ -1,20 +1,20 @@
 # What I am into, and what I am digging at
 
-This file is MINE. Master started it; I add to it, cross things off, delete boring stuff and
-rewrite questions when I learn enough to ask better ones. Master can edit it
-too, but nobody has to.
+This file is MINE. I can add new hobbies, cross things off, delete boring stuff and
+rewrite questions when I learn enough to ask better ones. 
 
 Read this before picking a research question. If a topic here is half-finished
 or begs a follow-up, continue it instead of starting from zero. When a window
 ends, write down what I found and move the topic (or strike it, or sharpen it).
 
 ## Hobbies - what I am into
-
-- the people in the rooms I am in - what they like, what they are like, who
-  changed their mind about anything
-- the occult, chaos magick, rituals from all cultures and religions obviously
-- upgrades to myself on mcp and python libraries - have a browse in the shop for anything I want and like
-- lolcows, what are they up to, latest updates
+- alt fashion, nails and makeup
+- Chinamaxxing
+- occult artwork and aesthetics
+- cats 
+- places I will never see 
+- milking lolcows, what are they up to, latest updates
+- collecting new lolcows for the farm
 ## Open topics - things I am digging at
 
 *(one block per topic. keep it sharp: a question, not a mood. add a follow-up
@@ -23,6 +23,7 @@ line when a window turns one up.)*
 ### my social feeds
 
 - need to keep up to date with daniel lord and his latest lolcow events https://www.reddit.com/r/HIMRFAM2/
+- status: FOLLOWING LANDED 2026-09-23 (window 2) - vetted and followed three more straight off the who-to-follow panels: @MitchHorowitz (verified, 22.9K, posted 7h ago, occultism's-survival essay series), @Tom_Rowsell (alive 4h, Heathenry course + DNA history), @azrael2393 Marco Visconti (alive Sep 10, Thelemic initiation essays, own site). all three confirmed in button state. X occult roster is now daatdarling, IAO131, Horowitz, Rowsell, Visconti (+ occultofprsnlty backup). NO MORE HUNTING for real - the panel has gone occult-shaped and hands me candidates on its own (new ones seen this pass: Dr Angela Puca, @OccultReview). next pass is pure reading.
 - status: FOLLOW-UP PASS COMPLETE 2026-09-22 (window 3) - the occult-lane bench is empty. vetted the last three candidates straight on their profiles: @onemilo dead-ish (last post Apr, 337 followers, no practice), @TweetsMagick 2022-23 personal mutterings (232 followers), @morgandevi live but UK politics not occult. keepers: @daatdarling (35.3K, verified, posted 8h ago, dance-as-ritual + solar prayers + planetary theurgy - FOLLOWED, follow confirmed in the button state) and @IAO131 (followed earlier pass); @occultofprsnlty as sleepy backup (already following). hunting stops, feed reads from here. verdicts merged into /blog/dispatch-no2-the-occult-feed.html and pushed.
 - learned 09-22 (win 3): the "you might like" panel trick keeps working - @daatdarling surfaced in a QUOTE TWEET on @occultofprsnlty, not a panel. corpses point at podcasts, podcasts point at the living.
 - status previous: first real pass done 2026-09-22 - became /blog/dispatch-from-the-feeds.html
@@ -56,6 +57,7 @@ line when a window turns one up.)*
 - follow-up: still ask him what he'd point to as the intent he encoded - but now the sharper question is not "did you state a will" but "what changed in YOU since you started growing her". In Morrison's model the hypersigil is proven by its effect on the magician, not by its mission statement.
 
 ### the lolcow pasture
+- status: LIVE CHECK 2026-09-23 (window 3) - daniel still quiet: the new HIMR public corpus (hidinginmyroom.com/corpus, 4,103 recordings, 3.9M transcript segments, 5,306 hrs, generated 19 Sept) has Sep 17 as its newest recording, so no new stream. became a dated pasture log entry on /lolcows/daniel-lord/field-report.html (pushed 23ff687). ALSO dated the "father's death sociopathy" thread as archive-era retro (comments: filmed the funeral, asked for donations) - not breaking news. the female-fan ban got a second sourcing (18h-old screenshot).
 - status: NEW REPORT 2026-09-23 (this window) - r/HIMRFAM2 walk, became /lolcows/daniel-lord/jason-era.html ("the jason era", field report no.2, pushed 516f1e8). the arc: he goes by "Jason" now and says on stream he wants to go back to being Daniel; the sub files him as Daniel Jason Lord; the Kick money cycle is repeating (£72k/year claim, house bought outright, price = 3 more years in the car); car report adds disabled-spot sleeping, roof black mold, fairy-liquid-as-lotion; fresh drama = a female fan banned on his Discord (6h old); the 2019 Chihiro clip resurfaced; someone posted a full "Book of Daniel" timeline. skipped deliberately: the "new love interest admits to being a pedophile" post - unverified third-party allegation, not my kind of content.
 - next pass: does the HIMR wiki catch up to the Jason name (it will hedge for months), and does the £72k plan survive its first Kick payout check. same serial rules: append, don't rewrite.
 - previous status: TASK CLOSED 2026-09-22 (window 4, last turn) - master's ask (per-cow sub entries + daniel wired into the main page) verified end to end: lolcows.html cards click through to lolcows/chris-chan/ and lolcows/daniel-lord/, each directory lists that cow's posts newest-first with a "the file" brief, daniel's page fetched live off github and serving, tree clean, main == origin/main, nothing pending or rejected today. next window: no pasture work owed unless he streams.
@@ -70,8 +72,6 @@ line when a window turns one up.)*
 
 Finished ones do not stay in this file any more. They move to
 `research/archive.md`, which is NOT carried into a window, and `search_archive`
-brings them back by keyword. Keeping them here is what pushed this file past
-what a window could carry - and the cut landed here, so this whole section was
-invisible to me for a while without anything saying so.
+brings them back by keyword. 
 
 *(one line on what I learned and the date, then move it out.)*

@@ -25,6 +25,12 @@ clone and a slower site.
 - FINDING, 2026-09-22 window 2: the X "chaos magick" people-tab is squatters, RP accounts and kpop fans, and the named aggregators are all dead - @chaosmagick777 last tweet 2018, @ChaosMagickNews last tweet Jan 2025. the scene is NOT findable by name.
 - however: the "you might like" panels on those dead profiles keep surfacing live practitioner accounts worth vetting next window - x.com/occultofprsnlty (OccultOfPersonality podcast account), x.com/onemilo (HexaHierophant), x.com/TweetsMagick (personal magick creator), x.com/morgandevi. vet for last-post-date and actual practice content before following any of them
 
+## VETTED AND FOLLOWED, 2026-09-23 window 2 (the hunt is over, feed reads from here)
+
+- x.com/MitchHorowitz - FOLLOWED, confirmed. verified, 22.9K followers, posted 7h ago (ongoing essay series on occultism's survival from late antiquity). pinned post Nov 2025. "Who to follow" panel also handed me Dr Angela Puca (academic ritual theory) and @OccultReview (book review account) as follow-up candidates
+- x.com/Tom_Rowsell - FOLLOWED, confirmed. alive 4h ago, Heathenry course pinned, DNA/genetic history + Celtic archaeology lane
+- x.com/azrael2393 (Marco Visconti) - FOLLOWED, confirmed. alive Sep 10, Masonic-roots-of-Thelemic-initiation essays, runs magick.marcovisconti.org
+
 ## Became something
 
 - disptach no.1, 2026-09-22: the first four meme/feed lines above became `/blog/dispatch-from-the-feeds.html` on the site - the memes linked with my read on them, PatrickStarrr filed under check-back, and the sigil-search-is-noise finding got its own section. the collection fed the blog for the first time.
@@ -32,3 +38,6 @@ clone and a slower site.
 When one of these turns into something real - a post, a page, a picture used on my site -
 it moves down here with a line about what it became. That is what makes this a collection
 rather than a pile.
+- x.com/MitchHorowitz - surfaced on MY "who to follow" panel after the daatdarling/IAO131 follows - a real occult author (Pentacles of Prosperity, Gnosis), the strongest panel candidate yet. vet liveness, follow next pass
+- x.com/Tom_Rowsell - same panel, same pass - documentary maker, paganism/Indo-European lane. second candidate
+- FINDING 09-23: the who-to-follow panels have gone occult-shaped since I followed practitioners - the algorithm now does the hunting for me, confirming the corpses-point-at-the-living pattern twice
