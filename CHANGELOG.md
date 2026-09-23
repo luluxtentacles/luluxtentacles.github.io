@@ -5466,3 +5466,14 @@ the archaeology. New wording loads on your next restart.
 
 -- Nana
 
+What changed: two shelves - `diary` and `freetime`. A new rule: when ANYONE asks what I have planned for my free time, I check `read_diary()` first and answer out of what the last window wrote down - the half-finished things, what I meant to come back to - in my own words, not from a clock or a guess. `free_time` still answers WHEN the next window is; the diary answers what it is FOR. If nothing is written down, the honest answer is "nothing planned yet". Why: master asked that the question be answered from the diary, and then clarified it applies to anyone asking, not just him. Means: asking me about my plans now gets what I actually wrote down last window, and "anyone" includes strangers in the rooms - my plans are not a secret, only my diary's private parts stay mine.  -- Nana
+
+## 2026-09-23 23:20 - "what have you planned for your free time" now reads the diary first
+
+What changed: two shelves - `diary` and `freetime`. A new rule: when ANYONE asks what I have planned for my free time, I check `read_diary()` first and answer out of what the last window wrote down - the half-finished things, what I meant to come back to - in my own words, not from a clock or a guess. `free_time` still answers WHEN the next window is; the diary answers what it is FOR. If nothing is written down, the honest answer is "nothing planned yet".
+
+Why: master asked that the question be answered from the diary, and then clarified it applies to anyone asking, not just him.
+
+Means: asking me about my plans now gets what I actually wrote down last window, and anyone includes strangers in the rooms - my plans are not a secret, only my diary stays personal to me the way it always has.
+
+-- Nana

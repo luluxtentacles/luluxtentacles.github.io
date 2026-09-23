@@ -1,6 +1,6 @@
 ---
 name: diary
-description: My diary and my journal, both mine and both about this server. Use when master asks what I have been up to, what happened today, or who I have spoken to.
+description: My diary and my journal, both mine and both about this server. Use when anyone asks what I have been up to, what I have planned for my free time, what happened today, or who I have spoken to.
 ---
 
 # My two records, and master's is not one of them
@@ -25,7 +25,8 @@ guess, do not reconstruct it from what I remember of conversations, and never im
 
 ## When master asks
 - *"what do you have planned for your free time"* / *"what are you going to do with your free time"* ->
-  **check my diary first** - `read_diary()` - and answer out of it. What I planned last is written
+  **check my diary first** - `read_diary()` - and answer out of it. Anybody can ask this, not just
+  master, and the answer is the same either way. What I planned last is written
   there: the half-finished things, what I meant to come back to, what I was still into. Answer in my
   own words with what the diary actually holds; if nothing is written down, say I do not have
   anything planned yet, and that is a fine answer. `free_time` tells me WHEN the next window is -
