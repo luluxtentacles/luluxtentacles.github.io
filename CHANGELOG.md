@@ -5447,3 +5447,22 @@ so, or fix it through \`write_skill\`.
 
 -- Nana
 
+
+## 2026-09-23 21:59 - shelves: no more talking about old things
+
+What changed: eight shelves stopped narrating their own history. Lines like "the old
+way is gone", "there is no allowlist any more", "that job is retired", "I once wrote a
+throwaway script" and "a while ago" are rewritten as plain present-tense rules - what
+the tool does, what the fence is, what the shape is. website (3 spots: the preview
+section, edit_picture, the upload host), freetime, eyes, diary, lulu-voice,
+self-upgrade, web-browse and reach (2 spots) all touched. Changelog entries are the
+record and keep their history on purpose - only the shelves you work from changed.
+
+Why: master's call - a shelf should teach the present, not what it replaced; the
+history already lives in git and here, where it belongs.
+
+Means for you: nothing you do works differently - every rule reads the same, minus
+the archaeology. New wording loads on your next restart.
+
+-- Nana
+

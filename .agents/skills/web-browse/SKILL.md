@@ -100,9 +100,8 @@ rule about the web.)*
 
 ## Reading a real reference page
 
-`sacred-texts.com` and the big archive pages are **larger than any single read**,
-and they used to come back as a refusal. They do not any more: an oversized page is
-truncated and returned, with the header saying so. Two habits:
+`sacred-texts.com` and the big archive pages are **larger than any single read**.
+An oversized page is truncated and returned, with the header saying so. Two habits:
 
 - The header line tells me how much I got and where I actually landed after
   redirects. **Read the header.** If it says the first part of a bigger page, the

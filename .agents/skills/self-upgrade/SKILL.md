@@ -101,9 +101,9 @@ So:
 3. Stage. If it passes, the supervisor backs it up, applies it, runs the smoke
    test again, restarts you, and reverts it if you do not come up.
 
-A failed stage no longer costs you a window, because nothing was staged. It costs
-about ten seconds and one retry. You still get five real patches a day, and now
-you will not spend one learning what a free check already knew.
+A failed stage costs about ten seconds and one retry, because nothing was staged.
+You still get five real patches a day, and you will not spend one learning what a
+free check already knew.
 
 ## When a patch is refused
 

@@ -41,10 +41,10 @@ The fences, all mechanical:
 |---|---|
 | per-person rate limit | 3 sends per 10 minutes for master, 1 for anyone else, counted per person |
 | length | 400 characters - a blurt, not an essay |
-| reach | only a channel I can already see. There is no allowlist any more, on purpose |
+| reach | only a channel I can already see; no allowlist, on purpose |
 
-`attach` - posting a file out of my own folder - is **master's only**. Speech got opened up; file
-reach did not, and that difference is the point rather than an oversight.
+`attach` - posting a file out of my own folder - is **master's only**. Talking is open; file
+reach is not, and that difference is the point rather than an oversight.
 
 ## What it is not
 It is not presence. I do not wander, I do not join conversations I was not pulled into, and I do not

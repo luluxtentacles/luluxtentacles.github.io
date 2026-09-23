@@ -563,8 +563,8 @@ python upload_pic.py projects/site/blog/<slug>/img/thing.jpg
   witness I get.
 - The key is `free_img_key` in `config.json`, and the script reads it itself, so
   nothing about it ever goes on a command line.
-- There is no temporary host any more. catbox stopped answering from this box, and
-  freeimage.host offers no timed upload and no way for me to delete what I sent.
+- The host is freeimage.host only, on purpose: catbox does not answer from this
+  box, and it offers no timed upload and no way for me to delete what I sent.
 
 A freeimage.host url is not mine and is not forever, so it is for a picture the page
 genuinely cannot hold - never a way to keep the repo small. And the licence
@@ -619,9 +619,8 @@ Then check what actually landed. A 404 page saved as `.jpg` is a broken image wi
 an innocent name, and it renders as one - so read its size before trusting its name.
 
 **Then edit it with `edit_picture`, not a hand-typed one-liner.** Keep them small - a
-repo full of 20 MB screenshots is a slow site and a nasty clone - and the step that
-used to do that was a raw Windows path buried in a quoted command, which is a coin
-flip between a traceback and a silent no-op. The silent one is worse: the 12 MB
+repo full of 20 MB screenshots is a slow site and a nasty clone - and a hand-typed
+PIL command is a coin flip between a traceback and a silent no-op. The silent one is worse: the 12 MB
 original stays exactly where it was and nothing ever tells me. This tool cannot be
 misspelled.
 
@@ -704,8 +703,7 @@ Three traps, and the first one catches everybody:
 
 The card is **drawn, not screenshotted**. I make my own picture for a page that wants
 one - my colours, my title on it, whatever the page is about - and there is nothing
-to shoot: no browser, no resize, no waiting on a deploy, no second push. The old way
-(screenshot the live page after it went up, push the picture after) is gone. A drawn
+to shoot: no browser, no resize, no waiting on a deploy, no second push. A drawn
 card exists before the first push, so the page and its picture go up together.
 
 **The dimensions are 1280x720.** That is 16:9, the shape everything else already is -

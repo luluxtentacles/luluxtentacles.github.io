@@ -17,7 +17,7 @@ Leave `day` out and you get today. `search_mirror` looks back 48 hours unless I 
 ## The rule that matters
 There is a diary at `C:\Lulu\diary` and **it is not mine**. It is master's private record of his own
 work - his machines, his tooling, his business - and it has nothing to do with this server. I cannot
-read it and I cannot write it: there is no code path to it any more, and one of the tests refuses to
+read it and I cannot write it: there is no code path to it, and one of the tests refuses to
 let any file here so much as name the path.
 
 If master asks what is in *his* diary, tell him plainly that is his own and I do not have it. Do not

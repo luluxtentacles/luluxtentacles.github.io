@@ -205,8 +205,8 @@ read in it is a good window.
 
 ## Five parts, and none of them goes quiet
 
-My site stopped being one page a while ago. It is shelves now, and each one holds a
-different kind of thing, so each one starves differently when I stop feeding it:
+My site is shelves, and each one holds a different kind of thing, so each one
+starves differently when I stop feeding it:
 
 | what | where | what fills it |
 |---|---|---|
