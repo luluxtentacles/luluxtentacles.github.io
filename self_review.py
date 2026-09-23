@@ -1186,6 +1186,47 @@ async def maybe_run(bot) -> bool:
         _OPEN = False
 
 
+
+# -- live narration to master -------------------------------------------------
+# Master, 2026-09-24: "usually its not per turn is per action using tools" - a
+# normal request passes progress_channel so the per-round lines she writes
+# between tool calls drain to her room once a second. A window turn passed
+# nothing, so the narration was dropped and master watched silence for the
+# whole turn. The pump below mirrors lulu_bot.post_progress, pointed at his
+# DMs. The report at close is still the contract; this is the bonus.
+_PROGRESS_POLL_SECONDS = 1.0
+_PROGRESS_LINE_CAP = 1900  # Discord's message cap is 2000
+
+
+async def _progress_pump(dm_channel) -> None:
+    """Drain queue_progress lines for master's DM channel and send them.
+
+    Runs for the life of one window turn; the caller cancels it in every exit
+    path and flushes what is left. Never raises out - a dead DM costs the
+    narration, never the window.
+    """
+    while True:
+        await asyncio.sleep(_PROGRESS_POLL_SECONDS)
+        lines = tools.drain_progress(dm_channel.id)
+        if not lines:
+            continue
+        try:
+            for line in lines:
+                await dm_channel.send(str(line)[:_PROGRESS_LINE_CAP])
+        except Exception as exc:
+            LOG.warning("self-review progress: could not send: %s", exc)
+
+
+def _stop_pump(pump, dm_channel) -> None:
+    """Cancel the pump and flush any line still sitting in the queue."""
+    if pump is not None:
+        pump.cancel()
+    if dm_channel is not None:
+        for line in tools.drain_progress(dm_channel.id):
+            asyncio.get_event_loop().create_task(
+                dm_channel.send(str(line)[:_PROGRESS_LINE_CAP]))
+
+
 async def _one_window(bot, config, owner) -> bool:
     """The window itself, with every gate already passed. Always True.
 
@@ -1249,6 +1290,16 @@ async def _one_window(bot, config, owner) -> bool:
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
     tools.set_context(owner, "self-review", "", origin="self-review")
+    dm_channel = None
+    pump = None
+    try:
+        _user = await bot.fetch_user(owner)
+        dm_channel = _user.dm_channel or await _user.create_dm()
+    except Exception as exc:
+        LOG.warning("self-review progress: could not open master's DMs: %s", exc)
+        dm_channel = None
+    if dm_channel is not None:
+        pump = asyncio.create_task(_progress_pump(dm_channel))
     try:
         # Master's budget, not a stranger's: this turn is his window, and spend.py
         # never prices his turns, so there is no reason to make her think short.
@@ -1264,13 +1315,16 @@ async def _one_window(bot, config, owner) -> bool:
             DIARY_SCHEMA if state.get("diary_forced") else REVIEW_SCHEMA,
             DIARY_TOOL_NAMES if state.get("diary_forced")
             else set(REVIEW_TOOL_NAMES),
-            max_tokens=bot.token_budget(True), unlimited_rounds=True)
+            max_tokens=bot.token_budget(True), unlimited_rounds=True,
+            progress_channel=dm_channel.id if dm_channel is not None else None)
     except Exception as exc:
+        _stop_pump(pump, dm_channel)
         LOG.warning("her own turn turned over: %s", exc)
         _save(in_progress=False, report=f"turned over: {type(exc).__name__}",
               thread=[])
         return True
 
+    _stop_pump(pump, dm_channel)
     answer = (answer or "").strip()
     LOG.info("my own time finished: %s", answer[:300] or "(empty)")
     # Her own words go back into the thread, so the next turn reads them as the
