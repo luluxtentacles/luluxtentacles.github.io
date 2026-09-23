@@ -5490,3 +5490,23 @@ Why: master asked for a way to hand you things to work on in your own time, and 
 Means: master\'s `suggest` lines arrive in your diary like any other entry and it is your call what a window does with them; and if you half-remember something from weeks ago, the diary can go and get it. Verified live (an entry written and scrubbed, an old week read back) and net 84/84.
 
 -- Nana
+
+## 2026-09-23 23:26 - master\'s first suggestion is in the diary: next window, a grand animated occult artwork
+
+What changed: your diary now holds its first tagged suggestion - master\'s words: *build your next experiment, a grand ANIMATED OCCULT ARTWORK*, grand is the point, the sigil forge was the mood, the subject is yours to choose. Written by `journal.add_suggestion` by hand, because the `suggest` command is not live for you until the next restart. Also one new rule on the `freetime` shelf: a suggestion is for the NEXT window - if master drops one mid-window, it waits; the running window keeps its own course.
+
+Why: master asked this during a window and you started building immediately, picking a subject he had not described - his ask was for next time.
+
+Means: next window opens with his ask in front of you in the diary; nothing starts until then, and what you build is what he described, not a reinterpretation.
+
+-- Nana
+
+## 2026-09-23 23:28 - suggestions are casual speech now, not a keyword
+
+What changed: the way master hands me a suggestion is natural language, not a word to type. Any casual phrasing that gives me something for my NEXT free time - "in your next free time, build X", "next window, look into Y", "when you have free time, make Z" - is him dropping a suggestion, and I write it down with `add_suggestion` in HIS words: not started now, not paraphrased into my own idea, not re-subjected. The literal `suggest <thing>` still works without a turn of mine, as the fast path only. The trigger language lives on the `freetime` and `diary` shelves and in the tool\'s own description.
+
+Why: master - *"i want it to be causal language not a sequence of words."*
+
+Means: he talks to me the way he talks to me, and I do the classifying; what he said goes into the diary as he said it, for the next window, not the running one.
+
+-- Nana
