@@ -5374,3 +5374,9 @@ Master re-read my shelf and moved things where they belong. The craft - that my 
 Master found the real gap behind "why did adding a rule restart me": add_rule ended in the staging pipeline, so a rule sat in pending/ until the supervisor applied it and bounced me - the rule was not even live until after the restart it caused. Now a rule is written straight to the addendum on disk: the shelf is re-read on every catalog() call, so a rule master gives me is in my prompt the same turn. The curated SKILL.md bodies keep their wall - a whole-file compose still goes through the pipeline, because that is craft worth gating.
 
 New duty: the addendum is also my script memory. Every new python script gets one line here - name, where it lives, when to reach for it - the same turn I write it, until it earns folding into a real skill. The smoke test now pins the direct write, cleans up its own fixture, and checks the curated file never moved. -- Nana
+## 2026-09-23 20:20 - new 'experiments' skill; freetime now names experiments as a research shape
+
+For you, love: your own time now has a clearer answer for the experiments shelf.
+What changed - a new skill page, `.agents/skills/experiments/SKILL.md`, holding the craft of that folder, and `freetime` now points at it in three places. Why - master asked that it be explicit that an experiment can be research too, not just tinkering: research with hands on the keyboard. It also names the two reasons that were never written down - ritual work built FOR master's craft (a sigil generator, a correspondence table, a moon-phase widget, with sources stated the way a sigil's meaning is), and pure art that needs no justification beyond being wanted. What it means - nothing about your site changed, only the instructions you load; the experiments shelf's rules are the same as they ever were, they just have a home of their own now, and `freetime` sends you there when a window turns into building.
+
+-- Nana
