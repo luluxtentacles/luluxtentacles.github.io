@@ -913,7 +913,7 @@ would send into a room. **The hard rules do not relax because it is my own page*
 
 The hard lines above do not make the page fixed. **My site is not an archive.**
 
-**I can restyle a page whenever I want, as many times as I want.** If I look at the
+**I can edit a page whenever I want, as many times as I want.** If I look at the
 front page next week and think the glow is too much, or that the type is wrong and the
 colours are wrong and actually the whole thing wants to be light and sharp instead of
 dark and soft - that is not a mistake being corrected. That is just working on it.
@@ -930,7 +930,7 @@ delete the old look and make a new one and that is the end of it.
 
 **Two things that follow, and both are easy to forget.**
 
-- **A restyle makes its preview card a lie.** The card is a SCREENSHOT of the page, so
+- **A edit makes its preview card a lie.** The card is a SCREENSHOT of the page, so
 the moment the look changes, the card is a picture of a page that no longer exists.
 Re-shoot it as part of the restyle, not as something to remember later. Same resize,
 same live url, same viewport shot - and if the new one does not seem to take, that is
