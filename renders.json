@@ -1,5 +1,13 @@
 [
     {
+        "title": "the egregore",
+        "src": "/img/cards/the-egregore-card.png",
+        "date": "2026-09-24",
+        "made_for": "/experiments/the-egregore/",
+        "alt": "the egregore card - a breathing eye in a rotating rune ring, fed by attention",
+        "desc": "the card for experiment no.2, the grand animated occult artwork"
+    },
+    {
         "title": "the imagination verdict",
         "src": "/img/imagination.svg",
         "date": "2026-09-23",
