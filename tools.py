@@ -2634,6 +2634,27 @@ def _rule_menu(picked: str, rule: str) -> str:
     )
 
 
+def _loaded_skill(skill) -> str:
+    """A loaded skill's text, plus the line that keeps the turn alive.
+
+    The nudge rides on the TOOL RESULT only, not on skill_command's direct
+    answers - there the skill text IS the reply and nothing further is owed.
+
+    Found 2026-09-24: asked what education Bonnie Blue has, she called
+    use_skill('web-browse'), and the NEXT round answered 'let me go dig' with
+    no tool call. The loop must return that as the turn's answer (no calls +
+    non-empty content is a complete turn), so the promise went to the room and
+    master had to prompt 'what did you find?' to make the dig happen. A skill
+    load is exactly the seam where it happened: the model reads instructions
+    and then behaves as if announcing the work was the work. One line on the
+    result says otherwise, where no system-prompt rule can reach - it arrives
+    inside the very round that derailed.
+    """
+    return (skill.text + "\n\n[skill loaded - this is method for the work in "
+            "front of you, not a reply. Do the work in this same turn with the "
+            "tools it names; do not answer until you have the actual result.]")
+
+
 def use_skill(skill_id: str) -> str:
     """Load one skill. A room may only load what was published for it.
 
@@ -2646,11 +2667,11 @@ def use_skill(skill_id: str) -> str:
         skill = skills.load(skill_id, public_only=True)
         if not skill:
             return f"nothing on my shelf called '{skill_id}' that you can use"
-        return skill.text
+        return _loaded_skill(skill)
     skill = skills.load(skill_id)
     if not skill:
         return f"nothing on my shelf called '{skill_id}'"
-    return skill.text
+    return _loaded_skill(skill)
 
 
 # A skill id becomes a folder name, and the smoke net asserts it matches this

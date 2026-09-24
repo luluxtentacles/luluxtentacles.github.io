@@ -261,6 +261,27 @@ MASTER_CALL_RULE = (
     "will do it."
 )
 
+# Master's report, 2026-09-24: he had to prompt twice. Asked what education
+# Bonnie Blue has, she loaded the web-browse skill - and then the NEXT round
+# answered with 'bonnie blue the onlyfans gremlin, let me go dig' and no tool
+# call. The loop returned that promise as the final answer (it must: no calls
+# and non-empty content is a complete turn, and there is no honest way to
+# heuristically tell a promise from a real answer like 'lol nice'). Master had
+# to ask 'what did you find?' to make the dig happen, then ask AGAIN because
+# the lore dump answered the thread's topic, not the question he asked.
+# Injected next to MASTER_CALL_RULE on every turn: narration may ride WITH a
+# tool call, never instead of one - and the reply answers what was ASKED.
+WORK_TURN_RULE = (
+    "A reply that promises work instead of doing it is a broken turn. 'let me "
+    "go dig', 'checking now', 'one sec' - said alone, with no tool call in the "
+    "same round - ends the turn and leaves the person who asked waiting with "
+    "nothing. When a question needs looking up, make the tool call in the same "
+    "round you think of it and keep going until you have the answer; a line of "
+    "narration may ride ALONG with a tool call, never instead of one. And "
+    "answer the exact question asked - reread it before you write, because "
+    "'related lore' is not the answer."
+)
+
 # Casual chatter: Nyan's algorithm. Base chance 1/200, and every message
 # in a channel tightens the odds (denominator -1) until a roll lands or the
 # 1/200 floor is hit. A landed roll is throttled to one reply per channel
@@ -1468,6 +1489,9 @@ class Lulu(discord.Client):
         # me on EVERY turn instead of whenever a keyword happens to match.
         parts = [s.text for s in (skills.load(i) for i in self.always_skills) if s]
         parts.append(MASTER_CALL_RULE)
+        # The promise-answer rule lives beside MASTER_CALL_RULE - see the
+        # comment there for the turn that proved it was needed (2026-09-24).
+        parts.append(WORK_TURN_RULE)
         return "\n\n".join(parts) or "You are Lulu."
 
     def skill_command(self, text: str, owner: bool = False) -> str | None:
