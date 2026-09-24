@@ -322,6 +322,9 @@ def _progress_text(content: str) -> str:
     offered no tools this model writes call syntax into its text instead, and
     that has landed in `content` as the literal string "<?DSML?tool_calls>".
     Discord is not where that gets debugged.
+
+    Master (2026-09-24): these lines post to DMs only, streamed into one
+    message; a shared room never sees them.
     """
     text = " ".join(str(content or "").split())
     if not text:

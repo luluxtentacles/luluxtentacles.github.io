@@ -155,6 +155,9 @@ STRIKE_LIMIT = 3
 # twice in a ROW is dropped, and each line is capped in LENGTH below so one
 # runaway sentence cannot eat a whole message. The turn is bounded anyway by
 # MAX_TOOL_ROUNDS, so unlimited means "as many rounds as she actually gets".
+# Master (2026-09-24): the queue is fed for DMs ONLY, and there the lines
+# stream into one message that is edited in place, not one message per line.
+# A shared room gets the answer and nothing of her working.
 PROGRESS_POLL_SECONDS = 1.0
 # PROGRESS_MAX_CHARS lives in bot_text.py with the progress helpers.
 
@@ -1131,6 +1134,11 @@ class Lulu(discord.Client):
         # message interrupts a dig instead of stacking a second one beside it.
         self._turn_seq: dict[int, int] = {}
         self._turn_tasks: dict[int, asyncio.Task] = {}
+        # DM progress streams (master, 2026-09-24): one message per turn,
+        # edited in place as her working-out lines arrive. A shared room
+        # queues nothing, so these dicts only ever fill for DMs.
+        self._progress_msgs: dict[int, discord.Message] = {}
+        self._progress_lines: dict[int, list[str]] = {}
         load_user_knowledge()
 
     # -- casual chatter (nyan port) --------------------------------------
@@ -2895,8 +2903,33 @@ class Lulu(discord.Client):
         generation, and whatever it still returns is dropped, not posted.
         """
         channel = message.channel
+        direct = isinstance(channel, discord.DMChannel)
         # Never post the previous turn's leftovers as though they were live.
+        # A DM is the only place the queue is ever fed now, but a channel's
+        # id could still carry stale lines from before the change - drained
+        # and dropped either way.
         tools.drain_progress(channel.id)
+        if not direct:
+            # Master (2026-09-24): a shared room sees NOTHING while she
+            # works - no progress messages, no reasoning. The answer is the
+            # only thing she says there. The poll loop would only sit waiting
+            # on an empty queue, so skip straight to the await.
+            task = asyncio.create_task(
+                asyncio.to_thread(self.think, message, text, parent, parts, seq))
+            self._turn_tasks[channel.id] = task
+            try:
+                return await task
+            except asyncio.CancelledError:
+                # Same rule as the DM branch below: a newer message took the
+                # slot, or the bot is going down. Only the first is ours to
+                # swallow.
+                if self._superseded(channel.id, seq):
+                    return SUPERSEDED
+                raise
+            finally:
+                tools.drain_progress(channel.id)
+                self._progress_msgs.pop(channel.id, None)
+                self._progress_lines.pop(channel.id, None)
         task = asyncio.create_task(
             asyncio.to_thread(self.think, message, text, parent, parts, seq))
         self._turn_tasks[channel.id] = task
@@ -2905,7 +2938,13 @@ class Lulu(discord.Client):
                 await asyncio.wait({task}, timeout=PROGRESS_POLL_SECONDS)
                 await self.post_progress(channel)
         finally:
-            await self.post_progress(channel)
+            try:
+                await self.post_progress(channel)
+            finally:
+                # One streamed message per turn: the handle is dropped here so
+                # the next turn in this DM starts a fresh message.
+                self._progress_msgs.pop(channel.id, None)
+                self._progress_lines.pop(channel.id, None)
         try:
             return await task
         except asyncio.CancelledError:
@@ -2916,14 +2955,44 @@ class Lulu(discord.Client):
             raise
 
     async def post_progress(self, channel) -> None:
-        """Post the lines she queued for this room, and only this room's."""
-        for line in tools.drain_progress(channel.id):
-            try:
-                sent = await channel.send(line)
+        """Stream her working-out into ONE live message (DMs only).
+
+        Master (2026-09-24): the per-line messages used to spam shared rooms,
+        and even alone they arrived as a pile of separate posts. Now a shared
+        room queues nothing at all, and a DM gets one message created on the
+        first line and EDITED as each further line arrives - a live stream
+        rather than a stack. The message stays behind as the record of the
+        turn; think_out_loud drops the handle when the turn ends.
+        """
+        lines = tools.drain_progress(channel.id)
+        if not lines:
+            return
+        shown = self._progress_lines.setdefault(channel.id, [])
+        for line in lines:
+            if line not in shown:
+                shown.append(line)
+        if not shown:
+            return
+        # Discord caps a message at 2000 characters; keep the tail, because
+        # the most recent lines are the ones she is on now.
+        while len("\n".join(shown)) > 1900 and len(shown) > 1:
+            shown.pop(0)
+        shown[0] = "..." + shown[0]
+        body = "\n".join(shown)
+        msg = self._progress_msgs.get(channel.id)
+        try:
+            if msg is None:
+                sent = await channel.send(body)
                 self.own_message_ids.add(sent.id)
-                LOG.info("progress: %s", line)
-            except Exception as exc:
-                LOG.warning("could not post progress: %s", exc)
+                self._progress_msgs[channel.id] = sent
+            elif msg.content != body:
+                await msg.edit(content=body)
+        except Exception as exc:
+            # A failed send or edit must not swallow the lines: hand them back
+            # so the next poll - one second away - picks the whole tail up.
+            LOG.warning("progress stream: %s", exc)
+            for line in lines:
+                tools.queue_progress(channel.id, line)
 
     def has_hands(self, author_id: int) -> bool:
         """Tools are offered only to ids in config.json -> owner_ids.
@@ -3316,7 +3385,13 @@ class Lulu(discord.Client):
                                     is_owner=is_owner,
                                     direct=isinstance(message.channel,
                                                       discord.DMChannel)),
-                                progress_channel=message.channel.id,
+                                # Master (2026-09-24): her working-out posts to
+                                # DMs only. A shared room gets the answer and
+                                # nothing else, so a channel queues nothing.
+                                progress_channel=(message.channel.id
+                                                  if isinstance(message.channel,
+                                                                discord.DMChannel)
+                                                  else None),
                                 supersede_check=lambda: self._superseded(
                                     message.channel.id, seq))
 
