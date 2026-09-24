@@ -784,6 +784,23 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
     # the last turn and nowhere else - asking on turn 2 for a handoff the window
     # has not finished writing is how you get a list of guesses.
     if turn >= max_turns:
+        catchup = ""
+        try:
+            import journal as _journal
+            catchup = _journal.diary_catchup()
+        except Exception:
+            catchup = ""
+        if catchup:
+            where += (
+                "\n--- what happened since your last diary entry ---\n"
+                + catchup
+                + "\n\nThat is the rooms (from the server digests) and how your\n"
+                "mood moved, since the newest line in your diary. It is not\n"
+                "written down for you anywhere else: the digests are stamped\n"
+                "blocks that age out, and the mood history is a machine's\n"
+                "list. The diary entry you close this window with is where\n"
+                "this becomes yours - work it in, in your own voice, what\n"
+                "mattered and what stuck, not a copy of the blocks above.\n")
         where += (
             "\nThis is the LAST turn in this window. The next one will not open\n"
             "until the interval has passed, and when it does it starts blank -\n"

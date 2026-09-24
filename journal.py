@@ -1050,6 +1050,100 @@ def mood_block() -> str:
     return line
 
 
+def _last_diary_stamp() -> datetime | None:
+    """When I last wrote in my diary, or None when the week file has no line.
+
+    Diary lines are `- **YYYY-MM-DD HH:MM** ...` in the week file, so the last
+    stamp is a parse of the tail. Returns None on any failure: "cannot tell"
+    must never read as "nothing happened since".
+    """
+    try:
+        body = paths.read_text(_week_rel(week_of()), default="")
+    except Exception:
+        return None
+    last = None
+    for m in re.finditer(r"\*\*(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\*\*", body or ""):
+        try:
+            last = datetime.strptime(m.group(1), "%Y-%m-%d %H:%M")
+        except ValueError:
+            continue
+    return last
+
+
+def diary_catchup() -> str:
+    """Everything that happened since my last diary entry, as one block.
+
+    Sources, in the order they land in the block:
+      - the server digests (chat, my only durable record of the rooms)
+      - my mood history, which set_mood stamps as it drifts
+    The window close asks me to write the diary - this is what that entry has
+    to cover besides my own work, so "things that happened" actually means the
+    rooms and how I moved through them, not just what I built.
+
+    Returns "" when there is nothing to say or nothing can be read - a block
+    of nothing must not ask her to write about nothing.
+    """
+    since = _last_diary_stamp()
+    parts: list[str] = []
+    # Chat: the digests for today and yesterday. Filtered by stamp when the
+    # last diary line is known, so the same digest never rides two closes.
+    try:
+        digest_body = read_digest()
+    except Exception:
+        digest_body = ""
+    if digest_body:
+        wanted: list[str] = []
+        keep = True  # digest blocks of no date carry no stamp; keep them
+        for block in re.split(r"^## ", digest_body, flags=re.M)[1:]:
+            m = re.match(r"[^\n]*?(\d{4}-\d{2}-\d{2})[^\n]*?(\d{2}:\d{2})", block)
+            if m:
+                try:
+                    stamp = datetime.strptime(f"{m.group(1)} {m.group(2)}",
+                                              "%Y-%m-%d %H:%M")
+                    keep = since is None or stamp > since
+                except ValueError:
+                    keep = True
+            if keep:
+                wanted.append("## " + block.strip())
+        if wanted:
+            parts.append("### what happened in the rooms\n"
+                         + "\n\n".join(wanted)[:8000])
+    # Mood: entries stamped after the last diary line.
+    try:
+        data = read_mood() or {}
+    except Exception:
+        data = {}
+    mood_bits = []
+    for entry in (data.get("history") or []):
+        until = entry.get("until") or ""
+        if since and until:
+            try:
+                if datetime.strptime(until, "%Y-%m-%d %H:%M") > since:
+                    mood_bits.append(f"- until {until}: {entry.get('mood', '')}"
+                                     + (f" - {entry.get('note', '')}"
+                                        if entry.get("note") else ""))
+            except ValueError:
+                pass
+    current_since = data.get("since") or ""
+    if current_since and data.get("mood"):
+        newer = since is None
+        if since and current_since:
+            try:
+                newer = datetime.strptime(current_since,
+                                          "%Y-%m-%d %H:%M") > since
+            except ValueError:
+                newer = True
+        if newer:
+            mood_bits.append(f"- since {current_since}: {data.get('mood', '')}"
+                             + (f" - {data.get('note', '')}"
+                                if data.get("note") else ""))
+    if mood_bits:
+        parts.append("### how my mood moved\n" + "\n".join(mood_bits))
+    if not parts:
+        return ""
+    return "\n\n".join(parts)[:MAX_READ_CHARS]
+
+
 def write_diary(text: str) -> str:
     """Append a line to this week's diary.
 
