@@ -41,6 +41,9 @@ import json
 import os
 import re
 import time
+from datetime import date, datetime, timedelta
+
+import journal
 from pathlib import Path
 
 import gemini_queue
@@ -653,6 +656,10 @@ def _entry(people: dict, key: str) -> dict:
         entry["avatar_note"] = {}
     if not isinstance(entry.get("preferred_name"), str):
         entry["preferred_name"] = ""
+    # Chat flags: the stamp of the last chat I READ with this person. Empty
+    # means never read - unread is then everything the mirror still holds.
+    if not isinstance(entry.get("chats_read"), str):
+        entry["chats_read"] = ""
     return entry
 
 
@@ -1131,6 +1138,13 @@ def block(user_id, skip_facts=None) -> str:
     familiar = familiarity(user_id)
     if familiar:
         parts.append(f"seen them around: {familiar}")
+    # The chat flag: on when new chat with this person has gone unread since
+    # the baseline (last free-time window, or her own read mark). One line,
+    # so the flag is IN the dossier instead of a thing she must remember to
+    # ask about - master, 2026-09-25.
+    flag = chats_block(user_id)
+    if flag:
+        parts.append(flag)
     bio = str(entry.get("bio") or "")
     if bio:
         # The one-paragraph bio, rooms included - master, 2026-09-25. The
@@ -1398,6 +1412,169 @@ def set_preferred(user_id, name: str) -> str:
     entry["preferred_name"] = clean
     _save(people)
     return "noted"
+
+
+
+# ------------------------------------------------------- chats with a person
+# The mirror on disk holds what was said in the rooms; this is the PER-PERSON
+# view over it, with the one thing the mirror never had: a read mark. The
+# unread flag is TRUE whenever new chat with this person exists since the
+# baseline - the last free-time window opening, until she reads or sets the
+# flag herself (master, 2026-09-25).
+FT_STATE = "memory/self_review.json"
+
+
+def _key_for(who) -> str:
+    """The key of the person `who` names, by id or by any name they answer to.
+
+    resolve() alone answers a bare name with the name itself, which would grow
+    an empty shadow record under that string - so a resolve that lands on an
+    unknown record falls back to find(), the same loose name search the lookup
+    tools use. First hit wins; the person is the one thing a name always means.
+    """
+    key = resolve(who)
+    entry = _entry(learned(), key) if key else {}
+    # A REAL record says something: a name with content, a fact, or a sighting.
+    # _entry() upgrades a stranger to empty lists and dicts, which are truthy
+    # shapes and not knowledge - only content counts here.
+    info = entry.get("names") if isinstance(entry.get("names"), dict) else {}
+    has_name = any(str(info.get(k) or "").strip()
+                   for k in ("nick", "display", "username", "global",
+                             "custom_name")) \
+        or bool(info.get("aliases"))
+    if has_name or entry.get("facts") or entry.get("seen"):
+        return key
+    try:
+        hits = find(who, limit=1)
+    except Exception:
+        hits = []
+    return hits[0]["key"] if hits else (key or "")
+
+
+def _window_start() -> str:
+    """When the last free-time window opened, as a 'YYYY-MM-DD HH:MM' stamp.
+
+    The window state carries the epoch. Anything unreadable degrades to "":
+    the caller then counts from the oldest mirror line, never claiming all-read.
+    """
+    try:
+        data = json.loads(paths.read_text(FT_STATE, default="{}"))
+        epoch = float(data.get("last_started") or 0)
+        return (datetime.fromtimestamp(epoch).strftime("%Y-%m-%d %H:%M")
+                if epoch else "")
+    except Exception:
+        return ""
+
+
+def _names_of(entry, hero: str) -> set:
+    """Every string this person answers to, lowercased, for author matching."""
+    names = set()
+    if hero:
+        names.add(str(hero).lower())
+    info = entry.get("names") if isinstance(entry.get("names"), dict) else {}
+    for source in ("nick", "display", "username", "global", "custom_name"):
+        value = str((info or {}).get(source) or "").strip()
+        if value:
+            names.add(value.lower())
+    for alias in (info or {}).get("aliases") or []:
+        alias = str(alias).strip()
+        if alias:
+            names.add(alias.lower())
+    pref = str(entry.get("preferred_name") or "").strip()
+    if pref:
+        names.add(pref.lower())
+    return {n for n in names if n and not n.isdigit()}
+
+
+def chats(user_id, since: str = "", limit: int = 80) -> list:
+    """Chat lines with this person since `since`, oldest first.
+
+    Lines BY the person, plus my own lines that share the exact room and
+    minute - a chat has two sides, and the mirror only knows names. The disk
+    mirror keeps roughly 48 hours, so anything older is simply gone: this
+    reads the mirror, not an archive. Empty list when nothing matches or the
+    person is unknown - never an invented line.
+    """
+    key = _key_for(user_id)
+    if not key:
+        return []
+    entry = _entry(learned(), key)
+    wanted = _names_of(entry, display_name(key))
+    if not wanted:
+        return []
+    out = []
+    base = date.fromisoformat(journal.today())
+    for back in range(0, journal.MIRROR_KEEP_DAYS):
+        day = (base - timedelta(days=back)).isoformat()
+        for server, at, where, rest in journal.mirror_entries_all(day):
+            m = re.match(r"([^:]+): (.*)", rest, re.S)
+            if not m:
+                continue
+            who, text = m.group(1).strip(), m.group(2).strip()
+            low = who.lower().strip("*_~")
+            mine_too = low == "lulu"
+            if low not in wanted and not mine_too:
+                continue
+            stamp = f"{day} {at}"
+            if since and stamp <= since:
+                continue
+            out.append({"day": day, "at": at, "server": server,
+                        "where": where, "who": who, "text": text,
+                        "side": "me" if mine_too else "them"})
+    theirs = [c for c in out if c["side"] == "them"]
+    keep = {(c["day"], c["at"], c["where"]) for c in theirs}
+    paired = [c for c in out if c["side"] == "me"
+              and (c["day"], c["at"], c["where"]) in keep]
+    return sorted(theirs + paired, key=lambda c: (c["day"], c["at"]))[-limit:]
+
+
+def unread_chats(user_id) -> tuple:
+    """(flag, count, baseline) - has NEW chat with this person gone unread?
+
+    Baseline: when she last READ chats with them; never read, it falls back
+    to when the last free-time window opened - master, 2026-09-25: a dossier
+    with new chatlogs since the last free time is set to true. The baseline
+    "" means it could not be read, so counting starts at the oldest mirror
+    line rather than claiming all-read.
+    """
+    key = _key_for(user_id)
+    entry = _entry(learned(), key) if key else {}
+    baseline = str((entry or {}).get("chats_read") or "") or _window_start()
+    lines = chats(user_id, since=baseline)
+    return (bool(lines), len(lines), baseline)
+
+
+def mark_chats_read(user_id, read: bool = True) -> str:
+    """Set the chat flag myself: read clears it, unread wipes the mark."""
+    key = _key_for(user_id)
+    if not key:
+        return "I do not know who that is"
+    book = learned()
+    entry = _entry(book, key)
+    who = display_name(key) or key
+    if read:
+        entry["chats_read"] = datetime.now().strftime("%Y-%m-%d %H:%M")
+        book[key] = entry
+        _save(book)
+        return f"chats with {who} marked read"
+    # Unread: forget the mark, so everything the mirror still holds reads new.
+    entry["chats_read"] = ""
+    book[key] = entry
+    _save(book)
+    return (f"chats with {who} marked unread - "
+            f"{unread_chats(user_id)[1]} line(s) new")
+
+
+def chats_block(user_id) -> str:
+    """The flag as it rides the dossier text: on when new chat is unread."""
+    try:
+        flag, count, since = unread_chats(user_id)
+    except Exception:
+        return ""
+    if not flag:
+        return ""
+    return (f"new chats with you since {since or 'the mirror began'}: "
+            f"{count} line(s) unread - read_chats to see them")
 
 
 def observe(user_id, name: str, message: str) -> str:

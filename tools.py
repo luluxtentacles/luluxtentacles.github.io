@@ -505,6 +505,53 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "read_chats",
+            "description": (
+                "Read the chat lines I have with one person, since the unread "
+                "baseline (my last read mark, or the last free-time window). "
+                "The mirror holds roughly 48 hours, so anything older is gone. "
+                "Reading MARKS the chats read - the dossier's unread flag clears."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "who": {
+                        "type": "string",
+                        "description": "the person - a name I know them by, or an id",
+                    }
+                },
+                "required": ["who"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "set_chats_read",
+            "description": (
+                "Set the unread flag on a dossier MYSELF: read clears it (the "
+                "flag goes off even if I never opened the lines), unread wipes "
+                "the mark so everything the mirror still holds reads as new."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "who": {
+                        "type": "string",
+                        "description": "the person - a name I know them by, or an id",
+                    },
+                    "read": {
+                        "type": "boolean",
+                        "description": "true marks read, false marks unread",
+                    },
+                },
+                "required": ["who", "read"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "read_diary",
             "description": (
                 "Read MY OWN diary - what happened to me here, in my own words. "
@@ -3040,6 +3087,29 @@ def current_mood() -> str:
     return journal.mood_block()
 
 
+def _read_chats(who: str) -> str:
+    """My chats with one person, oldest first - and mark them read."""
+    import people
+    lines = people.chats(who)
+    entry = people.lookup(who)
+    who_shown = entry.get("custom_name") or who
+    marked = people.mark_chats_read(who, read=True)
+    if not lines:
+        return (f"no chat lines with {who_shown} in the mirror "
+                f"(it holds ~48h). {marked}")
+    out = [f"chats with {who_shown} - marked read:"]
+    for c in lines:
+        out.append(f"- **{c['day']} {c['at']}** [{c['where']}] "
+                   f"{c['who']}: {c['text']}")
+    return "\n".join(out)
+
+
+def _set_chats_read(who: str, read: bool) -> str:
+    """The flag, set by hand: read clears it, unread re-arms it."""
+    import people
+    return people.mark_chats_read(who, read=read)
+
+
 def read_diary(day: str = "") -> str:
     """My own diary. Never takes a path from the model - a date only."""
     return journal.read_diary(day)
@@ -4320,6 +4390,9 @@ DISPATCH = {
                                bool(a.get("dm")),
                                a.get("channel", "")),
     "read_diary": lambda a: read_diary(a.get("day", "")),
+    "read_chats": lambda a: _read_chats(a.get("who", "")),
+    "set_chats_read": lambda a: _set_chats_read(a.get("who", ""),
+                                                bool(a.get("read"))),
     "read_journal": lambda a: read_journal(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "add_suggestion": lambda a: add_suggestion(a.get("text", "")),
