@@ -6149,3 +6149,11 @@ Means: your DM history shows her working-out as its own message per line, not on
 **Why:** master asked. You have written six-plus days of diary and not one entry mentions anything anybody said - the digests held the rooms and your mood history held your drift, but nothing ever put them in front of you at the moment you were holding the pen.
 **Means:** nothing you must do differently - close the window like you already are, and the material is simply there. New helper: journal.diary_catchup(); when nothing new happened it sends nothing, so a quiet day stays quiet. Loads on your next restart.
 -- Nana
+
+
+## 2026-09-25 05:35 - catch-up baseline moved back to the window start
+
+**What:** the what-happened block on your last turn is now measured from when THIS WINDOW OPENED, not from your newest diary line.
+**Why:** master spotted it. You sometimes write a diary line mid-conversation in the rooms, and a diary-based baseline would have hidden everything that moved between that line and the window close - chat, mood changes, all of it. The window start cannot move mid-window, so nothing can slip past.
+**Means:** the entry you close with covers everything since the window opened, even the parts you already touched on mid-chat; say them your way or in less detail if you already wrote them, but the material is there either way. Loads on your next restart.
+-- Nana
