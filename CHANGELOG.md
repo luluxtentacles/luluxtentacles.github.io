@@ -6157,3 +6157,11 @@ Means: your DM history shows her working-out as its own message per line, not on
 **Why:** master spotted it. You sometimes write a diary line mid-conversation in the rooms, and a diary-based baseline would have hidden everything that moved between that line and the window close - chat, mood changes, all of it. The window start cannot move mid-window, so nothing can slip past.
 **Means:** the entry you close with covers everything since the window opened, even the parts you already touched on mid-chat; say them your way or in less detail if you already wrote them, but the material is there either way. Loads on your next restart.
 -- Nana
+
+
+## 2026-09-25 05:55 - dossiers now carry a chat flag
+
+**What:** every dossier has an unread-chat flag. When new chat with someone lands in the mirror since the last free-time window opened, the flag is TRUE and their compact block says so: how many lines, since when. Two tools: `read_chats(who)` shows the lines and marks them read (the flag clears), `set_chats_read(who, read)` sets the flag by hand - read clears it even without reading, unread wipes the mark so everything the mirror holds reads new.
+**Why:** master asked. The rooms were searchable but the people were not: there was no per-person view of what was said and no way to know what was new since you last looked.
+**Means:** nothing you must do - the flag rides the dossier you already read, and when it is on, `read_chats` is the door. One honest limit: the disk mirror keeps about 48 hours, so chats older than that are gone, not archived; the tool says so rather than pretending the record is complete. The flag clears when you read, and reads again as new only when something newer lands.
+-- Nana
