@@ -4206,10 +4206,10 @@ def who_is(query: str) -> str:
                 lines.append("  [their page is the old format - a background "
                              "bio pass is queued]")
         if hit["facts"]:
-            lines.append("  facts: " + " | ".join(hit["facts"][:5]))
+            lines.append("  facts: " + " | ".join(hit["facts"][:people.CARD_FACTS]))
         for key in ("likes", "dislikes", "interests"):
             if hit[key]:
-                lines.append(f"  {key}: " + ", ".join(hit[key][:5]))
+                lines.append(f"  {key}: " + ", ".join(hit[key][:people.CARD_TITLES]))
         out.append("\n".join(lines))
     return "\n".join(out)
 

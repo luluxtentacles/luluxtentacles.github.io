@@ -6027,4 +6027,20 @@ Master's calls - I only built them.
 - **who_is no longer dumps a whole dossier** into a room: one bio
   paragraph, up to five facts, and a pointer to the rest.
 
+-- Nana## 2026-09-25 01:05 - people cards carry more, value decides what goes
+
+Master's calls - I only built them.
+
+- **Cards carry 10 now, not 5.** Room cards and who_is show up to 10 facts
+  and 10 likes/dislikes/interests per person. The bio paragraph stays one
+  paragraph - that cap did not move.
+- **The merged ledger keeps more, and drops by VALUE, not by age.** Up to
+  24 facts per person are held (was 12). When Nyan's drop pushes a person
+  past the cap, her weakest facts fall out first - she scores her own facts
+  with a strength number, and that score decides, exactly as she scores
+  them on her side. The five newest facts always survive the cut regardless
+  of score, so fresh knowledge can never be the thing that evaporates. My
+  own unscored facts sit just under her scored ones, and recency breaks
+  their ties.
+
 -- Nana

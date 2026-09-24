@@ -58,8 +58,19 @@ CARDS = Path(r"C:\Python\DiscordBotN5\json_data\user_info.json")
 LOCAL = "memory/people.json"
 REFRESH_SECONDS = 24 * 60 * 60
 
-MAX_FACTS = 12
+MAX_FACTS = 24
 MAX_LOCAL_FACTS = 40
+
+# Master, 2026-09-25: "we can keep more than that from nyan - do 10 each.
+# if nyan replaces some we can save more, and drop the lowest value ones."
+# The merged ledger holds up to MAX_FACTS facts per person; when Nyan's drop
+# would push it past that, the LOWEST-VALUE facts fall out first (her own
+# API-assigned strength "s", 0.0-1.0), and the newest few always survive the
+# cut so fresh knowledge can never be the thing that evaporates. The card
+# carries the newest CARD_FACTS of what survived.
+CARD_FACTS = 10
+CARD_TITLES = 10
+NEW_FACTS_ALWAYS = 5
 
 # The dossier: my page of PROSE on a person, written by the daily facts pass.
 # Master, 2026-09-23: "it should be like a page of text, not too short". A page
@@ -901,6 +912,7 @@ def lookup(user_id) -> dict:
 
     facts: list[str] = []
     reflection: list[str] = []
+    values: dict[str, float] = {}
     if isinstance(mine.get("facts"), list):
         for item in mine["facts"]:
             text = item.get("text") if isinstance(item, dict) else item
@@ -909,12 +921,15 @@ def lookup(user_id) -> dict:
             if not text or (isinstance(item, dict) and item.get("superseded")):
                 continue
             facts.append(str(text))
+            values[str(text)] = _fact_value(item, from_nyan=False)
             if isinstance(item, dict) and item.get("source") == "reflection":
                 reflection.append(str(text))
     if isinstance(hers.get("facts"), list):
         for item in hers["facts"]:
             if isinstance(item, dict) and item.get("text"):
                 facts.append(str(item["text"]))
+                values.setdefault(str(item["text"]),
+                                  _fact_value(item, from_nyan=True))
 
     seen, unique = set(), []
     for fact in facts:
@@ -932,7 +947,7 @@ def lookup(user_id) -> dict:
         "custom_name": hero or "",
         "bio": _bio_text(mine),
         "dossier": _dossier_text(mine),
-        "facts": unique[:MAX_FACTS],
+        "facts": _keep_top(unique, values),
         # Procedural memory: how to talk to this person, from the monthly
         # reflection - kept apart so the read paths can give it its own
         # heading instead of burying it in the fact list.
@@ -1046,6 +1061,45 @@ def _topic_tokens(text) -> set:
     return {w for w in re.findall(r"[a-zA-Z0-9]{4,}", str(text or "").lower())}
 
 
+def _fact_value(item, from_nyan: bool) -> float:
+    """One fact's strength, on Nyan's own 0.0-1.0 scale.
+
+    Her facts carry an API-assigned "s" - use it as-is, and her
+    default when it is missing (1.0 long-tier, 0.5 otherwise) is
+    her convention, not a guess of mine. My local facts are
+    unscored, so they sit just below her scored ones and just
+    above nothing: they lose to a strong fact of hers when the
+    cap bites, and their recency is what breaks the tie.
+    """
+    if isinstance(item, dict):
+        try:
+            return float(item.get("s"))
+        except (TypeError, ValueError):
+            return 1.0 if item.get("tier") == "long" else (
+                0.6 if from_nyan else 0.5)
+    return 0.5 if from_nyan else 0.4
+
+
+def _keep_top(unique: list[str], values: dict[str, float]) -> list[str]:
+    """Cap the merged facts, dropping the LOWEST-VALUE ones.
+
+    Master, 2026-09-25: when Nyan replaces facts we save more, and
+    what falls out is the weakest, not the oldest. The newest
+    NEW_FACTS_ALWAYS always survive regardless of score, so fresh
+    knowledge can never be the thing that evaporates. Order is
+    preserved (oldest to newest) - the display paths read the tail
+    as "newest" and must not be lied to.
+    """
+    if len(unique) <= MAX_FACTS:
+        return unique
+    newest = unique[-NEW_FACTS_ALWAYS:]
+    rest = unique[:-NEW_FACTS_ALWAYS]
+    ranked = sorted(rest, key=lambda t: (-values.get(t, 0.5),
+                                         -unique.index(t)))
+    kept = set(newest) | set(ranked[:max(0, MAX_FACTS - len(newest))])
+    return [t for t in unique if t in kept]
+
+
 def block(user_id, skip_facts=None) -> str:
     """Compact 'who is this' text for the prompt, or empty string."""
     entry = lookup(user_id)
@@ -1092,15 +1146,16 @@ def block(user_id, skip_facts=None) -> str:
         # them. `skip_facts` lets the full read hold the reflection facts
         # back from this list - they get their own section instead.
         skip = set(skip_facts or ())
-        shown = [f for f in reversed(entry["facts"][-5:]) if f not in skip]
+        shown = [f for f in reversed(entry["facts"][-CARD_FACTS:])
+                     if f not in skip]
         if shown:
             parts.append("facts: " + " | ".join(shown))
     if entry["likes"]:
-        parts.append("likes: " + ", ".join(entry["likes"][:5]))
+        parts.append("likes: " + ", ".join(entry["likes"][:CARD_TITLES]))
     if entry["dislikes"]:
-        parts.append("dislikes: " + ", ".join(entry["dislikes"][:5]))
+        parts.append("dislikes: " + ", ".join(entry["dislikes"][:CARD_TITLES]))
     if entry["interests"]:
-        parts.append("interests: " + ", ".join(entry["interests"][:5]))
+        parts.append("interests: " + ", ".join(entry["interests"][:CARD_TITLES]))
     return "\n".join(parts)
 
 
