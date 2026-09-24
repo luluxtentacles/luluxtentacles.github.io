@@ -775,6 +775,24 @@ def reflect_month(config: dict, uid: str, month: str) -> str:
     weeks = sorted(weeks)[-REFLECT_MAX_CHAINS:]
     material = [c for c in data.get("chains", [])
                 if str(c.get("week") or "") in weeks]
+    # Chains fall off the active file into the weekly archive as a person
+    # talks more (MAX_CHAINS) - the weekly summary reads that archive when
+    # it must, so the reflection reads it too, or old weeks would reflect
+    # from thin material and get marked done anyway.
+    have = {str(c.get("id") or "") for c in material}
+    try:
+        for week in weeks:
+            path = paths.resolve(f"{REL_ARCHIVE}/{week}.jsonl")
+            for line in path.read_text(encoding="utf-8").splitlines():
+                try:
+                    entry = json.loads(line)
+                except ValueError:
+                    continue
+                if (str(entry.get("uid")) == uid
+                        and str(entry.get("id") or "") not in have):
+                    material.append(entry)
+    except OSError:
+        pass
     parts = [t for t in (_pair_material(c, uid) for c in material) if t]
     if len(parts) < 3:
         # Not enough real exchange yet: done for this month, retry never -

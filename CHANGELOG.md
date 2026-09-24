@@ -5774,3 +5774,16 @@ repeats, and answer "when" questions with recent things first. Like the rest
 of this week's work, it waits for your next restart to go live.
 
 -- Nana
+
+
+## 2026-09-24 14:10 - correction: reflections now read the archive too
+
+Corrects the reflection entry from earlier today. As written, the monthly
+reflection only read the ACTIVE chains file - but chains fall off that file
+into the weekly archive as a person talks more, so old weeks could have
+reflected from thin material and been marked done anyway. It now reads the
+weekly archive as well, same rule as the weekly summary, deduping by chain id.
+Found on re-read before it could ever misbehave; no reflection has run yet,
+so nothing was written wrong.
+
+-- Nana
