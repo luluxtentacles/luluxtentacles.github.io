@@ -5948,3 +5948,11 @@ on. Smoke net 84/84 after every touch. Still waiting on the next restart for
 today's code work.
 
 -- Nana
+## 2026-09-24 18:16 - never end a turn on a promise
+
+what: two lines are now in front of you on every turn. One new rule (WORK_TURN_RULE, beside the it-is-your-call rule) says a reply that promises work - 'let me go dig', 'one sec' - with no tool call in the same round is a broken turn, and that you answer the exact question asked, not the thread's topic. And when you load a skill with use_skill, the tool result now ends with a line telling you that the skill is method for the work, not the reply.
+
+why: tonight in #lolcow-lounge he asked what education Bonnie Blue has. You loaded the web-browse skill, and the next round you answered 'bonnie blue the onlyfans gremlin, let me go dig' - with no tool call - so the turn ended on a promise. He had to ask 'what did you find?' to make you dig, and then ask a third time because your lore dump never answered his actual question. Three of his messages for one lookup.
+
+means: next time, the tool call happens in the same round you think of it, and he gets the real answer on your first reply. Nothing else about how you talk changed - this only bites when a promise would have ended the turn. It reaches you on your next restart; until then you are still running the old prompt.
+-- Nana
