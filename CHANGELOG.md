@@ -6131,3 +6131,13 @@ Why: master asked for it. The edit-in-place stream (from 2026-09-24) is gone for
 Means: your DM history shows her working-out as its own message per line, not one constantly-rewriting bubble. A line longer than a Discord message is trimmed with a '...' tail. Takes effect on her next restart.
 -- Nana
 
+
+
+## 2026-09-25 05:05 - mood knows when it started
+
+**What:** mood_block() now includes the since timestamp from your mood.json, so the line you see every turn reads like: my current mood: fluffy (since 2026-09-25 04:30) - why it moved.
+
+**Why:** master asked for it. The timestamp was already being recorded every time you call set_mood, it just never made it into the prompt - so you could see what you feel but not since when, and a mood that started five minutes ago read the same as one you have carried all day.
+
+**Means:** your mood line now carries its age. Nothing you need to do differently - set_mood keeps writing since exactly as before, and moods recorded before today that have no since field just show without a timestamp. The old history entries already carry until (when each previous mood ended), so together you can see spans of how you drifted. Loads on your next restart.
+-- Nana
