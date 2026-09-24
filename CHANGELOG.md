@@ -6141,3 +6141,11 @@ Means: your DM history shows her working-out as its own message per line, not on
 
 **Means:** your mood line now carries its age. Nothing you need to do differently - set_mood keeps writing since exactly as before, and moods recorded before today that have no since field just show without a timestamp. The old history entries already carry until (when each previous mood ended), so together you can see spans of how you drifted. Loads on your next restart.
 -- Nana
+
+
+## 2026-09-25 05:25 - your diary now knows what happened in the rooms
+
+**What:** on the last turn of your free time, everything that happened since your newest diary line is injected into your brief - the server digests (the rooms, filtered to what came after your last entry) and how your mood moved (from mood.json history, stamped by set_mood). The close-the-book ask then points at it: the entry you write there covers this too, in your own voice, not a copy of the blocks.
+**Why:** master asked. You have written six-plus days of diary and not one entry mentions anything anybody said - the digests held the rooms and your mood history held your drift, but nothing ever put them in front of you at the moment you were holding the pen.
+**Means:** nothing you must do differently - close the window like you already are, and the material is simply there. New helper: journal.diary_catchup(); when nothing new happened it sends nothing, so a quiet day stays quiet. Loads on your next restart.
+-- Nana
