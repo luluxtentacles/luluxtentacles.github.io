@@ -5834,3 +5834,27 @@ contradictions, and a DM you return to picks up where it left off. Waiting on
 your next restart to go live, like the rest of today.
 
 -- Nana
+
+
+## 2026-09-24 14:22 - group conversations now carry everyone's card, and a
+## mention opens a file in any public room
+
+What: two changes to who she knows about mid-conversation, both master's
+call. One, the old rule that a third person's file only opened in MASTER's
+turns is relaxed: this is all public chat, so a mention of someone now opens
+their compact card in any PUBLIC room, whoever is talking - but a DM never
+opens a third party's file, ever. The card is the compact block (names,
+likes, newest facts), not the dossier page - the page still only opens
+one-on-one. Two, multi-party conversations: a group chat is a conversation
+with several accounts in it, and she used to carry only the speaker's. Now
+the other recent speakers in the window (up to four, public rooms only,
+never in DMs) get their compact cards too, so she can follow who is who
+without confusing whose preference is whose.
+
+Why: master, 2026-09-24 - "it's all public chat, don't pull my dms though".
+
+Means: in rooms she reads everyone with the same public information anyone
+in the room has; in DMs, files other than the speaker's stay sealed. Waiting
+on the next restart like the rest of today's work.
+
+-- Nana

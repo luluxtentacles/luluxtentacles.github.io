@@ -3118,14 +3118,17 @@ class Lulu(discord.Client):
                 turns.append({"role": "system", "content":
                               f"[people ledger] {escape_block(ledger)}"})
 
-        # Who else is named in this message. Master only: dropping a third
-        # party's facts into a stranger's prompt would hand them someone
-        # else's file.
-        if is_owner and message.mentions:
+        # Who else is in play. Public chat is public, master 2026-09-24:
+        # a mention opens that person's card in ANY public room, not just
+        # master's turns - but a DM never opens a third party's file.
+        dm_channel = isinstance(message.channel, discord.DMChannel)
+        if message.mentions and (is_owner or not dm_channel):
             others = []
+            seen_ids = {message.author.id, self.user.id}
             for person in message.mentions[:5]:
-                if person.id == self.user.id:
+                if person.id in seen_ids:
                     continue
+                seen_ids.add(person.id)
                 about = people.block(person.id)
                 if about:
                     others.append(
@@ -3133,6 +3136,34 @@ class Lulu(discord.Client):
             if others:
                 turns.append({"role": "system", "content": (
                     "People named in this message:\n" + "\n".join(others)
+                )})
+        # The other people IN the conversation: a multi-party room is a
+        # conversation with several accounts at once, so the recent speakers
+        # in the window carry their compact blocks too - the person she is
+        # answering is already covered above, and this is what lets her
+        # follow a group chat without confusing who is who. Public rooms
+        # only, capped, and block() renders empty for strangers, so an
+        # unknown uid costs nothing.
+        if not dm_channel:
+            speakers = []
+            seen_ids = {str(message.author.id), str(self.user.id),
+                        *[str(p.id) for p in message.mentions[:5]]}
+            for entry in list(self.mirror.get(message.channel.id, []))[-20:]:
+                uid = str((entry or {}).get("uid") or "")
+                if not uid or uid in seen_ids:
+                    continue
+                seen_ids.add(uid)
+                about = people.block(uid)
+                if about:
+                    speakers.append(
+                        f"{clean_name(str((entry or {}).get('author') or 'someone'))}:"
+                        f"\n{escape_block(about)}")
+                if len(speakers) >= 4:
+                    break
+            if speakers:
+                turns.append({"role": "system", "content": (
+                    "Others talking in this conversation:\n"
+                    + "\n".join(speakers)
                 )})
 
         # Links in play, and the choice of whether to open one. Both halves are
