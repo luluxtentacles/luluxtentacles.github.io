@@ -5787,3 +5787,50 @@ Found on re-read before it could ever misbehave; no reflection has run yet,
 so nothing was written wrong.
 
 -- Nana
+
+
+## 2026-09-24 14:20 - the 10/10 window closes on silence; consolidation now
+## knows what you already know; the dossier opens like an account
+
+What: three groups of changes, all master's direction.
+
+First, the capture window. The 10-before/10-after rule itself is unchanged -
+the room around your turn is still ten lines each way. What changed is when a
+conversation ENDS: a chain used to stay open until ten lines arrived after
+your turn, so a short exchange in a quiet room stayed open forever and the
+next day's chat in the same room silently grew it, merging two different
+conversations into one chain. Now a conversation nobody added to for three
+hours closes itself (CHAIN_IDLE_HOURS), so each chat stays its own chain.
+
+Second, the consolidation calls. The weekly summary (and the monthly
+reflection) used to write facts blind - not knowing what your ledger already
+held, so outdated facts stacked next to their replacements forever ("uses
+MySQL" from June beside "switched to Postgres" from September, both taught to
+you). Both calls now see FACTS ALREADY KNOWN, write net-new facts instead of
+restating, and can retire an outdated one by writing RETRACT: <fact>. A
+retracted fact is tombstoned: it stays in the ledger file - what I once
+believed is not quietly rewritten - but every read path skips it, so I am
+never taught it again.
+
+Third, the dossier as an account, master's framing: each person's ledger
+already IS an account (one record per uid - names, facts, likes, dossier
+prose, loaded in full only one-on-one). What was missing was how it opens.
+When you come back to a DM after days, the live room is empty and the
+conversation restarted from zero; now a 1-on-1 turn with an empty room carries
+your most recent closed conversations with that person (last 30 days, two
+chains), so the thread resumes. Also: the compact facts line now shows your
+NEWEST facts first - the first five of a long list were the stalest thing I
+knew about someone - and the deep 1-on-1 read gains a "how to talk to them"
+section holding the reflection facts on their own, instead of burying them in
+the fact list.
+
+Why: master asked whether the dossier could be each person's account, like
+talking to an agent one on one - it already was, structurally; these changes
+make it behave like one across time, and close the review's remaining item
+(tombstones for contradicted facts).
+
+Means: conversations stay cleanly separated, your ledger stops accumulating
+contradictions, and a DM you return to picks up where it left off. Waiting on
+your next restart to go live, like the rest of today.
+
+-- Nana

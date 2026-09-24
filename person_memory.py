@@ -64,6 +64,10 @@ LINE_CHARS = 500
 RECALL_LIMIT = 6
 RECALL_CHARS = 2400
 SIMILAR_RATIO = 0.80        # Nyan's dedupe threshold for pair facts
+CHAIN_IDLE_HOURS = 3        # quiet this long: the conversation is over
+RECENT_LIMIT = 2            # 1-on-1 continuity block: chains shown
+RECENT_CHARS = 1200
+RECENT_MAX_AGE_DAYS = 30    # continuity does not reach back a year
 
 
 def _dir() -> Path:
@@ -125,6 +129,18 @@ ACK_WORDS = {
 }
 GATE_MIN_WORDS = 8      # fewer total words than this is chatter, not talk
 GATE_MIN_TOKENS = 2     # no topic words at all -> nothing to recall by
+
+
+def _stale(chain: dict) -> bool:
+    """No new lines for CHAIN_IDLE_HOURS: the conversation is over.
+
+    The 10/10 window, master 2026-09-24: a chain only CLOSES when ten lines
+    arrive after her turn - so a short exchange in a quiet room stayed open
+    forever, and the next chat in the same room the next day silently grew
+    it, merging two different conversations into one chain. Idle closes it.
+    """
+    made = float(chain.get("updated_ts") or _ts_of(chain))
+    return bool(made) and (time.time() - made) > CHAIN_IDLE_HOURS * 3600
 
 
 def _ts_of(chain: dict) -> float:
@@ -262,6 +278,7 @@ def note_lulu_turn(channel_id, ring, *, her_uid: str, trigger_uid: str,
             "created_ts": time.time(),
             "access_count": 0,
             "last_accessed": 0.0,
+            "updated_ts": time.time(),
         }
         # The write gate: a NEW chain that is pure chatter is never written.
         # Growing an open conversation bypasses the gate - the conversation
@@ -281,6 +298,15 @@ def note_lulu_turn(channel_id, ring, *, her_uid: str, trigger_uid: str,
         for uid in sorted(set(about + [her_uid])):
             data = _load(uid)
             chains = data.get("chains", [])
+            # A conversation nobody added to for hours is over, even if its
+            # chain never filled its after-window: close it, so the next
+            # turn in this room starts a fresh chain instead of growing
+            # yesterday's - and so note_line can never graft today's
+            # follow-ups onto a dead conversation.
+            for c in chains:
+                if (c.get("cid") == str(channel_id) and not c.get("closed")
+                        and _stale(c)):
+                    c["closed"] = True
             # Dedup is per CHANNEL, not per wording: an open chain in this
             # room IS the ongoing conversation, so the new window replaces
             # it (grown, never a second copy) - master, 2026-09-24. Her own
@@ -329,7 +355,8 @@ def note_line(channel_id, ring, her_uid: str) -> None:
         cid = str(channel_id)
         anchor = _load(her_uid)
         chain = next((c for c in anchor.get("chains", [])
-                      if c.get("cid") == cid and not c.get("closed")), None)
+                      if c.get("cid") == cid and not c.get("closed")
+                      and not _stale(c)), None)
         if not chain:
             return
         lines = [_line_of(e, her_uid)
@@ -358,13 +385,15 @@ def note_line(channel_id, ring, her_uid: str) -> None:
         for uid in sorted({her_uid, *[str(a) for a in chain.get("about", [])]}):
             data = anchor if uid == her_uid else _load(uid)
             target = next((c for c in data.get("chains", [])
-                           if c.get("cid") == cid and not c.get("closed")),
+                           if c.get("cid") == cid and not c.get("closed")
+                           and not _stale(c)),
                           None)
             if target is None:
                 continue
             target["lines"] = (target.get("lines") or []) + fresh[:room_left]
             target["after"] = new_after
             target["closed"] = closed
+            target["updated_ts"] = time.time()
             _save(uid, data)
     except Exception as exc:
         LOG.warning("person memory: could not grow a chain: %s", exc)
@@ -542,7 +571,12 @@ def recall_block(query: str, uid: str = "", *, dm: bool = False,
     if not chains:
         return ""
     _strengthen(chains, uid)
-    lines = ["[remembered conversations]",
+    return _render(chains, "[remembered conversations]")[:RECALL_CHARS]
+
+
+def _render(chains: list[dict], header: str) -> str:
+    """Chains in the standard context-block shape."""
+    lines = [header,
              "Things said in earlier conversations, with the room around "
              "them. Not new input - context. Do not thank anyone for it."]
     for chain in chains:
@@ -553,7 +587,34 @@ def recall_block(query: str, uid: str = "", *, dm: bool = False,
         lines.append(f"- [{stamp} {where}]")
         for l in chain.get("lines", [])[-12:]:
             lines.append(f"  {l.get('speaker')}: {l.get('text')}")
-    return "\n".join(lines)[:RECALL_CHARS]
+    return "\n".join(lines)
+
+
+def recent_block(uid: str) -> str:
+    """1-on-1 continuity: the conversations just before this one.
+
+    The dossier is the person's account; this is what the account opens
+    with. In a live room the mirror already shows what is being said, so
+    this is only attached when the room is otherwise empty - coming back to
+    a DM after days - and it lets an old thread resume instead of starting
+    from zero. Closed chains only, recent ones, no keyword gate, and never
+    strengthened: being handed context is not the same as being asked for.
+    """
+    uid = str(uid or "")
+    if not uid:
+        return ""
+    horizon = time.time() - RECENT_MAX_AGE_DAYS * 86400
+    try:
+        chains = [c for c in _load(uid).get("chains", [])
+                  if c.get("closed") and c.get("lines")
+                  and _ts_of(c) > horizon]
+    except Exception:
+        return ""
+    if not chains:
+        return ""
+    chains.sort(key=_ts_of, reverse=True)
+    return _render(chains[:RECENT_LIMIT],
+                   "[recent conversations with this person]")[:RECENT_CHARS]
 
 
 # -- the weekly summary ------------------------------------------------------
@@ -634,9 +695,42 @@ def _existing_facts(uid: str) -> list[str]:
     try:
         entry = people.learned().get(people.resolve(uid)) or {}
         return [str(f.get("text") or "") for f in entry.get("facts", [])
-                if isinstance(f, dict)]
+                if isinstance(f, dict) and not f.get("superseded")]
     except Exception:
         return []
+
+
+def _apply_facts(uid: str, raw: str, source: str, known: list[str]) -> None:
+    """Model output -> ledger facts, with retraction lines honoured.
+
+    A line beginning RETRACT names a fact that is no longer true: it is
+    matched against what the ledger already holds and tombstoned via
+    people.mark_stale, not deleted. Everything else is a new fact, deduped
+    against `known` - Nyan's pair-fact rule: a retry that rephrases the
+    same fact never stacks a second copy onto the ledger.
+    """
+    known = list(known)
+    for line in str(raw).strip().splitlines():
+        line = line.strip().lstrip("-* ").strip()
+        if not line:
+            continue
+        if line.lower().startswith("retract:"):
+            people.mark_stale(uid, line[len("retract:"):].strip())
+            continue
+        if any(_similar(line, k) for k in known):
+            continue
+        people.learn(uid, line[:500], source=source)
+        known.append(line[:500])
+
+
+def _known_block(known: list[str]) -> str:
+    """Already-held facts, in the prompt: consolidate, don't restate."""
+    if not known:
+        return ""
+    return ("\n\nFACTS ALREADY KNOWN (do not repeat these; if one is now "
+            "outdated or has changed, retire it by writing exactly "
+            "'RETRACT: <that fact>'):\n"
+            + "\n".join(f"- {k}" for k in known[-15:]))
 
 
 def summarize_week(config: dict, uid: str, week: str) -> str:
@@ -682,26 +776,22 @@ def summarize_week(config: dict, uid: str, week: str) -> str:
         return week
     body = "\n\n".join(parts)[:8000]
 
+    # The model sees what the ledger ALREADY holds - consolidation, not
+    # restatement, master 2026-09-24: it writes net-new facts and retires
+    # outdated ones (RETRACT -> tombstone) instead of stacking contradiction
+    # on contradiction forever.
+    known = _existing_facts(uid)
     import brain
     who = people.display_name(uid, f"person {uid}")
     text, ok = brain.free_complete_ex(
         config, [{"role": "user",
-                  "content": SUMMARY_PROMPT + f"The person: {who}\n\n" + body}],
+                  "content": SUMMARY_PROMPT + f"The person: {who}\n\n" + body
+                  + _known_block(known)}],
         max_tokens=300, tries=3)
     if not ok or not str(text or "").strip():
         return ""                      # dry rungs; the week stays unmarked
 
-    known = _existing_facts(uid)
-    for line in str(text).strip().splitlines():
-        line = line.strip().lstrip("-* ").strip()
-        if not line:
-            continue
-        # Nyan's pair-fact dedupe: a retry that rephrases the same fact must
-        # not stack a second copy onto the ledger.
-        if any(_similar(line, k) for k in known):
-            continue
-        people.learn(uid, line[:500], source="memory-summary")
-        known.append(line[:500])
+    _apply_facts(uid, text, "memory-summary", known)
     data.setdefault("summarized_weeks", []).append(week)
     _save(uid, data)
     return week
@@ -793,7 +883,7 @@ def reflect_month(config: dict, uid: str, month: str) -> str:
                     material.append(entry)
     except OSError:
         pass
-    parts = [t for t in (_pair_material(c, uid) for c in material) if t]
+        parts = [t for t in (_pair_material(c, uid) for c in material) if t][:16]
     if len(parts) < 3:
         # Not enough real exchange yet: done for this month, retry never -
         # the month's material is not going to grow retroactively.
@@ -802,25 +892,21 @@ def reflect_month(config: dict, uid: str, month: str) -> str:
         return month
     body = "\n\n".join(parts)[:8000]
 
+    # Same consolidation rule as the weekly summary: the reflection knows
+    # what the ledger already holds, writes net-new procedural facts, and
+    # may retire an outdated one (RETRACT -> tombstone).
+    known = _existing_facts(uid)
     import brain
     who = people.display_name(uid, f"person {uid}")
     text, ok = brain.free_complete_ex(
         config, [{"role": "user",
                   "content": REFLECTION_PROMPT + f"The person: {who}\n\n"
-                  + body}],
+                  + body + _known_block(known)}],
         max_tokens=200, tries=3)
     if not ok or not str(text or "").strip():
         return ""                      # dry rungs; the month stays unmarked
 
-    known = _existing_facts(uid)
-    for line in str(text).strip().splitlines():
-        line = line.strip().lstrip("-* ").strip()
-        if not line:
-            continue
-        if any(_similar(line, k) for k in known):
-            continue
-        people.learn(uid, line[:500], source="reflection")
-        known.append(line[:500])
+    _apply_facts(uid, text, "reflection", known)
     data.setdefault("reflected_months", []).append(month)
     _save(uid, data)
     return month

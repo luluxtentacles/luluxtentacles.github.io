@@ -3079,9 +3079,10 @@ class Lulu(discord.Client):
         skip = [getattr(message, "id", None)]
         if parent is not None:
             skip.append(getattr(parent, "id", None))
-        turns.extend(mirror_block(self.mirror, message.channel.id,
+        room_turns = mirror_block(self.mirror, message.channel.id,
                                   exclude_ids=skip, parent_line=parent_line,
-                                  total_chars=self.history_chars))
+                                  total_chars=self.history_chars)
+        turns.extend(room_turns)
         # The deep read only when it is one on one: a DM, or this message
         # REPLIED TO HER - the chain is then one user plus her, and the whole
         # conversation is between the two. Everyone else in the room still gets
@@ -3091,6 +3092,16 @@ class Lulu(discord.Client):
         parent_author_id = getattr(getattr(parent, "author", None), "id", None)
         deep = (isinstance(message.channel, discord.DMChannel)
                 or parent_author_id == self.user.id)
+        # 1-on-1 continuity, master 2026-09-24: the dossier is a person's
+        # account, and an account opens with where the last conversation
+        # left off. Only when the live room contributed nothing - coming
+        # back to a DM after days - so an old thread resumes instead of
+        # restarting from zero, and a busy room never carries the weight.
+        if deep and not room_turns:
+            recent = person_memory.recent_block(str(message.author.id))
+            if recent:
+                turns.append({"role": "system",
+                              "content": escape_block(recent)})
         known = user_knowledge_block(message.author.id, deep=deep)
         if known:
             # The header carries the name I should USE - master, 2026-09-21:

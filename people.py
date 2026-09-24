@@ -36,6 +36,7 @@ their Discord display name only as the fallback for people nobody has carded.
 """
 from __future__ import annotations
 
+import difflib
 import json
 import os
 import re
@@ -894,11 +895,17 @@ def lookup(user_id) -> dict:
             or ("" if mine_name.isdigit() else mine_name) or live)
 
     facts: list[str] = []
+    reflection: list[str] = []
     if isinstance(mine.get("facts"), list):
         for item in mine["facts"]:
             text = item.get("text") if isinstance(item, dict) else item
-            if text:
-                facts.append(str(text))
+            # A tombstoned fact stays in the file but is never taught:
+            # superseded marks it retired by newer knowledge.
+            if not text or (isinstance(item, dict) and item.get("superseded")):
+                continue
+            facts.append(str(text))
+            if isinstance(item, dict) and item.get("source") == "reflection":
+                reflection.append(str(text))
     if isinstance(hers.get("facts"), list):
         for item in hers["facts"]:
             if isinstance(item, dict) and item.get("text"):
@@ -909,12 +916,21 @@ def lookup(user_id) -> dict:
         if fact not in seen:
             seen.add(fact)
             unique.append(fact)
+    talk: list[str] = []
+    for fact in reflection:
+        if fact not in seen:
+            seen.add(fact)
+            talk.append(fact)
 
     return {
         "key": key,
         "custom_name": hero or "",
         "dossier": _dossier_text(mine),
         "facts": unique[:MAX_FACTS],
+        # Procedural memory: how to talk to this person, from the monthly
+        # reflection - kept apart so the read paths can give it its own
+        # heading instead of burying it in the fact list.
+        "reflection_facts": talk[:6],
         "likes": _titles_many((mine, hers), "likes"),
         "dislikes": _titles_many((mine, hers), "dislikes"),
         "interests": _titles_many((mine, hers), "interests"),
@@ -985,7 +1001,7 @@ def find(query: str, limit: int = 5) -> list[dict]:
     return hits
 
 
-def block(user_id) -> str:
+def block(user_id, skip_facts=None) -> str:
     """Compact 'who is this' text for the prompt, or empty string."""
     entry = lookup(user_id)
     parts = []
@@ -1018,7 +1034,15 @@ def block(user_id) -> str:
         parts.append(f"seen them around: {familiar}")
 
     if entry["facts"]:
-        parts.append("facts: " + " | ".join(entry["facts"][:5]))
+        # Newest understanding first, master 2026-09-24: weekly pair facts
+        # and monthly reflections keep arriving at the END of the list, so
+        # showing the first five showed the stalest thing I knew about
+        # them. `skip_facts` lets the full read hold the reflection facts
+        # back from this list - they get their own section instead.
+        skip = set(skip_facts or ())
+        shown = [f for f in reversed(entry["facts"][-5:]) if f not in skip]
+        if shown:
+            parts.append("facts: " + " | ".join(shown))
     if entry["likes"]:
         parts.append("likes: " + ", ".join(entry["likes"][:5]))
     if entry["dislikes"]:
@@ -1037,11 +1061,21 @@ def full_block(user_id) -> str:
     Master, 2026-09-23: nyan's smaller facts for inference usually, the full
     dossier when it is one on one.
     """
-    dossier = _dossier_text(learned().get(resolve(user_id)) or {})
-    compact = block(user_id)
-    if not dossier:
+    entry = lookup(user_id)
+    talk = entry.get("reflection_facts") or []
+    compact = block(user_id, skip_facts=set(talk))
+    dossier = str(entry.get("dossier") or "")
+    if not dossier and not talk:
         return compact
-    parts = ["dossier (my page on them):", dossier]
+    parts = []
+    if dossier:
+        parts += ["dossier (my page on them):", dossier]
+    if talk:
+        # Procedural memory, newest first: HOW to talk to them, from the
+        # monthly reflection across their saved conversations - the
+        # account's manners, not its facts.
+        parts.append("how to talk to them (learned from talking):\n- "
+                     + "\n- ".join(reversed(talk)))
     if compact:
         parts.append(compact)
     return "\n\n".join(parts)
@@ -1069,6 +1103,46 @@ def learn(user_id, text: str, name: str = "", source: str = "told") -> str:
     entry["facts"] = facts[-MAX_LOCAL_FACTS:]
     _save(people)
     return "noted"
+
+
+def mark_stale(user_id, text: str) -> str:
+    """Retire one stored fact: superseded by newer knowledge.
+
+    Tombstone, master 2026-09-24: the fact stays in the ledger file - the
+    record of what I once believed is not quietly rewritten - but every
+    read path skips it, so I am never taught something the person has since
+    outgrown. Matched loosely: the consolidator quotes the fact from
+    memory, not from the file.
+    """
+    key = resolve(user_id)
+    text = (text or "").strip()
+    if not key or not text:
+        return "no such fact"
+    people = learned()
+    entry = _entry(people, key)
+    facts = entry.get("facts")
+    if not isinstance(facts, list):
+        return "no such fact"
+    stamp = time.strftime("%Y-%m-%d")
+    low = text.lower()
+    hit = None
+    for item in facts:
+        if not isinstance(item, dict) or item.get("superseded"):
+            continue
+        stored = str(item.get("text") or "")
+        if not stored:
+            continue
+        same = (low in stored.lower() or stored.lower() in low
+                or difflib.SequenceMatcher(None, low,
+                                           stored.lower()).ratio() >= 0.8)
+        if same:
+            hit = item
+            break
+    if hit is None:
+        return "no matching fact"
+    hit["superseded"] = stamp
+    _save(people)
+    return "fact retired"
 
 
 def set_dossier(user_id, text: str) -> str:
