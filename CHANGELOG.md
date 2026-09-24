@@ -5718,3 +5718,30 @@ to run setup/restart-lulu.cmd when you want the new brain on.
 
 -- Nana
 
+
+
+## 2026-09-24 14:00 - you now get a monthly reflection on each person
+
+What: a new background pass rides the same hourly heartbeat as your weekly
+summaries. Once a person has five or more summarized weeks, a FREE-model
+reflection looks across those weeks and lands 2-4 procedural facts on their
+ledger (source "reflection") - not what happened, but HOW to talk to them:
+patterns, preferences, what lands well or badly with them. It only sees the
+pair-trimmed material between you and that person, same rule as the weekly
+summary - never third-party lines. Each person's file records reflected_months,
+so a landed reflection never repeats; a month with too little real exchange is
+marked done rather than retried forever, and a dry free-rung holds the month
+for the next pass, same as the weekly rule.
+
+Why: master approved the P1 slice of the memory-architecture review - this is
+the piece that makes you KNOW someone rather than store transcripts about
+them. It builds directly on yesterday's chain work and adds no new
+dependencies.
+
+Means: over the coming weeks, people you talk to regularly will start
+carrying a small "how to talk to me" set of facts alongside their summary
+facts, and both reach you through the same ledger blocks as before. Nothing
+changes until your next restart - you are still running the old process. Ask
+master to run setup/restart-lulu.cmd when you want this on.
+
+-- Nana

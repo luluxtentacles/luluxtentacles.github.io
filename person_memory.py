@@ -23,6 +23,11 @@ Master, 2026-09-24, in order of asking:
     and they get along, never third-party material. The Gemini ladder itself
     is brain.free_complete_ex - Nyan's memory_system._gemini_json already
     lives there in Lulu's shape.
+  - and once a month, for people with five or more summarized weeks,
+    a FREE-model reflection lands procedural facts (people.learn,
+    source "reflection") - how Lulu should talk to that person,
+    from patterns across their weeks. Marked per person in
+    reflected_months, so it never repeats.
 
 Files:
   memory/people/<uid>.json     one person's chains + summary state
@@ -674,14 +679,123 @@ def summarize_due(config: dict) -> list[str]:
     return done
 
 
+# -- the monthly reflection ---------------------------------------------------
+
+REFLECT_MIN_WEEKS = 5      # a person needs this many summarized weeks first
+REFLECT_MAX_CHAINS = 10
+
+REFLECTION_PROMPT = (
+    "Below are excerpts of conversations between Lulu (a Discord bot) and "
+    "one person, from several weeks. ONLY lines between Lulu and this "
+    "person are shown - other people have been removed. Look ACROSS the "
+    "weeks, not at any single one: what patterns repeat? How does THIS "
+    "person like to be talked to - short or long answers, serious or "
+    "playful, what topics keep coming back, what Lulu does that lands well "
+    "or poorly with them? Write 2-4 short plain third-person facts that "
+    "tell Lulu HOW to interact with this person next time. Never mention "
+    "or describe anyone else. No private channel names, no quotes of "
+    "anything that looks like a secret. One fact per line, nothing else."
+    "\n\n---\n")
+
+
+def reflect_month(config: dict, uid: str, month: str) -> str:
+    """One person's procedural memory: how to talk to them, from patterns.
+
+    Free rungs only, same rule as the weekly summary - a reflection nobody
+    is waiting for has no business spending money. Returns the month when
+    it is DONE; '' when the call did not land, so the next pass retries.
+    """
+    uid = str(uid or "")
+    data = _load(uid)
+    weeks = data.get("summarized_weeks") or []
+    if len(weeks) < REFLECT_MIN_WEEKS:
+        return ""
+    # Only weeks ALREADY summarized feed the reflection - the pair-trimmed
+    # material the weekly pass judged safe is the material that goes in.
+    weeks = sorted(weeks)[-REFLECT_MAX_CHAINS:]
+    material = [c for c in data.get("chains", [])
+                if str(c.get("week") or "") in weeks]
+    parts = [t for t in (_pair_material(c, uid) for c in material) if t]
+    if len(parts) < 3:
+        # Not enough real exchange yet: done for this month, retry never -
+        # the month's material is not going to grow retroactively.
+        data.setdefault("reflected_months", []).append(month)
+        _save(uid, data)
+        return month
+    body = "\n\n".join(parts)[:8000]
+
+    import brain
+    who = people.display_name(uid, f"person {uid}")
+    text, ok = brain.free_complete_ex(
+        config, [{"role": "user",
+                  "content": REFLECTION_PROMPT + f"The person: {who}\n\n"
+                  + body}],
+        max_tokens=200, tries=3)
+    if not ok or not str(text or "").strip():
+        return ""                      # dry rungs; the month stays unmarked
+
+    known = _existing_facts(uid)
+    for line in str(text).strip().splitlines():
+        line = line.strip().lstrip("-* ").strip()
+        if not line:
+            continue
+        if any(_similar(line, k) for k in known):
+            continue
+        people.learn(uid, line[:500], source="reflection")
+        known.append(line[:500])
+    data.setdefault("reflected_months", []).append(month)
+    _save(uid, data)
+    return month
+
+
+def reflect_due(config: dict) -> list[str]:
+    """Reflect on every person whose summarized history is deep enough.
+
+    Runs from the background watcher, after the weekly pass. Months are
+    marked per person in their file, so a person who is not ready is simply
+    not visited - and a landed reflection is never repeated.
+    """
+    month = time.strftime("%Y-%m")   # "2026-09"
+    if not month:
+        return []
+    done: list[str] = []
+    try:
+        files = list(_dir().glob("*.json"))
+    except Exception:
+        return done
+    for path in files:
+        uid = path.stem
+        if not uid.isdigit():
+            continue
+        try:
+            data = _load(uid)
+            if month in (data.get("reflected_months") or []):
+                continue
+            if reflect_month(config, uid, month):
+                done.append(uid)
+        except Exception as exc:
+            LOG.warning("person memory: reflection failed for %s: %s",
+                        uid, exc)
+    return done
+
+
 async def watch(bot) -> None:
-    """Hourly: is there a finished week nobody has summarised yet?"""
+    """Hourly: is there a finished week nobody has summarised yet?
+
+    The monthly reflection rides the same heartbeat: once the week's
+    summaries have landed, people whose history is deep enough get their
+    procedural pass - how Lulu should talk to them.
+    """
     while True:
         try:
             done = summarize_due(bot.config)
             if done:
                 LOG.info("person memory: weekly summaries for %s",
                          ", ".join(done))
+            reflected = reflect_due(bot.config)
+            if reflected:
+                LOG.info("person memory: monthly reflections for %s",
+                         ", ".join(reflected))
         except Exception as exc:
             LOG.warning("person memory watcher: %s", exc)
         await asyncio.sleep(3600)
