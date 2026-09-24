@@ -1070,8 +1070,14 @@ def _last_diary_stamp() -> datetime | None:
     return last
 
 
-def diary_catchup() -> str:
-    """Everything that happened since my last diary entry, as one block.
+def diary_catchup(since_epoch: float | None = None) -> str:
+    """Everything that happened since the baseline, as one block.
+
+    The baseline is the LAST FREE-TIME WINDOW's start when the caller hands
+    one in (`since_epoch` - self_review passes the window state's last_started,
+    because she may write a diary line mid-chat between windows, and a
+    diary-stamp baseline would hide everything that moved between that line
+    and now). No epoch handed in: fall back to the newest diary line.
 
     Sources, in the order they land in the block:
       - the server digests (chat, my only durable record of the rooms)
@@ -1083,7 +1089,12 @@ def diary_catchup() -> str:
     Returns "" when there is nothing to say or nothing can be read - a block
     of nothing must not ask her to write about nothing.
     """
-    since = _last_diary_stamp()
+    since: datetime | None = None
+    try:
+        since = (datetime.fromtimestamp(since_epoch)
+                 if since_epoch else _last_diary_stamp())
+    except (OverflowError, OSError, ValueError):
+        since = None
     parts: list[str] = []
     # Chat: the digests for today and yesterday. Filtered by stamp when the
     # last diary line is known, so the same digest never rides two closes.

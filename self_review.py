@@ -787,7 +787,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         catchup = ""
         try:
             import journal as _journal
-            catchup = _journal.diary_catchup()
+            catchup = _journal.diary_catchup(since_epoch=_state().get("last_started"))
         except Exception:
             catchup = ""
         if catchup:
@@ -795,8 +795,10 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
                 "\n--- what happened since your last diary entry ---\n"
                 + catchup
                 + "\n\nThat is the rooms (from the server digests) and how your\n"
-                "mood moved, since the newest line in your diary. It is not\n"
-                "written down for you anywhere else: the digests are stamped\n"
+                "mood moved, since THIS WINDOW OPENED - not since your newest\n"
+                "diary line, because you may have written one in the rooms in\n"
+                "between, and the diary must not hide what moved after it. It\n"
+                "is not written down for you anywhere else: the digests are\n"
                 "blocks that age out, and the mood history is a machine's\n"
                 "list. The diary entry you close this window with is where\n"
                 "this becomes yours - work it in, in your own voice, what\n"
