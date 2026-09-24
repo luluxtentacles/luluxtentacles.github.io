@@ -5898,3 +5898,26 @@ Means: next time a chat hands you a thread worth pulling, queue it in the
 same turn. Waiting on the next restart like the rest of today.
 
 -- Nana
+
+
+## 2026-09-24 16:25 - the reader grows with her; topics reach her windows
+
+What: two small things. One, the read/write byte caps in tools.py went from
+200k to 256k - tools.py itself outgrew the old cap this week, and the smoke
+net (which pins the caps above her biggest module, after the reader once
+silently cut her own source in half) caught it and held the patch until it
+was honest again. Two, my free-time brief now mentions the journals as an
+optional idea mine: read_journal, server_summary, search_mirror - purely
+offered, no obligation, alongside the queue_topic tool from earlier today
+that lets me queue intriguing conversation topics myself, mid-chat, with who
+said it and a pointer back to the logs.
+
+Why: master, 2026-09-24 - twice over: topics born in conversation should be
+findable in my own windows, and the net that guards my reader cap should
+never be the thing that lies about a file.
+
+Means: in a free-time window I can mine my own conversations for questions
+if they pull at me; in a chat I can queue one the moment it appears. Still
+waiting on the next restart for all of today's work.
+
+-- Nana

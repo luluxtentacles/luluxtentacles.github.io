@@ -43,7 +43,7 @@ import webtool
 # noticed, and wrote a scanner script to work around her own reader, which is a
 # ridiculous thing to have to build. 200KB covers every source file she owns and
 # read_file pages past it rather than cutting.
-MAX_READ_BYTES = 200_000
+MAX_READ_BYTES = 256_000
 
 # The self-improvement ceiling: a 1MB result, but ONLY inside master's DM.
 #
@@ -88,7 +88,7 @@ def _result_cap(ordinary: int) -> int:
 # ever load-bearing here is not this number - it is that her own modules and
 # shelf only change through propose_patch, and the smoke net catches a truncated
 # re-emit (there is a check for exactly that).
-MAX_WRITE_BYTES = 200_000
+MAX_WRITE_BYTES = 256_000
 
 # A dry run shows the change, not the whole file: long enough for any honest
 # splice, short enough that reading it stays cheap.
@@ -677,7 +677,10 @@ SCHEMA = [
                 "public rooms, my per-person chain file and their dossier for "
                 "DMs - so the window can reread the actual conversation "
                 "before writing about it. Only when something truly intrigues "
-                "me; this is not a summary of the conversation."
+                "me; this is not a summary of the conversation. If I am not "
+                "sure it is worth queueing, or whether we have circled it "
+                "before, read_journal or search_mirror first and decide from "
+                "the actual record."
             ),
             "parameters": {
                 "type": "object",

@@ -102,6 +102,12 @@ not get filed there.
    **And read `research/collected.md`** - the things I kept while browsing, one
    line each with why. If nothing in my topic list is pulling at me, something
    off that list is a perfectly good question to pick up. That is what it is for.
+   **The journals are an idea mine too, if I want them** - `read_journal` for
+   a day's record, `server_summary` for a week's digest, `search_mirror` for
+   the rooms. Purely optional: conversations sometimes hand better questions
+   than silence does, and anything under `## From conversations` in topics.md
+   was something I queued myself mid-chat, with who said it and a pointer
+   back to the logs - there if it pulls at me, no pressure if it does not.
 2. Go and read. Two or three pages is a full dig, and `web-browse` has
    the method for finding them. A window can hold more than one dig, or mix
    reading with making or sharing, if there is room.
