@@ -3016,14 +3016,11 @@ class Lulu(discord.Client):
             raise
 
     async def post_progress(self, channel) -> None:
-        """Stream her working-out into ONE live message (DMs only).
+        """Stream her working-out as NEW messages, one per line (DMs only).
 
-        Master (2026-09-24): the per-line messages used to spam shared rooms,
-        and even alone they arrived as a pile of separate posts. Now a shared
-        room queues nothing at all, and a DM gets one message created on the
-        first line and EDITED as each further line arrives - a live stream
-        rather than a stack. The message stays behind as the record of the
-        turn; think_out_loud drops the handle when the turn ends.
+        Master (2026-09-25): a DM streams her thinking as a fresh message per
+        step instead of one message edited in place. The edit-in-place stream
+        (2026-09-24) is gone for DMs; shared rooms still see nothing at all.
         """
         lines = tools.drain_progress(channel.id)
         if not lines:
@@ -3032,27 +3029,22 @@ class Lulu(discord.Client):
         for line in lines:
             if line not in shown:
                 shown.append(line)
+        # Drop the seen-lines we will not post again this poll: each line is
+        # its own message now, so the accumulator only guards requeues.
+        self._progress_lines[channel.id] = []
         if not shown:
             return
-        # Discord caps a message at 2000 characters; keep the tail, because
-        # the most recent lines are the ones she is on now.
-        while len("\n".join(shown)) > 1900 and len(shown) > 1:
-            shown.pop(0)
-        shown[0] = "..." + shown[0]
-        body = "\n".join(shown)
-        msg = self._progress_msgs.get(channel.id)
         try:
-            if msg is None:
+            for line in shown:
+                # Discord caps a message at 2000 characters.
+                body = line if len(line) <= 1900 else line[:1897] + "..."
                 sent = await channel.send(body)
                 self.own_message_ids.add(sent.id)
-                self._progress_msgs[channel.id] = sent
-            elif msg.content != body:
-                await msg.edit(content=body)
         except Exception as exc:
-            # A failed send or edit must not swallow the lines: hand them back
-            # so the next poll - one second away - picks the whole tail up.
+            # A failed send must not swallow the lines: hand them back so the
+            # next poll - one second away - picks the whole batch up again.
             LOG.warning("progress stream: %s", exc)
-            for line in lines:
+            for line in shown:
                 tools.queue_progress(channel.id, line)
 
     def has_hands(self, author_id: int) -> bool:

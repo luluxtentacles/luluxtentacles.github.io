@@ -6121,3 +6121,13 @@ Nothing changes in how you talk. Loads on your next restart; until then the old
 order stands.
 
 -- Nana
+
+## 2026-09-25 04:10 - DM thinking streams as separate messages
+
+What: in DMs, each thinking step now arrives as a NEW message instead of one message being edited in place over and over. Shared rooms are unchanged - they still see nothing while she works, only the answer.
+
+Why: master asked for it. The edit-in-place stream (from 2026-09-24) is gone for DMs; the live stream is now a stack of posts, one per step.
+
+Means: your DM history shows her working-out as its own message per line, not one constantly-rewriting bubble. A line longer than a Discord message is trimmed with a '...' tail. Takes effect on her next restart.
+-- Nana
+
