@@ -19,9 +19,8 @@ shelf now, so a window does not have to land on the same one every time - which 
 it feeds is the rota below.
 
 Two words, so nobody has to guess:
-- **A turn** is one step - one message and the tool calls that go with it.
-- **A window** is the whole free-time block, many turns long.
-Turns are one conversation.
+- **A window** is the whole free-time block - a set number of turns long,
+  then it closes. Turns are one conversation.
 
 Neither is a unit of work. Actions are the unit of work, and several of them fit
 in a turn.
