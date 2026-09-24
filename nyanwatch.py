@@ -128,8 +128,19 @@ def load_ledger() -> tuple[dict, float, int]:
     stopped existing".
     """
     try:
-        stat = LEDGER.stat()
-        data = json.loads(LEDGER.read_text(encoding="utf-8"))
+        # Two tries with a breath between: a locked or half-written file is a
+        # moment, not a day, and one miss must not cost the whole pass.
+        stat = data = exc = None
+        for attempt in range(2):
+            try:
+                stat = LEDGER.stat()
+                data = json.loads(LEDGER.read_text(encoding="utf-8"))
+                break
+            except Exception as caught:
+                exc = caught
+                time.sleep(2.0)
+        if stat is None or data is None:
+            raise exc or OSError("ledger never appeared")
     except Exception as exc:
         LOG.warning("could not read Nyan's ledger: %s", exc)
         return {}, 0.0, 0
@@ -375,12 +386,22 @@ async def maybe_run(bot) -> bool:
     state = _state()
     ledger, mtime, size = load_ledger()
     if not ledger:
-        _save(last_run=time.time(), last_checked=_stamp(),
-              note="the ledger could not be read")
-        await report(bot, "the daily facts pass could not read Nyan's ledger, so "
-                          "there was nothing to compare.")
+        # Do NOT stamp last_run: an unreadable ledger is a moment, not a day,
+        # so the next poll (5 minutes away) retries instead of waiting the
+        # whole interval out on one failed read. But only the FIRST failure
+        # of a streak DMs master - a nightly outage must not ping him every
+        # 5 minutes.
+        fails = _state().get("read_fails")
+        fails = fails + 1 if isinstance(fails, int) and not isinstance(fails, bool) else 1
+        _save(last_checked=_stamp(), note="the ledger could not be read",
+              read_fails=fails)
+        if fails == 1:
+            await report(bot, "the daily facts pass could not read Nyan's ledger, so "
+                              "there was nothing to compare. I will try again in a "
+                              "few minutes.")
         return False
 
+    _save(last_checked=_stamp(), read_fails=0)
     notes = []
     age, drop_file = drop_stamp()
     if age < 0:
