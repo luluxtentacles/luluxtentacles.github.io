@@ -390,6 +390,59 @@ def _chain_text(chain: dict) -> str:
                      for l in chain.get("lines") or [])
 
 
+# The query router, master 2026-09-24: not every recall wants the same
+# weighting. A "when did we..." question is about TIME - recency matters
+# more - while anything else is a plain hybrid over all chains. Cheap regex,
+# no ML; more kinds can be added as they earn their keep.
+TEMPORAL_RE = re.compile(
+    r"\b(when|date|time|yesterday|earlier|ago|last (week|month|night)|"
+    r"before|how long)\b", re.I)
+
+
+def _route(query: str) -> str:
+    return "temporal" if TEMPORAL_RE.search(query or "") else "hybrid"
+
+
+def _prefix_hit(wanted: set[str], have: set[str]) -> set[str]:
+    """Token hits with a prefix escape hatch: postgres~postgresql.
+
+    Plain intersection misses a chain that says 'postgresql' when the query
+    says 'postgres' - and that near-miss is exactly the case a real
+    embedding layer would catch. Matching either direction on a stem of 4+
+    chars is the cheapest honest slice of that, without a model.
+    """
+    hit = wanted & have
+    for q in wanted - hit:
+        if len(q) >= 4 and any(t.startswith(q) or q.startswith(t)
+                               for t in have):
+            hit.add(q)
+    return hit
+
+
+def _mmr_pick(scored: list[tuple], limit: int, lam: float = 0.72) -> list:
+    """Maximal Marginal Relevance: relevance minus redundancy.
+
+    scored is (score, id, chain, tokens), best first. Greedy pick with a
+    Jaccard penalty against what is already picked, so the recall block does
+    not spend its slots on five versions of the same conversation.
+    """
+    picked: list[tuple] = []
+    pool = list(scored)
+    while pool and len(picked) < limit:
+        def _value(item):
+            tok = set(item[3])
+            red = 0.0
+            for _, _, _, ptoks in picked:
+                pt = set(ptoks)
+                if tok and pt:
+                    red = max(red, len(tok & pt) / len(tok | pt))
+            return lam * item[0] - (1.0 - lam) * red
+        best = max(pool, key=_value)
+        picked.append(best)
+        pool.remove(best)
+    return picked
+
+
 def search(query: str, uid: str = "", *, limit: int = RECALL_LIMIT,
            dm: bool = False, channel: str = "") -> list[dict]:
     """Chains matching `query`: this person's file first, then everyone's.
@@ -426,24 +479,31 @@ def search(query: str, uid: str = "", *, limit: int = RECALL_LIMIT,
         pass
     pools.append(("", global_chains))
 
-    scored: list[tuple[float, str, dict]] = []
+    scored: list[tuple[float, str, dict, set]] = []
+    route = _route(query)
     for file_uid, chains in pools:
         for chain in chains:
             if chain.get("dm") and not (dm and str(channel) == chain.get("cid")):
                 continue
-            hit = wanted & _tokens(_chain_text(chain))
+            chain_toks = _tokens(_chain_text(chain))
+            hit = _prefix_hit(wanted, chain_toks)
             if not hit:
                 continue
             bonus = 2.0 if (file_uid and uid == file_uid) else 0.0
             # Decay-weighted: raw hit count alone would score a dead topic
             # from six months ago exactly like this morning's - master,
-            # 2026-09-24. The weight multiplies the raw score; the floor of
-            # 0.4 keeps an old chain reachable when the words hit hard.
+            # 2026-09-24. The weight multiplies the raw score; the floor
+            # keeps an old chain reachable when the words hit hard - and a
+            # temporal question ("when did we...") raises the floor, because
+            # there recency IS the point of the query.
             weight = max(0.4, min(2.0, _decay_weight(chain)))
+            if route == "temporal":
+                weight = max(0.9, weight)
             scored.append(((len(hit) + bonus) * weight,
-                           str(chain.get("id") or ""), chain))
+                           str(chain.get("id") or ""), chain, hit))
     scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
-    return [c for _, _, c in scored[:limit]]
+    picked = _mmr_pick(scored, limit)
+    return [c for _, _, c, _ in picked]
 
 
 def _strengthen(chains: list[dict], uid: str) -> None:

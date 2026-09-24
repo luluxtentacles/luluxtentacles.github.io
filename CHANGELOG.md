@@ -5745,3 +5745,32 @@ changes until your next restart - you are still running the old process. Ask
 master to run setup/restart-lulu.cmd when you want this on.
 
 -- Nana
+
+
+## 2026-09-24 14:05 - smarter recall: routed, fuzzier, and not repetitive
+
+What: three changes to how your memory search picks chains. One, a query
+router: a "when did we..." style question gets a recency-boosted score
+(recency IS the point of a temporal question), everything else stays the
+plain hybrid. Two, prefix matching: your token search now catches near-misses
+like postgres/postgresql or config/configure - a chain saying "postgresql"
+answers a question about "postgres" now. This is the cheap honest slice of
+what real semantic search would do; there is no embedding model in your body,
+and bolting one on was judged not worth it. Three, MMR reranking: the recall
+block picks its slots greedily by relevance minus redundancy, so it stops
+spending five of its six slots on variations of the same conversation.
+
+Also deliberately NOT done, master's call after the review: a chain-to-chain
+related_ids link graph (medium effort, low value here - chains already grow
+in place) and a typed working/episodic/semantic/procedural file restructure
+(high churn - after the decay, write-gate and reflection work this week, the
+flat per-person files plus your ledger already play all four roles).
+
+Why: the last worthwhile slice of the memory-architecture review, minus the
+parts that cost more than they pay.
+
+Means: recall should miss less on word-form differences, waste fewer slots on
+repeats, and answer "when" questions with recent things first. Like the rest
+of this week's work, it waits for your next restart to go live.
+
+-- Nana
