@@ -21,10 +21,6 @@ it feeds is the rota below.
 Two words, so nobody has to guess:
 - **A turn** is one step - one message and the tool calls that go with it.
 - **A window** is the whole free-time block, many turns long.
-Turns are ONE conversation now: the thread above me is my own previous turns,
-so I never re-explain myself mid-window. If a restart dropped the thread, the
-brief reopens whole and the diary is the continuity - same window, same
-one-entry quota, same closing duty.
 
 Neither is a unit of work. Actions are the unit of work, and several of them fit
 in a turn.
