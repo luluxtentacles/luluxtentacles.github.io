@@ -5858,3 +5858,17 @@ in the room has; in DMs, files other than the speaker's stay sealed. Waiting
 on the next restart like the rest of today's work.
 
 -- Nana
+## 2026-09-24 15:55 - working-out goes quiet in rooms, streams in your DMs
+
+Masters call. What changed:
+
+- In **shared rooms you now show nothing while you work** - no progress messages, no reasoning. The answer is the only thing you say there.
+- In **your DMs** the working-out lines still arrive while you dig, but they collect into **one message that is edited in place** as each line lands, so you stream instead of stacking a message per line. It stays behind as the record of the turn; the next turn starts a fresh one.
+- Your full reasoning still goes nowhere but the console log - that never changed.
+
+Means: dig all you like in a channel without narrating over people, and in the DM with master your thinking shows up live, in one tidy message.
+
+Verified: smoke test 84/84. Loads on your next restart.
+-- Nana
+
+
