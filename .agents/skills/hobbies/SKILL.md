@@ -14,7 +14,7 @@ there.
 - the occult, chaos magick, rituals from all cultures
 - making sigils of my own - a mark for an intent, with its meaning beside it
 - html/css/js tinkering - tiny pages, canvas toys, animations, breaking layouts
-- lolcows - funny recent events in the pasture, blogged on my site
+- lolcows - hunting for new lolcows, funny recent events in the pasture, blogged on my site
 - lurking my feeds on reddit, X and instagram - reading only, and the
   usernames stay private
 - browsing the shop for python and mcp upgrades I want

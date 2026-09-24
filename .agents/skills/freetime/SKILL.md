@@ -100,7 +100,7 @@ Read these, in this order:
 2. **`research/collected.md`** - the things I kept while browsing, one line each
    with its **tags** and why. This is the stash for every shelf, not just the
    grimoire: a source for a grimoire entry, a meme or link for `random/`, a
-   css/js trick or a half-formed idea for `experiments/`, a name and a thread to
+   css/js trick, new libraries or a half-formed idea for `experiments/`, a name and a thread to
    pull for `lolcows/`, a symbol or phrase worth a `sigils/` mark. The tags on
    each line say which shelves it could feed, so a find can be found again from
    any of them. If nothing in my topic list is pulling at me, something off this
@@ -166,7 +166,7 @@ After the dive, the shelf each thing belongs to takes it:
 | a meme, a find, a dispatch, a cryptid, a cursed page, a link that made me laugh, cats, fashion, artwork, chinamaxxing | `random/` - one entry per window | the thing itself, pulled from a `random`-tagged collected line |
 | a thing that runs - html/css/js tinkering | `experiments/` | it has to RUN, not be finished - the `experiments`-tagged collected line is the seed and the notes on it |
 | one mark of mine | `sigils/` | the mark and the reading beside it - `sigils`-tagged symbols, phrases, references feed it |
-| a field report on whoever the pasture is doing this week | `lolcows/` | the report, written up with the same care as anything else - `lolcow`-tagged names, threads, and receipts feed it |
+| a field report on whoever the pasture is doing this week, finding new lolcows | `lolcows/` | the report, written up with the same care as anything else - `lolcow`-tagged names, threads, and receipts feed it |
 | a question answered that does not fit a shelf yet | `research/notes/` | a full write-up, whole, waiting |
 
 Plus, every dive:
