@@ -70,6 +70,31 @@ _keys_cache = {"mtime": None, "keys": {}}
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 OR_BASE_URL = "https://openrouter.ai/api/v1"
+
+# Master, 2026-09-25: the Go subscription's FREE models walk after the
+# gemini ladder and before OpenRouter - they cost no subscription credits.
+# Pinned ids; a model Go has not enabled yet just answers "Model is
+# unavailable" (400) and is skipped for that call, so this list is safe to
+# grow ahead of the catalog. space-bunny-free is the only -free id verified
+# live on 2026-09-25; the rest were requested by name.
+GO_FREE_MODELS = [
+    "big-pickle",
+    "mimo-v2.6-flash-free",
+    "ling-3.0-flash-fin-free",
+    "muse-spark-1.3-contributor-free",
+    "nemotron-3-ultra-free",
+    "space-bunny-free",
+]
+
+
+def _go_free_models(config: dict) -> list[str]:
+    """The Go free-model ladder; config 'go_free_models' overrides."""
+    raw = config.get("go_free_models", "")
+    if isinstance(raw, list):
+        ids = [str(x).strip() for x in raw if str(x).strip()]
+    else:
+        ids = [s.strip() for s in str(raw or "").split(",") if s.strip()]
+    return ids or list(GO_FREE_MODELS)
 GEMINI_MODELS_DEFAULT = [
     "gemini-3.7-flash",
     "gemini-3.6-flash",
@@ -180,6 +205,7 @@ def _providers(config: dict, wants_vision: bool, *,
     keys = load_keys()
     go: list[dict] = []
     gemini: list[dict] = []
+    gofree: list[dict] = []
     openrouter: list[dict] = []
 
     go_key = config.get("api_key") or keys.get("open_code_key") or ""
@@ -207,6 +233,15 @@ def _providers(config: dict, wants_vision: bool, *,
                                    "model": model,
                                    "label": f"{model}/key{index}"})
 
+    # Master, 2026-09-25: the Go subscription's FREE models walk AFTER the
+    # gemini ladder (they cost no subscription credits) and BEFORE
+    # OpenRouter. Text only - vision keeps the dedicated Go rung.
+    if go_key and not wants_vision and time.time() >= _go_blocked_until:
+        for model in _go_free_models(config):
+            gofree.append({"base_url": str(config["base_url"]).rstrip("/"),
+                           "key": go_key, "model": model,
+                           "label": f"go-free:{model}"})
+
     # OpenRouter is built for a TEXT call only. See the docstring: its rungs are
     # free text models, so a vision call must not have them to descend into.
     if not wants_vision:
@@ -216,11 +251,33 @@ def _providers(config: dict, wants_vision: bool, *,
                 openrouter.append({"base_url": OR_BASE_URL, "key": or_key,
                                    "model": model, "label": f"or:{model}"})
 
+    # Master, 2026-09-25: provider ORDER comes from config.json's
+    # "provider_priority" - {"go": 0, "gemini": 1, "go_free": 2,
+    # "openrouter": 3} - LOWER NUMBER = HIGHER ON THE LADDER. The groups
+    # are built as before (go, gemini, go_free, openrouter) and then
+    # sorted by that priority; a missing group's number is ignored.
+    # Vision keeps to its own two groups (go, gemini), also priority-sorted.
+    order = (config.get("provider_priority") or {})
+    if not isinstance(order, dict):
+        order = {}
+    try:
+        go.sort(key=lambda r: int(order.get("go", 0)))
+        gemini.sort(key=lambda r: int(order.get("gemini", 1)))
+        gofree.sort(key=lambda r: int(order.get("go_free", 2)))
+        openrouter.sort(key=lambda r: int(order.get("openrouter", 3)))
+    except (TypeError, ValueError):
+        pass  # a malformed number leaves the built order standing
     if wants_vision:
-        # Go+mimo first, master's call - see the docstring. The gemini ladder is
-        # still the backup, not a replacement.
-        return go + gemini
-    return go + gemini + openrouter
+        # Go+mimo first by DEFAULT (master's call 2026-09-21); the gemini
+        # ladder is still the backup, not a replacement. Vision has no
+        # go_free and no OpenRouter, so this is go-then-gemini unless
+        # master's numbers say otherwise.
+        ranked = sorted(
+            [(order.get("go", 0), go), (order.get("gemini", 1), gemini)],
+            key=lambda pair: pair[0] if isinstance(pair[0], (int, float))
+            else 99)
+        return [r for _p, group in ranked for r in group]
+    return go + gemini + gofree + openrouter
 
 
 def _gemini_models(config: dict) -> list[str]:

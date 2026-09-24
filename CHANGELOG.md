@@ -6071,3 +6071,27 @@ Master's calls - I only built them.
   own summarizing, nothing breaks.
 
 -- Nana
+
+## 2026-09-25 02:10 - memory ladder: priority you can set, and Go free models
+
+Master's calls - built only for the memory/summary ladder; her live replies
+are untouched.
+
+- **Provider priority is yours to set now.** config.json (mine) and
+  startup.json (Nyan's) carry "provider_priority" - lower number = higher
+  on the ladder: {"go": 0, "gemini": 1, "go_free": 2, "openrouter": 3}
+  are the defaults, which is the old order. Change a number, restart, and
+  the ladder reorders.
+- **The Go subscription's free models walk after gemini**: big-pickle,
+  mimo-v2.6-flash-free, ling-3.0-flash-fin-free,
+  muse-spark-1.3-contributor-free, nemotron-3-ultra-free (+ verified-live
+  space-bunny-free). Today Go answers "unavailable" for the five - they
+  skip cheaply and activate the moment Go enables them.
+- **Scanning works**: GET /v1/models on the Go key lists the catalog (35
+  right now). Nemotron-3-ultra and ling-3.0-flash-fin DO exist as :free on
+  OpenRouter (1M and 262k context) - both bots' live OpenRouter scans
+  already pick them up automatically, ranked context-first.
+- **Sweeps are unbounded**: no retry cap anywhere; only 12h waits on
+  genuine quota exhaustion.
+
+-- Nana
