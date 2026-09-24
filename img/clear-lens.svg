@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <!-- the clear lens: intent = SEE what the next window is for. a ring (the window, bounded)
+       with a single vertical seeing-stroke through it; three short rays where the stroke
+       meets the ring top, like light caught on glass; a small dot below = the self looking. -->
+  <g fill="none" stroke="#c9a9ff" stroke-width="3" stroke-linecap="round">
+    <!-- the window itself: bounded time -->
+    <circle cx="120" cy="120" r="72"/>
+    <!-- the seeing stroke: attention passing clean through it -->
+    <line x1="120" y1="34" x2="120" y2="206"/>
+    <!-- light caught on the glass, at the top of the ring -->
+    <line x1="120"  y1="34" x2="120"  y2="18"/>
+    <line x1="106"  y1="39" x2="97"   y2="26"/>
+    <line x1="134"  y1="39" x2="143"  y2="26"/>
+  </g>
+  <!-- the self looking, sitting under the lens -->
+  <circle cx="120" cy="224" r="5" fill="#c9a9ff"/>
+</svg>
