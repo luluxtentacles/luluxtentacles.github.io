@@ -35,6 +35,8 @@ import time
 from pathlib import Path
 
 import journal
+import gemini_queue
+gemini_enqueue = gemini_queue.enqueue
 import paths
 import people
 import tools
@@ -63,6 +65,18 @@ MAX_FACTS_PER_PERSON = 6
 MAX_SWEEP_LINES = 120
 DIFF_MAX_CHARS = 9000
 REPORT_MAX = 1800
+
+# -- the WEEKLY dossier pass, master 2026-09-25 ------------------------------
+# Once a week: anyone whose facts moved ENOUGH since the last weekly pass
+# gets a dossier rewrite, through the ONE gemini queue. "Enough" is a number,
+# not a feeling: WEEKLY_MIN_CHANGES fresh facts, or a person who is new and
+# has no page at all. The queue paces it - one rewrite per poll, five minutes
+# a try - so a busy week never turns into a wall of free-ladder calls.
+WEEKLY_INTERVAL_HOURS = 168.0
+WEEK_BASELINE_REL = "memory/nyan_week_facts.json"
+WEEKLY_MIN_CHANGES = 3
+WEEKLY_MAX_ENQUEUE = 10
+DOSSIER_JOB_KIND = "dossier"
 
 
 # ------------------------------------------------------------------ the clock
@@ -457,6 +471,71 @@ async def maybe_run(bot) -> bool:
     return True
 
 
+def _load_week() -> dict:
+    try:
+        data = paths.read_json(WEEK_BASELINE_REL, default=None)
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _write_week() -> None:
+    try:
+        paths.write_text(WEEK_BASELINE_REL, LEDGER.read_text(encoding="utf-8"),
+                         internal=True)
+    except Exception as exc:
+        LOG.warning("weekly dossier pass: could not keep a baseline: %s", exc)
+
+
+def _dossier_hash(who: str) -> str:
+    import hashlib
+    text = str(people.lookup(who).get("dossier") or "")
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()
+
+
+async def maybe_weekly_dossiers(bot) -> bool:
+    """Once a week, queue dossier rewrites for people whose info moved a lot."""
+    st = _state()
+    last = float(st.get("last_weekly_dossiers") or 0)
+    if time.time() - last < WEEKLY_INTERVAL_HOURS * 3600:
+        return False
+    try:
+        ledger = json.loads(LEDGER.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    old = _load_week()
+    if not old:
+        _write_week()
+        _save(last_weekly_dossiers=time.time())
+        return False
+    changes = diff(old, ledger)
+    snaps = st.get("dossier_snapshots") or {}
+    queued = 0
+    for key, name, fresh, dropped in changes["changed"]:
+        if queued >= WEEKLY_MAX_ENQUEUE:
+            break
+        if len(fresh) < WEEKLY_MIN_CHANGES:
+            continue
+        if str(people.lookup(key).get("dossier") or "").strip() == "":
+            continue          # nothing written yet - the daily pass owns that
+        snaps[key] = _dossier_hash(key)
+        gemini_enqueue(DOSSIER_JOB_KIND, key)
+        queued += 1
+    for key, name in changes["added"]:
+        if queued >= WEEKLY_MAX_ENQUEUE:
+            break
+        snaps[key] = _dossier_hash(key)
+        gemini_enqueue(DOSSIER_JOB_KIND, key)
+        queued += 1
+    if queued:
+        _save(last_weekly_dossiers=time.time(), dossier_snapshots=snaps)
+        LOG.info("weekly dossier pass: %d rewrite(s) queued", queued)
+    else:
+        _save(last_weekly_dossiers=time.time())
+    _write_week()
+    return bool(queued)
+
+
 async def drain_queue(bot) -> bool:
     """One job per poll off the ONE gemini queue, master 2026-09-25.
 
@@ -466,17 +545,48 @@ async def drain_queue(bot) -> bool:
     she gets it when the queue gets through. Success means the job LEFT the
     queue; a turn that answered but wrote nothing is a failure, not a pass.
     """
-    import gemini_queue
     job = gemini_queue.due()
     if not job:
         return False
     who = str(job.get("who") or "")
     kind = str(job.get("kind") or "")
-    if kind != "bio":
+    if kind not in ("bio", DOSSIER_JOB_KIND):
         LOG.warning("gemini queue: unknown job kind %r - dropped", kind)
         gemini_queue.done(who)
         return True
     name = people.display_name(who, who)
+    if kind == DOSSIER_JOB_KIND:
+        # The weekly pass queued this one: their facts moved a lot, so the
+        # page is behind the ledger. Near the 100-fact cap, MERGE similar
+        # facts into one line and let the oldest weakest go - master,
+        # 2026-09-25 - rather than just refusing to write.
+        brief = (
+            f"weekly dossier pass: {name} (id {who})'s facts moved enough "
+            "since last week that their page is behind. who_is them first, "
+            "then write_dossier: the whole page I already have, merged with "
+            "what is new, rewritten as one page of prose, OPENED with one "
+            "short paragraph bio (who they are, a few sentences) then a "
+            "blank line, then the rest. If the fact list is near its cap, "
+            "merge similar facts into one and drop the oldest weakest "
+            "rather than losing anything still true. Change nothing else, "
+            "post nothing anywhere.")
+        try:
+            answer = (await run_turn(bot, brief) or "").strip()
+        except Exception as exc:
+            LOG.warning("gemini queue: %s (%s) turned over: %s", kind, who, exc)
+            gemini_queue.failed(who)
+            return True
+        st = _state()
+        snaps = st.get("dossier_snapshots") or {}
+        before = snaps.get(who)
+        if answer and before is not None and _dossier_hash(who) != before:
+            gemini_queue.done(who)
+            snaps.pop(who, None)
+            _save(dossier_snapshots=snaps)
+            LOG.info("gemini queue: %s %s rewritten", kind, who)
+        else:
+            gemini_queue.failed(who)
+        return True
     brief = (
         f"background queue: bring {name} (id {who})'s dossier into the "
         "current format. who_is them first, then write_dossier: the whole "
@@ -506,6 +616,10 @@ async def watch(bot) -> None:
             await maybe_run(bot)
         except Exception as exc:
             LOG.warning("facts pass failed: %s", exc)
+        try:
+            await maybe_weekly_dossiers(bot)
+        except Exception as exc:
+            LOG.warning("weekly dossier pass failed: %s", exc)
         try:
             await drain_queue(bot)
         except Exception as exc:

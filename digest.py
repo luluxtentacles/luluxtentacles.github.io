@@ -49,12 +49,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import hashlib
 import time
 from datetime import datetime, timedelta
 
 import brain
 import journal
 import paths
+import people
 
 LOG = logging.getLogger("lulu")
 
@@ -396,6 +398,64 @@ def _window(state: dict, where) -> tuple[datetime, datetime]:
         return _archive_window(where)
 
 
+# ------------------------------------------------- the drop, not the mirror
+# Master, 2026-09-25: Nyan summarizes the shared servers anyway (her Layer 1),
+# and both bots chewing the same transcript was double spend. Her DROP now
+# carries her server summaries, and THIS module ingests them instead of
+# re-summarizing the same chat on the free ladder - for every guild I am
+# actually in. Servers her drop does not cover still fall through to the
+# mirror path below; servers I am not in are excluded, exactly as master said.
+def _ingest_nyan_summaries(bot, state) -> set:
+    """Write Nyan's fresh server summaries into the journal. Returns the set
+    of server NAMES her drop covers, so the mirror path can skip them."""
+    try:
+        drop = paths.read_json(people.DROP_LATEST, default=None)
+    except Exception:
+        return set()
+    if not isinstance(drop, dict):
+        return set()
+    section = drop.get("server_summaries")
+    if not isinstance(section, dict):
+        return set()
+    mine = {str(g.id): str(g.name) for g in
+            (getattr(bot, "guilds", None) or [])}
+    my_names = set(mine.values())
+    seen = state.setdefault("nyan_summaries", {})
+    covered: set = set()
+    for guild_id, s in section.items():
+        if not isinstance(s, dict) or str(guild_id) not in mine:
+            continue
+        name = str(s.get("guild_name") or mine[str(guild_id)] or guild_id)
+        if name not in my_names:
+            continue
+        daily = [d for d in (s.get("daily") or []) if isinstance(d, dict)]
+        parts = [f"[{d.get('date')}] {d.get('text')}"
+                 for d in daily if str(d.get("text") or "").strip()]
+        long_term = str(s.get("long_term") or "").strip()
+        if long_term:
+            parts.append("(her long-term memory of this server):\n" + long_term)
+        body = "\n\n".join(parts).strip()
+        if not body:
+            covered.add(name)
+            continue
+        fresh = hashlib.sha1(body.encode("utf-8")).hexdigest()
+        if seen.get(str(guild_id)) == fresh:
+            covered.add(name)
+            continue
+        try:
+            journal.note_digest(
+                body, label=f"server digest - {name} (from Nyan's watch)")
+        except Exception as exc:
+            LOG.warning("digest: could not journal Nyan's summary for %s: %s",
+                        name, exc)
+            continue
+        seen[str(guild_id)] = fresh
+        covered.add(name)
+        LOG.info("digest: ingested Nyan's summary of %s from the drop", name)
+    return covered
+
+
+
 async def maybe_run(bot) -> bool:
     """One digest, if one is owed. True when it actually wrote something.
 
@@ -413,8 +473,9 @@ async def maybe_run(bot) -> bool:
     state = _state()
     since, until = _window(state, where)
     done = set(state.get("done") or [])
+    covered = _ingest_nyan_summaries(bot, state)
     grouped = {server: lines for server, lines in collect(since, until).items()
-               if server not in done}
+               if server not in done and server not in covered}
     if not grouped:
         # Nothing moved, or every server in this window is already written.
         # Stamped either way, or the poll would ask the same question forever.

@@ -58,7 +58,7 @@ CARDS = Path(r"C:\Python\DiscordBotN5\json_data\user_info.json")
 LOCAL = "memory/people.json"
 REFRESH_SECONDS = 24 * 60 * 60
 
-MAX_FACTS = 24
+MAX_FACTS = 100
 MAX_LOCAL_FACTS = 40
 
 # Master, 2026-09-25: "we can keep more than that from nyan - do 10 each.

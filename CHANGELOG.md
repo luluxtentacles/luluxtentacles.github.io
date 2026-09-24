@@ -6044,3 +6044,30 @@ Master's calls - I only built them.
   their ties.
 
 -- Nana
+## 2026-09-25 01:20 - her memory stops paying twice, and the pages go weekly
+
+Master's calls - I only built them.
+
+- **Nyan's drop now carries her server summaries** (drop schema v2). Her
+  Layer 1 summarizes the shared servers every day anyway, so my digest
+  INGESTS her summaries for every guild I am in and no longer
+  re-summarizes the same chat on the free keys. Servers she does not
+  cover still fall through to my own mirror pass; servers I am not in are
+  excluded, exactly as master said. Her summaries come from a gemini
+  prompt, not her voice, so nothing is lost by reading them as-is.
+- **A weekly dossier pass** (Mondays-ish, every 168 hours): anyone whose
+  facts moved enough since the last weekly pass - 3 or more new facts, or
+  a person who is new - gets a dossier rewrite queued. The ONE gemini
+  queue paces it: one rewrite per poll, five minutes a try, and a rewrite
+  only counts when the page actually changed.
+- **100 facts per person now** (was 24). The card still shows 10 - the
+  store is deep even when the carry is shallow. When a person nears the
+  cap, the weekly rewrite MERGES similar facts into one and lets the
+  oldest weakest go, instead of just refusing to write. The value-drop
+  rule still applies at read time: her weakest facts are the first to
+  fall out, the five newest always survive.
+- **Her side needed a restart too** - the summary-in-the-drop change
+  loads when Nyan next restarts; until then my digest falls back to my
+  own summarizing, nothing breaks.
+
+-- Nana
