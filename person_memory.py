@@ -37,6 +37,7 @@ import asyncio
 import difflib
 import json
 import logging
+import math
 import re
 import time
 from pathlib import Path
@@ -107,6 +108,71 @@ def _similar(a: str, b: str) -> bool:
 
 
 # -- capture ----------------------------------------------------------------
+
+# Temporal dynamics, master 2026-09-24: chains decay like memories do, and
+# being remembered strengthens them. The lambda is ~a 14-day half-life; the
+# access factor means a chain recalled often resists the curve.
+DECAY_LAMBDA = 0.05
+ACK_WORDS = {
+    "ok", "okay", "k", "kk", "thanks", "thank", "thx", "ty", "np", "lol",
+    "lmao", "rofl", "xd", "yeah", "yes", "yep", "nope", "no", "sure",
+    "cool", "nice", "haha", "hehe", "hm", "hmm", "ooh", "true", "real",
+}
+GATE_MIN_WORDS = 8      # fewer total words than this is chatter, not talk
+GATE_MIN_TOKENS = 2     # no topic words at all -> nothing to recall by
+
+
+def _ts_of(chain: dict) -> float:
+    """When the chain was made: stored, or parsed from its id.
+
+    Chains saved before this field existed carry only the id - the id IS a
+    timestamp, so the fallback is exact, not an approximation.
+    """
+    ts = float(chain.get("created_ts") or 0)
+    if ts:
+        return ts
+    try:
+        return time.mktime(time.strptime(str(chain.get("id") or ""),
+                                         "%Y%m%d-%H%M%S"))
+    except ValueError:
+        return 0.0
+
+
+def _decay_weight(chain: dict) -> float:
+    """Ebbinghaus curve times an access-strengthening factor.
+
+    1.0 for a chain made now; ~0.7 after a week; ~0.5 after two weeks - and
+    every recall pushes the number back up, so often-remembered chains fade
+    much slower than ones nobody asks about.
+    """
+    made = _ts_of(chain)
+    if not made:
+        return 1.0
+    days = max(0.0, (time.time() - made) / 86400)
+    access = int(chain.get("access_count") or 0)
+    return math.exp(-DECAY_LAMBDA * days) * (1.0 + math.log1p(access))
+
+
+def _salient(lines: list[dict]) -> bool:
+    """The write gate: chatter never becomes a chain.
+
+    A window whose lines are all one-word acknowledgments, or that holds
+    almost no topic words at all, would sit in the file forever and never
+    match a query - so it is dropped before it is written, not pruned after.
+    """
+    words = sum(len(str(l.get("text") or "").split()) for l in lines)
+    if words < GATE_MIN_WORDS:
+        return False
+    if len(_tokens(_chain_text({"lines": lines}))) < GATE_MIN_TOKENS:
+        return False
+    acks = 0
+    for l in lines:
+        words_in = {w.strip(".,!?;:\"'") for w in
+                    str(l.get("text") or "").lower().split()}
+        if words_in and words_in <= ACK_WORDS:
+            acks += 1
+    return acks < len(lines)
+
 
 def _is_her(entry: dict, her_uid: str) -> bool:
     """One of Lulu's lines in the ring, either shape of the record.
@@ -186,7 +252,21 @@ def note_lulu_turn(channel_id, ring, *, her_uid: str, trigger_uid: str,
             "her": her_uid,
             "trigger": str(trigger_uid),
             "after": 0,
+            # Temporal dynamics, master 2026-09-24: born now, strengthened
+            # every time recall picks it - see _decay_weight.
+            "created_ts": time.time(),
+            "access_count": 0,
+            "last_accessed": 0.0,
         }
+        # The write gate: a NEW chain that is pure chatter is never written.
+        # Growing an open conversation bypasses the gate - the conversation
+        # was already judged worth keeping when it started.
+        anchor_existing = next(
+            (c for c in _load(her_uid).get("chains", [])
+             if c.get("cid") == str(channel_id) and not c.get("closed")),
+            None)
+        if anchor_existing is None and not _salient(lines):
+            return ""
         chain["her_lines"] = [l["text"][:120] for l in lines
                               if l["uid"] == her_uid][-4:]
         # Her own file is the anchor copy: it is the one note_line reads to
@@ -350,10 +430,44 @@ def search(query: str, uid: str = "", *, limit: int = RECALL_LIMIT,
             if not hit:
                 continue
             bonus = 2.0 if (file_uid and uid == file_uid) else 0.0
-            scored.append((len(hit) + bonus, str(chain.get("id") or ""),
-                           chain))
+            # Decay-weighted: raw hit count alone would score a dead topic
+            # from six months ago exactly like this morning's - master,
+            # 2026-09-24. The weight multiplies the raw score; the floor of
+            # 0.4 keeps an old chain reachable when the words hit hard.
+            weight = max(0.4, min(2.0, _decay_weight(chain)))
+            scored.append(((len(hit) + bonus) * weight,
+                           str(chain.get("id") or ""), chain))
     scored.sort(key=lambda item: (item[0], item[1]), reverse=True)
     return [c for _, _, c in scored[:limit]]
+
+
+def _strengthen(chains: list[dict], uid: str) -> None:
+    """Remember remembering: bump access_count/last_accessed on the files.
+
+    Recall is the only thing that fights decay, so the bump happens exactly
+    when a chain actually reaches her prompt - not on searches that found
+    nothing, not on internal calls that skip recall_block. Hits are applied
+    to every file a copy of the chain lives in, so the copies stay in step.
+    """
+    wanted = {str(c.get("id") or "") for c in chains if c.get("id")}
+    if not wanted:
+        return
+    try:
+        files = ([str(uid)] if uid
+                 else [p.stem for p in sorted(_dir().glob("*.json"))
+                       if p.stem.isdigit()])
+        for u in files:
+            data = _load(u)
+            changed = False
+            for c in data.get("chains", []):
+                if str(c.get("id") or "") in wanted:
+                    c["access_count"] = int(c.get("access_count") or 0) + 1
+                    c["last_accessed"] = time.time()
+                    changed = True
+            if changed:
+                _save(u, data)
+    except Exception as exc:
+        LOG.warning("person memory: could not strengthen chains: %s", exc)
 
 
 def recall_block(query: str, uid: str = "", *, dm: bool = False,
@@ -362,6 +476,7 @@ def recall_block(query: str, uid: str = "", *, dm: bool = False,
     chains = search(query, uid, dm=dm, channel=channel)
     if not chains:
         return ""
+    _strengthen(chains, uid)
     lines = ["[remembered conversations]",
              "Things said in earlier conversations, with the room around "
              "them. Not new input - context. Do not thank anyone for it."]

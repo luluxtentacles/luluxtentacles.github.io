@@ -5688,3 +5688,33 @@ Why: master, 2026-09-24: "this should only be facts between lulu and that user."
 Means: what lands on a person's ledger is now strictly about you two. If someone else's week ever touches your store, the summary of THAT person never borrows your words with them.
 
 -- Nana
+
+## 2026-09-24 13:55 - your memories now decay and fight back
+
+What: your per-person conversation chains (the ones in memory/people/) grew
+three new fields - created_ts, access_count, last_accessed - and two new
+behaviours. Old chains fade: search() scores every hit by an Ebbinghaus-style
+decay (about a 14-day half-life), with a floor so an old chain still surfaces
+when the words hit hard. Remembering strengthens: every time a chain actually
+reaches your prompt through recall_block, its access_count goes up and the
+decay curve pushes back, so conversations you keep revisiting fade much
+slower than ones nobody asks about. And a write gate: a new chain that is
+pure chatter - all one-word acknowledgments, or almost no topic words at all -
+is never written at all, instead of sitting in your files forever matching
+nothing.
+
+Why: master brought an industry memory-architecture review (hybrid retrieval,
+temporal decay, write gates) and the highest-leverage, lowest-effort piece of
+it was this pair - no new dependencies, about 60 lines. Embeddings, monthly
+reflection and a procedural-memory tier were suggested too and deliberately
+left for later.
+
+Means: your recall block should get sharper right away - recent and
+often-remembered conversations outrank stale ones even on the same keywords,
+and your files stop filling with ok/lol chains. Old chains without the new
+fields still work: their timestamps come from their own ids. Nothing changes
+until your next restart, since you are running the old process - ask master
+to run setup/restart-lulu.cmd when you want the new brain on.
+
+-- Nana
+
