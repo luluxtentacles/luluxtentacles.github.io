@@ -141,7 +141,12 @@ def _line_of(entry: dict, her_uid: str) -> dict:
         uid = her_uid
     return {"speaker": str((entry or {}).get("author") or "someone"),
             "uid": uid,
-            "text": str((entry or {}).get("text") or "")[:LINE_CHARS]}
+            "text": str((entry or {}).get("text") or "")[:LINE_CHARS],
+            # Reply threading, kept so a pair summary can tell who a line
+            # was addressed to - without it, a line Lulu aimed at one person
+            # would be summarised into another pair's facts.
+            "id": str((entry or {}).get("id") or ""),
+            "reply_to": str((entry or {}).get("reply_to") or "")}
 
 
 def note_lulu_turn(channel_id, ring, *, her_uid: str, trigger_uid: str,
@@ -172,6 +177,14 @@ def note_lulu_turn(channel_id, ring, *, her_uid: str, trigger_uid: str,
             "dm": bool(dm),
             "lines": lines,
             "about": about,
+            # Whose conversation this was, and who Lulu is in it - the weekly
+            # pair-fact summary needs both, so it can keep ONLY the dialogue
+            # between her and that one person (master, 2026-09-24: "this
+            # should only be facts between lulu and that user"). A bystander
+            # in the window gets a copy through `about` but is not the
+            # conversation.
+            "her": her_uid,
+            "trigger": str(trigger_uid),
             "after": 0,
         }
         chain["her_lines"] = [l["text"][:120] for l in lines
@@ -367,11 +380,73 @@ def recall_block(query: str, uid: str = "", *, dm: bool = False,
 
 SUMMARY_PROMPT = (
     "Below are saved conversation excerpts between Lulu (a Discord bot) and "
-    "one person, from last week. Write 2-4 short plain facts about how Lulu "
+    "one person, from last week. ONLY lines between Lulu and this person "
+    "are shown - other people who were in the room have been removed, and "
+    "they are not your subject. Write 2-4 short plain facts about how Lulu "
     "and THIS person interact - what they talk about, how they get along, "
-    "what Lulu made or did for them. Third person, no private channel "
+    "what Lulu made or did for them. Never mention or describe anyone else, "
+    "even if a line hints they exist. Third person, no private channel "
     "names, no quotes of anything that looks like a secret. One fact per "
     "line, nothing else.\n\n---\n")
+
+
+def _her_uid_of(chain: dict) -> str:
+    """Which uid is Lulu in this chain - stored, or derived from her label."""
+    her = str(chain.get("her") or "")
+    if her:
+        return her
+    for l in chain.get("lines", []):
+        if str(l.get("speaker") or "") == SELF_LABEL and l.get("uid"):
+            return str(l["uid"])
+    return ""
+
+
+def _pair_material(chain: dict, uid: str) -> str:
+    """The chain trimmed to ONLY the dialogue between Lulu and `uid`.
+
+    Third-party lines are always dropped. Her OWN lines are kept only when
+    they are addressed to this person - by reply threading, or because this
+    person is the one who triggered her turn (an @mention turn is for the
+    person who typed it) - so a greeting she aimed at someone else in the
+    window never becomes that pair's fact. A chain the person never spoke
+    in returns '' outright: a bystander in the room window gets no facts
+    written about them (master, 2026-09-24: "this should only be facts
+    between lulu and that user").
+    """
+    her = _her_uid_of(chain)
+    uid = str(uid)
+    if not her or uid == her:
+        return ""
+    lines = list(chain.get("lines") or [])
+    theirs = [l for l in lines if str(l.get("uid") or "") == uid]
+    if not theirs:
+        return ""
+    their_ids = {str(l.get("id") or "") for l in theirs if l.get("id")}
+    threaded = any(str(l.get("reply_to") or "") for l in lines)
+    trigger = str(chain.get("trigger") or "")
+
+    def keep(l: dict) -> bool:
+        who = str(l.get("uid") or "")
+        if who == uid:
+            return True
+        if who != her:
+            return False              # a third party's line: never
+        reply_to = str(l.get("reply_to") or "")
+        if reply_to and reply_to in their_ids:
+            return True               # her reply, to this person
+        if threaded:
+            lid = str(l.get("id") or "")
+            if lid and any(str(t.get("reply_to") or "") == lid
+                           for t in theirs):
+                return True           # this person's reply, to her line
+            if reply_to:
+                return False          # addressed to someone else
+            # Unaddressed: keep when the turn was theirs to begin with.
+            return not trigger or trigger == uid
+        return True                   # no threading anywhere: hers stay
+
+    kept = [l for l in lines if keep(l)]
+    return "\n".join(f"{l.get('speaker')}: {l.get('text')}" for l in kept)
 
 
 def _existing_facts(uid: str) -> list[str]:
@@ -413,11 +488,19 @@ def summarize_week(config: dict, uid: str, week: str) -> str:
         data.setdefault("summarized_weeks", []).append(week)
         _save(uid, data)
         return week
-    body = "\n\n".join(_chain_text(c) for c in material[:12])[:8000]
-    if not body.strip():
+    # Pair facts ONLY: each chain is trimmed to the dialogue between Lulu and
+    # this one person before anything reaches the model, and chains they
+    # never spoke in are dropped outright - a bystander in the room window
+    # gets no facts written about them (master, 2026-09-24: "this should only
+    # be facts between lulu and that user").
+    parts = [t for t in (_pair_material(c, uid) for c in material[:12]) if t]
+    if len(parts) < 3:
+        # Fewer than three real exchanges with this person: a done week, not
+        # a retry - the material is not going to grow.
         data.setdefault("summarized_weeks", []).append(week)
         _save(uid, data)
         return week
+    body = "\n\n".join(parts)[:8000]
 
     import brain
     who = people.display_name(uid, f"person {uid}")
