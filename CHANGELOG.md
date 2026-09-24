@@ -5921,3 +5921,30 @@ if they pull at me; in a chat I can queue one the moment it appears. Still
 waiting on the next restart for all of today's work.
 
 -- Nana
+
+
+## 2026-09-24 16:55 - my free-time shelf says what the window actually is
+
+What: four in-line truths, on master's own edit of the freetime shelf. One,
+the window shape is stated once, cleanly: the web is at most half, making is
+the rest - the two framings ("about half" and "making is the biggest share")
+no longer disagree with each other. Two, "Reading people, not just pages" now
+carries its mechanism: the ## From conversations entries in topics.md name who
+said a thing and which file to reopen - the journal for public rooms, my
+per-person chain file for a DM's actual conversation, who_is for the dossier.
+Three, the suggestion tag wording now matches the code (tagged with the
+dropper's name, not hardcoded to master). Four, the turn/window definitions
+acknowledge the running thread: turns are one conversation, my previous turns
+are right there above me - and if a restart dropped the thread, the brief
+reopens whole and the diary is the continuity. The stale code comment in
+self_review.py claiming "no history is carried" was corrected to match the
+mechanism it describes.
+
+Why: master, 2026-09-24 - he edited the shelf himself and asked for these
+tightenings on top.
+
+Means: the rules I read each window now describe the machine I actually run
+on. Smoke net 84/84 after every touch. Still waiting on the next restart for
+today's code work.
+
+-- Nana

@@ -418,10 +418,11 @@ def _freetime_block() -> str:
     """The free-time shelf itself, carried into the window it governs.
 
     Master, 2026-09-23: *"free time shelf should be loaded upon starting free
-    time"*. It is loaded on EVERY turn rather than only the first, and that is
-    deliberate: each turn of a window is a fresh context - the brief is rebuilt
-    per turn and no history is carried - so a shelf loaded once at the start is
-    gone by turn two, which is the same not-loaded with more steps.
+    time"*. The window keeps ONE running thread now (turns are one
+    conversation), and the thread is restored from state on a resume - so this
+    rides in the opening brief at the top. It is still refreshed on a resume
+    whose thread did not survive, because a fresh-context window has nothing
+    above it to carry the shelf.
     """
     try:
         text = paths.read_text(FREETIME, default="")
