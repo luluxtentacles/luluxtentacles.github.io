@@ -666,6 +666,32 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "queue_topic",
+            "description": (
+                "Queue a research topic for a future window - MY choice, "
+                "offered every turn, never an obligation. When a conversation "
+                "genuinely intrigues me and deserves digging later, write the "
+                "topic as a sharp question in MY words. It lands on my topics "
+                "list (research/topics.md) tagged with WHO said the thing and "
+                "WHERE, plus a pointer back to the logs - the journal for "
+                "public rooms, my per-person chain file and their dossier for "
+                "DMs - so the window can reread the actual conversation "
+                "before writing about it. Only when something truly intrigues "
+                "me; this is not a summary of the conversation."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string",
+                              "description": "the topic, as a sharp question"},
+                },
+                "required": ["topic"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "free_time",
             "description": (
                 "When MY OWN TIME comes round again: whether a window is open "
@@ -2988,6 +3014,28 @@ def add_suggestion(text: str) -> str:
     return journal.add_suggestion(text, who=who or "master")
 
 
+def queue_topic(topic: str) -> str:
+    """A topic onto MY list, from MY intrigue - offered, never forced.
+
+    The attribution is not the model's to write: speaker, room and server
+    come from this turn's context, and the speaker's uid rides along so the
+    pointer reaches the per-person chain file and dossier - the stores a
+    freetime window can reread even when the conversation was a DM the
+    journal never saw.
+    """
+    topic = str(topic or "").strip()
+    if not topic:
+        return "nothing to queue - say the topic"
+    ctx = _ctx()
+    return journal.note_topic(
+        topic,
+        who=str(ctx.get("name") or "someone"),
+        room=str(ctx.get("channel") or ""),
+        server=str(ctx.get("server") or ""),
+        uid=str(ctx.get("user_id") or ""),
+    )
+
+
 def read_journal(day: str = "") -> str:
     """The summarised room record for a day, ON DEMAND.
 
@@ -4187,6 +4235,7 @@ DISPATCH = {
     "read_journal": lambda a: read_journal(a.get("day", "")),
     "write_diary": lambda a: write_diary(a.get("text", "")),
     "add_suggestion": lambda a: add_suggestion(a.get("text", "")),
+    "queue_topic": lambda a: queue_topic(a.get("topic", "")),
     "server_summary": lambda a: server_summary(a.get("week", "")),
     "read_said": lambda a: read_said(a.get("day", ""), a.get("room", "")),
     "search_mirror": lambda a: search_mirror(a.get("query", ""),

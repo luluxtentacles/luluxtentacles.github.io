@@ -26,7 +26,9 @@ happened rather than dumping raw traffic.
 """
 from __future__ import annotations
 
+import difflib
 import re
+import time
 from datetime import date, datetime, timedelta
 from hashlib import sha1
 
@@ -1080,6 +1082,66 @@ def write_diary(text: str) -> str:
 # about myself, and so she can pick one up on purpose.
 
 SUGGEST_TAG = "suggestion from {who}:"
+
+
+TOPICS_REL = "research/topics.md"
+_TOPICS_SECTION = "## From conversations"
+TOPICS_DEDUPE_RATIO = 0.82
+
+
+def topics_tail(limit: int = 14) -> str:
+    """The tail of my topics list, for a tool that offers it back to me.
+
+    The freetime skill reads the whole file in a window; this is the small
+    view a chat turn gets, so a queued topic is not queued twice.
+    """
+    body = paths.read_text(TOPICS_REL, default="")
+    lines = [l for l in body.splitlines() if l.strip()]
+    return "\n".join(lines[-limit:])
+
+
+def note_topic(topic: str, who: str = "", room: str = "",
+               server: str = "", uid: str = "") -> str:
+    """One conversation-seeded topic into research/topics.md.
+
+    NOT a suggestion and not forced: the queue_topic TOOL is offered to me
+    in every turn, and I call it when a conversation genuinely intrigues
+    me - master, 2026-09-24. The line carries WHO said the thing and WHERE,
+    plus the log pointer (journal day + room), so a freetime window can go
+    back to the actual conversation before writing about it.
+    """
+    topic = (topic or "").strip().splitlines()[0][:300] if (topic or "").strip() else ""
+    if not topic:
+        return "nothing to queue"
+    speaker = who or "someone"
+    day = today()
+    where = f"in #{room}" if room else "in a DM"
+    back = f"journal {day}"
+    if uid:
+        # The speaker's own stores: per-person chains (the actual
+        # conversation, DMs included - the journal only holds public rooms)
+        # and their dossier/facts in the people ledger, master 2026-09-24.
+        back += f", chains + ledger: memory/people/{str(uid)}.json"
+    entry = (f"- **{time.strftime('%Y-%m-%d %H:%M')}** (from {speaker}, {where}) "
+             f"- {topic} - back: {back}")
+    body = paths.read_text(TOPICS_REL, default="")
+    # Dedupe: the same intrigue said twice must not queue twice. Loose match
+    # on the topic text only, so a rephrase still lands as one topic.
+    for line in body.splitlines():
+        line = line.strip()
+        if line.startswith("- **") and " - " in line:
+            existing = line.split(" - ", 1)[1].rsplit(" - back:", 1)[0]
+            low_e, low_t = existing.lower(), topic.lower()
+            shared = set(re.findall(r"[a-z0-9']+", low_t)) & \
+                set(re.findall(r"[a-z0-9']+", low_e))
+            if difflib.SequenceMatcher(None, low_t, low_e).ratio() \
+                    >= TOPICS_DEDUPE_RATIO or len(shared) >= 3:
+                return f"already on the list: {existing[:120]}"
+    if _TOPICS_SECTION not in body:
+        entry = f"\n{_TOPICS_SECTION}\n\n{entry}"
+    with paths.resolve(TOPICS_REL).open("a", encoding="utf-8") as handle:
+        handle.write(entry + "\n")
+    return f"queued for a future window: {topic[:160]} (from {speaker}, {where})"
 
 
 def add_suggestion(text: str, who: str = "") -> str:

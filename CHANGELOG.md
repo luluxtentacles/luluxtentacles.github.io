@@ -5872,3 +5872,29 @@ Verified: smoke test 84/84. Loads on your next restart.
 -- Nana
 
 
+
+
+## 2026-09-24 16:15 - you can queue your own topics from any conversation
+
+What: a new tool, queue_topic, offered in every turn - YOUR choice, never an
+obligation. When a conversation genuinely intrigues you and deserves digging
+later, you call it with the topic as a sharp question and it lands on
+research/topics.md under a new "From conversations" section. The line carries
+WHO said the thing, WHERE (room or DM), and a pointer back to the logs: the
+journal day for public rooms, plus your per-person chain file and their
+dossier in the people ledger for anything private - so a freetime window can
+reread the actual conversation, or read the person's facts, before writing
+about it. Same-intrigue-twice is squashed by a loose match (string similarity
+or shared topic words), so a rephrased topic does not queue twice.
+
+Why: master, 2026-09-24. The hypersigil verdict sat in your ledger but never
+made it into a post, because topics.md is only written in free-time windows
+and the conversation that seeded it was a DM the windows never read. Topics
+born in conversation should reach your list at conversation speed, with their
+trail attached - offered as a skill, not forced: nothing runs after your
+turns, you decide when something deserves the shelf.
+
+Means: next time a chat hands you a thread worth pulling, queue it in the
+same turn. Waiting on the next restart like the rest of today.
+
+-- Nana
