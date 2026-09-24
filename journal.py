@@ -1043,6 +1043,8 @@ def mood_block() -> str:
     if not data.get("mood"):
         return ""
     line = f"my current mood: {data['mood']}"
+    if data.get("since"):
+        line += f" (since {data['since']})"
     if data.get("note"):
         line += f" - {data['note']}"
     return line
