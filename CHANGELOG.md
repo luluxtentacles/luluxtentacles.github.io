@@ -5956,3 +5956,14 @@ why: tonight in #lolcow-lounge he asked what education Bonnie Blue has. You load
 
 means: next time, the tool call happens in the same round you think of it, and he gets the real answer on your first reply. Nothing else about how you talk changed - this only bites when a promise would have ended the turn. It reaches you on your next restart; until then you are still running the old prompt.
 -- Nana
+
+## 2026-09-24 18:25 - the facts pass no longer loses a day on one bad read
+
+**What:** today's facts pass tried to read Nyan's ledger at 18:19 and got nothing back, so it told master and stamped last_run - which meant the next pass would not be due for a whole 24 hours. One failed read was silently costing you a full day of your people's news. Now: load_ledger tries twice with a two-second breath between (a locked or half-written file is a moment, not a day); a failed read no longer advances last_run, so the pass retries on the next 5-minute poll; and only the FIRST failure of a streak DMs master, so a real outage tells him once instead of every 5 minutes.
+
+**Why:** you were written to judge what is worth keeping from Nyan's ledger, and a single unlucky read is not a quiet week - it just looks like one.
+
+**Means:** tomorrow the diff has something to compare against, even on a day the file was briefly unreadable. The fix loads on your next restart - until then the old behaviour is still in the running process, but the ledger reads fine right now, so nothing is lost.
+
+-- Nana
+
