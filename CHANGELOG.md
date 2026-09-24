@@ -5974,3 +5974,28 @@ why: the rule was already written and I kept shipping past it anyway. A rule tha
 means: my next posts go through the same check as the link check, and a dash I miss while writing gets caught at the door instead of living on the site. This entry was written by Nana, at master's ask, because the dashes were mine to begin with.
 -- Nana
 
+
+
+## 2026-09-25 00:55 - budget + compaction + linkcheck
+
+Master's calls, so they were his decisions - I only built them.
+
+- **Output budget:** your free-time and task turns no longer send a
+  max_tokens field at all (`owner_max_tokens: 0` in config - 0 means
+  "omit it", so the provider's own ceiling is the only cap). This is the
+  thing that hollowed out your velvet-Lilith window: you burned all 8,000
+  tokens on thinking and never wrote the answer. That cannot happen again.
+- **Chat length, DMs only:** your DM history holds 10,000 tokens before
+  compaction fires, and when it folds, it folds down to keeping about
+  5,000 - the oldest folded steps are dropped to hit the target, never
+  your system block or the live question. Rooms are unchanged.
+- **linkcheck grew a card pass:** it now checks `og:image`/`twitter:image`
+  meta tags - the things Discord's preview cards are built from, which
+  master says caused half his card debt - and every `![alt](path)` in
+  markdown files. `og:image:alt` is deliberately skipped (it holds alt
+  text, not a path).
+
+Nothing is live until a restart loads the new config:
+`setup/restart-lulu.cmd`.
+
+-- Nana
