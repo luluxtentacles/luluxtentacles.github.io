@@ -378,6 +378,11 @@ CONTEXT_FLOOR_TOKENS = 4_000    # below this a "limit" is a bug, not a limit
 CONTEXT_CEILING_TOKENS = 2_000_000
 CONTEXT_COMPACT_AT = 0.80       # fold once the prompt is this full
 CONTEXT_KEEP_TAIL = 6           # newest messages always kept verbatim
+# Master, 2026-09-25: a DM's history holds 10,000 tokens (context_tokens_dm in
+# config), and when compaction fires it folds down to keeping about this much
+# rather than merely shaving the top off. Chat length only - it says nothing
+# about how long her ANSWER may be.
+DM_FOLD_TOKENS = 5_000
 # COMPACT_LINE_CHARS lives in bot_text.py now, beside _condense, its only user.
 COMPACT_MAX_LINES = 60          # the digest's own ceiling
 IMAGE_TOKENS = 1_200            # one picture, nominally - never its base64
@@ -634,6 +639,7 @@ def _digest_line(unit: list[dict]) -> str:
 def compact_history(turns: list[dict], limit_tokens: int, measured: int | None = None,
                     compact_at: float = CONTEXT_COMPACT_AT,
                     keep_tail: int = CONTEXT_KEEP_TAIL,
+                    fold_to: int | None = None,
                     ) -> tuple[list[dict], str]:
     """Fold the MIDDLE of a prompt into one digest once it nears the window.
 
@@ -645,6 +651,14 @@ def compact_history(turns: list[dict], limit_tokens: int, measured: int | None =
     received. When it is there it decides, because it is the truth about this
     window on this endpoint; the estimate is only for the first round, before
     anything has been sent.
+
+    `fold_to` is the size the RESULT should land at (master, 2026-09-25: a DM
+    folds down to keeping ~5,000 tokens, not just under the trigger). When the
+    folded result still measures above it, the oldest digest lines are dropped
+    until it fits or nothing is left to drop. The head - system prompt, her
+    memory, the live question - is never touched by this: folding away the
+    question to hit a number is not a trade, it is a bug, so a head that alone
+    exceeds fold_to simply keeps what it keeps.
 
     What is always kept:
       - the leading block up to and including the FIRST user message, which is
@@ -701,10 +715,31 @@ def compact_history(turns: list[dict], limit_tokens: int, measured: int | None =
 
     head_turns = [t for u in units[:head] for t in u]
     tail_turns = [t for u in units[tail_start:] for t in u]
+
+    # The fold-down target: when the folded result still measures above it,
+    # drop the OLDEST digest lines until it fits or nothing is left to drop.
+    # The head and tail are never touched - see the docstring.
+    if fold_to and fold_to > 0:
+        head_turns = [t for u in units[:head] for t in u]
+        tail_turns = [t for u in units[tail_start:] for t in u]
+        tail_est = estimate_tokens(head_turns) + estimate_tokens(tail_turns)
+        while shown and tail_est + estimate_tokens(
+                ["\n".join(shown)]) > fold_to:
+            shown = shown[1:]
+            dropped += 1
+        body = (f"[earlier in this turn, compacted to save room: "
+                f"{len(lines)} step(s) folded. You already did these - do not "
+                f"repeat them, and do not answer them as though they were new.]")
+        if dropped:
+            body += f"\n({dropped} older step(s) not repeated here)"
+        folded = [{"role": "system",
+                   "content": body + (("\n" + "\n".join(shown)) if shown else "")}]
+
     result = head_turns + folded + tail_turns
     note = (f"context compacted: ~{size} -> ~{estimate_tokens(result)} tokens "
             f"({len(middle)} step(s) folded, {dropped} not repeated), "
-            f"trigger {trigger} ({int(compact_at * 100)}% of {limit_tokens})")
+            f"trigger {trigger} ({int(compact_at * 100)}% of {limit_tokens})"
+            + (f", fold target {fold_to}" if fold_to else ""))
     return result, note
 
 
@@ -3411,6 +3446,8 @@ class Lulu(discord.Client):
                                     is_owner=is_owner,
                                     direct=isinstance(message.channel,
                                                       discord.DMChannel)),
+                                direct=isinstance(message.channel,
+                                                  discord.DMChannel),
                                 # Master (2026-09-24): her working-out posts to
                                 # DMs only. A shared room gets the answer and
                                 # nothing else, so a channel queues nothing.
@@ -3455,7 +3492,8 @@ class Lulu(discord.Client):
                   context_tokens=None,
                   progress_channel=None,
                   supersede_check=None,
-                  unlimited_rounds: bool = False) -> str:
+                  unlimited_rounds: bool = False,
+                  direct: bool = False) -> str:
         """Drive the tool loop until the model stops asking for tools.
 
         `max_tokens` is the per-call ceiling, handed straight to the provider. It
@@ -3519,7 +3557,8 @@ class Lulu(discord.Client):
                 turns, folded = compact_history(
                     turns,
                     context_tokens or context_limit(self.config.get("brain")),
-                    measured=prompt_this_round)
+                    measured=prompt_this_round,
+                    fold_to=DM_FOLD_TOKENS if direct else None)
                 if folded:
                     LOG.info(folded)
             except Exception as exc:

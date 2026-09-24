@@ -94,6 +94,16 @@ SKIP_DIRS = {".git"}
 ATTR_RE = re.compile(r"""\b(?:href|src|poster|data-src)\s*=\s*["']([^"']*)["']""", re.I)
 SRCSET_RE = re.compile(r"""\bsrcset\s*=\s*["']([^"']*)["']""", re.I)
 CSS_URL_RE = re.compile(r"""url\(\s*["']?([^"')\s]+)["']?\s*\)""", re.I)
+# The card debt. Discord's link preview (the "card") is built from the og:/twitter:
+# meta tags, whose URL lives in `content=`, not `src=` - so the attribute scan
+# above never saw one break. Master, 2026-09-25: "half my card debt came from
+# that". Both attribute orders are real HTML; match either.
+META_RE = re.compile(
+    r"""<meta\s+(?=[^>]*\b(?:property|name)\s*=\s*["'][^"']*(?:og:image|twitter:image)(?![:\w-])[^"']*["'])"""
+    r"""[^>]*\bcontent\s*=\s*["']([^"']*)["']""", re.I)
+# Markdown: inline images and links, `![alt](path)` / `[text](path)`. The url
+# stops at whitespace or `)`, so a title in the parens survives.
+MD_RE = re.compile(r"""!?\[[^\]]*\]\(\s*([^)\s]+)[^)]*\)""")
 SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.\-]*:")
 
 # External by scheme or shape. `#` is in here because a bare fragment is a jump
@@ -271,7 +281,32 @@ def crawl(root: Path) -> tuple[list[Finding], int, int]:
     for page in _files(root, (".html", ".htm")):
         pages += 1
         where = _rel(page, root)
-        for raw in _refs(_read(page)):
+        text = _read(page)
+        for raw in _refs(text):
+            links += 1
+            found = _judge(raw, where, root)
+            if found:
+                findings.append(found)
+        # The preview card. Built from meta tags, judged like any other link.
+        for raw in META_RE.findall(text):
+            links += 1
+            found = _judge(raw, where, root)
+            if found:
+                findings.append(found)
+
+    # The markdown half. Her notes and drafts are .md, and an image path that
+    # breaks in a note is the same break it would be on a page. Both markdown
+    # syntax and raw html inside md (ATTR_RE) are checked.
+    for page in _files(root, (".md",)):
+        pages += 1
+        where = _rel(page, root)
+        text = _read(page)
+        for raw in MD_RE.findall(text):
+            links += 1
+            found = _judge(raw, where, root)
+            if found:
+                findings.append(found)
+        for raw in _refs(text):
             links += 1
             found = _judge(raw, where, root)
             if found:
