@@ -315,7 +315,13 @@ def _brief(changes: dict, sweep_text: str, notes: list) -> str:
         "write_dossier - my dossier on a person is a page of PROSE, not a "
         "bullet list and not too short. Rewrite the whole page: everything I "
         "already knew that still holds, merged with what changed, in my own "
-        "words. name them as I know them.\n"
+        "words. name them as I know them. Open the page with ONE SHORT "
+        "PARAGRAPH bio - who they are, a few sentences - then a blank line, "
+        "then the page: the bio is what my room cards carry and is kept "
+        "outside the page's length. Only for people already CHANGED in this "
+        "diff - never rewrite pages for everyone, that wastes the token "
+        "budget. If a person only needs their who-they-are line refreshed, "
+        "write_bio is the cheap call.\n"
         "- one-line observations that do not deserve a dossier pass can still "
         "go in with learn_person - one fact per call, only about someone I "
         "have a page on.\n"
@@ -451,6 +457,48 @@ async def maybe_run(bot) -> bool:
     return True
 
 
+async def drain_queue(bot) -> bool:
+    """One job per poll off the ONE gemini queue, master 2026-09-25.
+
+    The free ladder is unreliable, so nothing here waits on anything: a job
+    is taken, tried once, and on any failure put back with a five-minute
+    retry stamp (gemini_queue.failed). She does not get the answer asap -
+    she gets it when the queue gets through. Success means the job LEFT the
+    queue; a turn that answered but wrote nothing is a failure, not a pass.
+    """
+    import gemini_queue
+    job = gemini_queue.due()
+    if not job:
+        return False
+    who = str(job.get("who") or "")
+    kind = str(job.get("kind") or "")
+    if kind != "bio":
+        LOG.warning("gemini queue: unknown job kind %r - dropped", kind)
+        gemini_queue.done(who)
+        return True
+    name = people.display_name(who, who)
+    brief = (
+        f"background queue: bring {name} (id {who})'s dossier into the "
+        "current format. who_is them first, then write_dossier: the whole "
+        "page I already have, merged and rewritten as one page of prose, "
+        "OPENED with one short paragraph bio (who they are, a few "
+        "sentences) then a blank line, then the rest. Change nothing else, "
+        "post nothing anywhere.")
+    try:
+        answer = (await run_turn(bot, brief) or "").strip()
+    except Exception as exc:
+        LOG.warning("gemini queue: %s (%s) turned over: %s", kind, who, exc)
+        gemini_queue.failed(who)
+        return True
+    if answer and people.dossier_has_bio(who):
+        gemini_queue.done(who)
+        LOG.info("gemini queue: %s %s migrated (tries %s)", kind, who,
+                 job.get("tries"))
+    else:
+        gemini_queue.failed(who)
+    return True
+
+
 async def watch(bot) -> None:
     """Poll forever. Free and idle until a pass is actually owed."""
     while True:
@@ -458,4 +506,8 @@ async def watch(bot) -> None:
             await maybe_run(bot)
         except Exception as exc:
             LOG.warning("facts pass failed: %s", exc)
+        try:
+            await drain_queue(bot)
+        except Exception as exc:
+            LOG.warning("gemini queue drain failed: %s", exc)
         await asyncio.sleep(POLL_SECONDS)

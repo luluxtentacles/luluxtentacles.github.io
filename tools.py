@@ -801,6 +801,28 @@ SCHEMA = [
     {
         "type": "function",
         "function": {
+            "name": "write_bio",
+            "description": (
+                "Write a person's ONE-PARAGRAPH bio - who they are, in a few "
+                "sentences. This is the paragraph that rides into my room "
+                "cards and who_is; the full dossier is the deep read. Write "
+                "the dossier's opening as this same paragraph, or refresh "
+                "just the bio here without touching the page. Leave 'who' "
+                "out to write it about whoever you are currently talking to."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": "one paragraph, a few sentences - NOT the whole dossier"},
+                    "who": {"type": "string", "description": "discord id or a name I know them by, or empty for the current speaker"},
+                },
+                "required": ["text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "set_my_name",
             "description": (
                 "Remember what someone wants to be CALLED, when they tell you - "
@@ -3226,6 +3248,27 @@ def write_dossier(who: str, text: str) -> str:
     return people.set_dossier(target, (text or ""))
 
 
+def write_bio(who: str, text: str) -> str:
+    """Write or refresh a person's ONE-PARAGRAPH bio.
+
+    The facts pass writes this as the dossier's opening; people.set_bio keeps
+    it separate so the paragraph rooms carry can be updated without rewriting
+    the whole page. 'who' is an id OR a name, like write_dossier.
+    """
+    target = (who or "").strip()
+    if not target:
+        ctx = _ctx()
+        if ctx["user_id"] is None:
+            return "who is this bio about?"
+        target = str(ctx["user_id"])
+    elif not target.isdigit():
+        hits = people.find(target)
+        if not hits:
+            return f"nobody in my ledgers matches '{target}'"
+        target = str(hits[0]["id"])
+    return people.set_bio(target, (text or ""))
+
+
 def set_my_name(name: str) -> str:
     """Remember what to CALL whoever is talking to me, because they said so.
 
@@ -4120,6 +4163,7 @@ def who_is(query: str) -> str:
     hits = people.find(query)
     if not hits:
         return f"nobody in my ledgers matches '{query}'"
+    whois_bio_chars = 700    # one paragraph, master 2026-09-25
     out = []
     for hit in hits:
         names = hit.get("names") or {}
@@ -4137,11 +4181,30 @@ def who_is(query: str) -> str:
         familiar = people.familiarity(hit["id"])
         if familiar:
             lines.append(f"  familiar: {familiar}")
+        if hit.get("bio"):
+            # The facts pass's one-paragraph bio - what rooms carry too.
+            lines.append("  bio: " + str(hit["bio"])[:whois_bio_chars])
+        elif hit.get("dossier"):
+            # A dossier written before the bio field existed: its first
+            # paragraph stands in. Not the whole page - the deep read 1-on-1
+            # carries the rest.
+            bio = next((p.strip() for p in str(hit["dossier"]).splitlines()
+                        if p.strip()), "")
+            if bio:
+                lines.append("  bio: " + bio[:whois_bio_chars])
         if hit.get("dossier"):
-            lines.append("  dossier:")
-            for para in str(hit["dossier"]).splitlines():
-                if para.strip():
-                    lines.append("    " + para)
+            rest = str(hit["dossier"]).strip()
+            if len(rest) > whois_bio_chars * 2:
+                lines.append("  dossier: [...the full page - deep read, 1-on-1, "
+                             "or their chain file]")
+            if not people.dossier_has_bio(hit.get("key")):
+                # First lookup of an old-format page: the readout above
+                # already answers from the first paragraph, and ONE background
+                # gemini job is queued to bring the page into the new format.
+                # Non-blocking - she reads the bio now either way.
+                people.queue_bio(hit.get("key"))
+                lines.append("  [their page is the old format - a background "
+                             "bio pass is queued]")
         if hit["facts"]:
             lines.append("  facts: " + " | ".join(hit["facts"][:5]))
         for key in ("likes", "dislikes", "interests"):
@@ -4222,6 +4285,7 @@ DISPATCH = {
                                          a.get("body", "")),
     "add_rule": lambda a: add_rule(a.get("skill_id", ""), a.get("rule", ""),
                                    a.get("triggers", "")),
+    "write_bio": lambda a: write_bio(a.get("who", ""), a.get("text", "")),
     "web_fetch": lambda a: web_fetch(a.get("url", "")),
     "mcp_list": lambda a: mcp_list(),
     "mcp_call": lambda a: mcp_call(a.get("server", ""), a.get("tool", ""),

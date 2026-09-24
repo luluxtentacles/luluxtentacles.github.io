@@ -5999,3 +5999,32 @@ Nothing is live until a restart loads the new config:
 `setup/restart-lulu.cmd`.
 
 -- Nana
+## 2026-09-25 01:10 - people pages: bio paragraph + one gemini queue + relevant facts
+
+Master's calls - I only built them.
+
+- **Every person now has a one-paragraph bio.** The dossier's opening
+  paragraph is stored as its own field and does NOT count against the
+  page's 8,000-character cap. Room cards and who_is carry just that
+  paragraph; the deep read (1-on-1) carries the whole page. Older pages
+  written before this fall back to their first paragraph, so nothing had
+  to be rewritten.
+- **First lookup queues an upgrade.** The first time an old-format page
+  is looked up, a background job is queued to bring it into the new
+  format. She reads the bio immediately either way - the queue is not a
+  wait, it is the upgrade.
+- **ONE gemini queue** (`gemini_queue.py`, memory/gemini_queue.json) for
+  all background requests: deduped jobs, five minutes a try, retried
+  until the job actually leaves the queue. The drain runs one job per
+  poll in her facts watcher - nothing waits on it, nothing is lost when
+  the free ladder has a bad day. New background work adds a job kind,
+  not a second queue.
+- **Keyword-relevant facts in prompts**, the way Nyan's memory_system
+  does it: facts across the whole ledger whose words (and prefixes -
+  postgres matches postgresql) match the conversation float into a
+  "people the conversation touches" block, so the room can talk ABOUT
+  someone who is not speaking.
+- **who_is no longer dumps a whole dossier** into a room: one bio
+  paragraph, up to five facts, and a pointer to the rest.
+
+-- Nana

@@ -3194,6 +3194,17 @@ class Lulu(discord.Client):
         if chain_block:
             turns.append({"role": "system", "content": escape_block(chain_block)})
 
+        # Relevant-people facts, keyword scored against this message - master,
+        # 2026-09-25: "keyword search for relevant facts for the conversation,
+        # like nyan does". When the room talks ABOUT someone who is not
+        # speaking, their card would never load; this is the net that catches
+        # them. Only words in the message decide what surfaces.
+        relevant = people.relevant_block(text)
+        if relevant:
+            turns.append({"role": "system", "content": (
+                "[people the conversation touches]\n"
+                + escape_block(relevant))})
+
         # The reply-quote is folded INTO the transcript rather than appended as
         # its own user turn - two user turns in a row is the exact shape this
         # change exists to remove.

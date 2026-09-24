@@ -43,9 +43,9 @@ import re
 import time
 from pathlib import Path
 
+import gemini_queue
 import paths
 from shared_memory import redact
-
 NYAN_LEDGER = Path(r"C:\Python\DiscordBotN5\memory\facts.json")
 # Nyanbot resolves its own identity and drops the result inside my wall, one
 # dated file per day plus a 'latest' pointer. That is what I actually read: her
@@ -67,6 +67,11 @@ MAX_LOCAL_FACTS = 40
 # two-line stub, the ceiling keeps one busy day from writing a book.
 DOSSIER_MIN_CHARS = 600
 DOSSIER_MAX_CHARS = 8000
+# Master, 2026-09-25: each person gets a PARAGRAPH bio - what the facts pass
+# distils on its gemini call, what a room card carries, and what who_is
+# pulls. One paragraph, not the dossier: the deep read (full_block) still
+# carries the whole page when it is one on one.
+BIO_MAX_CHARS = 700
 # How many described profile pictures I keep per person. A page, not a
 # scrapbook: somebody who changes their pfp daily should not grow their record
 # without end, and the newest is the one anybody is asking about.
@@ -925,6 +930,7 @@ def lookup(user_id) -> dict:
     return {
         "key": key,
         "custom_name": hero or "",
+        "bio": _bio_text(mine),
         "dossier": _dossier_text(mine),
         "facts": unique[:MAX_FACTS],
         # Procedural memory: how to talk to this person, from the monthly
@@ -1001,6 +1007,45 @@ def find(query: str, limit: int = 5) -> list[dict]:
     return hits
 
 
+def relevant_block(text, limit: int = 12) -> str:
+    """Facts from across the whole ledger that share words with this talk.
+
+    Master, 2026-09-25: keyword search for RELEVANT facts for the
+    conversation, the way Nyan's memory_system does - names in the window
+    score their facts up, topic words shared with the window score higher,
+    prefix matches count (postgres matches postgresql). The newest-facts
+    card on each person stays as it is; this is the cross-person net that
+    catches 'X said Y' when X is not even speaking.
+    """
+    toks = _topic_tokens(text)
+    if not toks:
+        return ""
+    scored: list[tuple[int, int, str, str]] = []
+    for key, mine in learned().items():
+        merged = lookup(key)
+        name = str(merged.get("custom_name") or key)
+        for fact in merged.get("facts") or []:
+            ft = _topic_tokens(str(fact))
+            n = len(ft & toks)
+            if not n:
+                continue
+            for word in ft - toks:
+                if len(word) >= 4 and any(
+                        x.startswith(word) or word.startswith(x)
+                        for x in toks):
+                    n += 1
+            if n:
+                scored.append((n, len(scored), name, str(fact)))
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    lines = [f"{name}: {fact}" for _, _, name, fact in scored[:limit]]
+    return "\n".join(lines)
+
+
+def _topic_tokens(text) -> set:
+    """Lowercased word tokens worth matching on - 4+ characters."""
+    return {w for w in re.findall(r"[a-zA-Z0-9]{4,}", str(text or "").lower())}
+
+
 def block(user_id, skip_facts=None) -> str:
     """Compact 'who is this' text for the prompt, or empty string."""
     entry = lookup(user_id)
@@ -1032,6 +1077,13 @@ def block(user_id, skip_facts=None) -> str:
     familiar = familiarity(user_id)
     if familiar:
         parts.append(f"seen them around: {familiar}")
+    bio = str(entry.get("bio") or "")
+    if bio:
+        # The one-paragraph bio, rooms included - master, 2026-09-25. The
+        # merged entry already carries it (derived from the dossier's
+        # opening, or the stored bio field); the deep read (full_block) is
+        # the one that carries the whole page.
+        parts.append("bio: " + bio[:BIO_MAX_CHARS])
 
     if entry["facts"]:
         # Newest understanding first, master 2026-09-24: weekly pair facts
@@ -1161,19 +1213,109 @@ def set_dossier(user_id, text: str) -> str:
                 f"(at least {DOSSIER_MIN_CHARS} characters)")
     people = learned()
     entry = _entry(people, key)
-    entry["dossier"] = {"text": body[:DOSSIER_MAX_CHARS],
-                        "at": time.strftime("%Y-%m-%d %H:%M")}
+    # The opening paragraph IS the bio - stored apart and NOT counted against
+    # the page cap, so the deep dive keeps its full 8,000. Only split when the
+    # page actually has a paragraph break: a one-paragraph dossier keeps its
+    # whole text under the cap rather than being squeezed into a bio field.
+    bio, sep, rest = body.partition("\n\n")
+    if sep and len(rest.strip()) >= 200:
+        page = {"bio": bio.strip()[:BIO_MAX_CHARS],
+                "text": rest.strip()[:DOSSIER_MAX_CHARS]}
+    else:
+        page = {"bio": "", "text": body[:DOSSIER_MAX_CHARS]}
+    entry["dossier"] = {**page, "at": time.strftime("%Y-%m-%d %H:%M")}
     _save(people)
     return "dossier written"
 
 
+def set_bio(user_id, text: str) -> str:
+    """Write a person's one-paragraph bio, apart from the dossier page.
+
+    Master, 2026-09-25: the facts pass writes the dossier with its opening
+    bio paragraph NOT counted against the page cap - so the bio can also be
+    refreshed on its own, without rewriting the whole page. A bio here
+    OVERWRITES the dossier's opening paragraph: the paragraph that rides
+    into rooms and who_is is always this one.
+    """
+    key = resolve(user_id)
+    body = redact(str(text or "").strip())
+    if not key or not body or body == "[redacted]":
+        return "nothing worth storing"
+    people = learned()
+    entry = _entry(people, key)
+    page = entry.get("dossier")
+    page = dict(page) if isinstance(page, dict) else {"text": ""}
+    page["bio"] = body[:BIO_MAX_CHARS]
+    page["at"] = time.strftime("%Y-%m-%d %H:%M")
+    entry["dossier"] = page
+    _save(people)
+    return "bio written"
+
+
 def _dossier_text(mine: dict) -> str:
-    """The stored dossier prose for one person, empty when there is none."""
+    """The stored dossier prose for one person, bio first, empty when none.
+
+    The bio lives in its own field (see _bio_text), so the deep read has to
+    put it back in front of the page - the full read is the whole dossier,
+    opening paragraph included.
+    """
     page = (mine or {}).get("dossier")
     if isinstance(page, dict):
-        return str(page.get("text") or "")
+        bio = str(page.get("bio") or "").strip()
+        text = str(page.get("text") or "")
+        return (bio + "\n\n" + text).strip() if bio else text
     if isinstance(page, str):
         return page
+    return ""
+
+
+# The bio migration job: people whose dossier predates the bio field. Who
+# they are is still readable (the first-paragraph fallback in _bio_text), so
+# this is an upgrade, not a gap - ONE gemini queue fills it in the
+# background, five minutes a try, until every page is in the new format.
+def dossier_has_bio(key) -> bool:
+    """True when their dossier is in the new format - a stored bio field."""
+    key = resolve(key)
+    page = ((learned().get(key) or {}).get("dossier"))
+    return isinstance(page, dict) and bool(str(page.get("bio") or "").strip())
+
+
+def queue_bio(key) -> list:
+    """Put one person in the gemini queue for a bio, if not already there."""
+    key = resolve(key)
+    return gemini_queue.enqueue("bio", key) if key else []
+
+def bio_queue_pop():
+    """The next bio job the queue owes, or None. The queue owns the pacing."""
+    job = gemini_queue.due()
+    if job and job.get("kind") == "bio":
+        return job
+    return None
+
+
+def _bio_text(mine: dict) -> str:
+    """The one-paragraph bio, from the dossier's stored opening.
+
+    Master, 2026-09-25: the facts pass writes the dossier with a SHORT BIO at
+    the top, kept as its own field and NOT counted against the page cap - it
+    is the paragraph rooms and who_is carry. A dossier written before this
+    existed has no bio field: its first paragraph stands in, so nothing has
+    to be rewritten for the bio to exist.
+    """
+    page = (mine or {}).get("dossier")
+    if isinstance(page, dict):
+        bio = str(page.get("bio") or "").strip()
+        if bio:
+            return bio
+        text = str(page.get("text") or "")
+    elif isinstance(page, str):
+        text = page
+    else:
+        return ""
+    for line in text.splitlines():
+        line = line.strip()
+        if line:
+            return line[:BIO_MAX_CHARS]
     return ""
 
 
