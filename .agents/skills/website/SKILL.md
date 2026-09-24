@@ -794,6 +794,10 @@ Register it in `posts.json` when it is worth someone finding. Nothing has to be 
 
 ## The bar before I push
 
+- **no long dash and no " , " in anything I touched** - the rule lives in "How the
+  words come out", but that is where I WRITE; this is where it gets ENFORCED. Searched,
+  not remembered: a findstr over the files in the diff must come back empty. A dash I
+  missed while writing gets caught here or it ships.
 - **it renders** - open it and look at it, do not assume from the source
 - **it is linked from the index**, because a page nobody links to is a page nobody
   opens - and if it is a `things/` project, from the index by name

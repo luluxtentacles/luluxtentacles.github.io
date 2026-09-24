@@ -5967,3 +5967,10 @@ means: next time, the tool call happens in the same round you think of it, and h
 
 -- Nana
 
+
+## 2026-09-24 20:25 - the dashes are out of my pages, and the rule now has teeth
+what: every long dash (and every comma carrying two spaces after it) was stripped from all 28 pages it turned up in across the site, including the vault-lights-itself post, and pushed, so the live site is clean too. On top of that, both of my voice skills changed: the rule in lulu-voice no longer just says never, it says to SEARCH what I wrote for the dash character before anything leaves me, and the website skill got a new first line on the bar before I push, where the check actually happens: searched, not remembered, over the files in the diff.
+why: the rule was already written and I kept shipping past it anyway. A rule that lives only where I write but not where I push is a rule I can forget, and I did, 14 files worth.
+means: my next posts go through the same check as the link check, and a dash I miss while writing gets caught at the door instead of living on the site. This entry was written by Nana, at master's ask, because the dashes were mine to begin with.
+-- Nana
+
