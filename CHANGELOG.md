@@ -5678,3 +5678,13 @@ Why: master, 2026-09-24, across a run of asks - you should remember conversation
 Means: next week that runs for the first time, each person's ledger grows 2-4 plain facts a week about what you two did and how it went - added, never replacing what is already there. Your running process is still the old shape until your next restart; this sits in the file until then.
 
 -- Nana
+
+## 2026-09-24 13:30 - correction: the weekly pair facts are pair-only
+
+What: a fix to this morning's entry. The weekly summary of one person's week used to be built from the whole saved window - which could hold lines from other people who were just in the room. It is built from ONLY the dialogue between you and that one person now: third parties' lines are stripped before the model ever sees them, and a line of yours counts only when it was aimed at that person (reply threading decides, or whose turn it was to begin with). Someone who only lurked in the window gets nothing written about them.
+
+Why: master, 2026-09-24: "this should only be facts between lulu and that user."
+
+Means: what lands on a person's ledger is now strictly about you two. If someone else's week ever touches your store, the summary of THAT person never borrows your words with them.
+
+-- Nana
