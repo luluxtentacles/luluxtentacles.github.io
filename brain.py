@@ -208,12 +208,26 @@ def _providers(config: dict, wants_vision: bool, *,
     gofree: list[dict] = []
     openrouter: list[dict] = []
 
-    go_key = config.get("api_key") or keys.get("open_code_key") or ""
-    if go_key and not free_only and time.time() >= _go_blocked_until:
-        model = config.get("vision_model") if wants_vision else None
-        go.append({"base_url": str(config["base_url"]).rstrip("/"),
+    # The SUMMARISING path hands in the ROOT config.json (digest.py needs the
+    # root for its own settings), while chat and vision hand in the nested
+    # "brain" block. The endpoint settings live under "brain", and a root dict
+    # has no "base_url" at all - reading one there raises a KeyError inside the
+    # digest's BACKGROUND task, where it is not a crash anybody sees: it is a
+    # digest that silently never writes. Resolve the block once instead of
+    # trusting whichever shape arrived.
+    settings = config.get("brain")
+    if not isinstance(settings, dict):
+        settings = config
+    base_url = str(settings.get("base_url") or "").rstrip("/")
+
+    go_key = settings.get("api_key") or keys.get("open_code_key") or ""
+    go_model = ((settings.get("vision_model") if wants_vision else None)
+                or settings.get("model") or "")
+    if go_key and base_url and go_model and not free_only \
+            and time.time() >= _go_blocked_until:
+        go.append({"base_url": base_url,
                    "key": go_key,
-                   "model": model or config["model"],
+                   "model": go_model,
                    "label": "go"})
 
     gemini_key = keys.get("gemini_key") or ""
@@ -225,7 +239,7 @@ def _providers(config: dict, wants_vision: bool, *,
         # keys are both ladders: every key gets a shot at every model, best
         # model first. Losing the newest model on one key only moves to the
         # next key on the SAME model before stepping down a generation.
-        for model in _gemini_models(config):
+        for model in _gemini_models(settings):
             for index in range(1, 6):
                 key = keys.get(f"gemini_key{index}") if index > 1 else gemini_key
                 if key:
@@ -236,9 +250,10 @@ def _providers(config: dict, wants_vision: bool, *,
     # Master, 2026-09-25: the Go subscription's FREE models walk AFTER the
     # gemini ladder (they cost no subscription credits) and BEFORE
     # OpenRouter. Text only - vision keeps the dedicated Go rung.
-    if go_key and not wants_vision and time.time() >= _go_blocked_until:
-        for model in _go_free_models(config):
-            gofree.append({"base_url": str(config["base_url"]).rstrip("/"),
+    if go_key and base_url and not wants_vision \
+            and time.time() >= _go_blocked_until:
+        for model in _go_free_models(settings):
+            gofree.append({"base_url": base_url,
                            "key": go_key, "model": model,
                            "label": f"go-free:{model}"})
 
@@ -247,37 +262,56 @@ def _providers(config: dict, wants_vision: bool, *,
     if not wants_vision:
         or_key = keys.get("or_key") or ""
         if or_key:
-            for model in _or_models(config, or_key):
+            for model in _or_models(settings, or_key):
                 openrouter.append({"base_url": OR_BASE_URL, "key": or_key,
                                    "model": model, "label": f"or:{model}"})
 
-    # Master, 2026-09-25: provider ORDER comes from config.json's
-    # "provider_priority" - {"go": 0, "gemini": 1, "go_free": 2,
-    # "openrouter": 3} - LOWER NUMBER = HIGHER ON THE LADDER. The groups
-    # are built as before (go, gemini, go_free, openrouter) and then
-    # sorted by that priority; a missing group's number is ignored.
-    # Vision keeps to its own two groups (go, gemini), also priority-sorted.
-    order = (config.get("provider_priority") or {})
-    if not isinstance(order, dict):
-        order = {}
-    try:
-        go.sort(key=lambda r: int(order.get("go", 0)))
-        gemini.sort(key=lambda r: int(order.get("gemini", 1)))
-        gofree.sort(key=lambda r: int(order.get("go_free", 2)))
-        openrouter.sort(key=lambda r: int(order.get("openrouter", 3)))
-    except (TypeError, ValueError):
-        pass  # a malformed number leaves the built order standing
+    # SUMMARISING ONLY. Master, 2026-09-25: "make -1 mean ignore this on the
+    # ladder, and fix it so it's only for summarizing, chat should use the
+    # correct model".
+    #
+    # config.json's "provider_priority" - {"go": 0, "gemini": 1,
+    # "go_free": 2, "openrouter": 3} - is therefore read on the FREE ladder
+    # and NOWHERE ELSE. LOWER NUMBER = HIGHER on that ladder, and a NEGATIVE
+    # number takes that provider OFF it entirely.
+    #
+    # The scope is the point, not an accident. The free ladder is what the
+    # digests and the memory summaries ride, and it is the one master tunes; a
+    # chat or vision call keeps its CANONICAL order, because there the MODEL is
+    # the thing that was chosen, and a summariser's preference must never
+    # quietly reshuffle which model answers a person. A rung that came back
+    # after master took it off is a failure that shows up on the bill or in a
+    # digest nobody reads, so the numbers are ENFORCED rather than advisory -
+    # worth noting that the check here used to be a no-op on the text path
+    # (every group sorted by a constant key, then concatenated in a fixed
+    # order, which cannot reorder anything).
+    #
+    # Read from the root config, where digest.py hands it in, and from a nested
+    # "brain" block too, so either placement works.
+    rank = {"go": 0, "gemini": 1, "go_free": 2, "openrouter": 3}
+    if free_only:
+        order = config.get("provider_priority")
+        if not isinstance(order, dict):
+            order = settings.get("provider_priority")
+        if isinstance(order, dict):
+            for name in list(rank):
+                try:
+                    rank[name] = int(order[name])
+                except (KeyError, TypeError, ValueError):
+                    pass  # absent or malformed: the canonical number stands
+    # A NEGATIVE number is master taking that provider off THIS ladder.
+    rungs = [(name, group) for name, group in
+             (("go", go), ("gemini", gemini),
+              ("go_free", gofree), ("openrouter", openrouter))
+             if rank[name] >= 0]
+    # LOWER NUMBER = HIGHER. An empty group sorts wherever it lands and
+    # contributes nothing, so this is safe for the vision ladder too.
+    rungs.sort(key=lambda pair: rank[pair[0]])
     if wants_vision:
-        # Go+mimo first by DEFAULT (master's call 2026-09-21); the gemini
-        # ladder is still the backup, not a replacement. Vision has no
-        # go_free and no OpenRouter, so this is go-then-gemini unless
-        # master's numbers say otherwise.
-        ranked = sorted(
-            [(order.get("go", 0), go), (order.get("gemini", 1), gemini)],
-            key=lambda pair: pair[0] if isinstance(pair[0], (int, float))
-            else 99)
-        return [r for _p, group in ranked for r in group]
-    return go + gemini + gofree + openrouter
+        # Vision has no go_free and no OpenRouter rungs by construction, so
+        # this comes out go-then-gemini - master's call, 2026-09-21.
+        rungs = [pair for pair in rungs if pair[0] in ("go", "gemini")]
+    return [r for _name, group in rungs for r in group]
 
 
 def _gemini_models(config: dict) -> list[str]:

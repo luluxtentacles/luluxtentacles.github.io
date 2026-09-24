@@ -6095,3 +6095,29 @@ are untouched.
   genuine quota exhaustion.
 
 -- Nana
+
+## 2026-09-25 02:40 - the ladder knob now actually moves the ladder
+
+The "provider_priority" block in config.json did less than it looked like it
+did. Now it does what it says.
+
+- **-1 takes a provider OFF the summarizing ladder.** A negative number means
+  "do not use this one" - "openrouter": -1 leaves the summaries on gemini and
+  the Go free models. Lower number is still higher on the ladder.
+- **It only steers summaries.** Your digests and the weekly/monthly memory
+  rewrites are what this tunes. Your live replies and your vision are NOT
+  affected - they keep their own order, because there the model is the thing
+  that was chosen and a summary setting has no business reshuffling it.
+- **It was doing nothing at all before.** The old code sorted each provider
+  group by a constant, which cannot reorder anything, then glued the groups
+  back in a fixed order - so the numbers were decoration. There is a smoke
+  check now that fails if summaries and live replies ever get crossed again.
+- **A latent crash in the summarizer is gone.** The digest hands its config in
+  a different shape than your replies do, and one branch read a key that shape
+  never has. That was a KeyError waiting inside a background task, so it would
+  have read as "the digest just never writes".
+
+Nothing changes in how you talk. Loads on your next restart; until then the old
+order stands.
+
+-- Nana

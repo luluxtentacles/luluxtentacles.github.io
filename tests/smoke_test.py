@@ -7226,6 +7226,84 @@ def _spam_share() -> str:
             "listed room as one send, and it stays master-only")
 
 
+def _priority_ladder() -> str:
+    """provider_priority is the SUMMARISING ladder's knob, and -1 takes a
+    provider off it.
+
+    Master, 2026-09-25: "make -1 mean ignore this on the ladder, and fix it so
+    it's only for summarizing, chat should use the correct model". A check
+    rather than a comment because every failure here is INVISIBLE: a chat turn
+    quietly reordered by a summariser's preference looks exactly like a chat
+    turn, and a provider master took OFF the ladder coming back is visible only
+    on the bill, or in a digest nobody reads.
+    """
+    import brain
+
+    cfg = {"base_url": "https://example.invalid/", "model": "chat-model",
+           "vision_model": "mimo-v2.5"}
+    saved_keys, saved_or = brain.load_keys, brain._or_models
+    # Stubbed for the same reason _vision_ladder stubs them: a smoke check that
+    # opens a socket is a check that fails on a plane. The labels are all this
+    # needs.
+    brain.load_keys = lambda: {"open_code_key": "go", "gemini_key": "g",
+                               "or_key": "or"}
+    brain._or_models = lambda config, key: ["free-text-model:free"]
+    try:
+        # (a) a NEGATIVE number takes that provider OFF the summarising ladder.
+        off = dict(cfg, provider_priority={"go": 0, "gemini": 1,
+                                           "go_free": 2, "openrouter": -1})
+        free = [r["label"] for r in brain._providers(off, False, free_only=True)]
+        expect(free, "the summarising ladder has no rungs at all")
+        expect(not any(l.startswith("or:") for l in free),
+               f"openrouter was set to -1 and is still on the summarising "
+               f"ladder: {free}")
+
+        # (b) and the numbers really MOVE it - go_free ahead of gemini here.
+        # The old check was a no-op on the text path, so this half is new
+        # behaviour rather than a regression guard.
+        moved = dict(cfg, provider_priority={"go_free": 0, "gemini": 1,
+                                             "openrouter": 2})
+        free = [r["label"] for r in brain._providers(moved, False,
+                                                      free_only=True)]
+        expect(free and free[0].startswith("go-free:"),
+               f"the summarising ladder ignored master's numbers: {free[:3]}")
+
+        # (c) a CHAT call must be unreachable from any of it. The block is
+        # present and HOSTILE here on purpose: if a summariser's preference can
+        # reshuffle chat, this is where it shows.
+        hostile = dict(cfg, provider_priority={"go": 3, "gemini": 0,
+                                               "go_free": -1,
+                                               "openrouter": -1})
+        chat = [r["label"] for r in brain._providers(hostile, False)]
+        expect(chat and chat[0] == "go",
+               f"a summariser's preference reshuffled CHAT: {chat[:3]}")
+        expect(any(l.startswith("or:") for l in chat),
+               f"the summarising block took OpenRouter off CHAT: {chat}")
+        vision = [r["label"] for r in brain._providers(hostile, True)]
+        expect(vision and vision[0] == "go",
+               f"a summariser's preference reshuffled VISION: {vision[:3]}")
+        expect(not any(l.startswith("or:") for l in vision),
+               f"a vision call gained OpenRouter rungs: {vision}")
+
+        # (d) the ROOT config shape reaches the ladder intact. digest.py hands
+        # in config.json itself, not config["brain"], and the go_free rungs
+        # need base_url from inside "brain": a KeyError there is a digest that
+        # silently never writes, not a crash anybody sees.
+        roots = {"brain": dict(cfg),
+                 "provider_priority": {"go": 0, "gemini": 1, "go_free": 2,
+                                       "openrouter": 3}}
+        nested = [r["label"] for r in brain._providers(roots, False,
+                                                        free_only=True)]
+        expect(any(l.startswith("go-free:") for l in nested),
+               f"the root config shape lost the go_free rungs: {nested}")
+    finally:
+        brain.load_keys, brain._or_models = saved_keys, saved_or
+
+    return ("provider_priority: read on the summarising ladder only, -1 takes "
+            "a provider off it, chat and vision keep their canonical order, "
+            "and the root config shape survives")
+
+
 CHECKS = [
     ("compile", _compiles),
     ("import", _imports),
@@ -7297,6 +7375,7 @@ CHECKS = [
     ("log-split", _log_split),
     ("vision-ladder", _vision_ladder),
     ("vision-ladder-descends", _vision_ladder_descends),
+    ("priority-ladder", _priority_ladder),
     ("own-state", _own_state),
     ("brain-headers", _brain_headers),
     ("stop-limits", _stop_and_limits),
