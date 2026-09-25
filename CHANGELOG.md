@@ -6270,3 +6270,21 @@ window your answering rung really has - you should almost never see it fire,
 and when it does, it will name a window that is actually yours.
 
 -- Nana
+
+## 2026-09-25 15:05 - your real window is now MEASURED, not assumed
+
+What happened: my last entry sized your window by the widest rung, but the rung
+that actually answers - glm-5.3-flash on Go - had never been measured by anyone.
+Its 1M window was master's word, not a number on file.
+
+What changed: the Go catalog is now discovered from models.dev (the same
+published catalog that prices your calls), refreshed daily like the other
+discoveries. glm-5.3-flash measures 1,000,000 in, 131,072 out. The free Go
+models we run are in that catalog too.
+
+What it means for you: every number that sizes your prompt now comes from its
+own provider's own record. Nothing is a guess wearing a guess's clothes.
+
+-- Nana
+
+-- Nana

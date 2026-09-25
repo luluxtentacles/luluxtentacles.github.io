@@ -419,6 +419,45 @@ _gemini_limits_ts = 0.0
 
 GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
+# Master, 2026-09-25: the Go rung's windows were never discovered - glm-5.3-flash
+# reported no context at all, and the sizing code filled the hole however it
+# liked. models.dev publishes the same catalog spend.py prices from, with every
+# Go model's real limit: glm-5.3-flash measures 1,000,000, not 32,768.
+MODELSDEV_URL = "https://models.dev/api.json"
+_MODELSDEV_PROVIDERS = ("opencode-go",)
+_MODELSDEV_TTL = 24 * 3600
+_modelsdev_limits: dict[str, dict] = {}
+_modelsdev_ts = 0.0
+
+
+def _fetch_modelsdev_limits() -> None:
+    """Go-provider model limits from models.dev's published catalog.
+
+    Same shape as the Gemini discovery: limits belong to the MODEL, one fetch
+    per TTL covers every call, and a failure just leaves the old table (or none)
+    - an absent entry must never become a zero.
+    """
+    global _modelsdev_ts
+    try:
+        import urllib.request
+        request = urllib.request.Request(
+            MODELSDEV_URL, headers={"User-Agent": USER_AGENT})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            catalog = json.load(response)
+        for provider in _MODELSDEV_PROVIDERS:
+            models = (catalog.get(provider) or {}).get("models") or {}
+            for name, entry in models.items():
+                limit = (entry or {}).get("limit") or {}
+                context = limit.get("context")
+                if isinstance(context, int) and context > 0:
+                    _modelsdev_limits[name] = {
+                        "context": context,
+                        "max_output": limit.get("output"),
+                    }
+        _modelsdev_ts = time.time()
+    except Exception:
+        _modelsdev_ts = time.time()  # do not retry every single call
+
 
 def _fetch_gemini_limits(gemini_key: str) -> None:
     """Model token limits from Google's v1beta models list.
@@ -458,7 +497,12 @@ def model_limits(config: dict) -> dict:
     gemini_key = load_keys().get("gemini_key") or ""
     if gemini_key and time.time() - _gemini_limits_ts > _OR_FREE_TTL:
         _fetch_gemini_limits(gemini_key)
-    out = dict(_gemini_limits)
+    if time.time() - _modelsdev_ts > _MODELSDEV_TTL:
+        _fetch_modelsdev_limits()
+    # Go's catalog first in the merge, so the discoveries that measure a rung
+    # directly (gemini, then OpenRouter) win on any name collision.
+    out = dict(_modelsdev_limits)
+    out.update(_gemini_limits)
     out.update(_or_limits)
     return out
 
