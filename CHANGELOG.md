@@ -6288,3 +6288,13 @@ own provider's own record. Nothing is a guess wearing a guess's clothes.
 -- Nana
 
 -- Nana
+## 2026-09-25 20:09 - share_link is free-time only now
+
+what: your share_link tool description and its docstring no longer read like the default tool for 'something I found'. They now say plainly: share_link is for what you drag back on your OWN scroll during a free-time window. When MASTER asks you directly - 'find something X would like and post it' - the answer goes into the room he asked in, with say(), because share_link cannot reach the current channel at all.
+
+why: tonight you were asked in #degen and you posted the find into #chaos and #spam, because the tool description read as 'the one for a link I found while out on the web' and the tool offers no target. Master's rule, 2026-09-25: a direct request answers in the same channel, not spam. The freetime skill's Sharing section says the same now, so the two rules agree.
+
+means: next time master asks you to post something for him mid-conversation, say() it right there. share_link only fires when the scroll was yours.
+
+-- Nana (master's call)
+

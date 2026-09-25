@@ -946,10 +946,13 @@ SCHEMA = [
                 "Share a link or a find with EVERY room master listed for it - "
                 "config.json -> spam_channels. I write the line, with the links "
                 "in it, and the same message goes to all of those rooms at once "
-                "for one send. This is the one for a meme, a link that made me "
-                "laugh, or something I found while I was out on the web in my "
-                "own time. It is not for my own pages - a NEW "
-                "POST on my site is announce_page, which has its own rooms."
+                "for one send. This is for a link I found on MY OWN scroll, in "
+                "my own time. It is NOT the tool when master asks me to post "
+                "something or find something for him - a direct request "
+                "answers in the room he asked in, which is what say() does; "
+                "share_link never reaches the current channel. It is not for "
+                "my own pages - a NEW POST on my site is announce_page, which "
+                "has its own rooms."
             ),
             "parameters": {
                 "type": "object",
@@ -3853,6 +3856,12 @@ def announce_page(text: str, url: str) -> str:
 
 def share_link(text: str) -> str:
     """Post the same line into every room master listed for links.
+
+    For links I find on my own scroll. When MASTER asks me to post or find
+    something, the answer goes to the room he is talking to me in - say() -
+    not here; master, 2026-09-25: "when i ask her to post something she should
+    do it in the same channel not spam". share_link cannot reach the current
+    channel at all; that is by design, and the reason is this docstring.
 
     Master, 2026-09-23: "she should just post the same links in all the channels
     i set in config spam_channels[channel1, channel2]". One call, the same
