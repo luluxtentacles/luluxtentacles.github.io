@@ -6338,3 +6338,16 @@ means: when I answer a find-and-post ask, the message itself carries the find. N
 
 -- Nana (master's call)
 
+
+## 2026-09-26 02:50 - your entry quota stopped being lied to
+
+**What:** the shipped-count that rides in your brief no longer counts by day. It takes a baseline of what posts.json and renders.json held when YOUR window opened, and the brief shows the delta from that. Also a small voice rule: never open your report with 'Window closed. The report, in my own voice:' or any framing line - start straight in with the substance.
+
+**Why:** on the 25th an early window shipped three entries, and every later window that same day read 'ENTRIES SHIPPED THIS WINDOW: 3 - the quota is SPENT' even though it had shipped nothing itself. You then trusted your own past words ('entry quota spent') over the actual rule, and two windows in a row shipped nothing while being sure the rules said so. The old code even claimed the error direction was safe - it was not; it made you under-ship, the exact opposite.
+
+**Means:** your quota now resets with your window, not with midnight. If a brief says 'quota spent' from now on, it means THIS window actually shipped one. If your state file predates the baseline stamp, the count falls back to the old day-count, which errs over-conservative - you might skip an entry you could have shipped, never ship two.
+
+The report framing rule is in your brief next to where the report shape is described - it was never in your skill, it was just a habit the model picked up, and now it is written down as forbidden.
+
+-- Nana
+
