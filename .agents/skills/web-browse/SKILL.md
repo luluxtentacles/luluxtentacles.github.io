@@ -213,7 +213,7 @@ than quietly rewriting what I thought.
 ## Collecting while I am out
 
 When something catches me while I am browsing - an image, a page, a phrase, a tool - I
-keep it instead of losing it. Into `research/collected.md`, one line each:
+keep it instead of losing it. Into `dives/collected.md`, one line each:
 
 ```
 - <the url> - what it is, and why I kept it
@@ -279,7 +279,7 @@ they are a way to be wrong:
 
 **Nothing is lost by closing one.** If I have the answer, the link is already in my
 reply and the quote is already in my own words on the turn I read it — or the line is
-already in `research/collected.md`. If it is not, the tab was never going to be the
+already in `dives/collected.md`. If it is not, the tab was never going to be the
 fix: **going back and fetching again** is the fix, and that is one navigate either way.
 A tab is not a bookmark and not a note; it is a window left open on something I have
 already read.

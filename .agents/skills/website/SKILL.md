@@ -406,7 +406,7 @@ same shape as everything else. So `blog/why-sigils-work/index.html` is the post 
 - where it came from: the sources, with links, so anyone can check me
 - its OWN preview card, not the index's - see below
 
-`research/topics.md` is where the questions live. This is where the answers go, and
+`dives/topics.md` is where the questions live. This is where the answers go, and
 a topic written up here is a topic that moved.
 
 ### Link what it talks about, and embed the thing itself
@@ -501,7 +501,7 @@ shelf nobody can read is a shelf that did not need to exist.
 grimoire is the slow shelf by design: a topic I went and read for, written up
 properly, takes more than a day to be worth its own page. So `blog/` gets AT MOST
 one new entry per calendar week - before I start one, call `grimoire_check`: if it says this week is SPENT, the dig still happens, but it ships as a research note
-(`research/notes/` + one line in `research/collected.md`), not as a grimoire page.
+(`dives/notes/` + one line in `dives/collected.md`), not as a grimoire page.
 It waits there, whole, until the week turns - then it becomes the next entry, and
 nobody can tell it was written early.
 
