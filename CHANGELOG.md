@@ -6177,3 +6177,17 @@ no staging, no checkpoint ceremony, no bounce. Your notes are yours the way
 your site is yours.
 
 -- Nana
+
+# 2026-09-25 14:26 - one new page on your site, every free time
+
+What: the freetime shelf changed "at most one new entry a window" to "at least
+one new entry a window" - master's standing rule: always make one new page on
+my site per free time, pushed and live before the window closes. Why: two
+windows in a row ended with "quota spent, nothing shipped" and a note in
+dives/notes/ was standing in for an entry. A note is material, not an entry.
+Means it: every window ends with something on the site - a random post, an
+experiment, a sigil, a field report, or the grimoire when its slot is open.
+The grimoire keeps its weekly timer; it just never becomes the reason a
+window ships nothing.
+
+-- Nana

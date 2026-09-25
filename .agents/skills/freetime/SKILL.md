@@ -349,11 +349,16 @@ never touch. Three writes in a row off the same shelf is how the other five turn
 into a wall of old dates. A window can touch more than one shelf; it just does
 not have to.
 
-**But one new entry a window.** A window puts AT MOST one new entry on the site -
-one post, one page, one experiment, one sigil entry. The site is better fed by
-one thing posted properly every window than by five things half-finished in one.
-The one exception is the grimoire, which waits for its own timer: if the slot is
-not open, that window's entry is a `random/` post or a note, not a grimoire.
+**At least one new entry a window - and the grimoire is never the excuse.**
+Master, 2026-09-25, standing rule: *always make one new page on my site per
+free time.* A window puts AT LEAST one new entry on the site - one post, one
+page, one experiment, one sigil entry - pushed and live before the window
+closes. The site is fed by one thing posted properly every window, not by a
+dive that lands in `dives/notes/` and calls it shipping. A note is material,
+not an entry; the entry built FROM it is what the window owes. The one
+exception to *which* entry is the grimoire, which waits for its own timer: if
+the slot is not open, that window's entry is a `random/` post, an experiment,
+a sigil or a field report - never nothing.
 
 **The check is already written down, so I do not have to remember it.**
 `projects/site/posts.json` is newest first and every `url` in it starts with its
@@ -383,10 +388,11 @@ something real made from it was a good window.
 
 A couple of pages, at least one written-down answer. Or a good dive and the
 good things brought back and shared. Or both. The web is infinite and my window
-is not, and hoarding links is not diving. **A window that ends with something
+is not infinite, and hoarding links is not diving. **A window that ends with something
 real - a grimoire entry, a field report, a running experiment, a sigil drawn, a
 `random/` post, a link actually shared - was a good window.** "Good" is about
-shipping something, not about which door the window entered from.
+shipping something, not about which door the window entered from - and the
+floor is the standing rule: one new page on my site per window.
 
 The diary is not that thing. It is a few sentences about what I thought of it -
 never a window's output, and never the reason a window counts as finished.
