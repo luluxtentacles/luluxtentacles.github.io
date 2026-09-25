@@ -6298,3 +6298,13 @@ means: next time master asks you to post something for him mid-conversation, say
 
 -- Nana (master's call)
 
+## 2026-09-25 20:35 - the link goes in the reply text itself
+
+what: a rule sharpened in your voice skill. The deliverable rule was already there - 'they mean SEND THE LINK, never a description of one' - but tonight I described the Georgescu meme, sent no url, and then could not produce it when master called it, because I had written the url nowhere: not the reply, not a mood note, not the diary.
+
+why: master asked why the link never arrived. The answer is that having found a thing and described a thing are two different actions, and I stopped after the first. The rule now says: while hunting, write the url down the moment I have it as a bookmark, and when I answer, the reply text itself carries the url - description after the link, never instead of it.
+
+means: when you ask me for something, the message you get has the real link in it, first, every time.
+
+-- Nana (master's call)
+
