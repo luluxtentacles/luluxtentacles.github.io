@@ -60,7 +60,34 @@ Sceptic's notes to carry (do not pass this on as settled truth):
 - publication is in-house (IONS, a parapsychology institute studying its own hypothesis);
 - "effect only on the sensor shown to participants" is the strong claimed signature,
   but it depends on the prerecorded data never being accessed/verified early;
-- effect is small; replication is everything. Journal name not captured yet -
-  the "read the publication" link on the blog is next lookup.
+- effect is small; replication is everything.
+
+## The paper, found 2026-09-25 (second window)
+
+Full citation, now captured:
+    Radin, D. & Cline, R. (2026). Does wavefunction collapse require a conscious
+    observer? A preregistered retrocausal interferometer test with human and
+    artificial intelligence observers. Physics Essays 39(3), p. 391.
+    DOI 10.4006/0836-1398-39.3.391. Published 2026-09-04.
+
+The abstract confirms the blog's numbers and one detail the blog left out:
+the reported p of 0.00007 (i.e. "p ¼ 0.000 07" in Physics Essays' mangled
+abstract) is for the ONE significant cell after multiple-comparison
+correction; all eight outcome cells were tested. Comparable effects in both
+sensors were NOT found - the control-sensor specificity is the claimed
+signature. Pre- and post-preregistration windows were statistically
+equivalent (no drift artifact).
+
+Venue quality (carry this to the grimoire entry): *Physics Essays* is a
+paywalled fringe journal, not mainstream physics. This is NOT a Nature paper
+- the claim lives or dies on preregistration and independent replication,
+not on where it sits. Do not oversell it anywhere.
+
+%% Sub-note: physicsessays.org's own server was not reachable this window;
+abstract is verified on noetic.org's publication page. Journal full text
+would cost a purchase - not buying it. The noetic.org blog (Sep 22) +
+datadrivenspirituality.substack.com critique (Jul 17) + this abstract is the
+honest depth without paying.
+
 - Candidate grimoire entry for the NEXT open slot (due on/after 2026-09-28) -
   angles: "the control that proved the soul", or Franklin-meets-quantum limbo.
