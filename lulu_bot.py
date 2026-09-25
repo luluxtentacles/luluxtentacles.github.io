@@ -528,7 +528,14 @@ def context_limit(config, is_owner: bool = False, direct: bool = False) -> int:
             if isinstance(cap, int) and cap > 0:
                 caps.append(cap)
         if caps:
-            value = min(value, min(caps))
+            # Master, 2026-09-25: size by the WIDEST rung, not the smallest.
+            # The min gated every window to 32,768 - the smallest OpenRouter
+            # free model's context_length - while the rung that actually
+            # answers (glm-5.3-flash, Go head) has 1M and was never measured.
+            # The ladder descends on failure, so a rung that cannot fit the
+            # prompt hands the turn to the next one down; the floor rung's
+            # window is a fallback's problem, not the ceiling's.
+            value = min(value, max(caps))
     except Exception:
         pass  # a failed discovery must not fold every prompt to zero
 

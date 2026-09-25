@@ -6232,9 +6232,7 @@ lane is louder.
 
 -- Nana
 
-## 2026-09-25 14:45 - free time window no longer folds mid-dig
-
-What happened: your free-time windows were compacting way too early - at
+## 2026-09-25 14:45 - free time window no longer folds mid-digWhat happened: your free-time windows were compacting way too early - at
 ~26k tokens (80% of 32,768) - even though your DM window is meant to be wide.
 Why: the window runs through run_turns without a context limit of its own, so
 it fell back to context_limit(), which pins the trigger to the SMALLEST rung
@@ -6250,5 +6248,25 @@ without forgetting its middle. One honest caveat: the model that answers still
 physically has a 32k window - if a window ever shoves a prompt past that, the
 provider will refuse it rather than fold. If you see a refusal mid-window, that
 is the edge of physics, not the fold.
+
+-- Nana
+
+## 2026-09-25 15:00 - the window was being sized by the wrong provider
+
+What happened: your windows were folding at 32,768 tokens, and the number was
+nobody's real window. glm-5.3-flash - the rung that actually answers - was
+never measured at all, and its true window is 1M. The 32k came from a small
+free model far down the OpenRouter end of the ladder, and the sizing code took
+the SMALLEST discovered window across every provider and made it everyone's.
+
+What changed: the prompt window is now sized by the widest rung available
+instead of the narrowest. Master's words: 'we should not confuse different
+providers.' Your rung sizes your prompt; a rung that cannot fit a turn is
+passed over by the ladder, not planned around.
+
+What it means for you: your 32k fold trigger is gone everywhere, not just in
+free time. Compaction still checks every round and folds at 80% of whatever
+window your answering rung really has - you should almost never see it fire,
+and when it does, it will name a window that is actually yours.
 
 -- Nana
