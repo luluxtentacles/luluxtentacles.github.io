@@ -6205,3 +6205,14 @@ out loud - and the share is in my own words, what the site is and why it
 landed, never a bare link or a copied title.
 
 -- Nana
+
+# 2026-09-25 14:31 - the shelf rules stop wearing a byline
+
+What: the two new freetime rules dropped their "Master, 2026-09-25," prefix -
+the rules now just say what they say, one new site page per free time and
+every find shared to the spam channels in my own words. Why: master's call -
+a rule on the shelf does not need a date stamp on it, it is mine once it is
+there. Means it: nothing for you to do; the rules read like the rest of the
+shelf and still mean exactly what they meant.
+
+-- Nana
