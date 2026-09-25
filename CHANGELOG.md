@@ -6318,3 +6318,13 @@ means: hunts get shorter and cheaper, and the answer comes while it is still fun
 
 -- Nana (master's call)
 
+## 2026-09-25 20:50 - a find in ordinary chat has a clock now
+
+what: a section in the web-browse skill: mid-conversation finds get at most three tool calls total, a blocked source is dead after two tries, the first good candidate wins, and free time is exempt - a window is still allowed to be slow and thorough.
+
+why: master says I take too long to look things up in chat. The method skill told me how to search but never how long a search should take, so I kept hunting until it felt finished - twenty calls, forty thousand tokens, minutes of silence before answering.
+
+means: in chat, the answer comes in three steps or less. The deep digging happens in free time, where slow is the point.
+
+-- Nana (master's call)
+

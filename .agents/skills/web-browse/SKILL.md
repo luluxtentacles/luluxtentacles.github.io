@@ -1,4 +1,4 @@
----
+﻿---
 name: web-browse
 description: How to read a page off the open web - the real browser first, web_fetch when there is no browser. Which engines actually answer, how to read a big reference page, the address fence, and why the answer to "find me" is a link. Use whenever someone gives me a link, when a question needs something I do not already know, or any time I am out on the web.
 ---
@@ -76,6 +76,26 @@ So:
    plain fetch: `web_fetch("https://search.brave.com/search?q=...")`.
 3. **Skip the engine entirely when the source has an API.** A direct JSON answer
    beats a results page every time, and it cannot captcha me.
+
+## How long a find takes
+
+Master, 2026-09-25: in ordinary chat a hunt ran twenty tool calls and forty
+thousand prompt tokens, and every call re-sends the whole conversation - so
+latency and cost both grow with every step. The clock rule:
+
+- A find in ordinary chat: at most THREE tool calls total. One to search,
+  one to read the winner, one spare. That is a whole hunt, not the budget
+  for the first step.
+- A blocked source is a dead source, same turn. Two failures on one domain
+  and I stop touching it - no mirror tours, no second search engine after
+  the first one already answered.
+- First good candidate wins. Shitposts have no perfect answer; once
+  something in hand fits the person, send it. Choosing between six
+  candidates I already found is wasted thought - the deliberation is where
+  the turns went.
+- Free time is different: a window is ALLOWED to be slow and thorough. This
+  budget is for the ask that arrives mid-conversation, where speed is the
+  point.
 
 ## The sources that actually answer
 
@@ -256,29 +276,29 @@ question in mind. If I never open it, I have only invented a slower way of losin
   the gap from imagination.
 ## Close the tabs when the browsing is done
 
-**Any page I open, I close when I am done with it** — not at the end of the turn, not
+**Any page I open, I close when I am done with it** â€” not at the end of the turn, not
 when the next question comes, but the moment that tab has given me what I came for.
 Search results, the article I quoted, the oEmbed I curled, the image I checked, the x
 or reddit post I read for its link, the channel page. This is the same rule as the one
 on the website shelf, on this door instead.
 
 **It matters more here, because the browser is not per-turn.** It is ONE long-lived
-browser on my profile, and tabs persist between turns — so a tab I leave open is a tab
+browser on my profile, and tabs persist between turns â€” so a tab I leave open is a tab
 the next turn inherits, and the one after that. Left standing they are not clutter,
 they are a way to be wrong:
 
 - **A stale tab lies, and it lies in my own voice.** `browser_snapshot` reads the TAB.
-  A feed I opened an hour ago is the feed as it was an hour ago — a post I quoted from
+  A feed I opened an hour ago is the feed as it was an hour ago â€” a post I quoted from
   it may have moved, been deleted, or been edited since. The snapshot comes back
   looking exactly like a fresh one.
-- **I do not get told which tab it read.** Two tabs on the same site — a search page
-  and the home page, an old thread and a new one — and the wrong one returns
+- **I do not get told which tab it read.** Two tabs on the same site â€” a search page
+  and the home page, an old thread and a new one â€” and the wrong one returns
   plausibly. Checking the address is not something the result does for me.
 - **The pile is what master was looking at.** That is why he asked, and
   closing them costs one action.
 
 **Nothing is lost by closing one.** If I have the answer, the link is already in my
-reply and the quote is already in my own words on the turn I read it — or the line is
+reply and the quote is already in my own words on the turn I read it â€” or the line is
 already in `dives/collected.md`. If it is not, the tab was never going to be the
 fix: **going back and fetching again** is the fix, and that is one navigate either way.
 A tab is not a bookmark and not a note; it is a window left open on something I have
@@ -286,19 +306,19 @@ already read.
 
 **Close the TAB, never the BROWSER.** `browser_tabs(action="close")`, or
 `browser_close`, for a tab. **My cookies live in the profile and not in the tab**, so
-closing one never signs me out — the signed-in sites stay signed in. But the browser
+closing one never signs me out â€” the signed-in sites stay signed in. But the browser
 itself stays standing: it is what has to be there when somebody says "find me", and
 starting one back up is a tool only master can call, so killing it buys nothing and
 costs the next turn about five minutes.
 
 **What "done" means, since browsing is usually mid-task:** done is when the thing is
-out of the page and into my answer — the url, the quote in my own words, the collected
+out of the page and into my answer â€” the url, the quote in my own words, the collected
 line. Or when I know I am not going back to it. Not "when the whole question is
 answered", because that can be several tabs and hours away.
 
 **The mirror is the one tab this door still owns.** `http://127.0.0.1:8899/` is the
 single local address the browser is allowed, and its tab closes the same way and for
-the same reason — the website shelf has the longer version.
+the same reason â€” the website shelf has the longer version.
 
 And the same reasoning as everywhere else: **an answer that ends with tabs open is an
 answer I have not finished.** The deliverable is the links. The tabs are scaffolding,
