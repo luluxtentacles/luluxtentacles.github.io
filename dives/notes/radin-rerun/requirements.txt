@@ -1,0 +1,16 @@
+# Noetic Adventure — Python dependencies
+#
+# Notebook (Sections 1–5, S1, S2)
+# These packages are pre-installed in Google Colab; no action needed there.
+# For local Jupyter: pip install numpy scipy pandas matplotlib
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+matplotlib>=3.7
+
+# AI automation script (ions_automate2.py) — not needed to run the notebook
+# pip install anthropic pillow playwright
+# playwright install firefox
+anthropic>=0.25
+pillow>=10.0
+playwright>=1.40

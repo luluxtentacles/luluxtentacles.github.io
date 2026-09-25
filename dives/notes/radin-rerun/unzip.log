@@ -1,0 +1,19 @@
+Archive:  ../NoeticAdventure_colab.zip
+  inflating: arrays_4000.csv         
+  inflating: datatestA.csv           
+  inflating: datatestB.csv           
+  inflating: fix_zenodo_url.py       
+  inflating: ions_automate2.py       
+  inflating: load_arrays.py          
+  inflating: load_sessions.py        
+  inflating: map_section_to_columns.py  
+  inflating: noetic_adventure_analysis.ipynb  
+  inflating: plot_cumulative_z.py    
+  inflating: plot_ensemble.py        
+  inflating: plot_factorial.py       
+  inflating: plot_lag_sweep.py       
+  inflating: plot_odds.py            
+  inflating: regression_residual.py  
+  inflating: requirements.txt        
+  inflating: sessions_out.csv        
+  inflating: sessions_out_AI.csv     

@@ -1,0 +1,1064 @@
+Page 1 of 40 
+ 
+Does wavefunction collapse require a conscious observer? A preregistered retrocausal 
+interferometer test with human and artificial intelligence observers 
+Dean Radin1*, Ron Cline2 
+1 Institute of Noetic Sciences, 7250 Redwood Blvd., Suite 208, Novato, California 94945, USA 
+2 Senior Member, IEEE, 128 Cascade Dr., Fairfax, CA 94930 
+* Correspondence: dradin@noetic.org 
+ 
+Abstract 
+The von Neumann–Wigner framework holds that wavefunction collapse is incomplete until a 
+conscious observer intervenes. Wheeler argued that measurement choices can be deferred until 
+after a photon transits the apparatus. Together, these ideas raise fundamental questions: What is 
+an observer, and when does observation become definite? To investigate, diffraction-grating 
+data recorded months before human observation drove an online animated candle flame across 
+1,000 human and 1,000 AI-agent sessions. Sessions alternated ten 30-second intention epochs 
+(intending flame dimming) and ten relax epochs. One first-order diffraction spot drove the 
+display; the other served as an unobserved control. Participants were blind to the control and 
+prerecording; assignments were randomized. The observed sensor was regressed against the 
+unobserved sensor, and slopes compared via label-swapping permutations. Of eight possible 
+outcomes, only the human-observed-intention cell was significant after multiple-comparison 
+correction (p = 0.00007). AI agents showed no effect. Pre- and post-preregistration windows 
+were statistically equivalent. These results suggest an effect of human consciousness rather than 
+hardware drift or analytical artifacts.  
+ 
+Keywords: Quantum measurement problem; V on Neumann-Wigner interpretation; 
+wavefunction collapse; retrocausation; consciousness; observer effect; AI agent; preregistered; 
+delayed-choice; optical interferometer 
+Page 2 of 40 
+ 
+1 Introduction 
+1.1 The measurement problem 
+The question whether consciousness plays a role in collapse of the quantum wavefunction is 
+among the oldest unresolved problems in the foundations of physics. In the von Neumann–
+Wigner framework, physical systems evolve continuously and deterministically under the 
+Schrödinger equation but discontinuously and irreversibly when a measurement is performed 
+[1,2]. The theory itself is silent on what constitutes a measurement, and von Neumann argued 
+that the “cut” between quantum and classical descriptions can be placed anywhere along the 
+chain, from observed system to apparatus to nervous system to mind, without altering empirical 
+predictions. London and Bauer located the cut at the moment a conscious observer becomes 
+aware of an outcome [3]. Wigner elevated this into a positive thesis by proposing that the 
+equations of quantum mechanics cease to be linear when conscious beings enter the picture, and 
+the mind itself selects a definite branch of the superposition [4]. Wigner later expressed 
+reservations about this position, partly in response to the Wigner's-friend solipsism problem and 
+also out of growing sympathy with objective-collapse alternatives [5]. Thus, we use “von 
+Neumann–Wigner” (vN-W) in its now-standard sense as a label for an interpretive position, 
+rather than as a claim about Wigner's later position. 
+Three broad objections have been raised against the vN-W interpretation. The conceptual 
+objection is that introducing consciousness as a physical agent appears to violate parsimony or 
+it leads to solipsism [6–8]. The biophysical objection is that the macroscopic apparatus through 
+which any photon must pass, i.e. cornea, retinal layers, photoreceptor isomerization, ganglion 
+spike trains, etc., provides ample opportunity for objective state reduction long before any 
+signal reaches awareness [9]. The interpretive objection, developed by French among others, 
+holds that the London-Bauer analysis is better read as concerning the correlation between 
+observer and observed within a Husserlian framework, rather than as the physical collapse 
+mechanism Wigner later attributed to it [3,10].  
+Despite such objections, several quantitative consciousness-collapse models have been 
+developed, including Stapp's quantum-Zeno-effect proposal in which conscious attention 
+extends the lifetime of selected neural states [11]; the Chalmers-McQueen integration of 
+Page 3 of 40 
+ 
+integrated information theory with continuous spontaneous localization, which produces 
+explicit empirical predictions [12], and related quantitative proposals from Kent [13], 
+Kremnizer and Ranchin [14], and Okon and Sebastián [15]. Several recent quantitative models 
+have sharpened the hypothesis into testable form [16]. The present design addresses this 
+concern directly. If human and AI agents produce statistically equivalent results on the observed 
+sensor, then the vN-W prediction would be disconfirmed. 
+In addition, the foundations literature has slowly returned the observer to serious consideration. 
+Frauchiger and Renner showed in 2018 that contradictions arise when quantum theory is 
+applied consistently to observers who themselves contain observers [17]. A Nature survey of 
+more than 1,100 physicists in 2025 found that nine percent of respondents held that a 
+measurement specifically requires a conscious observer, about the same order of magnitude as 
+support for Bohmian mechanics [18]. Nicolas Gisin recently emphasized the stakes: “If 
+someone does the [consciousness-collapse] experiment and gets a surprising result, the reward 
+is enormous. It would be the first time we as scientists can put our hands on this … problem of 
+consciousness” [19]. 
+1. 2 Empirical literature 
+Theoretical discussions and empirical tests of the consciousness-collapse question have been 
+reported for over a half-century [20,21]. Beloff and Evans (1961) asked if observers could 
+influence radioactive decay from a sodium iodide source [22]. Hall, Kim, McElroy, and 
+Shimony (1977) reasoned that if person A’s observation collapsed an event's wavefunction, then 
+person B might be able to subjectively detect that collapse. Their main study of 544 trials gave 
+results exactly at chance, although a similar study they mentioned, using cobalt-57, yielded 40 
+hits in 67 trials (p < 0.07) [23]. 
+A more systematic empirical program using devices based on quantum randomness was 
+launched by Schmidt in 1970 and later pursued by many researchers [24], including a multi-
+decade research program at Princeton University [25]. A meta-analysis of those studies reported 
+a small magnitude effect at 6.8σ beyond chance (p < 10⁻¹¹) with no evidence of selective 
+reporting or obvious methodological flaws [26]. A later meta-analysis on a subset confirmed a 
+small effect at 4.1σ (p < 2.1 × 10⁻⁵) but flagged three large-scale studies showing deviations 
+Page 4 of 40 
+ 
+opposite to the direction of intention [27]. The authors attributed the results to publication bias, 
+but independent reanalyses argued that this could not explain the outcomes [28,29]. 
+More recent experiments have explicitly tested the vN-W proposal using optical interferometers 
+[30–37]. These studies asked participants to mentally obtain which-path information about 
+photons in the apparatus, or to intentionally influence the path that the photons travelled. Across 
+roughly 30 experiments at six labs, 14 tests were reportedly statistically significant (two-tailed 
+p < 0.05), giving a cumulative binomial probability below 10⁻¹⁰. Significance counting is only 
+suggestive, but an independent review concluded that collectively these experiments seemed to 
+provide positive evidence of a weak interaction between consciousness and quantum systems 
+[38], and several other experiments using different designs have shown similar effects [39,40]. 
+Vigorous debates over interpretations and methods have ensued [41–43], and in parallel a 
+theoretical literature has developed mathematical formalisms within orthodox quantum 
+mechanics that propose to account for observation-dependent retrospective correlations without 
+requiring departures from standard quantum theory [44–46].  
+1.3 The present study 
+The present experiment extended this line of research in three ways. First, it used a diffraction 
+grating interferometer instead of a double-slit arrangement, providing a more straightforward 
+way to analyze the hypothesized observer effect than methods required by double-slit 
+interference patterns. Second, it incorporated an AI-agent comparison arm run on identical 
+hardware, software, and analysis pipelines, providing a within-apparatus control that directly 
+tested if whatever produces a purported human observer effect is specific to human conscious 
+experience. Third, the retrocausal design, using prerecorded sensor data to drive the 
+participant’s interface to the optical apparatus, eliminated by construction the possibility that 
+classical environmental coupling between participant and apparatus could explain the results. 
+Together these features sharpened the empirical question about the consciousness-collapse 
+concept.  
+Page 5 of 40 
+ 
+2 Materials and Methods 
+2.1 Hardware 
+The optical apparatus consisted of an ultra-low-noise diode laser (Coherent ULN module, 635 
+nm, 5 mW, circular beam, RMS noise < 0.06% from 10 Hz to 10 MHz) directed through a 
+transmission diffraction grating (Thorlabs GT25-06V , 600 grooves/mm, 28.7° groove angle, 25 
+× 25 mm) mounted on a Thorlabs optical breadboard. Two Thorlabs PM100D power meters 
+were positioned at the +1 and −1 first-order diffraction spots. These components were arranged 
+as shown in Figure 1. 
+The blazed grating on the transmission grating meant it had asymmetric groove faces that 
+concentrated diffraction efficiency into one particular order at the expense of the other. This 
+asymmetry resulted in a ~4:1 power ratio (2.4 mW vs 0.6 mW) in the two sensors. This 
+asymmetry was selected to provide two distinct photon-flux conditions within the same 
+apparatus. 
+ 
+Page 6 of 40 
+ 
+ 
+Figure 1. Implementation of the optical diffraction system. 
+ 
+We computed signal-to-noise ratio directly from 10 representative raw experimental recordings 
+(total of 10 hours). The lower-power diffraction spot (mean 0.608 mW) yielded SNR = 65.8 dB 
+(range 59–73 dB across files), with RMS noise of 0.34 µW (0.056% of mean power). The 
+higher-power spot (mean 2.423 mW) yielded SNR = 72.3 dB (range 64–75 dB), with RMS 
+noise of 0.63 µW (0.026% of mean power). Both figures are consistent with or better than the 
+manufacturer's specification of <0.06% RMS over 10 Hz–10 MHz. The low-frequency (0–1 
+Hz) band sampled at 2 Hz did not appear to add substantial 1/f noise beyond published 
+specifications. These measured SNR values confirm that classical intensity noise, while the 
+dominant noise source, did not preclude detection of systematic slope differences via the 
+regression-residual method. 
+
+Page 7 of 40 
+ 
+2.2 Software 
+Optical power and detector temperature were recorded by the Thorlabs Optical Power Monitor 
+application (v6.1.4945.765_NSIS) at 2 Hz. The web app used to run the experiment online was 
+implemented in React.js (framework), Tailwind CSS (for page styling), and Redux toolkit (for 
+API Integration). The mobile versions were implemented using React Native (a mobile app 
+cross-platform framework), Redux Toolkit (for API integration), Async Storage (for session 
+storage), and React Native Web view (for the animations). The backend was Express.js (Nodejs 
+Framework), MongoDB (database), BullMQ (for managing Jobs and Queues), Redis (memory 
+cache), AWS Elastic Beanstalk, and an AWS S3 bucket (for images and audio). Deployment for 
+the web app was Netlify, Google Play Console for the Android app, and the Apple App Store 
+for the iOS app.  
+All data analyses were written in Matlab R2025b with assistance by Claude Code (Opus 4.7). 
+The data and Python-based analytical scripts are available on Zenodo.com, and the analyses can 
+be run on Google Colab (see details in the Data Availability section). 
+2.3 Sensor data preprocessing 
+Optical power data were recorded continuously at 2 Hz. To allow for thermal and mechanical 
+stabilization, the first 50 minutes of each recording session were discarded. The remaining data 
+were segmented into sequential 1,200-sample (10-minute) arrays. The higher-power channel 
+(~2.4 mW) was assigned to an “A” array and the lower-power channel (~0.6 mW) to a “B” 
+array.  
+Each 10-minute array was then detrended and z-score normalized to remove slow thermal drift. 
+Processed segments were stored as column pairs labeled as A1/B1, A2/B2, …. The 
+observed/unobserved sensor assignment alternated across pairs (i.e., A1, B2, A3, B4, …), so 
+neither physical sensor was systematically privileged. 
+None of the raw or processed sensor data were observed by the experimenters before any 
+participant ran a session, and participants were unaware that the experiment used a retrocausal 
+design or that the data driving the candle animation alternated between sensors across sessions. 
+Page 8 of 40 
+ 
+Raw sensor data were recorded from June 7, 2025 to April 13, 2026 in a total of 73 recording 
+sessions ranging from about 50 minutes to 18 hours, with a median of 6.6 hours. 
+2.4 Online experiment design 
+User interface. The user interface resembled a simple adventure game accessible via a web 
+browser or an iPhone, iPad, or Android device. In twenty alternating epochs of 30 seconds each, 
+users were asked to view a dynamically animated candle flame (see Figure 2), while mentally 
+intending that the flame become dimmer (intention assignment), or to withdraw their attention 
+when the flame was uniformly dim and static (relax assignment). The assignment to “intend” 
+was used to actively support the user’s sustained attention. By comparison, a more passive 
+instruction, such as "gaze at the flame," would have invited mind-wandering [47,48]. 
+During each intention epoch, a cloud-like shape next to the flame resolved into a discernible 
+word (selected at random out of a pool of 500 pre-set words) when the flame dimmed. An 
+ambient soundscape volume also varied with the flame’s brightness.a During the following 
+relax epoch, the user was asked to select that same word out of four alternatives. This served as 
+an attentional engagement task, whereby at least 9 of 10 words had to be correctly identified to 
+be included in the formal analysis. 
+  
+ 
+a Healing Sounds: Frequencies II, “Reiki Chants,” by Jonathan Goldman, healingsounds.com 
+Page 9 of 40 
+ 
+ 
+ 
+ 
+Figure 2. The upper left image is a snapshot of a moment during an “intention” epoch, with a 
+bright animated candle flame near a cloud-like shape. The upper right shows the candle when 
+the flame dims, whereupon the adjacent cloud coalesces into a more easily visible word. The 
+bottom panel shows the screen in the following “relax” epoch, where the user is asked to select 
+the word that they saw. 
+The flame brightness, soundscape volume, and word visibility were all driven by prerecorded 
+data from the observed first-order spot. The unobserved spot's data played no role in the 
+participant's experience. Note that the terms observed and unobserved refer to the sensor data 
+played back during a session, whereas intention and relax refer to the attentional assignments 
+within a session. 
+To encourage repeated participation, a leaderboard displayed the session score, which was the 
+sum of data array values during the intention epochs minus the sum in the relax epochs, with 
+the most negative sum at the top (because the task was to make the flame dimmer). After a user 
+successfully completed the first session with at least 9 out of 10 words correctly identified, an 
+option was given to proceed to another “gate.” The experiment consisted of seven gates, each 
+
+Page 10 of 40 
+ 
+with different background imagery and flame styles, but the underlying experimental design 
+was identical in each case. The leaderboard displayed the cumulative score of all valid trials 
+across all gates contributed by each user.  
+Questionnaire and consent. At registration, participants agreed to an informed consent and 
+completed a questionnaire covering demographics, education, Big Five personality [49], 
+meditation experience, interest in traditional magical practices, self-rated creativity, insight 
+experience, and a 10-item paranormal belief scale. Then they started a test session. The protocol 
+was approved by the Institute of Noetic Sciences Institutional Review Board (document 
+RADD_226_01). 
+Website backend. Investigators uploaded a datafile containing arrays of the preprocessed sensor 
+data to the web host server, in the form described above (e.g., a matrix 1200 × 1500, where each 
+row contained sensor sample data, and each column corresponded to a unique session). When a 
+user started a session, the web program selected the next unused array and used it to drive the 
+candle animation at 2 Hz, the same rate as the original data recording. With 1200 samples per 
+array, a single run took 10 minutes.  
+Data downloaded from the website consisted of one row per user, with columns containing user 
+IDs, anonymizing codes, optionally contributed email addresses, when each session began, 
+what “gate” number was run, the score for that run, the ten words presented in the session, how 
+long it took the user to select the word, and whether it was correct. The preregistered analysis 
+specified that only completed sessions with 9 of the 10 words correctly answered were part of 
+the formal database. 
+Data integrity. Because the data arrays used to drive each session were recorded (but 
+unobserved) months before playback, and each array was identified by a code number, all 
+analyses used the array code to refer to the original data array, which was stored offline. Checks 
+of per-session scores determined by the web app detected no anomalies suggestive of attempts 
+to tamper with the online code or database. 
+Page 11 of 40 
+ 
+2.5 AI observer 
+An AI observer was implemented via Claude Code (Opus 4.6, version: 2.1.74) to simulate a 
+human session at the browser level. The agent (a) viewed the same animated candle a human 
+would see, sampling flame brightness on a 0-10 scale using a Claude vision API (Opus 4.6) five 
+times per intention epoch within a defined region of interest, (b) read the cloudy word during 
+the intention epoch via a separate vision-API call (Haiku 4.5), and (c) selected the matching 
+word during the following relax epoch using Playwright for Python with Firefox. The same 9-
+of-10 word criterion used to qualify human sessions was applied to the AI sessions. After each 
+session a report file was written listing recorded brightness values and word identifications per 
+epoch (see Figure 3). 
+  
+ 
+Figure 3. Example report written by an AI agent upon completing a session. 
+The AI provided two controls: It tested if information extraction by a (presumably) non-
+conscious system would reproduce results similar to humans, and it also provided a way to 
+independently vet the online display and analysis pipeline, which were identical for human and 
+AI sessions, to test if those methods generated spurious results.  
+
+Page 12 of 40 
+ 
+The AI agent read the secret word via repeated vision-API calls throughout the intention epoch, 
+submitting a word-identification call for each screenshot frame and selecting the plurality 
+candidate once three or more confident votes accumulated, which was typically within the first 
+several seconds of the epoch. Word reading was not conditioned on any observed brightness 
+trend; the brightness assessments (five samples at fixed intervals) and word-identification calls 
+ran in parallel threads with no dependency between them.  
+2.6 Primary hypothesis 
+The metric of interest was the linear slope of illumination at each sensor during the ensemble 
+means of the intention and relax epochs, based on a gradual-decline pattern reported in a prior 
+experiment [43]. Four slopes were computed for each cohort (human, AI), yielding eight test 
+cells. The consciousness-collapse hypothesis was that the human × observed × intention cell 
+would be significantly negative. The other seven cells were predicted to be null. 
+A negative slope during the intention epochs would mean that the z-scored optical power at the 
+observed sensor decreased progressively over the 30-second epoch window, consistent with the 
+hypothesis that sustained conscious intention gradually reduced the first-order diffraction 
+intensity, as predicted by the vN-W wavefunction-collapse hypothesis. A flat or positive slope 
+during relax epochs served as a within-session control. If the effect was specific to intentional 
+engagement, then the relax slopes should not drift downward. 
+2.7 Preregistered analysis 
+Fixed analysis parameters were established based on January–March 2026 pilot data, including 
+(1) a session-qualification criterion of at least 9 of 10 words correctly identified, (2) a 5-second 
+delay due to the cognitive cost of attention-switching between the intention and relax 
+assignments [50] (based on observations in similar experiments [28,31]), and (3) all sessions 
+completed across all gates (see https://osf.io/6qutr/registrations). 
+The preregistration was prospective with respect to the stopping rule (1000 qualified sessions 
+by humans and AI) and to the final analysis criteria, but not with respect to all human data 
+collection. Therefore, the result should be regarded as a preregistered analysis of a partly pre-
+existing dataset, with a pre/post equivalence analysis serving as a safeguard against investigator 
+Page 13 of 40 
+ 
+analytical tuning. We also note that the AI sample size was increased from 500 to 1000 after 
+preregistration to match the statistical power afforded by the 1000 session human trials. 
+Because both sensors measured light from the same laser, they shared a common noise 
+component. To isolate observation-specific signal, the observed sensor was regressed on the 
+unobserved sensor (observed = b₀ + b₁× unobserved + residual). The residual represented 
+observed-channel activity not explained by shared laser fluctuations. Each session was then 
+divided into ten alternating one-minute blocks, where each block comprised a 30 s intention 
+epoch followed by a 30 s relax epoch. Within each block, the first 5 s of each half were 
+discarded to account for cognitive lag, leaving 25 s per epoch. A linear slope was fitted to each 
+25 second segment, yielding 1000 sessions × 10 epochs/session = 10,000 paired slope 
+measurements for intention epochs, and the same for relax epochs. 
+The preregistered analysis asked if the intention-relax slope difference was significantly 
+negative. To accomplish this, the intention/relax labels were swapped within blocks across 
+5,000 permutations to build a chance distribution. The actual difference was then compared to 
+the null distribution to yield a one-tailed p-value. Operating on block-level slopes rather than 
+raw samples made the test robust to within-epoch autocorrelations. The same battery of tests 
+was applied to the unobserved sensor as a built-in control. 
+3 Results 
+3.1 Participants 
+Some 295 unique individuals contributed to the 1,000 qualifying human sessions. Mean age 
+was 37.0 (sd 13.0, range 14–63); 161 were male, 127 female, 6 “other”, and 1 missing entry. 
+Education ranged from high school through doctoral degrees; 92.5% reported at least one 
+experience of insight; 69.2% had a regular meditation practice [mean 13.8 years]; 19.3% 
+reported interests with traditional magical practices; and mean self-rated creativity was 79.5 of 
+100. Most participants were from the United States (N = 182) and Canada (N = 15). 
+None of the paranormal belief, demographic, or practice variables predicted performance after 
+correction for multiple comparisons. The only nominally significant predictor was the Big Five 
+trait of openness (r = −0.119, p = 0.043), where a negative correlation corresponded to better 
+Page 14 of 40 
+ 
+task performance (the observed spot slope declining). As the only interesting result in an 
+exploratory panel of 26 candidate variables, this outcome is suggestive pending replication. 
+3.2 Qualified sessions 
+As of April 25, 2026, the number of sessions recorded and included were as follows in Table 1. 
+The original target for AI sessions was 500 sessions (powered at 80% to detect the human effect 
+size of Cohen's d = 0.035). We subsequently raised that target to 1,000 AI sessions to match the 
+human cohort and provide equal statistical power for the comparison. The stopping rule 
+remained chronological, the first 1,000 qualifying sessions by date. 
+For the qualifying human sessions, correct responses to select the word during the relax epochs 
+were faster than incorrect responses, with means of 34.4 s vs. 40.7 s respectively, a mean 
+difference of 6.3 seconds (Welch t(169) = 12.38, p < 10⁻²⁵, Cohen's d = 2.36). Given that word-
+selection options appeared after the 30 second intention epoch, these times correspond to 
+decision latencies of ~4 s for correct responses and ~10 s for incorrect responses, a pattern 
+consistent with genuine effortful memory retrieval rather than arbitrary clicking. 
+  
+Page 15 of 40 
+ 
+Table 1. Qualified sessions required to achieve the preregistered 1000 sessions each for human 
+and AI observers, as of April 25, 2026. 
+ 
+Human AI 
+Total sessions recorded 1,543 1,233 
+Excluded: fewer than 10 epochs completed 152 17 
+Excluded: fewer than 9/10 words correct 203 142 
+Qualifying sessions 1,188 1,074 
+Excluded: collected after preregistered target reached 188 74 
+Analyzed 1,000 1,000 
+ 
+3.3 Preregistered tests 
+The preregistered regression-residual analysis was applied to the first 1,000 qualifying human 
+sessions (recorded January 31 to April 25, 2026) and the first 1,000 qualifying AI sessions 
+(recorded March 20 to April 22, 2026). Three permutation tests (5,000 iterations each) were 
+applied to the regression residual: (a) for the observed sensor the intention, the slope vs. zero 
+was calculated, (b) the relax slope vs. zero, and (c) the intention-relax difference via within-
+block label swap. The same tests were applied to the unobserved sensor. 
+Human cohort. At the preregistered lag of 5 s, the residual intention vs. relax slope was −4.13 × 
+10⁻⁴, p = 0.0002, indicating a reliable decline at the observed sensor during intention epochs, 
+confirming prediction 1 (see §S2 for other lags). The residual relax slope vs. zero was +1.13 × 
+10⁻⁴, p = 0.830, consistent with the expected null. The intention-relax difference was −5.27 × 
+10⁻⁴, p = 0.0016 in the per-block test and p = 0.0014 in the ensemble test (Cohen's d = −0.030). 
+Figure 4 shows the intention and relax ensemble slopes separately, along with comparison to 
+the permuted null distributions. 
+ 
+Page 16 of 40 
+ 
+ 
+Figure 4. Humans as observers. (Top) Intention (Int) and relax (Rel) ensemble slopes for 
+observed and unobserved sensors. (Bottom) Intention and relax slopes compared to permuted 
+null distributions. 
+The per-block test and ensemble test addressed complementary questions. Because block 
+denoted one intention/relax pair, the per-block test treated each block's slope difference as the 
+unit of analysis and asked if the distribution of all 10,000 such differences departed from a 
+within-block label-swap null. This was sensitive to whether the effect appeared consistently at 
+the block level. By comparison, the ensemble test averaged across every block and session into 
+a grand-mean intention curve and a grand-mean relax curve; it asked if the slope of the resulting 
+50-sample aggregate (the intention and relax epochs were each 25 samples) departed from a 
+time-shuffled null, and as such it was sensitive to a coherent linear trend in the averaged time 
+course. These two tests can disagree in principle, but concordance across both, as observed 
+here, provided stronger evidence than either one alone. The parametric ensemble fit yielded 
+slope p = 1.3 × 10⁻⁴, R² = 0.246. 
+For the unobserved sensor the intention slope was −1.23 × 10⁻⁴, p = 0.069; the relax slope 
+was +9.5 × 10⁻⁵, p = 0.825; and the intention-relax difference was −2.18 × 10⁻⁴ (per-block p 
+= 0.113, ensemble p = 0.110). Prediction 2 was therefore satisfied at the α = 0.05 threshold. The 
+borderline significant intention slope is addressed in the Discussion section. 
+AI cohort. The residual intention slope was −2.3 × 10⁻⁵, p = 0.501; the residual relax slope 
+was −1.50 × 10⁻⁴, p = 0.083; the intention-relax differential was +1.27 × 10⁻⁴ (per-block p 
+
+Page 17 of 40 
+ 
+= 0.785, ensemble p = 0.790, Cohen’s d = +0.008). The unobserved-sensor tests were equally 
+null (intention slope p = 0.325, relax slope p = 0.287, differential per-block p = 0.543, d 
+= +0.001). Prediction 3 was thus confirmed: AI agents produced no detectable signal on any 
+preregistered measure. Figure 5 shows the AI agent intention and relax ensemble slopes 
+separately, along with comparison to the permuted null distributions. 
+ 
+Figure 5. AI agent as observer. (Top) intention and relax ensemble slopes for observed and 
+unobserved sensors. (Bottom) Null distributions in relationship to the intention and relax 
+slopes. 
+3.4 Exploratory power-level dependence 
+Sessions were stratified by the power level of the observed sensor, yielding 493 sessions with 
+the high-power channel observed, and 507 sessions with the low-power channel observed. The 
+intention-relax slope difference for the high-power channel was non-significant: intention slope 
+= -2.53 × 10⁻⁴, relax slope = -2.3 × 10⁻⁵, paired t(4929) = -1.02, p = 0.307, Cohen's d = -0.015. 
+Permutation tests on the ensemble curves confirmed the null, with intention slope p = 0.123, 
+relax slope p = 0.895. When the low-power channel was observed, the intention-relax slope 
+difference was significant, with the intention slope = -5.91 × 10⁻⁴, relax slope = +2.38 × 10⁻⁴, 
+paired t(5069) = -3.04, p = 0.002, Cohen's d = -0.043. Permutation tests on the ensemble curves 
+gave intention slope p = 0.0002, relax slope p = 0.095. 
+
+Page 18 of 40 
+ 
+The high-power arm carried ~4× the mean optical power and ~4.1× the detrended RMS noise of 
+the low-power arm. The signal to noise ratio was therefore essentially equal across the two 
+sensors, indicating that detection of an observer effect was limited by amplitude noise rather 
+than shot noise. The intention–relax slope difference was 3.6× larger in absolute magnitude on 
+the high-power arm, but its fractional magnitude (per unit mean power) and its effect-to-noise 
+ratio were both ~1.4× larger on the low-power arm. The theoretical implications of this 
+observation, namely that fewer photons per measurement interval produced a larger effect is 
+developed in the Discussion.  
+3.5 Factorial summary 
+The eight slope-against-zero tests can be displayed as a single 2 × 2 × 2 factorial, crossing 
+observer (human, AI), sensor (observed, unobserved), and epoch (intention, relax) (see Figure 6 
+and Table 2). The consciousness-collapse hypothesis predicted significance only in the human × 
+observed × intention cell, and of the eight results only that cell was significant after applying 
+Benjamini–Hochberg false-discovery-rate (FDR) correction [51]. The human × unobserved × 
+intention cell trended at p = 0.074, with a slope of −0.00012, as compared to the observed-
+sensor magnitude of −0.00042.   
+ 
+Figure 6. Eight-cell summary of the ensemble mean epoch slopes. The observed × human × intention 
+cell was predicted to be significant, the other cells were expected to produce null results. The p-values 
+shown in the cells are parametric p-values uncorrected for multiple comparisons. 
+ 
+
+Page 19 of 40 
+ 
+Table 2. Complete 2x2x2 table with confidence intervals. 
+Agent Sensor Epoch Slope 95% CI z p (one-
+tailed) 
+Human Observed Intention −0.000425 [−0.000656, 
+−0.000194] 
+−3.57 0.00007 
+Human Observed Relax +0.000109 [−0.000097, 
++0.000315] 
++1.05 0.851 
+Human Unobserved Intention −0.000123 [−0.000290, 
++0.000044] 
+−1.46 0.074 
+Human Unobserved Relax +0.000095 [−0.000097, 
++0.000287] 
++0.97 0.832 
+AI Observed Intention −0.000021 [−0.000252, 
++0.000210] 
+−0.18 0.430 
+AI Observed Relax −0.000151 [−0.000376, 
++0.000074] 
+−1.32 0.098 
+AI Unobserved Intention −0.000040 [−0.000210, 
++0.000130] 
+−0.47 0.325 
+AI Unobserved Relax −0.000064 [−0.000283, 
++0.000155] 
+−0.58 0.287 
+ 
+3.6 Pre/post-preregistration equivalence 
+Because the preregistered analysis plan was filed after a portion of the human data was 
+collected, we tested if the pre-preregistration window (January–March 2026) and the post-
+preregistration window yielded equivalent estimates (April–May 2026, with 
+an extended exploratory window of N = 308 sessions used for the out-of-sample validation; see 
+§S4 for details). The pre-window intention-relax slope was −5.33 × 10⁻⁴ (d = −0.029, 95% 
+bootstrap CI [−0.052, −0.008]), and the post-window value was −5.37 × 10⁻⁴ (d = −0.035, 95% 
+CI [−0.079, +0.011]). Welch's t on the between-window difference was t (3096) = 0.008, p = 
+0.994; a 2,000-iteration permutation test resulted in p = 0.992.  
+Page 20 of 40 
+ 
+Five additional replication criteria drawn from the open-science literature were also satisfied 
+(see Table 3) [52–57]. They showed the same direction of effect, bootstrap confidence-interval 
+overlap, post-window mean within the pre-window prediction interval, small telescopes 
+effect (|d_post| ≥ 33% of |d_pre|), and two one-sided tests (TOST) equivalence within a ±0.10 
+d-unit margin. The two time windows were statistically indistinguishable on the primary 
+statistic, and therefore the inclusion of pre-preregistration sessions in the confirmatory analysis 
+did not indicate over-fitting. See §S1 for another way to demonstrate cumulative consistency in 
+effect size. 
+Table 3. Replication criteria comparing pre-preregistered data and post-preregistered data. 
+Criterion Result Evidence 
+Same direction of effect PASS Pre: d = −0.029 
+Post: d = −0.035 
+Small telescopes (|d_post| ≥ 33% of |d_pre|) PASS |d_post| = 0.035 vs.  
+threshold 0.010 (121% of pre) 
+Bootstrap CI overlap on Cohen's d PASS Pre CI [−0.052, −0.008]  
+Post CI [−0.079, +0.011] 
+Post mean within prediction interval PASS PI [−0.001458, +0.000391]  
+observed = −0.000537 
+TOST equivalence (±0.10 d-units) PASS p < 0.0001 
+ 
+4 Discussion 
+4.1 Summary of findings 
+Of the eight cells in the observer × sensor × epoch factorial, the only cell significant after 
+correction for multiple comparisons was the one predicted by the vN-W interpretation. Several 
+interpretations of quantum mechanics predict no such asymmetry. In relational quantum 
+mechanics [58], many-worlds [59], and decoherence-based accounts, any physical interaction, 
+including an AI agent's information processing, would constitute observations sufficient to 
+Page 21 of 40 
+ 
+resolve superposition. The human-specific effect reported here is therefore in tension with those 
+frameworks as well as with the null hypothesis.  
+Each of the remaining seven nulls was as theoretically informative as the predicted effect, 
+because by design the participants had no target to observe in those cases. The AI × observed × 
+intention cell was null despite the AI extracting structured information from the same 
+prerecorded data through the same browser interface. This implies that information extraction 
+per se did not drive the effect.  
+4.2 The unobserved sensor  
+Although the human × unobserved × intention trend (p = 0.074, slope ≈ 29% of the observed-
+channel magnitude) was not preregistered, its direction and magnitude mapped onto a specific 
+quantitative prediction of the vN-W framework that, to our knowledge, has not been previously 
+articulated. We develop that prediction here as exploratory, recognizing that fitting parameters 
+to data to motivate a model is not a confirmatory test. 
+The idea is this: The two first-order diffraction spots are not independent channels but two 
+angular slices of one photon field. When observation projects the photon state onto the +1 
+mode, Heisenberg back-action broadens that mode into a Gaussian of angular width σ; the 
+Gaussian tail reaches the unobserved −1 location with fractional amplitude exp(−sep²/2σ²) (with 
+“sep” meaning separation), so the dimensionless ratio σ̃ = σ/sep alone determines the cross-
+channel coupling (see §S3). For σ̃ → 0 (a sharply localized measurement) the cross-channel 
+ratio vanishes; for σ̃ ≈ 0.7 it is approximately 0.36. Conscious observation of a bright spot, on 
+this reading, is not sharply localized in the way a fiber-coupled single-photon detector would 
+be. Rather, the observer's effective mode of engagement with the optical field is spatially 
+diffuse. Working backwards from the data, the empirical cross-channel ratios (intention-
+only 0.300; intention-relax 0.404) yield σ̃ = 0.64 and 0.74, a back-action footprint roughly two-
+thirds of the spot separation, which is physically plausible with a measurement mode whose 
+spatial footprint is comparable to the diffraction geometry itself. 
+Out-of-sample validation. Fitting σ̃ to the same data that motivated the model would be circular. 
+We therefore fit σ̃ on the pre-preregistration window (n = 817), then held the value fixed (Int-
+Rel σ̃ = 0.706), and predicted the post-preregistration cross-channel ratio without parameter 
+Page 22 of 40 
+ 
+adjustment. The predicted unobserved Intention-Relax slope was −1.82 × 10⁻⁴, and the actual 
+slope was −2.83 × 10⁻⁴. The bootstrap 95% confidence interval (CI) on the prediction error 
+contained zero, and the test-window σ̃ (0.94) fell within the training-window bootstrap CI. With 
+the caveat that these CIs are wide, the model trained on pre-preregistration data correctly 
+predicted the direction, sign, and order of magnitude of the post-preregistration unobserved-
+channel behavior. Full CIs and the parallel intention-only prediction are reported in §S4. 
+Spatial-gradient prediction. The model generates a falsifiable prediction beyond the 
+observed/unobserved comparison: the zeroth-order spot, at angular distance sep/2 from the 
+first-order observed spot, should show approximately 75% of the first-order effect (from 
+exp(−1/(8σ̃²)) ≈ 0.775 at σ̃ ≈ 0.7), and second-order spots should show smaller but nonzero 
+effects. Simultaneously monitoring these additional spots in future studies would provide a test 
+of this broadened-detector-mode model. 
+A prior diffraction-based paradigm did record data from both first-order spots and the central 
+spot [43]. The observed first-order spot showed a clear monotonic decline, the zeroth-order 
+central spot showed a similar but smaller decline, and the unobserved first-order spot showed a 
+reversal. The first-order observed and central-spot results match the model’s Gaussian-gradient 
+prediction. The unobserved-spot reversal differed from the small same-sign drift observed in the 
+present study, but inexpensive diode lasers were used in that experiment and their intensity drift 
+was at times comparable to the back-action signal itself; by comparison the present study used 
+an ultra-low-noise laser. A same-sign decrease of the magnitude reported here (≈30–40% of the 
+observed sensor) would lie below the per-session noise floor of the prior apparatus, and under 
+sufficient residual drift it could appear as a sign flip in any single recording window. However, 
+in that study the zeroth-order gradient evidence was unaffected by these noise considerations, 
+possibly because the central-spot measure was a within-session simultaneous-recording 
+comparison, providing support for the Gaussian model that is independent of the present study. 
+Again, this model is speculative pending future replications. 
+4.3 The retrocausal design 
+The back-action argument is forward-causal. The observer measures a photon, back-action 
+imparts momentum spread, and the spot dims. The experimental design used here, however, 
+Page 23 of 40 
+ 
+was retrocausal [60–62]. Sensor data were recorded months before any participant observed 
+them, and no experimenter ever observed the data. If the photons landed where they landed in 
+June 2025 and the voltages were written to disk, what was left for a 2026 observer to collapse?  
+Recording a voltage on a hard drive is a classical operation, and decoherence theory holds that 
+environmental interactions would destroy quantum coherence on femtosecond timescales for 
+macroscopic objects. From that view, the retrocausal design cannot be explained by standard 
+forward-causal back-action. If the effect observed here was real, then its explanation requires an 
+extension of the standard framework. The crucial distinction then is between decoherence (the 
+suppression of interference between branches) and actualization (the selection of a specific 
+branch). 
+A treatment by Levin [46], working within the Gell-Mann–Hartle decoherent-histories 
+formalism, makes this point mathematically. Decoherence alone, Levin notes, does not solve 
+the “problem of outcome.” It explains why interference between alternatives is suppressed in 
+macroscopic records, but not why one alternative rather than another is actualized. Within 
+orthodox quantum mechanics the selection requires a von Neumann Process-1 collapse, which 
+is associated with an agent's mental event. A recording that has decohered but has not been 
+observed by a conscious agent therefore still consists of coexisting decoherent alternatives. The 
+eventual conscious observation supplies the end condition that retroactively fixes which 
+alternative is realized, generating the appearance of pre-observation correlations in retrospect.  
+Levin develops this account specifically to explain a “presentiment” effect [63,64], an 
+experimental paradigm in which pre-stimulus physiological measures correlate with randomly 
+selected future stimuli. Levin's prediction was that physiological data recorded in the absence of 
+a subsequent conscious observer would show no prestimulus effect. The AI cohort in the 
+present study is structurally analogous in that an identical apparatus, identical recordings, and 
+an identical analysis pipeline were used, but with the conscious-observer condition replaced by 
+an AI agent. Within the vN-W framework, an AI agent (at least the models available as of mid-
+2026) is not the kind of system expected to supply a Process-1 end condition, and the null AI 
+result is thus compatible with Levin's prediction. 
+Two frameworks from established physics also provide footholds. Wheeler's delayed-choice 
+principle, experimentally confirmed in multiple photonic implementations [65,66], 
+Page 24 of 40 
+ 
+demonstrates that the choice of what to measure, made after a photon has transited an 
+apparatus, can seemingly retroactively determine which mutually exclusive history the photon 
+appears to have had. That said, it is worth mentioning that some argue that the delayed choice 
+quantum eraser neither erases nor delays [67], while others maintain that while “there is no 
+physical effect of the present or of the future on the past, we must nevertheless consider that the 
+observer’s past is sometimes not entirely determined and that it becomes determined only when 
+certain measurements are done later” [68].  
+Still, the present design tests a stronger and more controversial extension of Wheeler’s idea, 
+namely that a recorded but consciously unobserved optical history may remain open to later 
+selection effects. Aharonov's two-state vector formalism (TSVF) is thus more directly 
+applicable [61,69]. With TSVF a quantum system at any moment is characterized 
+simultaneously by a state propagating forward from preparation and a state propagating 
+backward from its future measurement. The future observation contributes a backward-evolving 
+state that intersects the earlier recording, and the back-action mechanism (involving momentum 
+broadening, resulting in spot dimming) operates in both temporal directions through the same 
+Gaussian form.  
+We do not claim these frameworks fully explain the present results. The applicability of 
+delayed-choice and TSVF reasoning to macroscopic classical data records is not well 
+established, and the claim that stored data retains residual quantum openness is, if confirmed 
+empirically, a significant challenge to standard decoherence theory. We mention them to show 
+that a retrocausal effect, if real, has a theoretical basis in existing physics rather than requiring 
+entirely new physics. The retrocausal design also delivers a control that no forward-causal 
+version can in that it completely decouples classical environmental influences between 
+participant and apparatus. The AI cohort tightened this control even further. If decoherence 
+neutralized the recorded data, then the retrocausal design would be physically equivalent to a 
+forward-causal one, and any apparatus or pipeline artifact would appear in the AI sessions as 
+well as the human sessions. But given that it did not, the human–AI divergence was not merely 
+a control against analytical artifacts but also a control against the alternative interpretation of 
+the retrocausal design itself.   
+Page 25 of 40 
+ 
+4.4 Addressing the classical-beam objection 
+Another possible objection is that a milliwatt continuous-wave laser, producing ~10¹⁵–10¹⁶ 
+photons per second, behaves as a classical electromagnetic field, leaving nothing for a quantum 
+collapse mechanism to act upon. Several considerations argue against this objection. First, the 
+classical field description is an approximation that breaks down when measurement back-action 
+is examined at the level of individual detection events. Aharonov, Albert, and Vaidman 
+demonstrated that weak-coupling measurement yields physically anomalous results [70], 
+confirmed experimentally with a continuous beam by Ritchie et al  [71]. High photon flux 
+provides the statistical ensemble over which weak values are defined, and human observation in 
+the present case constitutes an ultra-weak measurement in precisely this sense. 
+Second, the objection would apply equally to similar interferometer experiments cited in the 
+Introduction, all but one of which used continuous laser beams. A reader who finds the 
+objection decisive for the present study must explain why the existing body of evidence is not 
+similarly disqualified. Third, within quantum optics a coherent laser state remains in a 
+superposition of Fock states regardless of intensity, and the diffraction pattern is produced by 
+individual photons in a superposition. And finally, under the retrocausal design the question is 
+not whether a conscious observer can deflect a photon in real time but whether a decoherent-
+but-unobserved historical record has a definite outcome assigned, a conceptually distinct claim 
+that is orthogonal to photon flux at the time of recording. 
+The power-level dependence reported in section 3.4 bears directly on this objection. The two 
+first-order diffraction channels operated at a ~4:1 power ratio. A classical signal-to-noise 
+argument would predict that the higher-power channel should show the stronger effect because 
+it provides more photons per measurement interval and thus a better-defined signal. However, 
+the opposite was found, with the effect-to-noise ratio ~1.4× larger on the low-power channel. 
+This inverse relationship between photon flux and effect magnitude is expected if 
+consciousness interacts with individual quantum measurement events rather than with the 
+aggregate intensity of the beam. Under the vN-W framework, each photon collapse event is an 
+elementary act of actualization; when photon flux is lower, each individual event contributes 
+proportionally more to the measurable aggregate, and the fractional influence of the observer is 
+Page 26 of 40 
+ 
+therefore larger. High photon flux, on this account, would not amplify the collapse effect; it 
+would instead dilute it. 
+4.5 Optional stopping as an alternative explanation 
+One possible concern is that the engagement criterion, which required participants to correctly 
+identify at least 9 of 10 words, might have introduced an optional stopping bias. If participants 
+who sensed the experiment was producing desirable results were more likely to remain engaged 
+and complete all 10 epochs, then that criterion might have disproportionately selected sessions 
+in which the effect happened to be stronger, thus inflating the results. 
+Several lines of evidence argue against this interpretation. First, the effect was not specific to 
+the 9/10 threshold. A sweep across all engagement levels from 1/10 to 10/10 correct showed 
+that the observed-sensor slope difference was statistically significant at every threshold, with 
+Cohen's d stable between −0.027 and −0.037 throughout (see Figure 7). That is, the effect did 
+not suddenly emerge at the preregistered cutoff; it was present even in sessions where 
+participants identified as few as one word correctly. If the 9/10 criterion were generating a 
+spurious effect through selective inclusion, one would expect the signal to appear at that 
+threshold rather than be uniformly present below it. 
+Second, inspection of the raw session data showed that sessions with fewer than 10 recorded 
+responses represented genuine early exits rather than silent presence. Of 71 sessions with only 
+one response, all 71 had no timestamps beyond the first epoch; this confirmed that participants 
+quit the task rather than remaining present without responding. These sessions are fewer than 
+7% of the qualifying pool, and their effect sizes are noisy and centered near zero. This is more 
+consistent with small samples from a null distribution rather than evidence of a suppressed 
+signal. 
+ 
+Page 27 of 40 
+ 
+ 
+Figure 7. The red line (filled circles) shows the one-tailed p-value for the Human × Observed 
+× Intention ensemble slope. The three solid black lines show the three Human null cells 
+(Observed Relax; Unobserved Intention; Unobserved Relax). The four dashed black lines 
+show the four AI null cells (the same four combinations for AI agents). Numbers along the 
+bottom axis indicate total sessions at each threshold. The dashed gray horizontal line marks α 
+= 0.05. All seven null curves remain above 0.05 across every threshold; the predicted cell 
+remains below p < 10⁻³ throughout. 
+A possible counterargument runs as follows: A participant who only answered 1 of 10 words 
+correctly was still assigned to a pre-recorded data segment, so that segment's “signal,” whatever 
+it was, already existed. The engagement threshold (e.g., 1 or 10 correct responses) did not 
+change the recording; it only determined how carefully participants were curated and linked to 
+which segments. Thus, it was not surprising that even low participant engagement (e.g., 1 
+correct response) showed an effect, because the effect already resided in the pre-recorded data 
+and not in what participants did in real time. This suggests that the results may have been due to 
+an artifact; e.g. perhaps the data were inherently biased toward negative slopes in the intention 
+segments, and thus the results had nothing to do with a consciousness-mediated effect. 
+However, that interpretation is ruled out by the controls. The unobserved sensor, which was 
+switched in each successive session, used the same source of prerecorded data and the same 
+analytical pipeline. If the data were inherently biased, both sensors would have shown it. But 
+
+Page 28 of 40 
+ 
+only the human × intention × observed condition did. Likewise, the AI agents used the same 
+recordings, same linking procedure, and same pipeline, but all of those results were also null. 
+Thus, the pre-recorded data were not intrinsically biased, and something specific about the 
+human-session pairings drove the result. 
+4.6 Limitations and future directions 
+A key limitation in this study was that the effect size, Cohen's d ≈ −0.03, was minuscule. At this 
+scale, to distinguish signal from artifact the burden falls primarily on internal controls. 
+Applying the same analytical pipeline to all 8 cells in the observer × sensor × task matrix 
+produced significant results only in the one predicted cell. A systematic bias of any classical 
+origin (sensor drift, pipeline artifact, session-timing confound, etc.) would have needed to 
+selectively affect only that one cell while leaving all others unaffected. We are not aware of any 
+plausible mechanism that could satisfy this constraint.  
+Another important limitation was that the preregistration was filed after some pilot data were 
+collected. The five-criterion replication analysis showed that the effect persisted past the early-
+window data and was consistent with the pilot results (also see §S1), but a fully prospective 
+replication from the first session would be an essential component of a replication study.  
+The broadened-detector-mode out-of-sample test (§S4) confirmed the direction and order of 
+magnitude for the human × intention × unobserved sensor outcome, but not a precise measure 
+of σ̃. A more stringent future test would simultaneously instrument the zeroth-order and second-
+order spots in addition to the two first-order spots to map the full angular profile of the back-
+action gradient predicted by the model. 
+5 Conclusion 
+Across 1,000 qualifying human sessions, the preregistered prediction was satisfied. During 
+intention epochs, the sensor data that later drove the participant’s display showed a small 
+magnitude but statistically reliable negative slope relative to relax epochs, whereas the 
+unobserved sensor and the AI-agent sessions did not. The AI condition was especially important 
+because it used the same prerecorded optical data, browser interface, and analysis pipeline, but 
+without a human observer intentionally engaged with the display. 
+Page 29 of 40 
+ 
+The effect size was minuscule, the preregistration was filed after some human data had already 
+been collected, and the broadened-mode account of the unobserved-channel trend remains 
+speculative. For these reasons, the results of this test should be regarded as promising rather 
+than as an established demonstration. Still, the pattern is specific, internally controlled, and 
+several mundane explanations were ruled out by design and by the AI null result in a way that 
+apparatus or analytical artifacts would not readily explain. A prospective replication with 
+simultaneous monitoring is the next step. 
+Author Contributions 
+DR designed the experimental protocol, the web and mobile applications, created the optical 
+apparatus and recorded the sensor data, analyzed the results, and wrote the first draft of this 
+manuscript; RC contributed the design and code for the AI agent aspect of the test and edited 
+the draft. 
+Funding 
+This study was funded by Ron Cline, Josh Mittledorf, and members of the Institute of Noetic 
+Sciences 
+Data Availability 
+The analysis code, preprocessed sensor data, and session records supporting this study are 
+publicly available at Zenodo: Radin, D., & Cline, R. (2026). Noetic Adventure — Analysis 
+code and data (Version 1.0.3). Zenodo. https://doi.org/10.5281/zenodo.20099018.  An 
+interactive notebook that runs in the browser without installation is available 
+at https://colab.research.google.com/github/deanradin/noetic-
+adventure/blob/main/noetic_adventure_analysis.ipynb 
+Acknowledgments 
+Claude Code (Anthropic, Opus 4.6 and 4.7) was used to assist in preparing analytical code and 
+programming the AI agents. All results were checked and confirmed by the authors.  
+Page 30 of 40 
+ 
+Competing Interests 
+The second author was one of the funders of this test and contributed to the development of the 
+AI agent portion of the test. All other aspects of the test were the responsibilities of the first 
+author. A provisional patent application was filed on the optical apparatus and signal-processing 
+methods described herein, motivated solely by the need to protect intellectual property arising 
+from fundamental research. The patent pertains to potential engineering applications of 
+retrocausal measurement techniques and does not influence the scientific claims, data analysis, 
+or preregistration of this study.  
+Ethics Approval 
+The protocol and informed consent language for the reported experiment was approved by the 
+Institute of Noetic Sciences Institutional Review Board (RADD_226_01). 
+  
+Page 31 of 40 
+ 
+Supplementary Materials 
+§S1. Effect consistency pre- to post-preregistration 
+Figure S1.1 plots the cumulative Stouffer Z separately for human and AI cohorts on observed 
+and unobserved sensors as a function of session count, and Figure S1.2 plots the same data as 
+one-tailed odds against chance on a log scale. 
+ 
+Figure S1.1. Cumulative Stouffer Z of the difference between intention and relax epochs 
+across all human and AI sessions in the observed and unobserved sensors.  
+ 
+Figure S1.2. Cumulative one-tailed odds against chance of the difference between intention 
+and relax epochs across all human and AI sessions in the observed and unobserved sensors.  
+
+Page 32 of 40 
+ 
+§S2. Lag analysis 
+The preregistered 5-second cognitive-switching delay was checked by sweeping across lags 
+from 0 to 10 seconds, based on 10,000 permutations of observed and unobserved intention 
+versus relax slopes. As shown in Figure S2, this exercise identified 4.5 s as the optimal delay. 
+ 
+ 
+Figure S2. Results comparing intention versus relax slopes for observed and unobserved 
+sensors in terms of odds against chance, with lags ranging from 0 s to 10 s. 
+§S3 Derivation of the cross-channel coupling ratio 
+The two first-order diffraction spots arise from photons that pick up a transverse momentum 
+kick of ±ℏ(2π/d) at the grating, deflecting to angular locations ±λ/d (= ±sep/2) from the optical 
+axis, where λ = 635 nm, d = grating period, and sep = total angular separation between +1 and -
+1 first-order spots. 
+The two spots are not independent detection channels, but two angular slices of a single photon 
+field. The Heisenberg uncertainty principle, applied to the measurement interaction, requires 
+that any localization of a photon's angular position induce a random momentum kick (back-
+action) that is proportional to the precision of the localization. In the present geometry, this 
+broadens the +1 spot from a near-delta-function into a Gaussian intensity profile of angular 
+width σ: 
+I(θ) ∝ exp(−(θ − sep/2)² / 2σ²). 
+
+Page 33 of 40 
+ 
+ 
+On the vN-W reading, this broadening is not a redistribution of conserved photon flux but an 
+angular profile of the back-action itself. The entire diffraction pattern is attenuated, with the 
+attenuation strongest at the attended location and falling off as a Gaussian. We define the 
+attenuation profile A(θ) = exp(−(θ − sep/2)² / 2σ²), centered on the +1 spot at θ = sep/2, so that 
+A(sep/2) = 1 (maximum attenuation at the attended location) and A(θ) < 1 elsewhere. The 
+relative attenuation at angular position θ relative to the attended spot is therefore A(θ)/A(sep/2) 
+= A(θ), giving the cross-channel ratio: 
+A(−sep/2) / A(sep/2) = exp(−sep² / 2σ²). 
+Note that because A(sep/2) = 1 by construction, the ratio A(θ)/A(sep/2) is just A(θ), so one 
+could simply say that the relative attenuation at position θ is A(θ) without the denominator. 
+Now, defining σ̃ ≡ σ / sep, the cross-channel coupling ratio depends only on σ̃: 
+R(σ̃) = exp(−1 / 2σ̃²). 
+For σ̃ → 0 (sharply localized measurement, fiber-coupled detector limit) R → 0 and the 
+unobserved spot is untouched. For σ̃ ≈ 0.7 (a measurement mode comparable in scale to the 
+diffraction geometry itself) R ≈ 0.36. Inverting R(σ̃) gives σ̃ from any empirical cross-channel 
+ratio: σ̃ = √(−1 / (2 ln R)). 
+For the central (zeroth-order) spot at angular distance sep/2 from the +1 location, the equivalent 
+ratio is exp(−1 / (8σ̃²)), giving R_zero ≈ 0.775 at σ̃ ≈ 0.7,  i.e., a same-sign decline of 
+approximately 75% of the first-order effect. 
+§S4. Out-of-sample validation 
+For the pre-preregistration window (training data): N = 817 qualifying sessions, 8,170 blocks. 
+For the post-preregistration window (test): N = 308 sessions, 3,080 blocks (extended beyond 
+the 1,000-session preregistered stopping rule and thus exploratory). 
+Training-window σ̃ values (point estimate; 95% bootstrap CI from 5,000 iterations): 
+- Intention-only:     σ̃ = 0.64  [0.471, 1.073] 
+- Intention-relax:    σ̃ = 0.71  [0.519, 1.154] 
+Page 34 of 40 
+ 
+Held-fixed predictions (parameter-free): unobserved_test = observed_test × exp(−1 / (2σ̃²)). 
+Intention-only slopes: 
+- Predicted unobserved:  −1.21 × 10⁻⁴ 
+- Actual unobserved:       −1.62 × 10⁻⁴ 
+- Prediction error 95% CI:       [−4.3 × 10⁻⁴, +4.3 × 10⁻⁴]  (contains zero) 
+- Test-window σ̃:   0.74  (within training-window CI) 
+Intention-relax slope difference: 
+- Predicted unobserved:    −1.82 × 10⁻⁴ 
+- Actual unobserved:         −2.83 × 10⁻⁴ 
+- Prediction error 95% CI:    [−6.5 × 10⁻⁴, +5.6 × 10⁻⁴]  (contains zero) 
+- Test-window σ̃:                 0.94  (within training-window CI) 
+Note: The wide confidence intervals on σ̃ are a consequence of estimating a Gaussian coupling 
+coefficient from noisy slope differences at realistic sample sizes. The out-of-sample test should 
+therefore be read as confirming the direction, sign, and order of magnitude of the cross-channel 
+coupling, and not as providing a precise determination of σ̃. However, within those limits the 
+model trained on pre-preregistration data predicts the post-preregistration unobserved-channel 
+behavior without parameter adjustment. 
+References 
+1.  von Neumann, J. Mathematical Foundations of Quantum Mechanics; Princeton University 
+Press: Princeton, NJ, 1955; 
+2.  Wigner, E.P. Symmetries and Reflections.; Indiana University Press., 1967; 
+3.  London, F.; Bauer, E. The Theory of Observation in Quantum Mechanics. In Quantum 
+theory and measurement; Princeton University Press, 1983; pp. 217–259. 
+4.  Wigner, E.P. Remarks on the Mind-Body Question. In I. J. Good (Ed.). In The scientist 
+speculates; Good, I.J., Ed.; Heinemann, 1961; pp. 284–302. 
+Page 35 of 40 
+ 
+5.  Esfeld, M. Book Review. Studies in History and Philosophy of Science Part B: Studies in 
+History and Philosophy of Modern Physics 1999, 30, 145–154, doi:10.1016/S1355-
+2198(98)00031-8. 
+6.  Zurek, W.H. Decoherence, Einselection, and the Quantum Origins of the Classical. Rev. 
+Mod. Phys. 2003, 75, 715–775, doi:10.1103/RevModPhys.75.715. 
+7.  Roselli, C.; Stella, B.R. The Dead-Alive Physicist Experiment: A Case-Study Against the 
+Hypothesis That Consciousness Causes the Wave-Function Collapse in the Quantum 
+Mechanical Measurement Process. Found Phys 2021, 51, 21, doi:10.1007/s10701-021-
+00427-y. 
+8.  Tegmark, M. The Interpretation of Quantum Mechanics: Many Worlds or Many Words? 
+Fortschritte der Physik 1998, 46, 855–862. 
+9.  Thaheld, F.H. Does Consciousness Really Collapse the Wave Function?: A Possible 
+Objective Biophysical Resolution of the Measurement Problem. Biosystems 2005, 81, 
+113–124, doi:10.1016/j.biosystems.2005.03.001. 
+10.  French, S. A Phenomenological Solution to the Measurement Problem? Husserl and the 
+Foundations of Quantum Mechanics. Studies in History and Philosophy of Science Part B: 
+Studies in History and Philosophy of Modern Physics 2002, 33, 467–491, 
+doi:10.1016/S1355-2198(02)00019-9. 
+11.  Stapp, H.P. Quantum Theory and Free Will: How Mental Intentions Translate into Bodily 
+Actions.; 2017; 
+12.  Chalmers, D.J.; McQueen, K.J. Consciousness and the Collapse of the Wave Function. In 
+Consciousness and Quantum Mechanics; Gao, S., Ed.; Oxford University Press, 2022; p. 0 
+ISBN 978-0-19-750166-5. 
+13.  Kent, A. Quanta and Qualia. Found Phys 2018, 48, 1021–1037, doi:10.1007/s10701-018-
+0193-9. 
+14.  Kremnizer, K.; Ranchin, A. Integrated Information-Induced Quantum Collapse. Found 
+Phys 2015, 45, 889–899, doi:10.1007/s10701-015-9905-6. 
+15.  Okon, E.; Sebastián, M.Á. A Consciousness-Based Quantum Objective Collapse Model 
+2018. 
+16.  de Barros, J.A.; Oas, G. Can We Falsify the Consciousness-Causes-Collapse Hypothesis in 
+Quantum Mechanics? Found Phys 2017, 47, 1294–1308, doi:10.1007/s10701-017-0110-7. 
+Page 36 of 40 
+ 
+17.  Frauchiger, D.; Renner, R. Quantum Theory Cannot Consistently Describe the Use of 
+Itself. Nat Commun 2018, 9, 3711, doi:10.1038/s41467-018-05739-8. 
+18.  Gibney, E. Physicists Disagree Wildly on What Quantum Mechanics Says about Reality, 
+Nature Survey Shows. Nature 2025, 643, 1175–1179, doi:10.1038/d41586-025-02342-y. 
+19.  Ananthaswamy, A. A Classic Quantum Test Could Reveal the Limits of the Human Mind 
+Available online: https://www.newscientist.com/article/2131874-a-classic-quantum-test-
+could-reveal-the-limits-of-the-human-mind/ (accessed on 5 May 2026). 
+20.  Walker, E.H. Quantum Mechanics and Consciousness. Journal of Indian Psychology 1982, 
+4, 21–26. 
+21.  Walker, E.H. Foundations of Paraphysical and Parapsychological Phenomena.; 
+Parapsychology Foundation: New York, 1975; pp. 1–53. 
+22.  Beloff, J.; Evans, L. A Radioactivity Test of Psycho-Kinesis. Journal of the Society for 
+Psychical Research 1961, 41, 41–46. 
+23.  Hall, J.; Kim, C.; McElroy, B.; Shimony, A. Wave-Packet Reduction as a Medium of 
+Communication. Foundations of Physics 1977, 7, 759-767. 
+24.  Schmidt, H. Quantum Mechanical Random Number Generator. Journal of Applied Physics 
+1970, 41, 462. 
+25.  Jahn, R. The Persistent Paradox of Psychic Phenomena: An Engineering Perspective. 
+Proceedings of the IEEE 1982, 70, 136–170. 
+26.  Radin, D.I.; Nelson, R.D. Evidence for Consciousness-Related Anomalies in Random 
+Physical Systems. Foundations of Physics 1989, 19, 1499–1514, 
+doi:10.1007/BF00732509. 
+27.  Bosch, H.; Steinkamp, F.; Boller, E. Examining Psychokinesis: The Interaction of Human 
+Intention with Random Number Generators—a Meta-Analysis. Psychological Bulletin 
+2006, 132, 497–523. 
+28.  Radin, D.; Nelson, R.; Dobyns, Y .; Houtkooper, J. Reexamining Psychokinesis: Comment 
+on Bösch, Steinkamp, and Boller (2006). Psychol Bull 2006, 132, 529–532; discussion 
+533-7, doi:10.1037/0033-2909.132.4.529. 
+29.  Varvoglis, M.; Bancel, P.A. Micro-Psychokinesis. In Parapsychology: A Handbook for the 
+21st Century; Cardena, E., Palmer, J., Marcusson-Clavertz, D., Eds.; McFarland & 
+Company: Jefferson, North Carolina, 2015; V ol. 1, pp. 266–281. 
+Page 37 of 40 
+ 
+30.  Ibison, M.; Jeffers, S. A Double-Slit Diffraction Experiment to Investigate Claims of 
+Consciousness-Related Anomalies. Journal of Scientific Exploration 1998, 12, 543–550. 
+31.  Radin, D.I. Testing Nonlocal Observation as a Source of Intuitive Knowledge. Explore: 
+The Journal of Science and Healing 2008, 4, 23–35. 
+32.  Radin, D.I.; Michel, L.; Galdamez, K.; Wendland, P.; Rickenbach, R.; Delorme, A. 
+Consciousness and the Double-Slit Interference Pattern: Six Experiments. Physics Essays 
+2012, 25. 
+33.  Radin, D.; Michel, L.; Johnston, J.; Delorme, A. Psychophysical Interactions with a 
+Double-Slit Interference Pattern. Physics Essays 2013, 26, 553–566, doi:10.4006/0836-
+1398-26.4.553. 
+34.  Radin, D.; Michel, L.; Pierce, A.; Delorme, A. Psychophysical Interactions with a Single-
+Photon Double-Slit Optical System. Quantum Biosystems 2015, 6, 82–98. 
+35.  Radin, D.; Michel, L.; Delorme, A. Psychophysical Modulation of Fringe Visibility in a 
+Distant Double-Slit Optical System. Physics Essays 2016, 29, 14–22. 
+36.  Guerrer, G. Consciousness-Related Interactions in a Double-Slit Optical System. 
+https://osf.io/qdkvx/ 2019, doi:DOI 10.17605/OSF.IO/QDKVX. 
+37.  Vujanac, A.; Srejovic, I.; Zivkovic, V .; Jeremic, N.; Jeremic, J.; Bolevich, S.; Bolevich, S.; 
+Jakovljevic, V . Quantum Nature of Consciousness – Double Slit Diffraction Experiment in 
+Medicine. Medical Hypotheses 2019, 133, 109382, doi:10.1016/j.mehy.2019.109382. 
+38.  Milojević, T.; Elliott, M.A. The Causal Influence of Conscious Engagement on Photonic 
+Behavior: A Review of the Mind-Matter Interaction. In Progress in Brain Research; Ben-
+Soussan, T.D., Glicksohn, J., Srinivasan, N., Eds.; Neurophysiology of Silence Part B: 
+Theory and Review; Elsevier, 2023; V ol. 280, pp. 1–16. 
+39.  Bierman, D.J. Does Consciousness Collapse the Wave-Packet? Mind and Matter 2003, 2, 
+45-58. 
+40.  Lucido, R.J. Do Cats Collapse the Wave Function? Confronting the Measurement Problem 
+with Subliminal Priming. 2025, doi:10.5281/zenodo.15003998. 
+41.  Walleczek, J. False-Positive Effect in the Radin Double-Slit Experiment on Observer 
+Consciousness as Determined with the Advanced Meta-Experimental Protocol (AMP). 
+Frontiers in psychology 2019, 10, 1891. 
+Page 38 of 40 
+ 
+42.  Radin, D.; Wahbeh, H.; Michel, L.; Delorme, A. Psychophysical Interactions with a 
+Double-Slit Interference Pattern: Exploratory Evidence of a Causal Influence. Physics 
+Essays 2021, 34, 79–88. 
+43.  Radin, D. Observer Influence on Quantum Interference: Testing the von Neumann–Wigner 
+Consciousness-Collapse Theory. Physics Essays 2025, 38, 64, doi:10.4006/0836-1398-
+38.1.64. 
+44.  Stapp, H.P. Retrocausation in Quantum Mechanics and the Effects of Minds on the 
+Creation of Physical Reality. AIP Conf. Proc. 2017, 1841, 040001, 
+doi:10.1063/1.4982777. 
+45.  Levin, E.Y . A Look for a Presentiment Model’s Reasonable Parameters. Journal of 
+Anomalous Experience and Cognition 2026, 6, 102–114, doi:10.31156/jaex.26462. 
+46.  Levin, E.Y . The Presentiment Effect Points to an Occurrence of a von Neumann’s 
+Collapse. Journal of Anomalous Experience and Cognition 2023, 3, 174–193, 
+doi:10.31156/jaex.24455. 
+47.  Delorme, A. Why Our Minds Wander: Understand the Science and Learn How to Focus 
+Your Thoughts; Welbeck, 2024; 
+48.  Mooneyham, B.W.; Schooler, J.W. The Costs and Benefits of Mind-Wandering: A Review. 
+Can J Exp Psychol 2013, 67, 11–18, doi:10.1037/a0031569. 
+49.  Gosling, S.D.; Rentfrow, P.J.; Swann, W.B. A Very Brief Measure of the Big-Five 
+Personality Domains. Journal of Research in Personality 2003, 37, 504–528, 
+doi:10.1016/s0092-6566(03)00046-1. 
+50.  Hasenkamp, W.; Wilson-Mendenhall, C.D.; Duncan, E.; Barsalou, L.W. Mind Wandering 
+and Attention during Focused Meditation: A Fine-Grained Temporal Analysis of 
+Fluctuating Cognitive States. Neuroimage 2012, 59, 750–760, 
+doi:10.1016/j.neuroimage.2011.07.008. 
+51.  Benjamini, Y .; Hochberg, Y . Controlling the False Discovery Rate: A Practical and 
+Powerful Approach to Multiple Testing. Journal of the Royal Statistical Society: Series B 
+(Methodological) 1995, 57, 289–300, doi:https://doi.org/10.1111/j.2517-
+6161.1995.tb02031.x. 
+52.  Simonsohn, U. Small Telescopes: Detectability and the Evaluation of Replication Results. 
+Psychol Sci 2015, 26, 559–569, doi:10.1177/0956797614567341. 
+Page 39 of 40 
+ 
+53.  Cumming, G. The New Statistics: Why and How. Psychol Sci 2014, 25, 7–29, 
+doi:10.1177/0956797613504966. 
+54.  Equivalence Tests - Daniël Lakens, 2017 Available online: 
+https://journals.sagepub.com/doi/10.1177/1948550617697177 (accessed on 6 May 2026). 
+55.  Schuirmann, D.J. A Comparison of the Two One-Sided Tests Procedure and the Power 
+Approach for Assessing the Equivalence of Average Bioavailability. Journal of 
+Pharmacokinetics and Biopharmaceutics 1987, 15, 657–680, doi:10.1007/BF01068419. 
+56.  Spence, J.R.; Stanley, D.J. Prediction Interval: What to Expect When You’re Expecting … 
+A Replication. PLOS ONE 2016, 11, e0162874, doi:10.1371/journal.pone.0162874. 
+57.  Open Science Collaboration Estimating the Reproducibility of Psychological Science. 
+Science 2015, 349, aac4716, doi:10.1126/science.aac4716. 
+58.  Rovelli, C. Relational Quantum Mechanics. Int J Theor Phys 1996, 35, 1637–1678, 
+doi:10.1007/BF02302261. 
+59.  DeWitt, B.S. Quantum Mechanics and Reality Available online: 
+https://physicstoday.aip.org/features/quantum-mechanics-and-reality (accessed on 9 May 
+2026). 
+60.  Bierman, D.J. Consciousness Induced Restoration of Time Symmetry (CIRTS): A 
+Psychophysical Theoretical Perspective. Journal of Parapsychology 2010, 74, 273–299. 
+61.  Aharonov, Y .; Bergmann, P.G.; Lebowitz, J.L. Time Symmetry in the Quantum Process of 
+Measurement. Phys. Rev. 1964, 134, B1410–B1416, doi:10.1103/PhysRev.134.B1410. 
+62.  Reznik, B.; Aharonov, Y . Time-Symmetric Formulation of Quantum Mechanics. Physical 
+Review A 1995, 52, 2538–2550. 
+63.  Mossbridge, J.A.; Radin, D. Precognition as a Form of Prospection: A Review of the 
+Evidence. Psychology of Consciousness: Theory Research, and Practice 2018, 5, 78–93. 
+64.  Duggan, M.; Tressoldi, P. Predictive Physiological Anticipatory Activity Preceding 
+Seemingly Unpredictable Stimuli: An Update of Mossbridge et al’s Meta-Analysis. 
+F1000Res 2018, 7, 407, doi:10.12688/f1000research.14330.2. 
+65.  Ma, X.; Zotter, S.; Kofler, J.; Ursin, R.; Jennewein, T.; Brukner, Č.; Zeilinger, A. 
+Experimental Delayed-Choice Entanglement Swapping. Nature Phys 2012, 8, 479–484, 
+doi:10.1038/nphys2294. 
+Page 40 of 40 
+ 
+66.  Vedovato, F.; Agnesi, C.; Schiavon, M.; Dequal, D.; Calderaro, L.; Tomasin, M.; 
+Marangon, D.G.; Stanco, A.; Luceri, V .; Bianco, G.; et al. Extending Wheeler’s Delayed-
+Choice Experiment to Space. Science Advances 2017, 3, e1701180, 
+doi:10.1126/sciadv.1701180. 
+67.  Kastner, R.E. The ‘Delayed Choice Quantum Eraser’ Neither Erases Nor Delays. Found 
+Phys 2019, 49, 717–727, doi:10.1007/s10701-019-00278-8. 
+68.  Zwirn, H. Is the Past Determined? Found Phys 2021, 51, 57, doi:10.1007/s10701-021-
+00459-4. 
+69.  Aharonov, Y .; V aidman, L. The Two-State Vector Formalism: An Updated Review. In 
+Time in Quantum Mechanics; Muga, J.G., Mayato, R.S., Egusquiza, Í.L., Eds.; Lecture 
+Notes in Physics; Springer Berlin Heidelberg: Berlin, Heidelberg, 2007; V ol. 734, pp. 
+399–447 ISBN 978-3-540-73472-7. 
+70.  Aharonov, Y .; Albert, D.Z.; Vaidman, L. How the Result of a Measurement of a 
+Component of the Spin of a Spin-1/2 Particle Can Turn out to Be 100. Phys. Rev. Lett. 
+1988, 60, 1351–1354, doi:10.1103/PhysRevLett.60.1351. 
+71.  Ritchie, N.W.M.; Story, J.G.; Hulet, R.G. Realization of a Measurement of a ``weak 
+Value’’. Phys. Rev. Lett. 1991, 66, 1107–1110, doi:10.1103/PhysRevLett.66.1107. 
+ 

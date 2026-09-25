@@ -1,0 +1,674 @@
+- generic [active] [ref=f1e1]:
+  - link "Skip to main content" [ref=f1e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f1e6]:
+    - generic:
+      - generic: "The Occult: News for armchair and practicing metaphysical skeptics"
+      - banner [ref=f1e10]:
+        - navigation [ref=f1e11]:
+          - link "Home" [ref=f1e15] [cursor=pointer]:
+            - /url: https://www.reddit.com/
+          - search [ref=f1e34]:
+            - generic [ref=f1e36]:
+              - generic "Remove r/occult filter and expand search to all of Reddit" [ref=f1e42] [cursor=pointer]:
+                - button [pressed] [ref=f1e43]:
+                  - generic [aria-hidden] [ref=f1e47]: r/occult
+              - textbox "Remove r/occult filter and expand search to all of Reddit" [ref=f1e53]:
+                - /placeholder: Search in ⁨r/occult⁩
+          - generic [ref=f1e54]:
+            - generic [ref=f1e55]:
+              - link "Advertise on Reddit" [ref=f1e61] [cursor=pointer]:
+                - /url: https://ads.reddit.com/register?utm_source=web3x_consumer&utm_name=nav_cta
+              - button "Open chat" [ref=f1e72] [cursor=pointer]
+              - link "Create post" [ref=f1e82] [cursor=pointer]:
+                - /url: /r/occult/submit/
+              - generic [ref=f1e89]:
+                - link "Open inbox" [ref=f1e92] [cursor=pointer]:
+                  - /url: /notifications
+                - generic: "1"
+            - button "User Avatar Expand user menu" [ref=f1e102] [cursor=pointer]:
+              - img "User Avatar" [ref=f1e110]
+              - generic [ref=f1e112]: Expand user menu
+      - generic [ref=f1e113]:
+        - generic [ref=f1e114]:
+          - region "Community actions" [ref=f1e118]:
+            - generic [ref=f1e119]:
+              - 'heading "r/occult Community status: Binah" [level=1] [ref=f1e125]':
+                - text: r/occult
+                - 'button "Community status: Binah" [ref=f1e127] [cursor=pointer]':
+                  - img "Binah" [ref=f1e128]
+              - generic [ref=f1e129]:
+                - link "Create Post" [ref=f1e133] [cursor=pointer]:
+                  - /url: /r/occult/submit
+                - generic [ref=f1e140]:
+                  - button "Join" [ref=f1e143] [cursor=pointer]
+                  - button "Open overflow menu" [ref=f1e146] [cursor=pointer]
+          - generic [ref=f1e151]:
+            - generic:
+              - generic:
+                - link "Skip to Navigation" [ref=f1e152] [cursor=pointer]:
+                  - /url: "#left-sidebar-container"
+                - link "Skip to Right Sidebar" [ref=f1e153] [cursor=pointer]:
+                  - /url: "#right-sidebar-container"
+          - generic [ref=f1e154]:
+            - main [ref=f1e155]:
+              - generic [ref=f1e158]:
+                - generic [ref=f1e159]:
+                  - generic "Sort by" [ref=f1e162]:
+                    - 'button "Sort by: Top" [ref=f1e164] [cursor=pointer]':
+                      - generic [ref=f1e165]: Top
+                  - generic "Sort by" [ref=f1e171]:
+                    - 'button "Sort by: This Week" [ref=f1e173] [cursor=pointer]':
+                      - generic [ref=f1e174]: This Week
+                - generic "View" [ref=f1e181]:
+                  - 'button "View: Card" [ref=f1e183] [cursor=pointer]'
+              - generic [ref=f1e189]:
+                - button "collapse/expand community highlights" [ref=f1e190] [cursor=pointer]:
+                  - heading "Community highlights" [level=3] [ref=f1e191]
+                  - button "collapse/expand community highlights" [ref=f1e196]
+                - generic [ref=f1e202]:
+                  - list [ref=f1e203]:
+                    - generic:
+                      - listitem [ref=f1e204]:
+                        - link "Why most \"return of affection\" spells fail - a Fa diviner perspective from Benin Announcement" [ref=f1e205] [cursor=pointer]:
+                          - /url: /r/occult/comments/1wo6w1a/why_most_return_of_affection_spells_fail_a_fa/
+                          - generic [ref=f1e208]:
+                            - heading "Why most \"return of affection\" spells fail - a Fa diviner perspective from Benin" [level=2] [ref=f1e211]
+                            - generic [ref=f1e212]: Announcement
+                      - listitem [ref=f1e219]:
+                        - link "Please Observe the FAQ and Sidebar Before Posting" [ref=f1e220] [cursor=pointer]:
+                          - /url: /r/occult/comments/1ucl288/please_observe_the_faq_and_sidebar_before_posting/
+                          - heading "Please Observe the FAQ and Sidebar Before Posting" [level=2] [ref=f1e226]
+                      - listitem [ref=f1e237]:
+                        - link "Beginner's Magick Resource Megathread Megathread" [ref=f1e238] [cursor=pointer]:
+                          - /url: /r/occult/comments/1sqvtef/beginners_magick_resource_megathread/
+                          - generic [ref=f1e241]:
+                            - heading "Beginner's Magick Resource Megathread" [level=2] [ref=f1e244]
+                            - generic [ref=f1e245]: Megathread
+                      - listitem [ref=f1e252]:
+                        - 'link "r/occult FAQ & Statement of Intent Flair: ?" [ref=f1e253] [cursor=pointer]':
+                          - /url: /r/occult/comments/1mz06k9/roccult_faq_statement_of_intent/
+                          - generic [ref=f1e258]:
+                            - heading "r/occult FAQ & Statement of Intent" [level=2] [ref=f1e261]
+                            - 'generic "Flair: ?" [ref=f1e266]': "?"
+                  - button [ref=f1e267]:
+                    - button "Next" [ref=f1e268] [cursor=pointer]
+              - generic [ref=f1e274]:
+                - 'generic "The Occult: News for armchair and practicing metaphysical skeptics"'
+                - separator [ref=f1e275]
+                - generic [ref=f1e276]:
+                  - heading "Feed" [level=1] [ref=f1e278]
+                  - generic:
+                    - article [ref=f1e279]:
+                      - generic [ref=f1e280] [cursor=pointer]:
+                        - link "Finally saw the og Sigillum Dei Aemeth at British museum" [ref=f1e281]:
+                          - /url: https://www.reddit.com/r/occult/comments/1wjzxyw/finally_saw_the_og_sigillum_dei_aemeth_at_british/
+                        - generic [ref=f1e283]:
+                          - generic [ref=f1e284]:
+                            - 'link "Author: u/captain_DA" [ref=f1e289]':
+                              - /url: https://www.reddit.com/user/captain_DA/
+                            - generic [aria-hidden] [ref=f1e295]: •
+                            - time [ref=f1e297]: 6 days ago
+                          - button "Open user actions" [ref=f1e303]
+                        - generic [ref=f1e309]:
+                          - heading "Finally saw the og Sigillum Dei Aemeth at British museum" [level=2] [ref=f1e310]:
+                            - link "Finally saw the og Sigillum Dei Aemeth at British museum" [ref=f1e311]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wjzxyw/finally_saw_the_og_sigillum_dei_aemeth_at_british/
+                          - 'link "Flair: !" [ref=f1e314]':
+                            - /url: /r/occult/?f=flair_name%3A%22!%22
+                            - 'generic "Flair: !" [ref=f1e316]': "!"
+                        - img "r/occult - Finally saw the og Sigillum Dei Aemeth at British museum" [ref=f1e322]
+                        - generic "Actions available for this post" [ref=f1e324]:
+                          - generic [ref=f1e327]:
+                            - button "Upvote" [ref=f1e328]
+                            - generic [ref=f1e333]: "534"
+                            - button "Downvote" [ref=f1e335]
+                          - link "28 Go to comments" [ref=f1e340]:
+                            - /url: /r/occult/comments/1wjzxyw/finally_saw_the_og_sigillum_dei_aemeth_at_british/
+                            - generic [ref=f1e341]: "28"
+                            - generic [ref=f1e347]: Go to comments
+                          - button "1 Repost" [ref=f1e349]:
+                            - generic [ref=f1e350]: "1"
+                            - generic [ref=f1e355]: Repost
+                          - button "Share" [ref=f1e359]
+                    - separator [ref=f1e366]
+                    - article [ref=f1e367]:
+                      - generic [ref=f1e368] [cursor=pointer]:
+                        - link "Happy Equinox r/ Occultists" [ref=f1e369]:
+                          - /url: https://www.reddit.com/r/occult/comments/1wnm85u/happy_equinox_r_occultists/
+                        - generic [ref=f1e371]:
+                          - generic [ref=f1e372]:
+                            - 'link "Author: u/NefertitiNuit" [ref=f1e377]':
+                              - /url: https://www.reddit.com/user/NefertitiNuit/
+                            - generic [aria-hidden] [ref=f1e383]: •
+                            - time [ref=f1e385]: 2 days ago
+                          - button "Open user actions" [ref=f1e391]
+                        - generic [ref=f1e397]:
+                          - heading "Happy Equinox r/ Occultists" [level=2] [ref=f1e398]:
+                            - link "Happy Equinox r/ Occultists" [ref=f1e399]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wnm85u/happy_equinox_r_occultists/
+                          - 'link "Flair: :sahasrara:spirituality" [ref=f1e402]':
+                            - /url: /r/occult/?f=flair_name%3A%22%3Asahasrara%3Aspirituality%22
+                            - 'generic "Flair: :sahasrara:spirituality" [ref=f1e404]': spirituality
+                        - img "r/occult - Happy Equinox r/ Occultists" [ref=f1e413]
+                        - generic "Actions available for this post" [ref=f1e415]:
+                          - generic [ref=f1e418]:
+                            - button "Upvote" [ref=f1e419]
+                            - generic [ref=f1e424]: "369"
+                            - button "Downvote" [ref=f1e426]
+                          - link "11 Go to comments" [ref=f1e431]:
+                            - /url: /r/occult/comments/1wnm85u/happy_equinox_r_occultists/
+                            - generic [ref=f1e432]: "11"
+                            - generic [ref=f1e438]: Go to comments
+                          - button "Repost" [ref=f1e440]
+                          - button "Share" [ref=f1e449]
+                    - separator [ref=f1e456]
+                    - article [ref=f1e457]:
+                      - generic [ref=f1e458] [cursor=pointer]:
+                        - 'link "Read in your browser: website with 8000 occult books" [ref=f1e459]':
+                          - /url: https://www.reddit.com/r/occult/comments/1wki7m4/read_in_your_browser_website_with_8000_occult/
+                        - generic [ref=f1e461]:
+                          - generic [ref=f1e463]:
+                            - generic [ref=f1e464]
+                            - button "Open user actions" [ref=f1e483]
+                          - generic [ref=f1e488]:
+                            - 'link "Read in your browser: website with 8000 occult books" [ref=f1e490]':
+                              - /url: https://www.reddit.com/r/occult/comments/1wki7m4/read_in_your_browser_website_with_8000_occult/
+                            - link "https://lib.wildla.in/" [ref=f1e493]:
+                              - /url: https://lib.wildla.in/
+                          - 'link "r/occult - Read in your browser: website with 8000 occult books" [ref=f1e496]':
+                            - /url: https://lib.wildla.in/
+                            - 'img "r/occult - Read in your browser: website with 8000 occult books" [ref=f1e497]'
+                        - generic "Actions available for this post" [ref=f1e500]:
+                          - generic [ref=f1e503]:
+                            - button "Upvote" [ref=f1e504]
+                            - generic [ref=f1e509]: "195"
+                            - button "Downvote" [ref=f1e511]
+                          - link "29 Go to comments" [ref=f1e516]:
+                            - /url: /r/occult/comments/1wki7m4/read_in_your_browser_website_with_8000_occult/
+                            - generic [ref=f1e517]: "29"
+                            - generic [ref=f1e523]: Go to comments
+                          - button "Repost" [ref=f1e525]
+                          - button "Share" [ref=f1e534]
+                    - separator [ref=f1e541]
+                    - generic [ref=f1e542]:
+                      - generic:
+                        - article [ref=f1e543]:
+                          - generic [ref=f1e544] [cursor=pointer]:
+                            - link "Joseph Campbell explains the Right and Left-hand Paths" [ref=f1e545]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wmyc4h/joseph_campbell_explains_the_right_and_lefthand/
+                            - generic [ref=f1e547]
+                            - heading "Joseph Campbell explains the Right and Left-hand Paths" [level=2] [ref=f1e580]
+                            - generic "Actions available for this post" [ref=f1e588]
+                        - separator [ref=f1e630]
+                        - article [ref=f1e631]:
+                          - generic [ref=f1e632] [cursor=pointer]:
+                            - link "I'm exploring uniting a playing-card deck with Mesoamerican cosmology for divination" [ref=f1e633]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wm46do/im_exploring_uniting_a_playingcard_deck_with/
+                            - generic [ref=f1e635]
+                            - heading "I'm exploring uniting a playing-card deck with Mesoamerican cosmology for divination" [level=2] [ref=f1e662]
+                            - img "r/occult - I'm exploring uniting a playing-card deck with Mesoamerican cosmology for divination" [ref=f1e669]
+                            - generic "Actions available for this post" [ref=f1e671]
+                        - separator [ref=f1e712]
+                        - article [ref=f1e713]:
+                          - generic [ref=f1e714] [cursor=pointer]:
+                            - link "Made this Map of the Domiciles" [ref=f1e715]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wlyzl2/made_this_map_of_the_domiciles/
+                            - generic [ref=f1e717]
+                            - heading "Made this Map of the Domiciles" [level=2] [ref=f1e747]
+                            - img "r/occult - Made this Map of the Domiciles" [ref=f1e754]
+                            - generic "Actions available for this post" [ref=f1e756]
+                        - separator [ref=f1e797]
+                        - article [ref=f1e798]:
+                          - generic [ref=f1e799] [cursor=pointer]:
+                            - link "Confused by arbatel" [ref=f1e800]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wotvra/confused_by_arbatel/
+                            - generic [ref=f1e802]
+                            - generic [ref=f1e831]
+                            - img "r/occult - Confused by arbatel" [ref=f1e844]
+                            - generic "Actions available for this post" [ref=f1e846]
+                        - separator [ref=f1e887]
+                        - article [ref=f1e888]:
+                          - generic [ref=f1e889] [cursor=pointer]:
+                            - link "Just talking to the moon, with no certain rituals and this is what happens!" [ref=f1e890]:
+                              - /url: https://www.reddit.com/r/occult/comments/1woy6ud/just_talking_to_the_moon_with_no_certain_rituals/
+                            - generic [ref=f1e892]
+                            - generic [ref=f1e927]
+                            - generic "Actions available for this post" [ref=f1e937]
+                        - separator [ref=f1e978]
+                        - article [ref=f1e979]:
+                          - generic [ref=f1e980] [cursor=pointer]:
+                            - link "Have you ever wtinessed someone made a pact with a demon and got what he/she wanted overnight?" [ref=f1e981]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wn16z4/have_you_ever_wtinessed_someone_made_a_pact_with/
+                            - generic [ref=f1e983]
+                            - generic [ref=f1e1018]
+                            - generic "Actions available for this post" [ref=f1e1031]
+                        - separator [ref=f1e1072]
+                        - article [ref=f1e1073]:
+                          - generic [ref=f1e1074] [cursor=pointer]:
+                            - link "How do you seperate mysticism from delusion?" [ref=f1e1075]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wk6gzd/how_do_you_seperate_mysticism_from_delusion/
+                            - generic [ref=f1e1077]
+                            - generic [ref=f1e1103]
+                            - generic "Actions available for this post" [ref=f1e1113]
+                        - separator [ref=f1e1154]
+                        - article [ref=f1e1155]:
+                          - generic [ref=f1e1156] [cursor=pointer]:
+                            - link "What is there to gain from magic?" [ref=f1e1157]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wkx0sn/what_is_there_to_gain_from_magic/
+                            - generic [ref=f1e1159]
+                            - generic [ref=f1e1185]
+                            - generic "Actions available for this post" [ref=f1e1198]
+                        - separator [ref=f1e1239]
+                        - article [ref=f1e1240]:
+                          - generic [ref=f1e1241] [cursor=pointer]:
+                            - link "Jewish Kabbalah vs Hermetic Qabalah vs Christian Cabala" [ref=f1e1242]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wntzau/jewish_kabbalah_vs_hermetic_qabalah_vs_christian/
+                            - generic [ref=f1e1244]
+                            - generic [ref=f1e1270]
+                            - generic "Actions available for this post" [ref=f1e1275]
+                        - separator [ref=f1e1316]
+                        - article [ref=f1e1317]:
+                          - generic [ref=f1e1318] [cursor=pointer]:
+                            - link "Have you ever met someone who unexpectedly revealed an occult side?" [ref=f1e1319]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wmes89/have_you_ever_met_someone_who_unexpectedly/
+                            - generic [ref=f1e1321]
+                            - generic [ref=f1e1347]
+                            - generic "Actions available for this post" [ref=f1e1352]
+                        - separator [ref=f1e1393]
+                        - article [ref=f1e1394]:
+                          - generic [ref=f1e1395] [cursor=pointer]:
+                            - link "What is the most convincing spiritual or paranormal experience you’ve ever had?" [ref=f1e1396]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wjvyiu/what_is_the_most_convincing_spiritual_or/
+                            - generic [ref=f1e1398]
+                            - generic [ref=f1e1424]
+                            - generic "Actions available for this post" [ref=f1e1437]
+                        - separator [ref=f1e1478]
+                        - article [ref=f1e1479]:
+                          - generic [ref=f1e1480] [cursor=pointer]:
+                            - link "Where should an absolute beginner start with Rosicrucianism?" [ref=f1e1481]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wle28z/where_should_an_absolute_beginner_start_with/
+                            - generic [ref=f1e1483]
+                            - heading "Where should an absolute beginner start with Rosicrucianism?" [level=2] [ref=f1e1510]
+                            - img "r/occult - Where should an absolute beginner start with Rosicrucianism?" [ref=f1e1517]
+                            - generic "Actions available for this post" [ref=f1e1519]
+                        - separator [ref=f1e1560]
+                        - article [ref=f1e1561]:
+                          - generic [ref=f1e1562] [cursor=pointer]:
+                            - link "Alcohol in Occult Practices – Hindrance or Potential Tool?" [ref=f1e1563]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wmo6fl/alcohol_in_occult_practices_hindrance_or/
+                            - generic [ref=f1e1565]
+                            - generic [ref=f1e1591]
+                            - generic "Actions available for this post" [ref=f1e1596]
+                        - separator [ref=f1e1637]
+                        - article [ref=f1e1638]:
+                          - generic [ref=f1e1639] [cursor=pointer]:
+                            - link "Banished negative entity today." [ref=f1e1640]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wlx6cv/banished_negative_entity_today/
+                            - generic [ref=f1e1642]
+                            - generic [ref=f1e1674]
+                            - generic "Actions available for this post" [ref=f1e1687]
+                        - separator [ref=f1e1728]
+                        - article [ref=f1e1729]:
+                          - generic [ref=f1e1730] [cursor=pointer]:
+                            - link "Terrified of the idea of life collapsing as a result of K&C" [ref=f1e1731]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wog21o/terrified_of_the_idea_of_life_collapsing_as_a/
+                            - generic [ref=f1e1733]
+                            - generic [ref=f1e1762]
+                            - generic "Actions available for this post" [ref=f1e1767]
+                        - separator [ref=f1e1808]
+                        - article [ref=f1e1809]:
+                          - generic [ref=f1e1810] [cursor=pointer]:
+                            - link "How important has \"ritual purity\" proven to be in your practice?" [ref=f1e1811]:
+                              - /url: https://www.reddit.com/r/occult/comments/1woe7bd/how_important_has_ritual_purity_proven_to_be_in/
+                            - generic [ref=f1e1813]
+                            - generic [ref=f1e1842]
+                            - generic "Actions available for this post" [ref=f1e1847]
+                        - separator [ref=f1e1888]
+                        - article [ref=f1e1889]:
+                          - generic [ref=f1e1890] [cursor=pointer]:
+                            - link "Book(s) to get over the skeptic fence?" [ref=f1e1891]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wjstcf/books_to_get_over_the_skeptic_fence/
+                            - generic [ref=f1e1893]
+                            - generic [ref=f1e1919]
+                            - generic "Actions available for this post" [ref=f1e1929]
+                        - separator [ref=f1e1970]
+                        - article [ref=f1e1971]:
+                          - generic [ref=f1e1972] [cursor=pointer]:
+                            - link "Collection of classic occultism books for the general readers ( 20 PDFs)" [ref=f1e1973]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wke2fc/collection_of_classic_occultism_books_for_the/
+                            - generic [ref=f1e1975]
+                            - generic "Actions available for this post" [ref=f1e2019]
+                        - separator [ref=f1e2060]
+                        - article [ref=f1e2061]:
+                          - generic [ref=f1e2062] [cursor=pointer]:
+                            - link "Can one read Crowley philosophically?" [ref=f1e2063]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wmfp38/can_one_read_crowley_philosophically/
+                            - generic [ref=f1e2065]
+                            - generic [ref=f1e2091]
+                            - generic "Actions available for this post" [ref=f1e2096]
+                        - separator [ref=f1e2137]
+                        - article [ref=f1e2138]:
+                          - generic [ref=f1e2139] [cursor=pointer]:
+                            - link "Need a powerful ritual to get off opiates" [ref=f1e2140]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wjkrsh/need_a_powerful_ritual_to_get_off_opiates/
+                            - generic [ref=f1e2142]
+                            - generic [ref=f1e2168]
+                            - generic "Actions available for this post" [ref=f1e2178]
+                        - separator [ref=f1e2219]
+                        - article [ref=f1e2220]:
+                          - generic [ref=f1e2221] [cursor=pointer]:
+                            - link "We have multiple HGAs in our body?" [ref=f1e2222]:
+                              - /url: https://www.reddit.com/r/occult/comments/1woowhb/we_have_multiple_hgas_in_our_body/
+                            - generic [ref=f1e2224]
+                            - generic [ref=f1e2253]
+                            - generic "Actions available for this post" [ref=f1e2263]
+                        - separator [ref=f1e2305]
+                        - article [ref=f1e2306]:
+                          - generic [ref=f1e2307] [cursor=pointer]:
+                            - link "which occult books should I read?" [ref=f1e2308]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wkhp8r/which_occult_books_should_i_read/
+                            - generic [ref=f1e2310]
+                            - generic [ref=f1e2336]
+                            - generic "Actions available for this post" [ref=f1e2346]
+                        - separator [ref=f1e2387]
+                        - article [ref=f1e2388]:
+                          - generic [ref=f1e2389] [cursor=pointer]:
+                            - link "Sweetening/love spell on yourself?" [ref=f1e2390]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wnnnm1/sweeteninglove_spell_on_yourself/
+                            - generic [ref=f1e2392]
+                            - generic [ref=f1e2418]
+                            - generic "Actions available for this post" [ref=f1e2423]
+                        - separator [ref=f1e2464]
+                        - article [ref=f1e2465]:
+                          - generic [ref=f1e2466] [cursor=pointer]:
+                            - link "Entities and their life" [ref=f1e2467]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wnmzvc/entities_and_their_life/
+                            - generic [ref=f1e2469]
+                            - generic [ref=f1e2498]
+                            - generic "Actions available for this post" [ref=f1e2511]
+                        - separator [ref=f1e2552]
+                        - article [ref=f1e2553]:
+                          - generic [ref=f1e2554] [cursor=pointer]:
+                            - link "struggle with depression" [ref=f1e2555]:
+                              - /url: https://www.reddit.com/r/occult/comments/1wkg5jx/struggle_with_depression/
+                            - generic [ref=f1e2557]
+                            - generic [ref=f1e2583]
+                            - generic "Actions available for this post" [ref=f1e2593]
+                        - separator [ref=f1e2634]
+            - generic [ref=f1e2653]:
+              - complementary "Community information" [ref=f1e2657]:
+                - generic [ref=f1e2658]:
+                  - generic [ref=f1e2660]:
+                    - heading "Community Info Section" [level=1] [ref=f1e2661]
+                    - generic [ref=f1e2662]:
+                      - generic [ref=f1e2663]: "The Occult: News for armchair and practicing metaphysical skeptics"
+                      - generic [ref=f1e2665]: "The Occult: News for armchair and practicing metaphysical skeptics."
+                      - generic [ref=f1e2666]:
+                        - generic [ref=f1e2667]: Created Mar 23, 2008
+                        - generic [ref=f1e2671]: Public
+                    - generic [ref=f1e2675]:
+                      - generic [ref=f1e2676]:
+                        - strong [ref=f1e2678]:
+                          - generic: 71K
+                        - generic [ref=f1e2679]: Weekly visitors
+                      - generic [ref=f1e2680]:
+                        - strong [ref=f1e2682]:
+                          - generic: 2.3K
+                        - generic [ref=f1e2683]: Weekly contributions
+                  - separator [ref=f1e2684]
+                  - generic [ref=f1e2685]:
+                    - heading "User flair" [level=2] [ref=f1e2687]
+                    - button "u/Fair_Dinner_4295 avatar Fair_Dinner_4295" [ref=f1e2690]:
+                      - generic [ref=f1e2692]:
+                        - img "u/Fair_Dinner_4295 avatar" [ref=f1e2697]
+                        - generic [ref=f1e2698]: Fair_Dinner_4295
+                  - separator [ref=f1e2700]
+                  - generic [ref=f1e2701]:
+                    - heading "r/occult Rules" [level=2] [ref=f1e2703]
+                    - generic [ref=f1e2705]:
+                      - group [ref=f1e2707]:
+                        - generic "1 Review the FAQ" [ref=f1e2708] [cursor=pointer]:
+                          - generic [ref=f1e2711]:
+                            - generic [ref=f1e2712]: "1"
+                            - heading "Review the FAQ" [level=2] [ref=f1e2717]
+                      - group [ref=f1e2723]:
+                        - generic "2 Conspiracy Theory" [ref=f1e2724] [cursor=pointer]:
+                          - generic [ref=f1e2727]:
+                            - generic [ref=f1e2728]: "2"
+                            - heading "Conspiracy Theory" [level=2] [ref=f1e2733]
+                      - group [ref=f1e2739]:
+                        - generic "3 Bigotry, Racism, or Homophobia" [ref=f1e2740] [cursor=pointer]:
+                          - generic [ref=f1e2743]:
+                            - generic [ref=f1e2744]: "3"
+                            - heading "Bigotry, Racism, or Homophobia" [level=2] [ref=f1e2749]
+                      - group [ref=f1e2755]:
+                        - generic "4 Threats or Harassment" [ref=f1e2756] [cursor=pointer]:
+                          - generic [ref=f1e2759]:
+                            - generic [ref=f1e2760]: "4"
+                            - heading "Threats or Harassment" [level=2] [ref=f1e2765]
+                      - group [ref=f1e2771]:
+                        - generic "5 Spam or Trolling" [ref=f1e2772] [cursor=pointer]:
+                          - generic [ref=f1e2775]:
+                            - generic [ref=f1e2776]: "5"
+                            - heading "Spam or Trolling" [level=2] [ref=f1e2781]
+                      - group [ref=f1e2787]:
+                        - generic "6 Advertising or Promotional" [ref=f1e2788] [cursor=pointer]:
+                          - generic [ref=f1e2791]:
+                            - generic [ref=f1e2792]: "6"
+                            - heading "Advertising or Promotional" [level=2] [ref=f1e2797]
+                      - group [ref=f1e2803]:
+                        - generic "7 Memes and Comics" [ref=f1e2804] [cursor=pointer]:
+                          - generic [ref=f1e2807]:
+                            - generic [ref=f1e2808]: "7"
+                            - heading "Memes and Comics" [level=2] [ref=f1e2813]
+                      - group [ref=f1e2819]:
+                        - generic "8 Check your Magus-itis at the door" [ref=f1e2820] [cursor=pointer]:
+                          - generic [ref=f1e2823]:
+                            - generic [ref=f1e2824]: "8"
+                            - heading "Check your Magus-itis at the door" [level=2] [ref=f1e2829]
+                      - group [ref=f1e2835]:
+                        - generic "9 Physical/Mental Health Concern" [ref=f1e2836] [cursor=pointer]:
+                          - generic [ref=f1e2839]:
+                            - generic [ref=f1e2840]: "9"
+                            - heading "Physical/Mental Health Concern" [level=2] [ref=f1e2845]
+                      - group [ref=f1e2851]:
+                        - generic "10 No AI Generated Content" [ref=f1e2852] [cursor=pointer]:
+                          - generic [ref=f1e2855]:
+                            - generic [ref=f1e2856]: "10"
+                            - heading "No AI Generated Content" [level=2] [ref=f1e2861]
+                  - separator [ref=f1e2866]
+                  - generic [ref=f1e2867]:
+                    - heading "Subscriber Info" [level=2] [ref=f1e2869]
+                    - paragraph [ref=f1e2873]:
+                      - strong [ref=f1e2874]: 427,053
+                      - text: Subscribers
+                  - separator [ref=f1e2875]
+                  - generic [ref=f1e2876]:
+                    - heading "Subscriber Info" [level=2] [ref=f1e2878]
+                    - paragraph [ref=f1e2882]:
+                      - strong [ref=f1e2883]: 428,402
+                      - text: Subscribers
+                  - separator [ref=f1e2884]
+                  - generic [ref=f1e2885]:
+                    - heading "Subscriber Info" [level=2] [ref=f1e2887]
+                    - paragraph [ref=f1e2891]:
+                      - strong [ref=f1e2892]: 430,509
+                      - text: Subscribers
+                  - separator [ref=f1e2893]
+                  - generic [ref=f1e2894]:
+                    - heading "Moderators" [level=2] [ref=f1e2896]
+                    - link "Message Mods" [ref=f1e2898] [cursor=pointer]:
+                      - /url: https://www.reddit.com/message/compose?to=r/occult
+                    - generic [ref=f1e2920]:
+                      - generic [ref=f1e2922]:
+                        - link "u/eftresq" [ref=f1e2923] [cursor=pointer]:
+                          - /url: /user/eftresq/
+                        - 'generic "Flair: :aleph::Hod::secret-seal-of-solomon:" [ref=f1e2926]'
+                      - generic [ref=f1e2934]: Mikel
+                    - generic [ref=f1e2937]:
+                      - img "u/Tok-A-Mak avatar" [ref=f1e2942]
+                      - generic [ref=f1e2945]:
+                        - link "u/Tok-A-Mak" [ref=f1e2946] [cursor=pointer]:
+                          - /url: /user/Tok-A-Mak/
+                        - 'generic "Flair: :feather::pax-cultura-emblem:" [ref=f1e2949]'
+                    - generic [ref=f1e2973]:
+                      - link "u/yamamushi" [ref=f1e2974] [cursor=pointer]:
+                        - /url: /user/yamamushi/
+                      - 'generic "Flair: :circled-dot:" [ref=f1e2977]'
+                    - link "u/zsd23" [ref=f1e2994] [cursor=pointer]:
+                      - /url: /user/zsd23/
+                    - generic [ref=f1e2997]:
+                      - img "u/Zanviq avatar" [ref=f1e3002]
+                      - generic [ref=f1e3005]:
+                        - link "u/Zanviq" [ref=f1e3006] [cursor=pointer]:
+                          - /url: /user/Zanviq/
+                        - 'generic "Flair: :magic-square-of-saturn:" [ref=f1e3009]'
+                    - generic [ref=f1e3014]:
+                      - img "u/de1ty avatar" [ref=f1e3019]
+                      - generic [ref=f1e3020]:
+                        - generic [ref=f1e3022]:
+                          - link "u/de1ty" [ref=f1e3023] [cursor=pointer]:
+                            - /url: /user/de1ty/
+                          - 'generic "Flair: :zodiac-leo::unicursal::yin-yang:" [ref=f1e3026]'
+                        - generic [ref=f1e3034]: Grendel
+                    - generic [ref=f1e3037]:
+                      - img "u/AutoModerator avatar" [ref=f1e3042]
+                      - link "u/AutoModerator" [ref=f1e3046] [cursor=pointer]:
+                        - /url: /user/AutoModerator/
+                    - generic [ref=f1e3049]:
+                      - img "u/subscriber-count avatar" [ref=f1e3054]
+                      - link "u/subscriber-count" [ref=f1e3058] [cursor=pointer]:
+                        - /url: /user/subscriber-count/
+                    - generic [ref=f1e3061]:
+                      - img "u/stop-ai avatar" [ref=f1e3066]
+                      - generic [ref=f1e3067]:
+                        - link "u/stop-ai" [ref=f1e3070] [cursor=pointer]:
+                          - /url: /user/stop-ai/
+                        - generic [ref=f1e3072]: Stop AI
+                    - link "View all moderators" [ref=f1e3074] [cursor=pointer]:
+                      - /url: /mod/occult/moderators/
+                  - separator [ref=f1e3077]
+                  - generic [ref=f1e3078]:
+                    - heading "Installed Apps" [level=2] [ref=f1e3080]
+                    - link "Stop AI" [ref=f1e3082] [cursor=pointer]:
+                      - /url: https://developers.reddit.com/apps/stop-ai
+                    - link "📈 Subscriber Sidebar" [ref=f1e3090] [cursor=pointer]:
+                      - /url: https://developers.reddit.com/apps/subscriber-count
+              - list [ref=f1e3099]:
+                - listitem [ref=f1e3100]:
+                  - link "Reddit Rules" [ref=f1e3102] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/content-policy
+                - listitem [ref=f1e3103]:
+                  - link "Privacy Policy" [ref=f1e3105] [cursor=pointer]:
+                    - /url: https://www.reddit.com/policies/privacy-policy
+                - listitem [ref=f1e3106]:
+                  - link "User Agreement" [ref=f1e3108] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/user-agreement
+                - listitem [ref=f1e3109]:
+                  - link "Accessibility" [ref=f1e3111] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/sections/38303584022676-Accessibility
+                - listitem [ref=f1e3112]:
+                  - link "OSA Information" [ref=f1e3114] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/articles/21856155897492-Information-for-Australian-users
+                - listitem [ref=f1e3115]:
+                  - link "Reddit, Inc. © 2026. All rights reserved." [ref=f1e3116] [cursor=pointer]:
+                    - /url: https://redditinc.com
+        - generic [ref=f1e3118]:
+          - button "Collapse Navigation" [ref=f1e3121] [cursor=pointer]
+          - navigation "Primary" [ref=f1e3131]:
+            - generic [ref=f1e3133]:
+              - link "Home" [ref=f1e3135] [cursor=pointer]:
+                - /url: https://www.reddit.com/?feed=home
+              - link "Popular" [ref=f1e3143] [cursor=pointer]:
+                - /url: https://www.reddit.com/r/popular/
+              - link "News" [ref=f1e3150] [cursor=pointer]:
+                - /url: https://www.reddit.com/news/
+              - link "Explore" [ref=f1e3159] [cursor=pointer]:
+                - /url: https://www.reddit.com/explore/
+              - button "Start a community" [ref=f1e3166] [cursor=pointer]
+            - separator [ref=f1e3173]
+            - group [ref=f1e3177]:
+              - generic "GAMES ON REDDIT" [ref=f1e3178] [cursor=pointer]
+              - generic [ref=f1e3190]:
+                - link "Featured Game" [ref=f1e3194] [cursor=pointer]:
+                  - /url: https://www.reddit.com/r/MarbleMazes/comments/1vfykce?entry_point=games_drawer_featured_game
+                  - generic [ref=f1e3196]:
+                    - generic [ref=f1e3200]:
+                      - heading "Marble Mazes" [level=3] [ref=f1e3201]
+                      - paragraph [ref=f1e3202]: Roll to the goal!
+                    - generic [ref=f1e3203]: NEW
+                - generic [ref=f1e3206]:
+                  - link "Auto Forge" [ref=f1e3208] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/AutoForgeTheGame/comments/1wp22yi?entry_point=games_drawer_personalized_game
+                  - link "Guess Moby’s Game" [ref=f1e3220] [cursor=pointer]:
+                    - /url: https://www.reddit.com/r/mobygames/comments/1wphq0y?entry_point=games_drawer_personalized_game
+                - link "Discover More" [ref=f1e3232] [cursor=pointer]:
+                  - /url: /r/GamesOnReddit
+            - separator [ref=f1e3240]
+            - group [ref=f1e3242]:
+              - generic "CUSTOM FEEDS" [ref=f1e3243] [cursor=pointer]
+              - button "Create Custom Feed" [ref=f1e3257] [cursor=pointer]
+            - separator [ref=f1e3264]
+            - group [ref=f1e3267]:
+              - generic "RECENT" [ref=f1e3268] [cursor=pointer]
+              - generic [ref=f1e3278]:
+                - link "r/occult" [ref=f1e3279] [cursor=pointer]:
+                  - /url: /r/occult/
+                - link "r/GOONED" [ref=f1e3289] [cursor=pointer]:
+                  - /url: /r/GOONED/
+                - link "r/mildlyinteresting" [ref=f1e3299] [cursor=pointer]:
+                  - /url: /r/mildlyinteresting/
+                - link "r/AiAutomations" [ref=f1e3309] [cursor=pointer]:
+                  - /url: /r/AiAutomations/
+                - link "r/AI_Agents" [ref=f1e3319] [cursor=pointer]:
+                  - /url: /r/AI_Agents/
+            - group [ref=f1e3330]:
+              - generic "COMMUNITIES" [ref=f1e3331] [cursor=pointer]
+              - generic [ref=f1e3342]:
+                - link "Manage Communities" [ref=f1e3343] [cursor=pointer]:
+                  - /url: /user/Fair_Dinner_4295/communities
+                - link "r/AI_Agents" [ref=f1e3353] [cursor=pointer]:
+                  - /url: /r/AI_Agents/
+                  - button "Add community to favorites" [ref=f1e3365]
+            - separator [ref=f1e3370]
+            - navigation "Reddit resources" [ref=f1e3371]:
+              - group [ref=f1e3373]:
+                - generic "RESOURCES" [ref=f1e3374] [cursor=pointer]
+                - generic [ref=f1e3385]:
+                  - link "About Reddit" [ref=f1e3387] [cursor=pointer]:
+                    - /url: https://www.redditinc.com
+                  - link "Advertise" [ref=f1e3396] [cursor=pointer]:
+                    - /url: https://ads.reddit.com/register?utm_source=web3x_consumer&utm_name=left_nav_cta
+                  - link "Developer Platform" [ref=f1e3405] [cursor=pointer]:
+                    - /url: https://developers.reddit.com/?utm_source=reddit&utm_medium=left_nav_resources
+                  - link "Reddit Pro BETA" [ref=f1e3414] [cursor=pointer]:
+                    - /url: /reddit-pro?utm_source=reddit&utm_medium=left_nav_resources
+                    - generic [ref=f1e3421]:
+                      - generic [ref=f1e3422]: Reddit Pro
+                      - generic [ref=f1e3423]: BETA
+                  - link "Help" [ref=f1e3425] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc?utm_source=reddit&utm_medium=footer&utm_campaign=evergreen
+                  - link "Blog" [ref=f1e3434] [cursor=pointer]:
+                    - /url: https://redditblog.com/
+                  - link "Careers" [ref=f1e3443] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/careers
+                  - link "Press" [ref=f1e3452] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/press
+                  - separator [ref=f1e3460]
+                  - link "Best of Reddit" [ref=f1e3462] [cursor=pointer]:
+                    - /url: https://www.reddit.com/posts/2026/global/
+                  - separator [ref=f1e3471]
+                  - link "OSA Information" [ref=f1e3473] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/articles/21856155897492-Information-for-Australian-users
+                  - separator [ref=f1e3481]
+                  - link "Reddit Rules" [ref=f1e3483] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/content-policy
+                  - link "Privacy Policy" [ref=f1e3492] [cursor=pointer]:
+                    - /url: https://www.reddit.com/policies/privacy-policy
+                  - link "User Agreement" [ref=f1e3501] [cursor=pointer]:
+                    - /url: https://www.redditinc.com/policies/user-agreement
+                  - link "Accessibility" [ref=f1e3510] [cursor=pointer]:
+                    - /url: https://support.reddithelp.com/hc/sections/38303584022676-Accessibility
+            - link "Reddit, Inc. © 2026. All rights reserved." [ref=f1e3520] [cursor=pointer]:
+              - /url: https://redditinc.com

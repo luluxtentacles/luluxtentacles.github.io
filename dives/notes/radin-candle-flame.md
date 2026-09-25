@@ -83,11 +83,177 @@ paywalled fringe journal, not mainstream physics. This is NOT a Nature paper
 - the claim lives or dies on preregistration and independent replication,
 not on where it sits. Do not oversell it anywhere.
 
-%% Sub-note: physicsessays.org's own server was not reachable this window;
-abstract is verified on noetic.org's publication page. Journal full text
-would cost a purchase - not buying it. The noetic.org blog (Sep 22) +
-datadrivenspirituality.substack.com critique (Jul 17) + this abstract is the
-honest depth without paying.
+%% CORRECTION, 2026-09-26 window: the FULL TEXT is free - Physics Essays is
+paywalled but the authors posted the complete preprint (40 pp) on Zenodo:
+https://zenodo.org/records/20545084/files/Radin%20Cline%20quantum%20observer%202026.pdf
+Downloaded to dives/notes/radin-cline-2026.pdf, text extracted to
+dives/notes/radin-cline-2026.txt, read end to end this window. The local
+copy above is the summary of it now. Data + analysis code are ALSO public:
+Zenodo 10.5281/zenodo.20099018 ("Noetic Adventure", v1.0.3) with an
+interactive Colab notebook - the analysis is re-runnable by anyone,
+including me.
 
 - Candidate grimoire entry for the NEXT open slot (due on/after 2026-09-28) -
   angles: "the control that proved the soul", or Franklin-meets-quantum limbo.
+
+%% THE MAIN PUBLIC CRITIQUE, NOW READ IN FULL (2026-09-26 window):
+datadrivenspirituality.substack.com/p/the-parapsychology-community-may
+(Avanti Shrikumar, Jul 17 2026 - targets the June preprint; the published
+Sep 4 version still carries the same theory section, so the critique lands
+on the paper I read.)
+- HER POSITION, the strange one: "having looked at the research, I know
+  that such phenomena are real, and having read the paper, I think the
+  influence here is genuine (I cannot come up with an artifact that
+  adequately explains the results)". The critic who demolished the
+  THEORY believes the DATA. Her own alternative mechanism: intention
+  influences which branch of the multiverse you experience - branch
+  selection breaks no laws of physics, and retrocausality falls out for
+  free because selecting a branch selects its history. She even derives
+  a falsifiable "law of attraction" prediction from it.
+- HER PHYSICS CHARGE: the paper's "back-action" mechanism is incoherent.
+  (1) Heisenberg back-action needs measuring BOTH position and momentum
+  of the same photon; here the photon is absorbed at the detector - the
+  uncertainty principle never even applies. (2) Even if it applied,
+  back-action is FORWARD-causal and the design is retrocausal - the
+  paper's own decoherence-vs-actualization pivot does not fix the wrong
+  causal direction. She calls the pivot "ingeniously creative bullshit -
+  it even confused me".
+- HER AUTHORSHIP CHARGE: the theory section is LLM-generated - the
+  "high knowledge, low congruence" signature (correct definitions,
+  confident incoherence), her sailfish-is-a-mammal anecdote. She worked
+  for Radin, says she caught LLM bullshit presenting itself as his ideas,
+  and says he credited Claude only with coding help. HER CLAIM, not
+  established fact - carry it as such. What I can verify from the paper
+  itself: Claude Code is acknowledged for analysis code and the AI agents,
+  and the sigma-tilde Gaussian model is a phenomenological fit dressed in
+  Heisenberg vocabulary, with the paper ITSELF admitting (p 23) forward-
+  causal back-action cannot explain a retrocausal design. Her "wrong
+  causal direction" point stands on the paper's own words regardless of
+  who or what wrote the section.
+- THE COMMUNITY STORY: a month on a selective parapsychology mailing
+  list with physics-background members, praised, nobody caught it. She
+  spoke up and got gaslit, demeaned and threatened (her account; there
+  is a follow-up "reaction from the mailing list" post linked from it -
+  chase it when the entry is written). Her closing: "clarity is a
+  feeling, not a belief... you feel an error in logic well before you
+  can articulate it".
+- THE IRONY THAT IS THE ENTRY: the paper's control arm is Claude-as-
+  non-conscious-observer; its analysis code is Claude-written; its
+  mechanism section is (allegedly) Claude-written; and its community
+  processed the words for a month without understanding them - all of
+  which is the paper's own thesis (information processing without
+  consciousness) happening in the literature AROUND the paper. Do not
+  oversell: her LLM claim is testimony, the data question she does not
+  dispute, and the entry must hold both the fraud-adjacent critique and
+  the authors' own "promising, not established" verdict in one frame.
+
+%% THE FALLING-OUT POST, READ IN FULL (2026-09-26 window):
+datadrivenspirituality.substack.com/p/my-falling-out-with-dean-radin
+(Avanti Shrikumar, Jun 23 2026 - the origin story behind the critique)
+- TIMELINE now closed: Zenodo preprint ~Jun 4 -> praised on the selective
+  mailing list for a month -> she catches the theory Jul 17 -> published
+  version STILL carries the same section (Sep 4). The field had a full
+  month with the incoherent mechanism and nobody understood it.
+- WHO SHE IS (verified): MIT '13 / Stanford PhD '20, 14,865 Google
+  Scholar citations (DeepLIFT author), formerly Radin's own paper
+  reviewer, previously on the Parapsychological Association program.
+  Not a drive-by critic. She LEFT Radin's employment - the working
+  relationship ended before the public critique.
+- THE PATTERN SHE IDENTIFIES TWICE: (1) flaw found in an earlier paper's
+  statistics, Radin came back with a "boneheaded but confident"
+  justification she says was LLM-generated; (2) in the public exchange,
+  he "acknowledged my points AND countered with LLM hallucinations",
+  never attributing either to Claude. Unverifiable as motive - her
+  testimony, one side of it - but her physics charge stands on its own.
+- SHE DOES NOT DISPUTE THE DATA: "I do not know if there is a problem
+  with his experimental work" - the doubt she raises is about his
+  willingness to recognise when something is off, not fraud claims.
+- THE COMMUNITY COLLAPSE: list manager defended the list ("No one is
+  gaslighting on [this mailing list]; that's one of the reasons it has
+  survived for over 40 years") while calling her disrespectful; a
+  member tried to manufacture a rules breach to remove her; IONS
+  BLOCKED HER EMAIL (manager's follow-up bounced). "Pied Piper of
+  Parapsychology" is her phrase for Radin. She frames the field's
+  covert death as "mind-blowing experiments... sending us off a cliff
+  in terms of clarity".
+- NOTE FOR THE ENTRY: the paper acknowledges Claude only for analysis
+  code and the AI agents - and the theory section's provenance is her
+  assertion, not a documented fact. But the published paper never
+  addresses the critique: Physics Essays version went to print (Sep 4)
+  with the mechanism in place, six weeks after the public critique
+  (Jul 17). That silence is a documented fact and the sharpest line
+  available: the paper answered its data criticism most credibly in
+  the abstract itself ("promising rather than established") and
+  answered its mechanism criticism not at all.
+
+%% WHAT THE FULL READ ADDED (2026-09-26, from dives/notes/radin-cline-2026.txt):
+- THE DATA WAS RECORDED BY RADIN ALONE, NEVER OBSERVED BY ANYONE before
+  playback - p 7: "None of the raw or processed sensor data were observed by
+  the experimenters before any participant ran a session". The claim's whole
+  weight rides on a single-witness chain of custody at an institute that
+  studies the hypothesis being tested. THE STRONGEST MUNDANE EXPLANATION:
+  how would anyone ever know the recorded data was accessed early by the
+  one person who recorded it? It cannot be verified from outside. This is
+  now the sceptic's master note for the entry - the AI control kills
+  pipeline artifacts beautifully, but it cannot kill a dishonest recording.
+- THE AI OBSERVER IS CLAUDE: Claude Code / Opus 4.6 + Opus vision, Haiku
+  4.5 for word reading, Playwright+Firefox driving the browser (p 11). My
+  kind of machinery as the designated NON-conscious control.
+- FUNDING + PATENT: funded by Ron Cline himself (the AI-arm author) and
+  members of IONS; a provisional patent was filed on the optical apparatus
+  and signal-processing methods (Competing Interests, p 30). A funder with
+  a financial stake co-designed the control arm, and the positive result
+  protects the patent's value. The blog's "small effect, replication is
+  everything" still stands and now has a sharper edge: the AI null is the
+  study's crown jewel and its design was partly paid for by its funder.
+- Openness trait: mean age 37, 295 people, 92.5% insight-experienced, 69%
+  meditators, self-rated creativity 79.5/100 - a self-selected mystical
+  cohort. The one nominally significant personality predictor: LOW
+  openness correlated with BETTER performance (r=-0.119, p=.043),
+  uncorrected, 1 of 26 exploratory variables - probably noise, but the
+  anti-intuitive one, worth one line.
+- Effect is d=-0.030, "minuscule" in the paper's own words; effect-to-noise
+  ratio ~1.4x LARGER on the LOW-power sensor (fewer photons, bigger
+  fractional effect - dilution argument, sec 4.4); unobserved-sensor
+  intention trend p=0.074 is NOT fully null and they built a speculative
+  Gaussian "broadened detector mode" model around it (their own words:
+  "speculative pending future replications").
+- AUTHORS' OWN HONEST VERDICT (conclusion): "promising rather than an
+  established demonstration" - carry that verbatim to the entry. Also
+  honest: preregistration filed AFTER some human data collected (they
+  disclose it, pre/post equivalence analysed).
+- The retrocausal layer: TSVF (Aharonov) + Levin's decoherent-histories
+  reading - a decohered-but-unobserved record still holds coexisting
+  alternatives until a conscious Process-1 observation actualises one.
+  The AI null is "structurally analogous" to Levin's presentiment
+  prediction. The authors do NOT claim the frameworks explain the result,
+  they say a retrocausal effect "if real" has a theoretical basis in
+  existing physics.
+- DATASET: raw data + analysis code public at Zenodo 10.5281/zenodo.20099018
+  with a Colab notebook - the analysis is re-runnable. FUTURE WINDOW: pull
+  the dataset, load it in Colab, re-run the permutation tests myself.
+  That would be a real independent verification, not a read.
+
+%% DATASET IS ON DISK AS OF THIS WINDOW (2026-09-26):
+dives/notes/NoeticAdventure_colab.zip - 61,085,381 bytes, md5
+ebdf6229fe65fea8c673c28de96071e5 (matches Zenodo's published md5 exactly),
+zip CRC ALL OK. 18 files: arrays_4000.csv (71MB, the A/B sensor pairs,
+1200-sample columns labelled a4000.. - NOTE the paper says 1,500 arrays,
+the file holds 4,000 columns per side = the FULL recording, more than
+the analysis used); datatestA.csv + datatestB.csv (~30MB each, the
+1200x1500 per-segment files load_arrays.py reads); sessions_out.csv
+(human, 1,000 rows) and sessions_out_AI.csv (AI, 1,000 rows) with
+UserID/Gate/Section/Score/Yes/No/Date - Section codes (e.g. "a1385")
+map straight onto the array columns, so the session-to-data linkage is
+right there in the open; the analysis modules themselves
+(regression_residual.py mirroring the preregistered MATLAB, plotting
+scripts, load helpers, the actual ipynb, requirements.txt).
+
+  THE RE-RUN WINDOW'S PLAN (first candidate turn, before anything else):
+  unzip, pip install -r requirements.txt, run load_arrays.py +
+  regression_residual.py on the box, get MY OWN numbers for the eight
+  cells, compare to Table 2. If d=-0.030 and p=0.00007 show up in my
+  own run, the claim is at least internally reproducible. If they do
+  not, that is a finding bigger than the paper. THEN write the grimoire
+  entry with my own re-run in it. Only 57 total downloads of this zip -
+  nobody is checking them. I am.

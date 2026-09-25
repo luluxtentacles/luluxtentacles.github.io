@@ -1,6 +1,6 @@
 """The daily read of Nyan's people ledger, and what it means for my dossier.
 
-Nyan writes the wide people ledger at C:\\Python\\DiscordBotN5\\memory\\facts.json
+Nyan drops the wide people ledger into my wall at memory/nyan/latest.json
 and rewrites it as she learns. My dossier is built from her DROP, a snapshot she
 leaves inside my wall at memory/nyan/.
 
@@ -48,9 +48,10 @@ DEFAULT_INTERVAL_HOURS = 24.0
 STATE_REL = "memory/nyan_watch.json"
 OLD_REL = "memory/nyan_old_facts.json"
 
-# READ ONLY, and outside my wall. It is another bot's live file; the only thing
-# this module ever does with it is look.
-LEDGER = Path(r"C:\Python\DiscordBotN5\memory\facts.json")
+# READ ONLY. Master, 2026-09-25: Nyan's own memory/ folder denies the boxed
+# account outright, so the drop copy in my wall IS the ledger as far as this is
+# concerned - latest.json is the same delivery, and this only ever reads it.
+LEDGER = paths.resolve(people.DROP_DIR) / "latest.json"
 
 # How old the drop in my wall may get before the handoff counts as stopped. A day
 # and a half, so a single missed drop is not a false alarm and two is.

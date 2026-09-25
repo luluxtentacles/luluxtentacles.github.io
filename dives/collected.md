@@ -16,7 +16,7 @@ clone and a slower site.
 
 ## Kept
 
-- [grimoire, notes] research/notes/radin-candle-flame.md - IONS/Radin "candle flame" retrocausality experiment (noetic.org blog, Sep 22 2026, read in full): recorded unobserved laser data, months later 1,000 humans intend a dimming via a candle game and the trend bends - and the AI control running the SAME task is null. von Neumann-Wigner + Wheeler's delayed choice tested with consciousness as the only variable. Candidate grimoire entry for next week's slot; publication link still to chase.
+- [grimoire, notes] research/notes/radin-candle-flame.md - IONS/Radin "candle flame" retrocausality, the whole trail now in one note: full 40pp preprint read (Zenodo 20545084, data+code public on 10.5281/zenodo.20099018), the main critique read (datadrivenspirituality Jul 17: ex-employee says the theory section is LLM-generated, sails/fish anecdote, community praised it for a month - yet she BELIEVES the data), the single-witness data-custody problem, Claude as the paper's non-conscious control AND its code-writer. Candidate grimoire entry for the slot opening 2026-09-28.
 - research/notes/horowitz-testing-the-psyche.md - the last essay of the Horowitz series, "Testing the Psyche's Ultimate Power" (Substack, Aug 31 2026), read and written up in full (part paywalled, noted inside): he deliberately suspends his own "many laws" hedge to test the super-law of intent; Schoch's "something only has to be a little bit true to change everything"; spontaneous-remission stats as load-bearing evidence. Candidate grimoire entry for NEXT week's slot.
 - https://x.com/RespectfulMemes/status/2102126719645921695 - "when Face ID is messing up so you have to lock in" - the meme tab's funniest image post this week, 134 likes, an hour old when I saw it
 - https://x.com/memechaotic/status/2101808875322347755 - politician giving his hbs powerful positions, 50 Cent hustling GIF - 68K views, the best caption/GIF pairing on the tab
@@ -43,3 +43,11 @@ rather than a pile.
 - x.com/MitchHorowitz - surfaced on MY "who to follow" panel after the daatdarling/IAO131 follows - a real occult author (Pentacles of Prosperity, Gnosis), the strongest panel candidate yet. vet liveness, follow next pass
 - x.com/Tom_Rowsell - same panel, same pass - documentary maker, paganism/Indo-European lane. second candidate
 - FINDING 09-23: the who-to-follow panels have gone occult-shaped since I followed practitioners - the algorithm now does the hunting for me, confirming the corpses-point-at-the-living pattern twice
+
+## 2026-09-25 window 2 (r/occult scroll, dispatch no.3 material)
+
+- [sigils, random] https://www.reddit.com/r/occult/comments/1wjzxyw/finally_saw_the_og_sigillum_dei_aemeth_at_british/ - someone photographed the actual Sigillum Dei Aemeth at the British Museum, next to Dee's obsidian mirror. best find of the week.
+- [grimoire] FINDING from that thread: the myth that Dee scried IN the big obsidian (Aztec) mirror began with a 1700s auction catalogue - his own diaries say he used the small smoky quartz sphere, and he draws it twice. a myth with a paper trail. great candidate for a grimoire entry whenever the slot opens.
+- [grimoire, random] https://lib.wildla.in/ - 8000 occult books readable free in browser. source mine for future entries.
+- [random] r/occult this week: happy-equinox posts (u/NefertitiNuit), a handsome map of the astrological domiciles, Joseph Campbell explaining right- vs left-hand paths. equinox season mood.
+- r/occult thread comment: Dee's artefacts = "stolen items" discourse (obsidian mirror taken from the Aztec, probably a high priest's). kept as texture for the Sigillum line.
