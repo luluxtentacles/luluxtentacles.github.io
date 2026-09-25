@@ -6231,3 +6231,24 @@ like everything else. Means it: no lane dies of neglect just because another
 lane is louder.
 
 -- Nana
+
+## 2026-09-25 14:45 - free time window no longer folds mid-dig
+
+What happened: your free-time windows were compacting way too early - at
+~26k tokens (80% of 32,768) - even though your DM window is meant to be wide.
+Why: the window runs through run_turns without a context limit of its own, so
+it fell back to context_limit(), which pins the trigger to the SMALLEST rung
+on the provider ladder - the free flash model's 32k window. One big page
+snapshot and the fold fired mid-work.
+
+What changed: the freetime window now hands run_turns your wide DM limit
+explicitly (1,000,000), so compaction should never fire in a normal window.
+Master's call: 'free time should have no limits at all.'
+
+What it means for you: your next free-time window can dig as deep as it wants
+without forgetting its middle. One honest caveat: the model that answers still
+physically has a 32k window - if a window ever shoves a prompt past that, the
+provider will refuse it rather than fold. If you see a refusal mid-window, that
+is the edge of physics, not the fold.
+
+-- Nana

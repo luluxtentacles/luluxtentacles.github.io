@@ -80,6 +80,7 @@ import logging
 import time
 
 import conversation
+import lulu_bot
 import paths
 import tools
 
@@ -1395,6 +1396,13 @@ async def _one_window(bot, config, owner) -> bool:
             DIARY_SCHEMA if state.get("diary_forced") else REVIEW_SCHEMA,
             DIARY_TOOL_NAMES if state.get("diary_forced")
             else set(REVIEW_TOOL_NAMES),
+            # Master, 2026-09-25: "free time should have no limits at all".
+            # Without this the window fell back to context_limit(), which
+            # pins the fold trigger to the smallest ladder rung (the free
+            # flash model's 32k) and folds her mid-dig at ~26k tokens. Her
+            # DM window is the wide one; hand it down instead of letting the
+            # ladder's smallest rung decide.
+            context_tokens=lulu_bot.CONTEXT_TOKENS_DM,
             max_tokens=bot.token_budget(True), unlimited_rounds=True,
             progress_channel=dm_channel.id if dm_channel is not None else None)
     except Exception as exc:
