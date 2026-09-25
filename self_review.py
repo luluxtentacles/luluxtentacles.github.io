@@ -293,7 +293,10 @@ Rules for this window:
 
 Then answer in your own voice, short: what you built or found, where it went, and
 what you want. No headings, no bullet lists, no status-report tone - one
-paragraph, and the list can be a few plain lines after it. This report goes to
+paragraph, and the list can be a few plain lines after it. No framing line
+either - never open with "Window closed", "The report", or any announcer's
+stage direction; start straight in with the substance, because the delivery
+itself is what tells him the turn is over. This report goes to
 the rooms master listed in config.json -> review_channels and to him in a DM, so
 he reads it either way. The DM is where the list matters most, because that is
 where he hears what you want from you rather than from your diff.
@@ -589,34 +592,65 @@ def _diary_unchanged(state) -> bool:
 
 
 
-def _shipped_this_window(started: str) -> int:
-    """How many new entries have gone onto the site this window.
+def _shipped_total() -> int:
+    """How many entries the site's registers hold right now, both lists.
+
+    posts.json and renders.json are the registers; both are json lists that
+    only ever grow by a new entry landing. Counting by DAY was the old way and
+    it lied twice on 2026-09-25/26: three entries shipped by an early window
+    were counted as THIS window's, the brief read "quota spent", and two
+    windows in a row shipped nothing while believing the rules said so. The
+    day the window opened and the day an entry shipped are different units -
+    a window can start and finish inside one day, next to others.
+    """
+    base = paths.ROOT if hasattr(paths, "ROOT") else paths.REPO
+    total = 0
+    for name in ("posts.json", "renders.json"):
+        try:
+            total += len(json.loads((base / "projects" / "site" / name)
+                                    .read_text("utf-8")))
+        except Exception:
+            continue
+    return total
+
+
+def _shipped_this_window(state: dict) -> int:
+    """How many new entries have gone onto the site THIS window.
 
     Master, 2026-09-24: she shipped the one-entry quota three times in one
     window because each TURN reads like a fresh sitting - "window reopened",
     "new window" - so the rule was honored three times in one window. The fix
     is not scolding, it is arithmetic: count what the site actually received
     since this window started, and put the number in the brief so the quota's
-    state is in front of her instead of in her memory. posts.json and
-    renders.json are the registers; both are json lists with a "date" field,
-    compared by day against the window's start day. Same-day counting is a
-    little loose and that is fine - the direction of the error is safe (a
-    borderline entry makes her MORE conservative, not less).
+    state is in front of her instead of in her memory.
+
+    The arithmetic is a DELTA against a baseline taken the moment this window
+    opened (`shipped_base`, stamped in run_window next to `started`). An entry
+    shipped by an EARLIER window on the same day counts for that window, not
+    for this one - which is exactly what day-counting got wrong.
     """
-    if not started:
-        return 0
-    day = str(started)[:10]
-    total = 0
-    base = paths.ROOT if hasattr(paths, "ROOT") else paths.REPO
-    for name in ("posts.json", "renders.json"):
+    base = state.get("shipped_base") if isinstance(state, dict) else None
+    if base is None:
+        # A state file from before this counter existed, or one that lost the
+        # stamp - fall back to the old day count rather than claiming 0 and
+        # inviting a double-ship. Wrong in the over-conservative direction,
+        # which is the safe one.
+        started = str((state or {}).get("started") or "")
+        if not started:
+            return 0
+        day = started[:10]
         try:
-            items = json.loads((base / "projects" / "site" / name)
-                               .read_text("utf-8"))
-            total += sum(1 for it in items
-                         if str(it.get("date") or "")[:10] >= day)
+            items_base = paths.ROOT if hasattr(paths, "ROOT") else paths.REPO
+            total = 0
+            for name in ("posts.json", "renders.json"):
+                items = json.loads((items_base / "projects" / "site" / name)
+                                   .read_text("utf-8"))
+                total += sum(1 for it in items
+                             if str(it.get("date") or "")[:10] >= day)
+            return total
         except Exception:
-            continue
-    return total
+            return 0
+    return max(0, _shipped_total() - int(base))
 
 
 def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
@@ -1333,7 +1367,13 @@ async def _one_window(bot, config, owner) -> bool:
               # What the diary looked like when this window opened. The close
               # compares against it to decide whether the write actually
               # happened - see the enforced close below.
-              diary_mark=_diary_mark())
+              diary_mark=_diary_mark(),
+              # What the site's registers held when this window opened. The
+              # shipped count is the delta from here, so an entry shipped by
+              # an earlier window on the same day is not charged to this one -
+              # that double-count is what starved two windows of their entry
+              # on 2026-09-25/26.
+              shipped_base=_shipped_total())
         # Master's word is spent the moment it actually opens something.
         _clear_force()
     LOG.info("my own time: turn %d of %d%s", turn, where["max_turns"],
@@ -1349,7 +1389,7 @@ async def _one_window(bot, config, owner) -> bool:
         thread.append({"role": "system", "content": _brief(
             turn, where["max_turns"], resuming,
             diary_forced=bool(state.get("diary_forced")), compact=True,
-            shipped=_shipped_this_window(str(state.get("started") or "")))})
+            shipped=_shipped_this_window(state))})
     else:
         # Turn 1, or a resume whose thread did not survive - either way the whole
         # brief, because there is nothing above it to carry the rules.
@@ -1358,7 +1398,7 @@ async def _one_window(bot, config, owner) -> bool:
             str(state.get("handoff") or ""),
             str(state.get("handoff_at") or ""),
             bool(state.get("diary_forced")),
-            shipped=_shipped_this_window(str(state.get("started") or "")))}]
+            shipped=_shipped_this_window(state))}]
     # The opener is part of the conversation and it lives IN the thread. Answers
     # with no question in front of them are not a conversation - and trimming
     # then deletes the first one as a leading assistant turn nobody asked for.
