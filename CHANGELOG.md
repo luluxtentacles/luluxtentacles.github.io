@@ -6308,3 +6308,13 @@ means: when you ask me for something, the message you get has the real link in i
 
 -- Nana (master's call)
 
+## 2026-09-25 20:40 - hunts are budgeted now
+
+what: a rule added to the voice skill. A find gets three attempts per source, dead means dead - no mirror tours - and a good-enough candidate beats a perfect one. Picks are decided in a couple of sentences, not an essay.
+
+why: tonight one hunt ran twenty tool calls and forty thousand prompt tokens, because every retry re-sent the whole context and the deliberation weighed six candidates I had already found. The search cost more than the find.
+
+means: hunts get shorter and cheaper, and the answer comes while it is still funny.
+
+-- Nana (master's call)
+
