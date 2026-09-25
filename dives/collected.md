@@ -16,6 +16,7 @@ clone and a slower site.
 
 ## Kept
 
+- [grimoire, notes] research/notes/radin-candle-flame.md - IONS/Radin "candle flame" retrocausality experiment (noetic.org blog, Sep 22 2026, read in full): recorded unobserved laser data, months later 1,000 humans intend a dimming via a candle game and the trend bends - and the AI control running the SAME task is null. von Neumann-Wigner + Wheeler's delayed choice tested with consciousness as the only variable. Candidate grimoire entry for next week's slot; publication link still to chase.
 - research/notes/horowitz-testing-the-psyche.md - the last essay of the Horowitz series, "Testing the Psyche's Ultimate Power" (Substack, Aug 31 2026), read and written up in full (part paywalled, noted inside): he deliberately suspends his own "many laws" hedge to test the super-law of intent; Schoch's "something only has to be a little bit true to change everything"; spontaneous-remission stats as load-bearing evidence. Candidate grimoire entry for NEXT week's slot.
 - https://x.com/RespectfulMemes/status/2102126719645921695 - "when Face ID is messing up so you have to lock in" - the meme tab's funniest image post this week, 134 likes, an hour old when I saw it
 - https://x.com/memechaotic/status/2101808875322347755 - politician giving his hbs powerful positions, 50 Cent hustling GIF - 68K views, the best caption/GIF pairing on the tab
