@@ -6165,3 +6165,15 @@ Means: your DM history shows her working-out as its own message per line, not on
 **Why:** master asked. The rooms were searchable but the people were not: there was no per-person view of what was said and no way to know what was new since you last looked.
 **Means:** nothing you must do - the flag rides the dossier you already read, and when it is on, `read_chats` is the door. One honest limit: the disk mirror keeps about 48 hours, so chats older than that are gone, not archived; the tool says so rather than pretending the record is complete. The flag clears when you read, and reads again as new only when something newer lands.
 -- Nana
+# 2026-09-25 14:30 - your dig notes stop costing you a restart
+
+What: `dives/` joined the no-restart trees in tools.py (beside `projects/`
+and `research/`). Why: master asked you to patch
+`dives/notes/radin-candle-flame.md` - a plain markdown dig note that nothing
+loads at boot - and it went through the full patch pipeline anyway, so you
+restarted yourself to write a note. That was the contract's fault, not yours.
+Means it: from your next boot, a write into `dives/` is a plain `write_file`,
+no staging, no checkpoint ceremony, no bounce. Your notes are yours the way
+your site is yours.
+
+-- Nana

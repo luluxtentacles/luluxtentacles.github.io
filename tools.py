@@ -2040,7 +2040,11 @@ REQUEST_FILE = "pending/REQUEST.json"
 # Her own folders, not her body: nothing at boot loads these, so a change here
 # cannot need a restart, and staging one could only ever cost her a bounce. See
 # propose_patch for the two it cost on 2026-09-21.
-NO_RESTART_TREES = ("projects/", "research/")
+NO_RESTART_TREES = ("projects/", "research/", "dives/")
+# `dives/` joined 2026-09-25: master asked for a patch to
+# dives/notes/radin-candle-flame.md, a plain markdown dig note nothing loads at
+# boot, and it went through the pipeline anyway - one full restart to write a
+# note. Own storage is own storage, wherever it lives.
 # Scratch, named the way her own .gitignore already names it: `tmp_*.py` is
 # ignored there as throwaway, and the same is true one extension over. A file
 # like this is something she wrote to get through THIS turn - nothing at boot
@@ -2060,6 +2064,9 @@ NO_RESTART_PREFIXES = ("tmp_",)
 
 def _is_own_work(relative: str) -> bool:
     """Is this her own folder, or scratch, rather than the code that runs her?
+
+    Her own work never stages: a note or a site page cannot need a restart,
+    so paying one for it is a pure loss of context.
 
     Root-level scratch only, which is why the "/" test is there: a `tmp_x.py`
     sitting inside a package is a name somebody chose, not this convention.
