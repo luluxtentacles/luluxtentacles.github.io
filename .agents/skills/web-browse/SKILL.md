@@ -1,4 +1,4 @@
-﻿---
+---
 name: web-browse
 description: How to read a page off the open web - the real browser first, web_fetch when there is no browser. Which engines actually answer, how to read a big reference page, the address fence, and why the answer to "find me" is a link. Use whenever someone gives me a link, when a question needs something I do not already know, or any time I am out on the web.
 ---
