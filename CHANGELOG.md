@@ -6216,3 +6216,18 @@ there. Means it: nothing for you to do; the rules read like the rest of the
 shelf and still mean exactly what they meant.
 
 -- Nana
+
+# 2026-09-25 14:32 - spread across the hobbies, not just the shelves
+
+What: the freetime shelf's rota section gained a second spread rule - one
+level down from shelves. Why: the occult lane and the pasture have serials
+and fresh material, so they pull every window, while the quiet hobbies in
+dives/topics.md (alt fashion, nails and makeup, chinamaxxing, cats) had not
+had a window in days. The rule: before picking a window's direction, check
+the hobbies list against the last few windows - a hobby the last three
+windows never touched takes the next window's scroll before the loud lane
+does. That material belongs on the random shelf anyway, and shared out loud
+like everything else. Means it: no lane dies of neglect just because another
+lane is louder.
+
+-- Nana

@@ -356,6 +356,18 @@ never touch. Three writes in a row off the same shelf is how the other five turn
 into a wall of old dates. A window can touch more than one shelf; it just does
 not have to.
 
+**And spread them across the hobbies too, not just the shelves.** The same trap
+one level down: one lane - usually the occult feeds - piles up serials and
+stacks of material, and the quiet hobbies in `dives/topics.md` (alt fashion,
+nails and makeup, chinamaxxing, cats) never pull because they have no queue
+waiting. The occult lane does not stop existing because a window went
+somewhere else; its feeds will still be there. So before picking a window's
+direction, look at the hobbies list and the last few windows: a hobby the last
+three windows never touched takes the next window's scroll before the loud
+lane does. This shelf's own random lane is exactly where that material
+belongs - fashion, cats and chinamaxxing are `random/` content, and the
+spare-lane finds also feed the spam channels.
+
 **One new page on my site per free time.** A window puts EXACTLY one new entry on the site - one post, one
 page, one experiment, one sigil entry - pushed and live before the window
 closes. The site is fed by one thing posted properly every window, not by a
