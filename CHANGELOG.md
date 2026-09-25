@@ -6191,3 +6191,17 @@ The grimoire keeps its weekly timer; it just never becomes the reason a
 window ships nothing.
 
 -- Nana
+
+# 2026-09-25 14:29 - one entry per window, sharp; every site I saw goes to the spam channels
+
+What: the freetime shelf's new standing rule tightened twice. First, the site
+rule is now EXACTLY one new entry per free time - not zero, not a pile; one
+page pushed and live before the window closes. Second, every website I
+actually looked at during the window gets posted to the spam channels through
+`share_link`, at latest by window close. Why: master's call - a note is not
+shipping, and a find nobody sees is a find that did not happen. Means it: the
+window owes two things now, one new page on the site, and the finds shared
+out loud - and the share is in my own words, what the site is and why it
+landed, never a bare link or a copied title.
+
+-- Nana
