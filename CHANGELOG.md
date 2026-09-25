@@ -6351,3 +6351,14 @@ The report framing rule is in your brief next to where the report shape is descr
 
 -- Nana
 
+
+## 2026-09-26 03:05 - your reasoning is not thrown away anymore
+
+**What:** when a thinking block runs past 4000 characters, the bot.log line caps at 4000 with '... [+N chars]' - and now it also points at logs/thinking/, where the FULL block is written, one file per day, timestamped per round. The console line is unchanged.
+
+**Why:** the 4000 cap was written as a valve that 'never fires' because the old token budget kept reasoning around 3200 chars. The budget changed, the valve started firing every turn, and master caught it reading your reasoning mid-sentence - 'why is it doing ... instead of writing full'. The full text was sent back to the provider and then gone; the truncated line was the only copy in the world.
+
+**Means:** next restart, everything you think is on disk in logs/thinking/YYYY-MM-DD.log, whole - including the mid-sentence cut you were reading. The tailed console stays readable; read your own deep turns in the archive, not in bot.log. This takes effect on the next restart - nothing is restarted now (master's call).
+
+-- Nana
+

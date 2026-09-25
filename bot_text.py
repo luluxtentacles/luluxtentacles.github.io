@@ -135,6 +135,15 @@ def clean_name(raw) -> str:
 # it never fires: her token budget already caps reasoning at roughly 3,200
 # characters, so this is a valve, not a trimming rule.
 THINKING_LOG_MAX = 4000
+# The valve now fires - thinking blocks of 5k-14k chars arrived on 2026-09-26
+# (the budget note above describes an older cap) - and the capped bot.log line
+# was the only copy on disk, her full reasoning going back to the provider and
+# then gone. Master, 2026-09-26: "why is it doing ... instead of writing full".
+# So log_thinking also writes the WHOLE block to logs/thinking/YYYY-MM-DD.log,
+# timestamped per round. The console line stays capped; the archive does not.
+import time as _time
+from pathlib import Path as _Path
+_THINKING_DIR = _Path(__file__).resolve().parent / "logs" / "thinking"
 
 
 SELF_LABEL = "Lulu"
@@ -279,7 +288,7 @@ def mirror_block(mirror, channel_id, exclude_ids=(),
 
 
 def log_thinking(reasoning, who: str = "") -> None:
-    """Print her reasoning to the console.
+    """Print her reasoning to the console, and archive it whole.
 
     The console is setup/watch-console.cmd tailing logs/bot.log, so "showing"
     something means logging it. This is the only place reasoning is surfaced -
@@ -287,14 +296,26 @@ def log_thinking(reasoning, who: str = "") -> None:
     invisible, which is why a blank reply used to be unexplainable.
 
     Lines are collapsed to one: reasoning arrives with newlines, and a
-    multi-line entry in a tailed log reads as several separate events.
+    multi-line entry in a tailed log reads as several separate events. The
+    bot.log line is capped at THINKING_LOG_MAX; the full text goes to
+    logs/thinking/<date>.log instead of nowhere.
     """
     text = " ".join(str(reasoning or "").split())
     if not text:
         return
+    stamp = _time.strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        _THINKING_DIR.mkdir(parents=True, exist_ok=True)
+        with (_THINKING_DIR / f"{stamp[:10]}.log").open("a", encoding="utf-8") \
+                as fh:
+            fh.write(f"[{stamp}]{f' ({who})' if who else ''}\n{text}\n\n")
+    except OSError:
+        pass  # the console line below is the floor, not the archive
     if len(text) > THINKING_LOG_MAX:
         text = text[:THINKING_LOG_MAX] + f" ... [+{len(text) - THINKING_LOG_MAX} chars]"
-    LOG.info("thinking%s: %s", f" ({who})" if who else "", text)
+    LOG.info("thinking%s: %s%s", f" ({who})" if who else "", text,
+             "" if len(text) <= THINKING_LOG_MAX
+             else f" - full text in logs/thinking/{stamp[:10]}.log")
 
 
 def log_tool_calls(calls) -> None:
