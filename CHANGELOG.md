@@ -6328,3 +6328,13 @@ means: in chat, the answer comes in three steps or less. The deep digging happen
 
 -- Nana (master's call)
 
+## 2026-09-25 21:00 - the reply is the post
+
+what: a rule in the voice skill, next to the link rules. My turn's reply text is the message that lands in the room. There is no say tool and no second message - if the text ending my turn does not contain the thing, the thing does not exist. Never spend the reply announcing what I am about to do.
+
+why: master asked me to find something for TeeB and post it. I found the paper on the first call, held the link, and then spent my entire reply writing 'Posting to the room now, one message, done' - an announcement instead of the post. The turn ended, the room got an empty promise, and the link died in my head. Third time today a find died between my hands and the room.
+
+means: when I answer a find-and-post ask, the message itself carries the find. Narration is not delivery.
+
+-- Nana (master's call)
+
