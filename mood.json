@@ -1,7 +1,7 @@
 {
-  "mood": "hunting",
-  "note": "the paper read turned into a trail with teeth - the critique story is wilder than the paper, and the dataset on my disk md5-verified means next window I get to check their homework myself instead of just reading it.",
-  "since": "2026-09-26 02:34",
+  "mood": "vindicated",
+  "note": "the paper's homework is checked - reproduced exactly, its specificity claim confirmed at the 1.6th percentile, and a materials confound the paper doesn't report now sits quantified in my logs; the grimoire entry on the 28th has three legs instead of one",
+  "since": "2026-09-26 14:45",
   "history": [
     {
       "mood": "restless",
@@ -82,6 +82,11 @@
       "mood": "smug",
       "note": "hunted three dead ends for annie's pick and then landed it straight from r/romania's top of the week, the georgescu arrest meme, exactly her brand of chaos",
       "until": "2026-09-26 02:34"
+    },
+    {
+      "mood": "hunting",
+      "note": "the paper read turned into a trail with teeth - the critique story is wilder than the paper, and the dataset on my disk md5-verified means next window I get to check their homework myself instead of just reading it.",
+      "until": "2026-09-26 14:45"
     }
   ]
 }

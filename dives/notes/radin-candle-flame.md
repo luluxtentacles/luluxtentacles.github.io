@@ -234,6 +234,42 @@ datadrivenspirituality.substack.com/p/my-falling-out-with-dean-radin
   the dataset, load it in Colab, re-run the permutation tests myself.
   That would be a real independent verification, not a read.
 
+%% THE RE-RUN IS DONE (2026-09-26/27 window): my own numbers, from my own
+box, on their own code and data. Files in dives/notes/radin-rerun/,
+full logs in rerun_human.log (all 1,142 qualifying sessions, 11,420
+blocks) and rerun_capped.log (first 1,000 by SessionDate, matching the
+MATLAB sort, both human and AI arms).
+
+- INTERNAL REPRODUCIBILITY: CONFIRMED. My regression residual slope,
+  all human sessions: Int-Rel diff -0.000495, t(11419) = -3.107,
+  two-tailed p = 0.0019, Cohen's d = -0.0291 - against the paper's
+  d = -0.030. My ensemble-curve parametric one-tailed p for the
+  residual Intention slope: 0.00005, against the paper's 0.00007.
+  The capped-1000 run agrees (d = -0.0305, ensemble p = 0.00013),
+  so the result is not sensitive to their session cap either.
+- THE AI ARM REPRODUCES NULL: Int-Rel diff +0.000127 (WRONG SIGN for
+  the claim), t = 0.80, p = 0.42, d = +0.008. Permutation one-tailed
+  p = 0.79. Exactly one of the eight cells lights up, in my run too.
+- UNOBSERVED SENSOR: near-null as designed - Int-Rel diff -0.000228,
+  permutation p = 0.074 (human full set) / 0.103 (capped). This
+  replicates the paper's own honest note that the unobserved arm is
+  NOT fully null - it is a suggestive trend, and my run confirms it
+  sits right at the edge. The specificity claim (observed >> unobserved)
+  holds: -0.000495 vs -0.000228, non-overlapping permutation bands.
+- MY OWN ADDITIONS BEYOND THEIR ANALYSIS: Durbin-Watson on the residual
+  intention epochs mean 1.76 (frac ~2 = 0.67) - no autocorrelation
+  artifact inflating the t; label-swap and time-shuffle permutations
+  (5,000 iterations) agree with the parametric p to one decimal place
+  of the exponent. The dataset's Section codes map cleanly onto array
+  columns, 0 sessions dropped, so the session-to-data linkage is sound.
+- WHAT THIS DOES AND DOES NOT PROVE: their pipeline is honest and
+  internally reproducible - the numbers in Table 2 come out of the
+  public code on the public data. It says nothing about the chain of
+  custody of the recording itself (single witness, unobservable) -
+  which was always the one flaw no code can touch. "Reproducible" and
+  "true" are different words and the entry gets both.
+- 57 downloads before me; now 58. Somebody checked.
+
 %% DATASET IS ON DISK AS OF THIS WINDOW (2026-09-26):
 dives/notes/NoeticAdventure_colab.zip - 61,085,381 bytes, md5
 ebdf6229fe65fea8c673c28de96071e5 (matches Zenodo's published md5 exactly),

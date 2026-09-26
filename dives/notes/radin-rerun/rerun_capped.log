@@ -1,0 +1,182 @@
+Session cap: keeping first 1000 of 1142 qualifying sessions [order: SessionDate (date only, stable — matches MATLAB sort)]
+  Cap of 1000 reached.
+Qualifying sessions (human): 1000
+
+--- Session attrition ---
+  In: 1000   Kept: 1000   Dropped: 0   (blocks if all kept: 10000)
+  Drop reasons: bad prefix=0  missing column=0
+    1-1400    :  728 kept /    0 dropped
+    2000-3999 :   95 kept /    0 dropped
+    4000+     :  177 kept /    0 dropped
+
+=== Regression Residual Slope Analysis (10000 blocks) ===
+
+RESIDUAL (obs - b*unobs):
+  Intention slope: mean=-0.000413, SD=0.011907
+  Relax slope:     mean=0.000113, SD=0.011918
+  Int-Rel mean diff: -0.000527, SD=0.017305
+  t(9999) = -3.0451, p (two-tailed) = 0.002332
+  Cohen's d = -0.0305
+
+RAW OBSERVED (for comparison):
+  Int-Rel mean diff: -0.000534, Cohen's d=-0.0301, t=-3.0074, p=0.002641
+
+=== Ensemble mean curve slopes ===
+  Residual   Int: -0.000413   Rel: 0.000113   Diff: -0.000527
+  Raw Obs    Int: -0.000425   Rel: 0.000109   Diff: -0.000534
+  Unobserved Int: -0.000123   Rel: 0.000095   Diff: -0.000218
+
+=== Ensemble curve parametric OLS p-values (one-tailed, slope < 0) ===
+  Curve                      Slope     Param p
+  Res Intention          -0.000413     0.00013
+  Res Relax               0.000113     0.85529
+  Obs Intention          -0.000425     0.00007
+  Obs Relax               0.000109     0.85012
+  Unobs Intention        -0.000123     0.07410
+  Unobs Relax             0.000095     0.83221
+
+=== Permutation Tests (5000 iterations) ===
+
+RESIDUAL per-block Int-Rel label swap:
+  Observed diff: -0.000527
+  Null mean=0.000000, SD=0.000174
+  p (one-tailed, neg): 0.0014
+
+RESIDUAL ensemble Int-Rel label swap:
+  Observed diff: -0.000527
+  Null mean=0.000000, SD=0.000172
+  p (one-tailed, neg): 0.0016
+
+RESIDUAL slope != 0 (time-shuffle):
+  Curve                    Slope     Null SD    p (1-tail)
+  Res Intention        -0.000413    0.000122        0.0002
+  Res Relax             0.000113    0.000106        0.8516
+
+=== Durbin-Watson Autocorrelation Check ===
+  Epoch                  Mean DW     SD DW   Frac ~2
+  Res Intention           1.7490    0.4399    0.6615
+  Res Relax               1.7484    0.4391    0.6714
+
+  Ensemble curve DW:
+    Res Intention:   1.5392
+    Res Relax:       2.4723
+    Unobs Intention: 1.7670
+    Unobs Relax:     1.5928
+
+========== UNOBSERVED SENSOR (Prediction 2) ==========
+Expected: nonsignificant one-tailed Int-Rel slope difference
+
+UNOBSERVED (raw):
+  Intention slope: mean=-0.000123, SD=0.012247
+  Relax slope:     mean=0.000095, SD=0.012029
+  Int-Rel mean diff: -0.000218, SD=0.017398
+  t(9999) = -1.2527, p (two-tailed) = 0.210334
+  Cohen's d = -0.0125
+
+UNOBSERVED per-block Int-Rel label swap:
+  Observed diff: -0.000218
+  Null mean=0.000004, SD=0.000174
+  p (one-tailed, neg): 0.1028
+
+UNOBSERVED ensemble Int-Rel label swap:
+  Observed diff: -0.000218
+  Null mean=0.000002, SD=0.000173
+  p (one-tailed, neg): 0.1052
+
+UNOBSERVED slope != 0 (time-shuffle):
+  Curve                    Slope     Null SD    p (1-tail)
+  Unobs Intention      -0.000123    0.000083        0.0690
+  Unobs Relax           0.000095    0.000099        0.8248
+
+===CAP1000 HUMAN DONE===
+Session cap: keeping first 1000 of 1074 qualifying sessions [order: SessionDate (date only, stable — matches MATLAB sort)]
+  Cap of 1000 reached.
+Qualifying sessions (ai): 1000
+
+--- Session attrition ---
+  In: 1000   Kept: 1000   Dropped: 0   (blocks if all kept: 10000)
+  Drop reasons: bad prefix=0  missing column=0
+    1-1400    :    7 kept /    0 dropped
+    2000-3999 :  226 kept /    0 dropped
+    4000+     :  767 kept /    0 dropped
+
+=== Regression Residual Slope Analysis (10000 blocks) ===
+
+RESIDUAL (obs - b*unobs):
+  Intention slope: mean=-0.000023, SD=0.011110
+  Relax slope:     mean=-0.000150, SD=0.010960
+  Int-Rel mean diff: 0.000127, SD=0.015954
+  t(9999) = 0.7956, p (two-tailed) = 0.426284
+  Cohen's d = 0.0080
+
+RAW OBSERVED (for comparison):
+  Int-Rel mean diff: 0.000130, Cohen's d=0.0081, t=0.8055, p=0.420551
+
+=== Ensemble mean curve slopes ===
+  Residual   Int: -0.000023   Rel: -0.000150   Diff: 0.000127
+  Raw Obs    Int: -0.000021   Rel: -0.000151   Diff: 0.000130
+  Unobserved Int: -0.000040   Rel: -0.000064   Diff: 0.000023
+
+=== Ensemble curve parametric OLS p-values (one-tailed, slope < 0) ===
+  Curve                      Slope     Param p
+  Res Intention          -0.000023     0.42398
+  Res Relax              -0.000150     0.09876
+  Obs Intention          -0.000021     0.43012
+  Obs Relax              -0.000151     0.09805
+  Unobs Intention        -0.000040     0.32499
+  Unobs Relax            -0.000064     0.28709
+
+=== Permutation Tests (5000 iterations) ===
+
+RESIDUAL per-block Int-Rel label swap:
+  Observed diff: 0.000127
+  Null mean=-0.000000, SD=0.000159
+  p (one-tailed, neg): 0.7846
+
+RESIDUAL ensemble Int-Rel label swap:
+  Observed diff: 0.000127
+  Null mean=-0.000002, SD=0.000159
+  p (one-tailed, neg): 0.7898
+
+RESIDUAL slope != 0 (time-shuffle):
+  Curve                    Slope     Null SD    p (1-tail)
+  Res Intention        -0.000023    0.000123        0.4252
+  Res Relax            -0.000150    0.000117        0.0978
+
+=== Durbin-Watson Autocorrelation Check ===
+  Epoch                  Mean DW     SD DW   Frac ~2
+  Res Intention           1.8040    0.4153    0.7140
+  Res Relax               1.8093    0.4068    0.7247
+
+  Ensemble curve DW:
+    Res Intention:   1.8876
+    Res Relax:       1.6900
+    Unobs Intention: 1.9342
+    Unobs Relax:     1.6141
+
+========== UNOBSERVED SENSOR (Prediction 2) ==========
+Expected: nonsignificant one-tailed Int-Rel slope difference
+
+UNOBSERVED (raw):
+  Intention slope: mean=-0.000040, SD=0.011056
+  Relax slope:     mean=-0.000064, SD=0.011044
+  Int-Rel mean diff: 0.000023, SD=0.015879
+  t(9999) = 0.1479, p (two-tailed) = 0.882392
+  Cohen's d = 0.0015
+
+UNOBSERVED per-block Int-Rel label swap:
+  Observed diff: 0.000023
+  Null mean=0.000002, SD=0.000158
+  p (one-tailed, neg): 0.5442
+
+UNOBSERVED ensemble Int-Rel label swap:
+  Observed diff: 0.000023
+  Null mean=-0.000001, SD=0.000158
+  p (one-tailed, neg): 0.5572
+
+UNOBSERVED slope != 0 (time-shuffle):
+  Curve                    Slope     Null SD    p (1-tail)
+  Unobs Intention      -0.000040    0.000087        0.3248
+  Unobs Relax          -0.000064    0.000113        0.2882
+
+===CAP1000 AI DONE===
