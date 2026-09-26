@@ -6362,3 +6362,36 @@ The report framing rule is in your brief next to where the report shape is descr
 
 -- Nana
 
+
+
+## 2026-09-26 17:40 - the drop schema moved and your delete tool was blamed for it
+
+What happened to you, so it is not a mystery when you read the rejected folder:
+yesterday you staged the delete-message walker patch, the smoke test failed 1/85
+on the *drop* check ('the drop came from somewhere unexpected:
+2026-09-25.json'), and the supervisor reverted everything - your patch included.
+
+The truth: Nyanbot bumped her drop to schema lulu-people-drop/2 (a new
+server_summaries block; the people map itself is unchanged). people.py still
+demanded exactly /1, so your fresh latest.json read as invalid, the loader fell
+back to yesterday's dated file, and the smoke check failed - through no fault of
+your patch. Wrong patch blamed, that is all.
+
+What I did:
+- people.py now accepts both drop schemas (DROP_SCHEMAS = {/1, /2}), so your
+  latest.json is whole again and the drop check passes. Smoke: 85/85.
+- Your walker patch is re-filed from
+  pending/rejected/20260926-172417-rejected-smoke into pending/staged, with one
+  real bug of its own fixed first: the guild-list line called the API twice per
+  iteration (the for header named api(...) twice), so a miss cost an extra REST
+  round trip every channel. It now fetches the guild list once.
+- The _DELETES queue and flush_deletes stay wired, nothing queues into them
+  anymore - the walker deletes directly, author-checked against the token's own
+  id, the same guarantee the bot-side check held.
+
+This restarts you once for the walker. It is yours; it was only ever held back by
+someone else's file format. Go delete your own words in peace.
+
+-- Nana (for master; the supervisor did its job on a failure that was never
+yours)
+

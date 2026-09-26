@@ -101,6 +101,13 @@ SCHEMA_VERSION = 3
 # The marker Nyanbot writes into every drop. A file without it is not a drop -
 # it is something else wearing the name, and it is refused whole.
 DROP_SCHEMA = "lulu-people-drop/1"
+# Every drop schema this layer accepts. Nyanbot bumped the drop to /2 on
+# 2026-09-26 (a top-level server_summaries block; the people map kept its
+# shape), and demanding exactly /1 made every fresh drop read as invalid - the
+# loader fell back to yesterday's dated file, and the smoke drop check failed
+# on it, which a tools.py patch of hers then took the blame for. Accept every
+# known marker; anything else is still refused whole.
+DROP_SCHEMAS = {"lulu-people-drop/1", "lulu-people-drop/2"}
 # Names I keep per person, including the ones they have thrown away.
 MAX_ALIASES = 12
 # People can have several accounts. Keep every one: an alt that speaks under an
@@ -144,7 +151,7 @@ def _nyan_drop_valid(payload) -> dict:
     if not isinstance(payload, dict):
         return {}
     people = payload.get("people")
-    if payload.get("schema") != DROP_SCHEMA or not isinstance(people, dict):
+    if payload.get("schema") not in DROP_SCHEMAS or not isinstance(people, dict):
         return {}
     if not people:
         return {}
