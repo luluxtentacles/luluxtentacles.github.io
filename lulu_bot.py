@@ -3053,6 +3053,16 @@ class Lulu(discord.Client):
                 body = line if len(line) <= 1900 else line[:1897] + "..."
                 sent = await channel.send(body)
                 self.own_message_ids.add(sent.id)
+                # 2026-09-27: what I actually SAID goes in the mirror, like
+                # every other line of mine. The progress stream used to post to
+                # the room and then vanish from my own history - my next turn
+                # could not see its own working-out, so a follow-up had no
+                # trace of the digging I narrated. Only POSTED lines are noted:
+                # what left me is history, what stayed queued is not.
+                self._note(channel.id, SELF_LABEL, body, sent.id, None,
+                           room=getattr(channel, "name", "") or "",
+                           server=self._guild_name(channel),
+                           uid=str(self.user.id))
         except Exception as exc:
             # A failed send must not swallow the lines: hand them back so the
             # next poll - one second away - picks the whole batch up again.
