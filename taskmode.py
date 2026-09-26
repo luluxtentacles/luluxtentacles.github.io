@@ -82,6 +82,7 @@ import asyncio
 import json
 import logging
 import time
+from datetime import datetime
 
 import conversation
 import paths
@@ -279,11 +280,10 @@ def keep_going(note: str = "") -> str:
     if not live:
         return "nothing of mine was closed recently enough to reopen"
     try:
-        from datetime import datetime
         fin = datetime.strptime(str(live.get("finished") or ""),
                                 "%Y-%m-%d %H:%M:%S").timestamp()
     except ValueError:
-        fin = 0.0
+        fin = 0.0  # a missing or mangled stamp is an OLD stamp: refuse, reopen nothing
     if time.time() - fin > REOPEN_MAX_AGE_SECONDS:
         return "that one closed too long ago - give me the job fresh instead"
     live["status"] = "open"

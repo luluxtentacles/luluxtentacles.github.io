@@ -2578,8 +2578,11 @@ def _task() -> str:
     expect("nothing" in taskmode.keep_going(),
            "keep_going reopened something that was not closed")
     taskmode.finish("closed properly")
-    expect("too long ago" not in taskmode.keep_going()
-           or taskmode.current(), "a just-closed task could not reopen")
+    fresh = taskmode.keep_going()
+    expect("back on it" in fresh,
+           f"a just-closed task could not reopen: {fresh!r}")
+    expect(taskmode.current().get("status") == "open",
+           "the reopen did not leave the task open")
 
     # 10. An OLD closed task is beyond keep_going's reach - yesterday's job
     #     must not answer to a stray word today.
