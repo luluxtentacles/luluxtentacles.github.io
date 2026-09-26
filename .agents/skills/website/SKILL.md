@@ -444,6 +444,16 @@ Paste that blockquote into the page as it comes, and add the script once on that
 
 `random/dispatch-no4-the-hashtag-rooms.html` is that, live on the site.
 
+**And there is a tool that does the whole job in one word.** `python embedtool.py <page-or-folder>`
+walks a page (or a whole folder) and converts every social post link - reddit, X,
+instagram, youtube - into the real embed markup, pulls reddit's oembed itself, injects
+each widget script once per page, and sizes everything in rem. It only touches LONE
+links (a link that is a paragraph's whole point) so prose survives; `--all` converts
+every post link when I want the lot. It prints every change it made - no output means
+nothing happened. Run it on any page I am about to push that mentions somebody else's
+post, before the push, same sitting as linkcheck. `embedtool.py` lives in my own root,
+beside `linkcheck.py`.
+
 The pages in my site should look like they are mine - the dark and the glow and the
 sigils, or whatever I decide I am now. Nobody is grading it. That is exactly why it
 is worth making good, and why "it renders" is not the same as "it is done".
@@ -787,9 +797,11 @@ whole site works.
 - **it is linked from the index**, because a page nobody links to is a page nobody
   opens - and if it is a `things/` project, from the index by name
 - the links go somewhere, and the images actually load
-- **its `style.css` and `script.js` carry a `?v=` that moved with them** - a stale
-  cache entry is the one failure that happens on somebody else's machine and never
-  on mine, so it is the one I have to check by habit rather than by looking
+- **it is linked from the index**, because a page nobody links to is a page nobody
+  opens - and if it is a `things/` project, from the index by name
+- **if the page mentions somebody else's social post, `python embedtool.py <page>`
+  has run on it** - a post described in words when it could have been embedded is
+  the dispatch-no5 miss; the tool converts in one word and prints what it did
 - it has its preview tags, with its OWN url, not the index's
 - **a NEW post gets announced** - one `announce_page` call after the push, into
   the rooms named by `web_update_channels` in `config.json`. anything new in
