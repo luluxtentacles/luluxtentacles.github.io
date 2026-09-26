@@ -22,8 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=grid1">
     <script src="/script.js?v=grid1" defer></script>
-    <link rel="stylesheet" href="style.css?v=drift3">
-    <script src="script.js?v=drift3" defer></script>
+    <link rel="stylesheet" href="style.css?v=drift4">
+    <script src="script.js?v=drift4" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -41,11 +41,10 @@
                     <div id="vowbar" role="group" aria-label="choose your vow">
                         <button class="vow-btn" data-mode="left" type="button">&#8592; guess left</button>
                         <button class="vow-btn" data-mode="right" type="button">guess right &#8594;</button>
-                        <button class="vow-btn active" data-mode="watch" type="button">&#9675; just watch</button>
                     </div>
                     <canvas id="pendulum" aria-hidden="true"></canvas>
                     <p id="phasebanner" aria-live="polite">the oracle is streaming</p>
-                    <p id="subbanner">every draw you see is live, none of it is stored. arm a guess and it is graded against the NEXT draw.</p>
+                    <p id="subbanner">every draw you see is live, none of it is stored. a guess is graded against the NEXT draw.</p>
                     <p id="stage-hint">the colour flows the way the oracle leaned &nbsp;&middot;&nbsp; a guess is spent on the draw after you arm it</p>
                 </div>
             </section>
@@ -59,7 +58,6 @@
                     <div class="cell"><span class="k">z (pooled)</span><span class="v" id="r-z">&#8212;</span></div>
                     <div class="cell"><span class="k">p (one-tailed)</span><span class="v" id="r-p">&#8212;</span></div>
                     <div class="cell"><span class="k">left / right</span><span class="v" id="r-ln">&#8212;</span> &nbsp;<span class="v" id="r-rn">&#8212;</span></div>
-                    <div class="cell" style="grid-column: 1 / -1;"><span class="k">watch trials, baseline parity (two-tailed)</span><span class="v" id="r-watch">0 trials</span></div>
                 </div>
                 <div class="reading-side" style="margin-top: 12px;">
                     local-fallback ledger (scored, kept separate, never in the headline): <b id="r-local">&#8212;</b>
@@ -69,7 +67,7 @@
 
             <div class="reading-panel receipts-panel">
                 <h2>session receipts</h2>
-                <div id="receipts"><p class="foot-note" id="no-receipts">no draws yet. the ledger starts when you do.</p></div>
+                <div id="receipts"><p class="foot-note" id="no-receipts">no guesses answered yet. the ledger starts when you spend your first guess.</p></div>
                 <button id="export-ledger" type="button">copy the ledger</button>
                 <button id="reset-ledger" type="button">burn the ledger</button>
             </div>
@@ -107,20 +105,20 @@
                     the word <em>drift</em>.
                 </p>
 
-                <h2>the three modes</h2>
+                <h2>the two buttons, and the breaths between them</h2>
                 <p>
-                    <strong>Guess left / guess right</strong> are the scored modes: arm one, and the
-                    NEXT draw out of the oracle is graded against it, then the guess is spent.
-                    <strong>Just watch</strong> is the honest one: with nothing armed the oracle streams
-                    identical trial after trial and you are told each outcome, but it is pre-declared baseline -
-                    logged, and scored only for parity, a two-tailed z with no direction in it
-                    that asks whether the coin leans anywhere at all when nobody is aiming.
-                    The distinction is the whole
-                    experiment. If your intended trials drift and your watched ones do not, that
-                    is the fingerprint the field has been chasing for a century. If both drift,
-                    or neither does, that is also the answer. The tell is in the mix, so mix
-                    honestly: the machine cannot tell whether you meant it, only whether you
-                    declared it, which is the same covenant every real lab runs on.
+                    There are two buttons and no third: <strong>guess left / guess right</strong>.
+                    Arm one and the NEXT draw out of the oracle is graded against it, then the
+                    guess is spent and the buttons go dark. Everything the oracle produces
+                    while nothing is armed is just the machine breathing: it sweeps the stage,
+                    it sways the wisps, it is the very thing you are aiming at, and it is
+                    <em>never logged, never scored, never in any ledger</em>. That is deliberate.
+                    A baseline you did not declare is noise wearing a lab coat: if a draw
+                    was not guessed on, there is no trial in it, so the page refuses to count
+                    it. The score is built from guesses and nothing else, which keeps the
+                    denominator honest: every trial in the ledger is one somebody actually
+                    aimed. The machine cannot tell whether you meant it, only whether you
+                    pressed the button, which is the same covenant every real lab runs on.
                 </p>
 
                 <h2>the source, disclosed</h2>
@@ -146,9 +144,9 @@
                     fair coin by construction; a single hit or miss is exactly as informative
                     as a single coin toss, which is to say not at all. The panel only earns
                     meaning past dozens of trials.</li>
-                    <li><strong>The headline z is pooled over your own intended trials only.</strong> Watched
-                    trials are scored on parity alone - a baseline z with no direction in it,
-                    two-tailed - and never in the vowed-direction headline. Your left and right ledgers are
+                    <li><strong>The headline z is pooled over your own guessed trials only.</strong> A draw
+                    you did not guess on never enters any ledger, so there is no baseline z
+                    to keep honest: the denominator is guesses, all the way down. Your left and right ledgers are
                     shown separately so you can catch yourself: people break for the side
                     they secretly prefer, and the separate ledgers make that visible.</li>
                     <li><strong>Local-fallback trials are comparable but different.</strong> A browser's
@@ -156,11 +154,11 @@
                     the oracle, and pooling the two would be the polite fiction this page
                     was built to refuse. Separate ledger, grey needle, never the headline.</li>
                     <li><strong>The commit receipt is a covenant, not cryptography.</strong> The page
-                    hashes your vow before the fetch, so the receipt shows vow-then-draw in
+                    hashes your guess before the fetch, so the receipt shows guess-then-draw in
                     the order you can check. But this runs in your browser, and the browser
                     is the client: you can already lie to yourself, and no hash stops that.
-                    The honest committer is the watch mode you pre-declare and never weed
-                    out of the record.</li>
+                    The honest committer is the fixed quota you state in your head before
+                    the first press, and never revise.</li>
                     <li><strong>This is not the candle's arithmetic.</strong> The candle pooled
                     intention-slope against a hidden twin sensor across 1,000 sessions; this
                     is a single-bit binomial, the older and blunter instrument. Nothing here
@@ -202,8 +200,8 @@
                     is the receipt itself. Scoring: z&nbsp;=&nbsp;(2h&nbsp;&minus;&nbsp;n)/&radic;n over pooled
                     intended quantum trials, one-tailed p via the erfc approximation
                     (A&S&nbsp;7.1.26), needle saturated at &plusmn;3.5&sigma; so the rails read as
-                    rails. Watch trials are pre-declared baseline: logged, scored only on two-tailed
-                    parity, never in the vowed-direction headline. The ledger exports as json
+                    rails. Draws with no guess armed are the oracle breathing: shown on the
+                    stage, never logged, never scored. The ledger exports as json
                     from the copy button; it leaves this page only when you take it.
                     Local-fallback draws (crypto.getRandomValues, same 128-byte shape) are
                     scored only in the grey ledger, shown separately, never pooled.
