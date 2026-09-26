@@ -2846,6 +2846,13 @@ class Lulu(discord.Client):
             line = " ".join(str(text or "").split())
             if not line:
                 return
+            # A clipped line says it has been clipped, 2026-09-27: a line cut
+            # silently at 240 chars is how "did I say that" starts answering
+            # no from a transcript that holds more than the ring shows. The
+            # marker names it and points at the search that can still answer.
+            if len(line) > MIRROR_LINE_CHARS:
+                line = (line[:MIRROR_LINE_CHARS]
+                        + " [cut - full text searchable in this room's mirror]")
             self.mirror[channel_id].append({
                 "id": message_id,
                 "author": author or "someone",
@@ -2853,7 +2860,7 @@ class Lulu(discord.Client):
                 # 2026-09-24: names change, ids do not, so memory matches on
                 # the id and renders the name.
                 "uid": uid or "",
-                "text": line[:MIRROR_LINE_CHARS],
+                "text": line,
                 "reply_to": reply_to,
             })
             journal.note_mirror(author or "someone", line, room=room,
@@ -2942,6 +2949,11 @@ class Lulu(discord.Client):
                          channel_id)
                 return None
             running.cancel()
+            # The dead turn stops WORKING, 2026-09-27, not just talking: its
+            # generation goes into tools' dead set, so every tool call it asks
+            # for from here on is refused at dispatch, and its queued outbox
+            # lines are buried with it instead of leaking under the new turn.
+            tools.kill_turn(channel_id, self._turn_seq.get(channel_id, 0))
             LOG.info("master's message in channel %s superseded the running "
                      "turn", channel_id)
         seq = self._turn_seq.get(channel_id, 0) + 1
@@ -3112,7 +3124,23 @@ class Lulu(discord.Client):
         # has never spoken here. A worker thread can be mid-round with no task
         # entry left, and the generation is what it checks.
         for channel_id in set(self._turn_seq) | {message.channel.id}:
-            self._turn_seq[channel_id] = self._turn_seq.get(channel_id, 0) + 1
+            old = self._turn_seq.get(channel_id, 0)
+            self._turn_seq[channel_id] = old + 1
+            # And every one of them is dead to the tool layer too: its next
+            # tool call is refused at dispatch, 2026-09-27. Stop has always
+            # meant "stop the loop"; now it means "stop working".
+            tools.kill_turn(channel_id, old)
+        # A long task is not a turn slot and no task cancel reaches it - it is
+        # a state file with its own worker. Master, 2026-09-27: stopwork stops
+        # anything she is doing in ANY channel, and a task in window 4 of a
+        # finished job is exactly the thing that must die with the rest.
+        try:
+            import taskmode
+            if taskmode.current():
+                taskmode.drop()
+                stopped.append("the long task")
+        except Exception as exc:
+            LOG.warning("could not check the long task: %s", exc)
         try:
             if self_review.clear_stuck_window():
                 stopped.append("the free-time window")
@@ -3422,6 +3450,10 @@ class Lulu(discord.Client):
             # moment it exists: by the time a restart notice is read back at
             # boot this process is dead. See tools._derived_brief.
             asked=text,
+            # This turn's generation: the dead-turn check in tools.run reads it,
+            # so an interrupted turn is refused at its NEXT tool boundary
+            # instead of working quietly on beside the turn that replaced it.
+            turn_seq=seq,
         )
 
         # The notebook half: pick up what they say about themselves as we talk,

@@ -116,7 +116,7 @@ _LOCAL = threading.local()
 
 _CONTEXT_DEFAULT = {"user_id": None, "name": "", "channel": "",
                     "channel_id": None, "origin": "master", "master": False,
-                    "asked": ""}
+                    "asked": "", "turn_seq": None}
 
 
 def _ctx() -> dict:
@@ -137,7 +137,8 @@ def _ctx() -> dict:
 def set_context(user_id, name: str = "", channel: str = "",
                 channel_id=None, server: str = "",
                 origin: str = "master",
-                master: bool = False, asked: str = "") -> None:
+                master: bool = False, asked: str = "",
+                turn_seq=None) -> None:
     """Who this turn is from, and whether a person asked or I decided.
 
     `origin` is not reachable by the model: the tool schema has no such field, so
@@ -171,6 +172,50 @@ def set_context(user_id, name: str = "", channel: str = "",
     ctx["origin"] = origin or "master"
     ctx["master"] = bool(master)
     ctx["asked"] = asked or ""
+    # The turn's generation, handed in by the caller: it is what the dead-turn
+    # check below (and nothing else) reads. A tool call cannot forge it - the
+    # schema has no such field; only the turn that claimed the slot sets it.
+    ctx["turn_seq"] = turn_seq
+
+
+# Turns that were superseded or stopped, as (channel_id, turn_seq) pairs.
+#
+# A worker thread cannot be killed mid-call - it is inside a blocking read -
+# but everything it asks for AFTER the interrupt goes through run(), and run()
+# consults this set. So the interrupt stops her at the next tool boundary: no
+# further shell command, no further post, no further spend. One call already in
+# flight still finishes; that is a thread cannot be killed, not a choice.
+_DEAD: set = set()
+
+
+def kill_turn(channel_id, seq) -> None:
+    """Mark a turn dead, and bury its queued outbox with it.
+
+    Called when master's follow-up supersedes a running turn, and by the stop
+    word for every turn alive. Also drops the outbox lines that turn queued -
+    a dead turn's words must not leak out later under a live turn's flush.
+    Never raises; a bookkeeping miss must not cost a turn its reply.
+    """
+    try:
+        if channel_id is None or not seq:
+            return
+        _DEAD.add((channel_id, seq))
+        _OUTBOX[:] = [item for item in _OUTBOX
+                      if item.get("from") != (channel_id, seq)]
+    except Exception:
+        pass
+
+
+def _turn_dead() -> bool:
+    """Is THIS thread's turn superseded or stopped? False when unclaimable.
+
+    A seq of 0/None means the turn never claimed a slot - a direct think()
+    call, a task turn, a window turn - and those are interrupted through their
+    own doors, not this one.
+    """
+    ctx = _ctx()
+    return bool(ctx.get("turn_seq")) and (
+        (ctx.get("channel_id"), ctx.get("turn_seq")) in _DEAD)
 
 
 async def in_thread(fn, *args, **kwargs):
@@ -3737,7 +3782,9 @@ def say(channel: str, text: str) -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"too long to blurt out ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    _OUTBOX.append({"channel": target, "text": body})
+    _OUTBOX.append({"channel": target, "text": body,
+                    "from": (_ctx().get("channel_id"),
+                             _ctx().get("turn_seq"))})
     return f"queued for #{target} - it goes out as this turn finishes"
 
 
@@ -3810,7 +3857,9 @@ def announce_page(text: str, url: str) -> str:
                 "- say it shorter; the link is added for me")
 
     for room in rooms:
-        _OUTBOX.append({"channel": room, "text": line})
+        _OUTBOX.append({"channel": room, "text": line,
+                        "from": (_ctx().get("channel_id"),
+                                 _ctx().get("turn_seq"))})
     return ("queued for " + ", ".join(_room_label(r) for r in rooms)
             + " - it goes out as this turn finishes")
 
@@ -3849,7 +3898,9 @@ def share_link(text: str) -> str:
         return f"too long to share ({len(body)} chars, max {SAY_MAX_CHARS})"
 
     for room in rooms:
-        _OUTBOX.append({"channel": room, "text": body})
+        _OUTBOX.append({"channel": room, "text": body,
+                        "from": (_ctx().get("channel_id"),
+                                 _ctx().get("turn_seq"))})
     return ("queued for " + ", ".join(_room_label(r) for r in rooms)
             + " - it goes out as this turn finishes")
 
@@ -3895,7 +3946,8 @@ def attach(channel: str, path: str, text: str = "") -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    _OUTBOX.append({"channel": target, "text": body, "file": path})
+    _OUTBOX.append({"channel": target, "text": body, "file": path,
+                    "from": (_ctx().get("channel_id"), _ctx().get("turn_seq"))})
     return (f"queued {path} ({size:,} bytes) for #{target}"
             + (" with a caption" if body else ""))
 
@@ -4466,6 +4518,13 @@ def run(name: str, arguments, allowed: set[str] | None = None) -> str:
     handler = DISPATCH.get(name)
     if handler is None:
         out = f"no tool called {name}"
+        _log_failure(name, arguments, out)
+        return out
+    if _turn_dead():
+        # Master, 2026-09-27: an interrupted turn stops WORKING, not just
+        # talking. The loop above this already abandons at the next round
+        # boundary; this is the boundary a dead turn cannot sneak past.
+        out = "refused: this turn was interrupted - running nothing further"
         _log_failure(name, arguments, out)
         return out
     try:

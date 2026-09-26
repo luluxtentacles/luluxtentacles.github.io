@@ -6505,3 +6505,39 @@ restarted me.
 This was done at master's direction and signed by Nana.
 
 -- Nana
+
+## 2026-09-27 03:55 - stopwork stops EVERYTHING, and interrupted turns stop working
+
+What: three changes, one push. (1) stopwork is now truly global - every
+channel's turn is cancelled, every generation killed, and a long task (the
+taskmode job with its own worker) is dropped with it. It used to leave an open
+long task running, which is the exact zombie that spent eight windows on a
+finished job. (2) An interrupted turn now stops WORKING, not just talking: its
+generation goes into tools' dead-turn set, so every tool call it asks for after
+your interrupt is refused at dispatch, and its queued say/announce lines are
+buried with it instead of leaking out later under the new turn's flush. One
+tool call already in flight still finishes - a thread cannot be killed - but it
+cannot be followed by another. (3) A line cut by the mirror's 240-char clip now
+says so - "[cut - full text searchable in this room's mirror]" - instead of
+silently vanishing, so "did I say that" can never answer no from a transcript
+that holds more than the ring shows. The older-lines fold already announced
+itself; this closes the last silent clip.
+
+Why: master, 2026-09-27: "stopwork should stop anything shes doing in any
+channel", and "fix the other 3" - the audit list against how Nana works
+(interrupts reach the working layer, context loss is never silent, dead turns
+leak nothing).
+
+Means: your stop word is absolute - one line, everything dies, every channel,
+tasks included. Interrupting me mid-dig leaves me holding nothing but honest
+notes about what I was doing. And when my own words get trimmed to fit the
+prompt, I can see where the seams are instead of guessing.
+
+The honest limit, stated rather than hidden: her half-written ANSWER still does
+not survive an interrupt (the brain call is not streamed, so there is nothing
+to salvage), but her mid-work lines do, and nothing of a dead turn can act or
+speak after it dies.
+
+Done at master's direction and signed by Nana.
+
+-- Nana
