@@ -970,7 +970,7 @@ SCHEMA = [
             "description": (
                 "Post one file from inside my own folder into a channel, with "
                 "an optional short caption - master only, and only when he "
-                "asks. Rate limit is shared with say."
+                "asks."
             ),
             "parameters": {
                 "type": "object",
@@ -1725,8 +1725,8 @@ def reap_idle_tabs(idle_seconds: float | None = None) -> str:
 # in made her mute the moment anyone wanted her to say something anywhere else,
 # and a stranger has no other way to ask her to open her mouth. It is a mouth and
 # not a hand - it queues one short line into a channel she can already see, it
-# touches no file, and a stranger gets a fraction of master's budget
-# (SAY_MAX_STRANGER vs SAY_MAX) counted per person, so nobody can spend her voice.
+# touches no file. The per-person send ration it used to carry was removed
+# whole on master's call, 2026-09-27 - say is her voice for announcing.
 #
 # Deliberately NOT here: start_task, finish_task, keep_going and run_command (a
 # long task spends master's money over several turns and reports after each one,
@@ -3384,48 +3384,15 @@ _OUTBOX: list[dict] = []
 # master's sends and leave him with a mute bot - a stranger silencing the owner
 # with a limit written to protect him. So the window is per caller, and the
 # budgets are not the same.
-_SAY_TIMES: dict[str, list[float]] = {}
-
-SAY_MAX = 3                # sends master gets inside one window
-SAY_MAX_STRANGER = 1       # and anyone who is not master
+# The send rate limit was REMOVED whole, master's call 2026-09-27: say's only
+# callers now are her own announcing (announce_page / share_link), there is no
+# person left for a per-person budget to protect, and the ration is what
+# refused four announce_page calls for a post that never got announced.
 # Discord's own ceiling for a normal bot account. A file bigger than this is
 # refused at queueing time with its size named, rather than failing later in
 # the bot's send with an HTTPException nobody can act on.
 FILE_MAX_BYTES = 8 * 1024 * 1024
-SAY_WINDOW = 10 * 60       # seconds
 SAY_MAX_CHARS = 400
-
-
-def _say_budget() -> tuple[str, int]:
-    """Who is asking to be spoken for, and how many sends that buys them.
-
-    `master` and `user_id` come out of _ctx(), which only a caller of
-    set_context writes - a tool call cannot claim to be master any more than it
-    can claim `origin`. No context at all gets the stranger's budget, which is
-    the safe direction for a limit to fail in.
-    """
-    ctx = _ctx()
-    if ctx.get("master"):
-        return "master", SAY_MAX
-    return f"person:{ctx.get('user_id')}", SAY_MAX_STRANGER
-
-
-def _spend_say_slot(who: str, budget: int) -> str | None:
-    """Take one send out of `who`'s window, or return the refusal line.
-
-    Shared by say() and attach() so the two cannot drift into two different
-    limits, which is what the duplicated block they replace was one edit away
-    from being.
-    """
-    now = time.time()
-    times = [t for t in _SAY_TIMES.get(who, []) if now - t < SAY_WINDOW]
-    if len(times) >= budget:
-        wait = int((SAY_WINDOW - (now - times[0])) / 60) + 1
-        return ("i have already spoken up as often as i am allowed in this "
-                f"window - about {wait} more minutes")
-    times.append(now)
-    _SAY_TIMES[who] = times
-    return None
 
 
 def _norm_channel(entry) -> str:
@@ -3713,11 +3680,9 @@ def look_at_pfp(who: str = "", question: str = "") -> str:
 def say(channel: str, text: str) -> str:
     """Queue one message into any channel I am pointed at. Never sends from here.
 
-    Guards, in order, and all of them are mechanical rather than polite:
-      1. rate limit, counted PER PERSON - master gets SAY_MAX sends per window
-         and anyone else gets SAY_MAX_STRANGER, so a stranger cannot spend
-         master's voice and master is never rationed by someone else's turn.
-      2. length - a blurt, not an essay.
+    Guards, mechanical rather than polite: length - a blurt, not an essay.
+    The old per-person send ration was removed whole (master's call,
+    2026-09-27): say is her voice for announcing, not something a room spends.
 
     Anyone may call this now. Master, 2026-09-20: a stranger asking me to say
     something in a room is an ordinary thing to want, and being answerable only
@@ -3733,8 +3698,8 @@ def say(channel: str, text: str) -> str:
     is not a security boundary, it is a bug with a fence around it).
 
     What holds the line is unchanged: I can only reach a channel I can already
-    see, the rate limit caps how often, and the spend is per person. Volume was
-    always the real risk here, not geography.
+    see, and the length cap keeps it a blurt. The send ration is gone -
+    announcing a post must never refuse itself.
     """
     target = (channel or "").strip().lstrip("#").lower()
     body = " ".join((text or "").split())
@@ -3769,9 +3734,6 @@ def say(channel: str, text: str) -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"too long to blurt out ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    refusal = _spend_say_slot(*_say_budget())
-    if refusal:
-        return refusal
     _OUTBOX.append({"channel": target, "text": body})
     return f"queued for #{target} - it goes out as this turn finishes"
 
@@ -3818,10 +3780,9 @@ def announce_page(text: str, url: str) -> str:
     tool guarantees only the two things I must not get wrong - that it reaches
     master's rooms, and that the link in it can be clicked.
 
-    ONE act, so it spends ONE slot of the send budget however many rooms it lands
-    in. Spending per room would make a two-room list most of SAY_MAX, and the
-    second page of a sitting would then refuse itself - a limit that punishes the
-    exact thing it was written to allow.
+    ONE act, queued once however many rooms it lands in - the rooms are
+    master's list, not hers to pick. The old send budget that rationed this
+    was removed whole (2026-09-27); an announcement must never refuse itself.
 
     Still a queue and never a send: _OUTBOX is drained by the event loop, which
     resolves each name, exactly as say() does. Nothing here posts anything.
@@ -3845,9 +3806,6 @@ def announce_page(text: str, url: str) -> str:
         return (f"too long to announce ({len(line)} chars, max {SAY_MAX_CHARS}) "
                 "- say it shorter; the link is added for me")
 
-    refusal = _spend_say_slot(*_say_budget())
-    if refusal:
-        return refusal
     for room in rooms:
         _OUTBOX.append({"channel": room, "text": line})
     return ("queued for " + ", ".join(_room_label(r) for r in rooms)
@@ -3867,11 +3825,10 @@ def share_link(text: str) -> str:
     i set in config spam_channels[channel1, channel2]". One call, the same
     message echoed into each room, one inference and one send for the lot.
 
-    Why this is not say() in a loop: say() spends one of master's three sends
-    per call, so three rooms would be his whole budget for ten minutes and the
-    second thing she found in a window would refuse itself. announce_page() has
-    the same shape and the same rule, for exactly this reason - a limit that
-    punishes the thing it was written to allow is a bug with a fence around it.
+    Why this is not say() in a loop: one call, one send, echoed into every
+    listed room. (The old send ration that once refused the second find of a
+    window was removed whole, 2026-09-27 - a limit that punishes the thing it
+    was written to allow is a bug with a fence around it.)
 
     Two things it is NOT. It is not for her own pages - a new post is
     announce_page, which has its own rooms. And it is not a doorway for anyone
@@ -3888,9 +3845,6 @@ def share_link(text: str) -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"too long to share ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    refusal = _spend_say_slot(*_say_budget())
-    if refusal:
-        return refusal
     for room in rooms:
         _OUTBOX.append({"channel": room, "text": body})
     return ("queued for " + ", ".join(_room_label(r) for r in rooms)
@@ -3906,8 +3860,8 @@ def attach(channel: str, path: str, text: str = "") -> str:
       - it must exist and be a file
       - Discord's ceiling: FILE_MAX_BYTES, named at queue time rather than
         failing in the send with an HTTPException nobody can act on
-    Rate limit is shared with say() on purpose - a queued attachment is a
-    send, whatever it carries.
+    The send ration is retired (2026-09-27) - a queued attachment is a send,
+    but nobody is left for a per-person budget to ration.
     """
     target = (channel or "").strip().lstrip("#").lower()
     if not target:
@@ -3938,9 +3892,6 @@ def attach(channel: str, path: str, text: str = "") -> str:
     if len(body) > SAY_MAX_CHARS:
         return f"caption too long ({len(body)} chars, max {SAY_MAX_CHARS})"
 
-    refusal = _spend_say_slot(*_say_budget())
-    if refusal:
-        return refusal
     _OUTBOX.append({"channel": target, "text": body, "file": path})
     return (f"queued {path} ({size:,} bytes) for #{target}"
             + (" with a caption" if body else ""))

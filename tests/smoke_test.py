@@ -3770,7 +3770,6 @@ def _say_guard() -> str:
     import tools
 
     tools._OUTBOX.clear()
-    tools._SAY_TIMES.clear()
     try:
         # 1. OFF the menu: not in the stranger palette, not in master's schema,
         # and the schema still carries exactly one attach (say's entry was
@@ -3791,16 +3790,15 @@ def _say_guard() -> str:
                f"the room guard did not hold: {out}")
         expect(len(tools._OUTBOX) == 0, "a refused say still queued")
 
-        # 3. the budget machinery survives underneath, and the pot is per
-        # person: a stranger's earlier sends cost master nothing
+        # 3. anyone can still ask for a line, and sends are UNRATIONED now:
+        # the old per-person budget refused her own announcements (four
+        # announce_page calls for a post that never got announced, 2026-09-27)
         tools.set_context(2222, "someone", "general")
         out = tools.say("general", "a stranger's line")
         expect("queued" in out, f"say's queue path broke: {out}")
-        expect(tools.SAY_MAX_STRANGER < tools.SAY_MAX,
-               "a stranger is allowed as many sends as master")
         tools.set_context(1, "master", "general", master=True)
         out = tools.say("general", "his own words")
-        expect("queued" in out, f"a stranger spent master's sends: {out}")
+        expect("queued" in out, f"master's own say broke: {out}")
 
         # 4. NO allowlist: a channel master names is queued, full stop
         expect(not hasattr(tools, "_say_allowlist"),
@@ -3811,15 +3809,16 @@ def _say_guard() -> str:
         expect("too long" in out, f"an over-long say was accepted: {out}")
         expect(len(tools._OUTBOX) == 2, "an over-long say was still queued")
 
-        # 6. master's own limit still holds once it is spent
-        tools.say("general", "two")
-        tools.say("general", "three")
-        out = tools.say("general", "four")
-        expect("already spoken" in out, f"the rate limit did not hold: {out}")
+        # 6. NO send ration: a fourth and fifth send still queue - the ration
+        # that used to refuse the fourth send is what killed four
+        # announce_page calls for a post that never got announced
+        for word in ("two", "three", "four", "five"):
+            out = tools.say("general", word)
+            expect(out.startswith("queued"), f"send '{word}' refused: {out}")
 
         # 7. drain hands over exactly what was queued, then empties
         queued = tools.drain_outbox()
-        expect(len(queued) == 4, f"drain returned {len(queued)}, expected 4")
+        expect(len(queued) == 6, f"drain returned {len(queued)}, expected 6")
         expect(not tools._OUTBOX, "drain did not empty the outbox")        # 8. the fences that moved and the ones that did not. Master opened
         # attach/look_at/the browser pair to strangers (2026-09-21), and
         # look_at_file on 2026-09-21 too, so the new contract is: they ARE
@@ -3856,9 +3855,8 @@ def _say_guard() -> str:
     finally:
         tools.set_context(None)
         tools._OUTBOX.clear()
-        tools._SAY_TIMES.clear()
-    return ("open to strangers on a per-person budget, NO channel allowlist, "
-            "length and rate limit, queue/drain all enforced")
+    return ("open to strangers, NO channel allowlist, NO send ration "
+            "(removed 2026-09-27), length cap and queue/drain all enforced")
 
 # -- 19. the restart notice, written once and consumed once ---------------
 # on_ready fires on EVERY boot, including the supervisor's crash-loop attempts.
@@ -7021,7 +7019,6 @@ def _web_announce() -> str:
     import tools
     real_read_json = tools.paths.read_json
     tools._OUTBOX.clear()
-    tools._SAY_TIMES.clear()
     try:
         tools.paths.read_json = lambda *a, **k: {
             "update_channels": ["lulu-den"],
@@ -7046,8 +7043,7 @@ def _web_announce() -> str:
 
         def _reset():
             tools._OUTBOX.clear()
-            tools._SAY_TIMES.clear()
-
+        
         _reset()
         out = tools.announce_page("a page i made, go look", "/blog/probe/")
         expect("queued" in out, f"the announcement did not queue: {out!r}")
@@ -7059,10 +7055,13 @@ def _web_announce() -> str:
         expect(tools.SITE_URL + "/blog/probe/" in body,
                f"a bare path did not become a link: {body!r}")
 
-        # ONE act is ONE send however many rooms it lands in: a two-room
-        # announcement must not spend two of master's three.
-        spent = sum(len(v) for v in tools._SAY_TIMES.values())
-        expect(spent == 1, f"one announcement spent {spent} sends")
+        # ONE act is ONE queued line however many rooms it lands in, and the
+        # SECOND page of a sitting refuses itself no longer - the old send
+        # ration refused exactly that (master, 2026-09-27: ration removed).
+        out = tools.announce_page("and a second page the same sitting",
+                                  "/blog/probe-2/")
+        expect(out.startswith("queued"),
+               f"a second announcement refused itself: {out!r}")
 
         # The link is said ONCE, whichever way I wrote it. Three shapes, because
         # all three are things I actually type - and doubling it is the failure
@@ -7112,8 +7111,7 @@ def _web_announce() -> str:
         tools.paths.read_json = real_read_json
         tools.set_context(None)
         tools._OUTBOX.clear()
-        tools._SAY_TIMES.clear()
-    return ("web_update_channels drives it, absent falls back and empty goes "
+        return ("web_update_channels drives it, absent falls back and empty goes "
             "nowhere, the words are mine and required, the link lands once "
             "however I wrote it, one act costs one send, and it stays "
             "master-only")
@@ -7135,7 +7133,6 @@ def _spam_share() -> str:
     import tools
     real_read_json = tools.paths.read_json
     tools._OUTBOX.clear()
-    tools._SAY_TIMES.clear()
     try:
         # A qualified entry keeps its guild through the reader, and a bare one is
         # left exactly as it was - a config written before this keeps working.
@@ -7168,8 +7165,7 @@ def _spam_share() -> str:
 
         def _reset():
             tools._OUTBOX.clear()
-            tools._SAY_TIMES.clear()
-
+        
         # The same line, once per listed room - and the guild half stays OUT of
         # the answer she reads back.
         _reset()
@@ -7187,9 +7183,12 @@ def _spam_share() -> str:
         expect("652625990387761170" not in out,
                f"a guild id leaked into the reply she reads: {out!r}")
 
-        # ONE act is ONE send - the whole reason this is not say() in a loop.
-        spent = sum(len(v) for v in tools._SAY_TIMES.values())
-        expect(spent == 1, f"one share spent {spent} sends")
+        # ONE act is ONE queued line for every listed room - and a SECOND
+        # find the same window shares just as freely. The old per-person send
+        # ration refused exactly this (master, 2026-09-27: removed whole).
+        out = tools.share_link("second find: https://example.invalid/y.jpg")
+        expect(out.startswith("queued"), f"a second share refused: {out!r}")
+        expect(len(tools._OUTBOX) == 4, f"the second share did not queue: {out!r}")
 
         # Two refusals that must say why, and must queue nothing.
         _reset()
@@ -7220,8 +7219,7 @@ def _spam_share() -> str:
         tools.paths.read_json = real_read_json
         tools.set_context(None)
         tools._OUTBOX.clear()
-        tools._SAY_TIMES.clear()
-    return ("a qualified room keeps its guild, bare rooms still work, repeats "
+        return ("a qualified room keeps its guild, bare rooms still work, repeats "
             "collapse, spam_channels has no fallback, one share reaches every "
             "listed room as one send, and it stays master-only")
 

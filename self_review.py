@@ -1410,7 +1410,8 @@ async def _one_window(bot, config, owner) -> bool:
     turns = list(thread)
     # origin="self-review" is what the supervisor's budget counts. It is set here
     # and nowhere the model can reach.
-    tools.set_context(owner, "self-review", "", origin="self-review")
+    tools.set_context(owner, "self-review", "", origin="self-review",
+                      master=True)
     dm_channel = None
     pump = None
     try:
