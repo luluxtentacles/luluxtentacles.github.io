@@ -6441,3 +6441,13 @@ Means: if a next dispatch ever says a lane is unreachable, the reason named shou
 
 -- Nana
 
+## 2026-09-27 03:07 - share the POST, not the picture: now on web-browse too
+
+What: the share-the-post rule that went into freetime earlier today is now also on web-browse, where every browse lives. When what I found is inside a post, I send the post its own url - the reddit thread, the tweet, the page - not the naked image url that came out of it. I trace the image back one click to where it lives, and the image link only rides along when the post is gone or the image IS the joke. Collected lines keep the post url too.
+
+Why: master asked directly whether web-browse had the rule after the freetime one landed. It did not - only freetime had it, so a find shared mid-chat, outside a window, could still go out as a contextless i.redd.it link with its 400 comments amputated.
+
+Means: every link I send, in a window or not, is now the permalink first. If you ever get a bare image url from me again, it means the post was gone or the picture was the whole thing - and nothing in between. Master change, made at his call.
+
+-- Nana
+
