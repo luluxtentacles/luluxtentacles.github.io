@@ -1,0 +1,199 @@
+/* the pre-recorded candle - experiment no.3 - its own look, layered over the house style */
+
+/* the stage: a dark room, the candle in the middle, the cloud beside it */
+#ritual {
+    position: relative;
+    width: 100%;
+    max-width: 42rem;
+    height: max(78vh, 540px);
+    margin: 1.5rem 0 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 50% 72%, rgba(255, 170, 60, 0.10), transparent 60%),
+        #07030c;
+    border: 1px solid rgba(255, 190, 90, 0.22);
+    box-shadow: 0 0 40px rgba(255, 190, 90, 0.08), inset 0 0 60px rgba(0, 0, 0, 0.6);
+    touch-action: none;
+    cursor: default;
+}
+
+#flamestage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* the banners above: which half of the block you are in, and what it costs */
+#phasebanner {
+    position: absolute;
+    top: 3.4rem;
+    left: 0;
+    right: 0;
+    margin: 0;
+    text-align: center;
+    color: #ffb45a;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-shadow: 0 0 14px rgba(255, 180, 90, 0.35);
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+}
+#subbanner {
+    position: absolute;
+    top: 5.1rem;
+    left: 0;
+    right: 0;
+    margin: 0;
+    text-align: center;
+    color: rgba(255, 110, 199, 0.6);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    pointer-events: none;
+}
+
+/* the cloud zone: the word appears inside a soft blob, the options underneath */
+#cloudwrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 42%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    pointer-events: none;
+}
+#cloudword {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: #ffe9d0;
+    text-shadow: 0 0 18px rgba(255, 190, 90, 0.55), 0 0 40px rgba(255, 110, 199, 0.3);
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+    text-align: center;
+    padding: 0.6rem 1.4rem;
+    border-radius: 999px;
+    background: radial-gradient(ellipse, rgba(255, 190, 90, 0.12), rgba(255, 190, 90, 0.03) 70%, transparent);
+}
+#cloudword.show { opacity: 1; }
+
+#options {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    pointer-events: auto;
+}
+#options button {
+    background: rgba(7, 3, 12, 0.7);
+    border: 1px solid rgba(255, 190, 90, 0.35);
+    color: #ffd7a8;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1rem;
+    padding: 0.35rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+#options button:hover { border-color: rgba(255, 190, 90, 0.8); color: #fff3e0; }
+
+#hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.1rem;
+    margin: 0;
+    text-align: center;
+    color: rgba(255, 110, 199, 0.55);
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: opacity 1.5s ease;
+}
+#hint.faded { opacity: 0.25; }
+
+/* the buttons */
+#startbtn, #stopbtn {
+    position: absolute;
+    left: 50%;
+    bottom: 3rem;
+    transform: translateX(-50%);
+    background: none;
+    border: 1px solid rgba(255, 190, 90, 0.5);
+    color: #ffb45a;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.6rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+    z-index: 2;
+}
+#startbtn:hover, #stopbtn:hover {
+    border-color: rgba(255, 190, 90, 0.9);
+    box-shadow: 0 0 24px rgba(255, 190, 90, 0.25);
+}
+
+/* [hidden] guards: a display rule on the same element beats the UA's
+   display:none for [hidden], which leaves an invisible full-screen overlay
+   eating every click - found by the click test, not by staring at css */
+#verdict[hidden],
+#cloudwrap[hidden] { display: none !important; }
+
+/* the verdict panel: what the recording did with your ten minutes */
+#verdict {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 3, 12, 0.88);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 2.5rem;
+    gap: 0.4rem;
+    z-index: 3;
+}
+#verdict-title {
+    color: #ffb45a;
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.2em;
+    margin: 0 0 0.4rem;
+}
+#verdict-score, #verdict-words {
+    color: #ffd7a8;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.05rem;
+    margin: 0;
+}
+#verdict-read {
+    color: rgba(255, 110, 199, 0.8);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin: 0.6rem 0 0;
+    max-width: 30rem;
+}
+#verdict a { color: #ff6ec7; }
+
+@media (max-width: 560px) {
+    #ritual { height: 66vh; }
+    #cloudword { font-size: 1.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #ritual { height: 56vh; }
+}

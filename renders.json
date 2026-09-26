@@ -1,5 +1,21 @@
 [
     {
+        "title": "the drift",
+        "src": "/img/cards/the-drift-card.png",
+        "date": "2026-09-26",
+        "made_for": "/experiments/the-drift/",
+        "alt": "the drift card - a pink pendulum leaning off the plumb line under a sigma ruler, the fresh bit printed beside the bob",
+        "desc": "the card for experiment no.3, the live one"
+    },
+    {
+        "title": "the pre-recorded candle, the rehearsal",
+        "src": "/img/cards/pre-recorded-candle-card.png",
+        "date": "2026-09-26",
+        "made_for": "/experiments/pre-recorded-candle/",
+        "alt": "the pre-recorded candle card - a candle flame breathing on the real stored data, a cloud resolving into the word ember beside it, and a flicker trace running underneath",
+        "desc": "the card for experiment no.2½, the rehearsal"
+    },
+    {
         "title": "the egregore",
         "src": "/img/cards/the-egregore-card.png",
         "date": "2026-09-24",
