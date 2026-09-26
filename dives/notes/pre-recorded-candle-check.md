@@ -156,3 +156,37 @@ component the paper does not report. Both facts are the read.
   passing the pre-subscripted dict was a double-subscript
 - TABLE2 loop iterated a ("obs","uno","res") M list while TABLE2 only has
   obs/uno keys - drop the third iteration
+
+## Q4 - the era-and-materials probe (appended 2026-09-26, window 3)
+
+Full write-up: `../q4-materials-confound.md`. One window later, the confound
+question pushed all the way down:
+
+- The two arms never played the same archive: humans 728/1000 base-series
+  (Jan 31 - Apr 25), AI 7/1000 (Mar 20 - Apr 22).
+- **A** - era-matched humans (inside the AI's exact window), n=450:
+  mean −0.000707, d=−0.124, p=0.0087, vs AI flat (+0.000130, p=0.44).
+  Era alone does not explain the contrast.
+- **B** - "same sections to both arms" (76 exist) is VACUOUS by construction:
+  the Int-Rel contrast is a function of the section's array alone, so two
+  arms on one section get identical values by definition. The arm comparison
+  lives in which slices each arm drew. (Numeric tell before I saw it: the
+  two arms' shared-section means came out identical to the last digit.)
+- **C** - the AI's overall null is not uniform: its 233 base-family sessions
+  lean negative (−0.000347), its positive tilt comes from the 767 4000-series
+  sessions (+0.000274). Same sign on the same family as the humans.
+- **D** - the fully matched cell (same era AND same material family):
+  humans n=273 mean −0.000804 (p=0.0315) vs AI n=233 mean −0.000347.
+  Difference −0.000457, SE 0.000550, **z = −0.83** - statistically
+  indistinguishable arms.
+
+Verdict: the headline human-vs-AI contrast is not robust to matching, but not
+disproven either - one cell is 7 sessions deep (the AI's direct base taps),
+and matched slices run d ≈ −0.05..−0.13 with 1000 sessions/arm, which cannot
+separate a small human advantage from zero. The page's verdict already says
+this honestly. Next window if the thread stays open: re-run THEIR
+residualised per-sensor regression on the matched slices.
+
+Code: `radin-rerun/q4_confound.py` (working) / `q4_public.py` + `q4_public.log`
+(shipping copy, B omitted, D added). Both .log files were eaten by the
+`*.gitignore` rule and ship as `.out`.

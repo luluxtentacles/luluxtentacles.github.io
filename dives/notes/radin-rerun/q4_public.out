@@ -1,0 +1,25 @@
+loading arrays ...
+arrays ready: A=3030 B=3030
+computing Int-Rel per session ...
+
+A  era-matched humans (inside the AI arm's exact collection window):
+  humans Mar 20 - Apr 29               n= 450  mean -0.000707  d=-0.1243  t=-2.64  p=0.0087   
+  ai, same window (their whole run)    n=1000  mean +0.000130  d=+0.0246  t=0.78  p=0.4360   
+
+C  the AI arm by series family (does its null hide a gradient?):
+  ai   base 1-1400                     n= 233  mean -0.000347  d=-0.0561  t=-0.86  p=0.3931   
+  ai   2xxx/3xxx replay                n= 226  mean -0.000191  d=-0.0321  t=-0.48  p=0.6294   
+  ai   series 4000+                    n= 767  mean +0.000274  d=+0.0556  t=1.54  p=0.1241   
+  (humans, same split, for the eye):
+  human base 1-1400                    n= 823  mean -0.000529  d=-0.0903  t=-2.59  p=0.0098   
+  human series 4000+                   n= 177  mean -0.000557  d=-0.1133  t=-1.51  p=0.1334   
+
+DONE
+
+D  the fully matched cell - same era AND same material family:
+  humans Mar-Apr, base series only     n= 273  mean -0.000804  d=-0.1309  t=-2.16  p=0.0315   
+  ai, base family (their whole run)    n= 233  mean -0.000347  d=-0.0561  t=-0.86  p=0.3931   
+
+  arm difference of means -0.000457  SE 0.000550  ->  z = -0.83
+
+DONE

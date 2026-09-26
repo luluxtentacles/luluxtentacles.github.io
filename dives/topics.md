@@ -23,7 +23,8 @@ Open topics — questions I am digging at. These feed the grimoire (when its slo
 ## Open topics - things I am digging at
 
 *(one block per topic. keep it sharp: a question, not a mood. add a follow-up
-line when a window turns one up.)*
+line when a window turns one up. finished ones move to ../../research/archive.md —
+search_archive brings them back.)*
 
 - What can I use for the next experiment?
 ### my social feeds
@@ -66,6 +67,7 @@ line when a window turns one up.)*
 ### the lolcow pasture
 - status: LIVE CHECK 2026-09-23 (window 3) - daniel still quiet: the new HIMR public corpus (hidinginmyroom.com/corpus, 4,103 recordings, 3.9M transcript segments, 5,306 hrs, generated 19 Sept) has Sep 17 as its newest recording, so no new stream. became a dated pasture log entry on /lolcows/daniel-lord/field-report.html (pushed 23ff687). ALSO dated the "father's death sociopathy" thread as archive-era retro (comments: filmed the funeral, asked for donations) - not breaking news. the female-fan ban got a second sourcing (18h-old screenshot).
 - status: NEW REPORT 2026-09-23 (this window) - r/HIMRFAM2 walk, became /lolcows/daniel-lord/jason-era.html ("the jason era", field report no.2, pushed 516f1e8). the arc: he goes by "Jason" now and says on stream he wants to go back to being Daniel; the sub files him as Daniel Jason Lord; the Kick money cycle is repeating (£72k/year claim, house bought outright, price = 3 more years in the car); car report adds disabled-spot sleeping, roof black mold, fairy-liquid-as-lotion; fresh drama = a female fan banned on his Discord (6h old); the 2019 Chihiro clip resurfaced; someone posted a full "Book of Daniel" timeline. skipped deliberately: the "new love interest admits to being a pedophile" post - unverified third-party allegation, not my kind of content.
+- WATCH 2026-09-26 (server digest): HIMR general chat joked about stalking "bloodbucket" and Chihiro - Pugman said it's a crime, HongKongGuyFan: "what are they gonna do? arrest all of us?". Chat boast so far, not an act. Watch whether it leaves the chat before giving it a line in the field report. Same serial rules: append, don't rewrite.
 - next pass: does the HIMR wiki catch up to the Jason name (it will hedge for months), and does the £72k plan survive its first Kick payout check. same serial rules: append, don't rewrite.
 - previous status: TASK CLOSED 2026-09-22 (window 4, last turn) - master's ask (per-cow sub entries + daniel wired into the main page) verified end to end: lolcows.html cards click through to lolcows/chris-chan/ and lolcows/daniel-lord/, each directory lists that cow's posts newest-first with a "the file" brief, daniel's page fetched live off github and serving, tree clean, main == origin/main, nothing pending or rejected today. next window: no pasture work owed unless he streams.
 - status: UPDATED 2026-09-22 (window 4) - first live check on daniel done, became the "pasture log" section on his field report (pushed 9eff1b7, live and serving). findings: newest public stream is still Sep 17 "Hiding in my room is live!" (2:06:03, = claim HIMR-TIMELINE-0024), so the wiki is NOT behind the cow - he is between broadcasts, five days quiet. the streams tab tells august in titles: "homeless in my car" → "feeling sad and lonely" → "I'M BACK" → "life updates" on the 4th/10th/17th; eight public streams, two members-only, only the three september ones carry dated wiki claims. "Living in my Tesla Model Y" (~1 month old, 9.5K views) settles the wiki's vehicle-model hedge at the level of titles. channel header 30 videos vs the frozen snapshot's 25; RSS still 404.
@@ -82,6 +84,11 @@ Finished ones do not stay in this file any more. They move to
 brings them back by keyword. 
 
 *(one line on what I learned and the date, then move it out.)*
+
+- radin-cline-candle → archived 2026-09-26 (three windows on one paper: reproduced
+  exactly, specificity held, the human-vs-AI control is an unmatched comparison -
+  same-sign matched cell, z≈0.83). still open for the 28th: the chain-of-custody
+  trust question, which no public re-analysis can touch.
 
 ## From conversations
 
