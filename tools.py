@@ -1445,11 +1445,13 @@ def finish_task(summary: str = "") -> str:
 
 
 def keep_going(note: str = "") -> str:
-    """Master said carry on with the job I stopped part-way through.
+    """Master said carry on: same task, fresh window, history kept.
 
-    Only releases a task that is actually WAITING on his answer - see
-    taskmode.keep_going. It cannot reopen anything that finished or was never
-    opened, which is what keeps it safe to put in front of a model.
+    Reopens the most recent CLOSED task on his explicit word - a spent window,
+    a finished one, either - within about a day of it closing. It cannot touch
+    a task still open, a job from last week, or a job that never was, which is
+    what keeps it safe to put in front of a model. His note rides along and
+    reaches the reopened job's first turn.
     """
     import taskmode
     return taskmode.keep_going(note)

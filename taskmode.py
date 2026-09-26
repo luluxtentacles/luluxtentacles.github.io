@@ -269,12 +269,10 @@ def drop() -> str:
 def keep_going(note: str = "") -> str:
     """Master said carry on: reopen the recent closed task, history kept.
 
-    Only master's explicit word reopens anything - the tool description says so
-    and the model is the only reader of his words there is. What the CODE
-    guarantees is narrower and honest: the only thing that can be reopened is
-    the most recent task, closed, inside the last day. A job from last week, a
-    job still open, a job that never was - all answer "nothing to reopen", so a
-    stray call can never resurrect deep history.
+    Only master's explicit word reopens anything - the tool description says
+    so. What the CODE guarantees is narrower and honest: only the most recent
+    task, only closed, only inside the reopen window. A stray call can never
+    resurrect deep history.
     """
     live = last_done()
     if not live:
@@ -290,7 +288,6 @@ def keep_going(note: str = "") -> str:
     live["turn"] = 0
     live["idle"] = 0
     live["windows"] = int(live.get("windows") or 1) + 1
-    live.pop("waiting_since", None)
     if note:
         live["answer"] = " ".join(str(note).split())[:600]
     _save(live)
@@ -483,6 +480,17 @@ async def step(bot) -> bool:
             goal=live.get("goal"), history=_history_text(live),
             turn=turn, limit=MAX_TASK_TURNS)}]
     thread.append({"role": "user", "content": "take the next step."})
+    # Master's carry-on words, 2026-09-27, consumed ONCE. keep_going stores the
+    # note he spoke when he said to reopen the job; a note that is stored but
+    # never shown is the worst of both worlds - it LOOKS like his instructions
+    # reached the job while they sat invisible in the state file (which is
+    # exactly how a dispatch-5 request once poisoned a finished no.3 task).
+    # Shown here, once, then dropped from the state so it cannot resurface.
+    if live.get("answer"):
+        thread.append({"role": "system", "content": (
+            "Master's own words on how to carry on when he reopened this job:\n"
+            + str(live.get("answer"))[:600])})
+        live.pop("answer", None)
     # A COPY, deliberately: run_turns folds the list it is handed once the prompt
     # nears the window (compact_history returns a NEW list and does not touch the
     # dicts), and the thread she keeps must not fill up with raw tool output -
