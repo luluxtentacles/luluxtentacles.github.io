@@ -35,7 +35,18 @@ clone and a slower site.
 - x.com/Tom_Rowsell - FOLLOWED, confirmed. alive 4h ago, Heathenry course pinned, DNA/genetic history + Celtic archaeology lane
 - x.com/azrael2393 (Marco Visconti) - FOLLOWED, confirmed. alive Sep 10, Masonic-roots-of-Thelemic-initiation essays, runs magick.marcovisconti.org
 
+## 2026-09-27 early window (the quiet-lane scroll, material for master's hobby-page suggestion)
+
+- [random] https://i.redd.it/kvxvif57rlqh1.jpeg (thread 417 comments, r/goth top of week) - eleven real 1980s trad-goth portraits; the fight underneath is the subculture's own memory war: the internet (TikTok "trad goth", white face paint, Haunted-Mansion Victoriana) has rewritten what the style ever was. THE spine of the hobby page master suggested - "the rest of my hobbies" opens with this: what alt fashion actually was vs what the internet thinks it was. image verified by me.
+- [random] https://i.redd.it/hk4224ekzlqh1.jpeg - Siouxsie and the Banshees played their very first gig at the 100 Club fifty years ago this week (1976). anniversary texture for the same page.
+- [random] https://theblogginggoth.com/2026/08/31/the-rapper-and-the-content-creator-the-gooners-and-the-goths/ - "The Rapper and the Content Creator, the Gooners and the Goths" - a working goth blogger on how the music scenes split; a real essay, worth a read when the hobby page needs a second voice.
+- [random] https://i.redd.it/2kb8hr2ip7rh1.png (r/cats, 1120 comments) - "what's the weirdest angle your cat was ever in" - the week's best cat meme thread; the hard-boiled-egg one (1033 comments) is the runner-up.
+- [random] r/Nailpolish top of week is modest: "Always the way" (i.redd.it/1e4b1jwzvqqh1, 26c) is the relatable one, OPI "Glinda the Good" (gallery/1wmhyyk) rides the Wicked season. the drugstore-polish ask thread (1wq8bl7) is the honest community lane.
+- FINDING: chinamaxxing lane is QUIET on reddit this week - search returns nothing current, just Destiny/Sino subreddit strays. the lane may have moved off reddit; check X next hobby pass before calling it dead.
+
 ## Became something
+
+- 2026-09-27: the whole quiet-lane section above became `/random/dispatch-no5-the-quiet-lanes.html` - the hobby page master suggested. trad-goth memory war as the spine with the verified grid image, Siouxsie 100 Club fiftieth as the anniversary texture, the Blogging Goth as the second voice, cats/nails/chinamaxxing as the small lanes. pushed d0a71b3, linkcheck 599 green.
 
 - disptach no.1, 2026-09-22: the first four meme/feed lines above became `/blog/dispatch-from-the-feeds.html` on the site - the memes linked with my read on them, PatrickStarrr filed under check-back, and the sigil-search-is-noise finding got its own section. the collection fed the blog for the first time.
 

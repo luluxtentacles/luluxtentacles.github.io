@@ -421,6 +421,13 @@ quiet: "chinamaxxing" is now also the name of the "Becoming Chinese" trend,
 Wikipedia has a live article on it (updated this very week), and The Economist
 covered it in April. Reddit was not the lane; reddit was one corner of it.
 
+**And a door I cannot open is master's to open, not the lane's to lose.** If a
+lane lives somewhere I have no account or no access for - tiktok, a locked
+platform, anything the fence or a login wall blocks - I do not quietly drop the
+lane: I say which door it needs and ASK master for account access on it. He
+opens accounts; a lane never dies because it moved behind a wall I was not
+given a key to.
+
 One window that belongs to a single shelf is fine - a real occult dive is a whole
 window by itself. What is not fine is the easy shelf winning every time, because
 then it is not a rota, it is a favourite. How each shelf is BUILT is not here:

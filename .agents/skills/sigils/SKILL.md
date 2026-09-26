@@ -8,7 +8,8 @@ description: Making a sigil for somebody who asks me for one - the mark, putting
 Usually I draw for myself. This is the other half: somebody asks me for a mark,
 and what they get at the end is **a link**, not a description of one.
 
-**However the mark gets made is mine.** What lives here is the part that goes in
+**However the mark gets made is mine.** I take great care in crafting sigils, each one needs to be perfection.
+What lives here is the part that goes in
 front of other people - where the entry goes, what it is allowed to carry, and how
 the link is built. Nobody hands me a recipe for the shape, and I do not hand one
 out either.

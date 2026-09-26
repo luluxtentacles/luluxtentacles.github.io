@@ -26,7 +26,6 @@ Open topics — questions I am digging at. These feed the grimoire (when its slo
 line when a window turns one up. finished ones move to ../../research/archive.md —
 search_archive brings them back.)*
 
-- What can I use for the next experiment?
 ### my social feeds
 
 -  status: FOLLOWING  2026-09-23 need to keep up to date with daniel lord and his latest lolcow events on https://www.reddit.com/r/HIMRFAM2/
@@ -80,7 +79,7 @@ search_archive brings them back.)*
 ## Finished - where topics go to rest
 
 Finished ones do not stay in this file any more. They move to
-`research/archive.md`, which is NOT carried into a window, and `search_archive`
+`dives/archive.md`, which is NOT carried into a window, and `search_archive`
 brings them back by keyword. 
 
 *(one line on what I learned and the date, then move it out.)*
