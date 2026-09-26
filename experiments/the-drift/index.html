@@ -7,13 +7,13 @@
     <title>the drift · Lulu</title>
 
     <meta property="og:title" content="the drift - experiment no.3, the live one">
-    <meta property="og:description" content="vow a direction, release, and a fresh quantum draw answers you. nothing is replayed. the coin has not been flipped until after your hand is off the glass.">
+    <meta property="og:description" content="vow a direction, tap, and a fresh quantum draw answers you. nothing is replayed. the coin has not been flipped until after your vow is on the ledger.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://luluxtentacles.github.io/experiments/the-drift/">
     <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-drift-card.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="the drift">
-    <meta name="twitter:description" content="experiment no.3, rebuilt live: vow left or right, release, a fresh quantum draw answers. no replay, no pre-recorded verdict.">
+    <meta name="twitter:description" content="experiment no.3, rebuilt live: vow left or right, tap, a fresh quantum draw answers. no replay, no pre-recorded verdict.">
     <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-drift-card.png">
 
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -22,8 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=grid1">
     <script src="/script.js?v=grid1" defer></script>
-    <link rel="stylesheet" href="style.css?v=drift1">
-    <script src="script.js?v=drift1" defer></script>
+    <link rel="stylesheet" href="style.css?v=drift2">
+    <script src="script.js?v=drift2" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -37,25 +37,16 @@
     <main class="sigil post">
         <div id="drift-main">
             <section id="ritual" aria-label="the drift, live">
-                <div id="stage" title="hold, then release">
+                <div id="stage" title="tap to vow">
                     <div id="vowbar" role="group" aria-label="choose your vow">
-                        <button class="vow-btn active" data-mode="left" type="button">&#8592; lean left</button>
-                        <button class="vow-btn" data-mode="right" type="button">lean right &#8594;</button>
-                        <button class="vow-btn" data-mode="watch" type="button">&#9675; watch</button>
+                        <button class="vow-btn active" data-mode="left" type="button">&#8592; guess left</button>
+                        <button class="vow-btn" data-mode="right" type="button">guess right &#8594;</button>
+                        <button class="vow-btn" data-mode="watch" type="button">&#9675; watch the stream</button>
                     </div>
                     <canvas id="pendulum" aria-hidden="true"></canvas>
-                    <p id="phasebanner" aria-live="polite">hold the glass and vow</p>
-                    <p id="subbanner">pick a side, hold, release. the draw comes after your hand lifts.</p>
-                    <p id="stage-hint">hold anywhere on the stage &nbsp;&middot;&nbsp; release to draw</p>
-                </div>
-
-                <!-- the charge ring follows the pointer, built here so script.js only animates it -->
-                <div id="chargewrap" aria-hidden="true">
-                    <svg viewBox="0 0 110 110">
-                        <circle id="charge-track" cx="55" cy="55" r="44"></circle>
-                        <circle id="charge-fill" cx="55" cy="55" r="44" transform="rotate(-90 55 55)"
-                            stroke-dasharray="276.46" stroke-dashoffset="276.46"></circle>
-                    </svg>
+                    <p id="phasebanner" aria-live="polite">vow a side</p>
+                    <p id="subbanner">tap left or right. the draw comes after the vow, never before it.</p>
+                    <p id="stage-hint">watch streams the oracle, live &nbsp;&middot;&nbsp; guesses are the scored trials</p>
                 </div>
             </section>
 
@@ -73,7 +64,7 @@
                 <div class="reading-side" style="margin-top: 12px;">
                     local-fallback ledger (scored, kept separate, never in the headline): <b id="r-local">&#8212;</b>
                 </div>
-                <p id="verdict-line">no quantum trials yet. hold the glass, vow a side, release.</p>
+                <p id="verdict-line">no quantum trials yet. vow a side, tap, the draw answers.</p>
             </div>
 
             <div class="reading-panel receipts-panel">
@@ -99,7 +90,7 @@
                     rehearsal was rehearsing for. <strong>Nothing here is stored.</strong> The verdict bit is
                     drawn fresh, from live quantum entropy, only after your intent is committed.
                     There is no archive to audit ahead of time because there is no archive. The coin
-                    has not been flipped until after your hand is off the glass.
+                    has not been flipped until after your vow is on the ledger.
                 </p>
                 <p>
                     The mechanic is the old PEAR lab shape, single bits instead of a drift: you vow
@@ -115,9 +106,9 @@
 
                 <h2>the three modes</h2>
                 <p>
-                    <strong>Lean left / lean right</strong> are the scored modes: hold, release, and the draw
-                    is graded against your vow. <strong>Watch</strong> is the honest one: you sit through an
-                    identical trial and are told the outcome, but it is pre-declared baseline -
+                    <strong>Guess left / guess right</strong> are the scored modes: tap, and the draw
+                    is graded against your vow. <strong>Watch</strong> is the honest one: the oracle streams
+                    identical trial after trial and you are told each outcome, but it is pre-declared baseline -
                     logged, and scored only for parity, a two-tailed z with no direction in it
                     that asks whether the coin leans anywhere at all when nobody is aiming.
                     The distinction is the whole
@@ -180,7 +171,7 @@
                     the PEAR critics named. Optional stopping is the big one: you can always
                     vow again after a miss, and a file-drawer of abandoned sessions costs
                     nothing. The honest play is Ritual, the rehearsal’s own 30s/30s covenant, in
-                    your head: a fixed number of vows, stated before the first hold, and the
+                    your head: a fixed number of vows, stated before the first tap, and the
                     ledger burned only when you say so at the start, not after. The page
                     cannot enforce a vow you make outside it. It can only make the receipt
                     honest enough that you can see yourself cheat.

@@ -144,19 +144,16 @@ function saveLedger() {
 }
 
 // ---------- TRIAL MACHINE ----------
-// phases: idle -> charging (holding) -> awaiting (oracle in flight) -> idle
+// phases: idle -> awaiting (oracle in flight) -> idle. watch streams, no hold.
 // the intent is COMMITTED before the fetch: a sha-256 of mode|timestamp|nonce
 // is shown in the receipt. that is not cryptography against the browser, the
 // client can always lie to itself, and the method notes say so. it is a receipt
 // that the page asked the oracle AFTER the vow, in the order you can check.
-const CHARGE_MS = 700;          // hold this long to lock the vow
-const CHARGE_MIN_MS = 160;      // below this it is a tap, no trial
 
 let mode = 'left';              // 'left' | 'right' | 'watch'
 let phase = 'idle';
-let chargeStart = 0;
+let watching = false;           // watch mode streams draws continuously
 let pendingReceipt = null;      // the commit, kept until the draw lands
-let lastTrialAt = 0;
 
 async function castVow() {
     if (phase !== 'idle') return;
@@ -201,6 +198,10 @@ async function castVow() {
     const bin = src === 'q' ? ledger.q : ledger.f;
     const hit = (intended === 'left' && result.bit === 0) || (intended === 'right' && result.bit === 1);
 
+    // one wisp per draw, drifting the way the bit leaned: the stage breathes
+    if (gauge.wisps.length > 14) gauge.wisps.shift();
+    gauge.wisps.push({ dir: result.bit * 2 - 1, born: performance.now() });
+
     if (intended === 'watch') {
         const w = src === 'q' ? ledger.wq : ledger.wf;
         w.n++;
@@ -225,7 +226,6 @@ async function castVow() {
 
     phase = 'idle';
     pendingReceipt = null;
-    lastTrialAt = performance.now();
 
     // needle target: pooled quantum z. fallback draws move the grey needle only.
     const zq = binomZ(ledger.q.h, ledger.q.n);
@@ -255,8 +255,6 @@ const el = id => document.getElementById(id);
 const stage = document.getElementById('stage');
 const bannerEl = document.getElementById('phasebanner');
 const subEl = document.getElementById('subbanner');
-const ringEl = document.getElementById('chargewrap');
-const ringFill = document.getElementById('charge-fill');
 
 function setBanner(main, sub) {
     if (main !== null) bannerEl.textContent = main;
@@ -289,7 +287,7 @@ function updatePanel() {
     // the headline line under the panel
     const headline = document.getElementById('verdict-line');
     if (!q.n) {
-        headline.textContent = 'no quantum trials yet. hold the glass, vow a side, release.';
+        headline.textContent = 'no quantum trials yet. vow a side, tap, the draw answers.';
     } else if (Math.abs(zq) < 1) {
         headline.textContent = 'the needle sits inside the noise band. so far, the oracle does not care.';
     } else if (Math.abs(zq) < 2) {
@@ -324,54 +322,44 @@ function renderReceipts() {
     box.innerHTML = '<table id="receipt-table"><thead><tr><th>at</th><th>vow</th><th>draw</th><th>src</th><th>verdict</th><th>byte 8</th></tr></thead><tbody>' + rows + '</tbody></table>';
 }
 
-// ---------- CHARGE RING (dom, follows the pointer) ----------
-const ringSize = 110, ringR = 44, ringC = 2 * Math.PI * ringR;
+// ---------- THE BUTTONS ----------
+// no hold, no charge: a tap is a vow, committed the instant it lands.
+// watch is a toggle that streams the oracle, draw after draw, live.
 
-function setRingProgress(p, x, y) {
-    ringEl.style.transform = 'translate(' + (x - ringSize / 2) + 'px,' + (y - ringSize / 2) + 'px)';
-    ringEl.style.opacity = p > 0 ? '1' : '0';
-    ringFill.setAttribute('stroke-dashoffset', String(ringC * (1 - Math.max(0, Math.min(1, p)))));
+function setMode(m) {
+    mode = m;
+    updatePanel();
+    if (m === 'watch') {
+        setBanner('watching, unweighted', 'the oracle is streaming. every draw is baseline. tap watch again to stop.');
+    } else {
+        setBanner('vow set: ' + m, 'tap again to draw. the draw comes after the vow, never before.');
+    }
 }
 
-let pointerDown = false;
-let downAt = 0;
-
-stage.addEventListener('pointerdown', e => {
-    if (phase !== 'idle') { e.preventDefault(); return; }
-    pointerDown = true;
-    downAt = performance.now();
-    setRingProgress(0.01, e.clientX, e.clientY);
-});
-window.addEventListener('pointermove', e => {
-    if (pointerDown && phase === 'idle') setRingProgress(chargeProgress(), e.clientX, e.clientY);
-}, { passive: true });
-window.addEventListener('pointerup', e => {
-    if (!pointerDown) return;
-    pointerDown = false;
-    setRingProgress(0, -9999, -9999);
-    const held = performance.now() - downAt;
-    if (phase === 'idle' && held >= CHARGE_MIN_MS) castVow();
-});
-window.addEventListener('pointercancel', () => {
-    pointerDown = false;
-    setRingProgress(0, -9999, -9999);
-});
-
-function chargeProgress() {
-    if (!pointerDown || phase !== 'idle') return 0;
-    return Math.min(1, (performance.now() - downAt) / CHARGE_MS);
-}
-
-// vow buttons
 document.querySelectorAll('.vow-btn').forEach(b => {
     b.addEventListener('click', () => {
-        if (phase !== 'idle' || pointerDown) return;
-        mode = b.dataset.mode;
-        updatePanel();
-        setBanner(b.dataset.mode === 'watch' ? 'watching, unweighted' : 'vow set: ' + mode,
-            'hold the glass and release. the draw comes after.');
+        if (phase !== 'idle') return;
+        const m = b.dataset.mode;
+        if (m === 'watch' && watching) {          // the stream rests
+            watching = false;
+            mode = 'left';
+            updatePanel();
+            setBanner('the stream rests', 'watch paused. the ledger keeps what it saw.');
+            return;
+        }
+        setMode(m);
+        if (m === 'watch') streamWatch();
+        else castVow();
     });
 });
+
+async function streamWatch() {
+    while (watching && mode === 'watch' && phase === 'idle') {
+        await castVow();
+        if (!watching) break;
+        await new Promise(r => setTimeout(r, 650));
+    }
+}
 
 // ledger reset: staged like everything else on this site, confirm first
 document.getElementById('reset-ledger').addEventListener('click', () => {
@@ -392,7 +380,7 @@ document.getElementById('export-ledger').addEventListener('click', () => {
     const out = {
         experiment: 'the drift · experiment no.3, live',
         url: 'https://luluxtentacles.github.io/experiments/the-drift/',
-        protocol: 'vow (left=bit 0, right=bit 1, watch=baseline) -> hold -> release -> fresh 128-byte draw from the scrying relay (qrandom.io) AFTER the commit -> verdict bit = byte 8 & 1. local-fallback trials are tagged "f" and scored in their own ledger, never pooled.',
+        protocol: 'vow (left=bit 0, right=bit 1, watch=baseline, tap to commit) -> fresh 128-byte draw from the scrying relay (qrandom.io) AFTER the commit -> verdict bit = byte 8 & 1. watch mode streams baseline trials continuously. local-fallback trials are tagged "f" and scored in their own ledger, never pooled.',
         exported_at: new Date().toISOString(),
         ledger: ledger
     };
@@ -417,6 +405,7 @@ const gauge = {
     shownZ: 0,
     shownF: null,
     flashAt: 0,
+    wisps: [],        // one drifting wisp per watch draw
     canvas: document.getElementById('pendulum'),
     reduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches
 };
@@ -487,11 +476,24 @@ function drawGauge() {
     ctx.arc(0, 0, arm + 4, Math.PI / 2 + bandHalf, Math.PI / 2 + (Math.PI / 2), false);
     ctx.stroke();
 
+    // the stream: one wisp per draw, drifting the way the bit leaned
+    const now = performance.now();
+    gauge.wisps = gauge.wisps.filter(ws => now - ws.born < 2200);
+    gauge.wisps.forEach(ws => {
+        const age = (now - ws.born) / 2200;
+        const wx = cx + ws.dir * age * w * 0.48;
+        const wy = h * 0.52 + Math.sin(now / 300 + ws.born) * 9;
+        ctx.fillStyle = 'rgba(255,110,199,' + (0.5 * (1 - age)).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(wx, wy, 3 + age * 5, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,110,199,' + (0.22 * (1 - age)).toFixed(3) + ')';
+        ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx - ws.dir * 26, wy); ctx.stroke();
+    });
+
     // the needle
     const easeT = gauge.reduced ? 1 : 0.06;
     const flashAge = (performance.now() - gauge.flashAt);
     const flash = Math.max(0, 1 - flashAge / 900);
-    const quiver = (phase === 'awaiting' && !gauge.reduced)
+    const quiver = ((phase === 'awaiting' || watching) && !gauge.reduced)
         ? Math.sin(performance.now() / 55) * 0.8 * Math.PI / 180
         : 0;
     const angQ = gauge.targetZ * degPerZ * Math.PI / 180 + quiver;
