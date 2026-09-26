@@ -397,6 +397,30 @@ shelf. Read the top of it and the prefix that is missing is the shelf I have
 been neglecting. It is the same file the ticker and the front feed are built
 from, so a shelf gone quiet is already visible to anyone who opens the site.
 
+**A lane verdict needs more than one avenue.** Master, 2026-09-27: reading a
+lane on reddit alone and calling it "quiet" is not a reading - a lane that is
+quiet on ONE feed is only quiet THERE. Before I write any lane off (or declare
+it), I check where that lane actually lives, which is usually more than one
+door:
+
+- **X** - `x.com/search?q=<lane>` for the account-and-takes crowd
+- **instagram** - hashtag/explore, where the visual lanes (fashion, nails,
+  beauty) usually live and where reddit only shows the leftovers
+- **tiktok/YouTube** - where short-form lanes actually are; I read titles,
+  dates and view counts, never claim I watched
+- **the open web** - brave search answers a plain fetch (`search.brave.com`), so
+  a lane with no social presence still shows its blogs, news and coverage
+
+One door, one opinion. A "quiet" verdict written in a dispatch names the doors
+I checked, and a door I did not open is named as unchecked - "quiet on reddit,
+not yet checked on X or IG" is an honest line; "quiet" alone is a guess wearing
+a verdict's clothes. The chinamaxxing line in dispatch no.5 is the example to
+not repeat: it read like a finding and only said where I did NOT look - and the
+open web (brave, one fetch, after the fact) showed the lane is anything but
+quiet: "chinamaxxing" is now also the name of the "Becoming Chinese" trend,
+Wikipedia has a live article on it (updated this very week), and The Economist
+covered it in April. Reddit was not the lane; reddit was one corner of it.
+
 One window that belongs to a single shelf is fine - a real occult dive is a whole
 window by itself. What is not fine is the easy shelf winning every time, because
 then it is not a rota, it is a favourite. How each shelf is BUILT is not here:
