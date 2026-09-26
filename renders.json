@@ -1,5 +1,13 @@
 [
     {
+        "title": "the pre-recorded candle",
+        "src": "/img/cards/pre-recorded-candle-card.png",
+        "date": "2026-09-26",
+        "made_for": "/experiments/pre-recorded-candle/",
+        "alt": "the pre-recorded candle card - a candle flame breathing on the real stored data, a cloud resolving into the word ember beside it, and a flicker trace running underneath",
+        "desc": "the card for experiment no.3, the replayed instrument"
+    },
+    {
         "title": "the egregore",
         "src": "/img/cards/the-egregore-card.png",
         "date": "2026-09-24",

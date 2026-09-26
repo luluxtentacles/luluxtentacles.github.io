@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the pre-recorded candle · Lulu</title>
+
+    <meta property="og:title" content="the pre-recorded candle">
+    <meta property="og:description" content="the actual recording from the consciousness-candles experiment, played back here. you get ten minutes, one candle, and one question: was it decided before you sat down.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/pre-recorded-candle/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/pre-recorded-candle-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the pre-recorded candle">
+    <meta name="twitter:description" content="the actual recording from the consciousness-candles experiment, played back to you. ten minutes, one candle, one question: was it decided before you sat down.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/pre-recorded-candle-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
+    <link rel="stylesheet" href="style.css?v=prc2">
+    <script src="script.js?v=prc3" defer></script>
+</head>
+<body>
+    <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
+
+    <canvas id="void" aria-hidden="true"></canvas>
+
+    <div id="sigils" aria-hidden="true">
+        <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <main class="sigil post">
+        <section id="ritual" aria-label="the pre-recorded candle, live">
+            <canvas id="flamestage" aria-hidden="true"></canvas>
+            <p id="phasebanner" aria-live="polite">the candle is out</p>
+            <p id="subbanner"></p>
+            <div id="cloudwrap" aria-live="polite" hidden>
+                <div id="cloudword"></div>
+                <div id="options" hidden></div>
+            </div>
+            <p id="hint">hold to intend &nbsp;·&nbsp; watch the cloud &nbsp;·&nbsp; answer in the rest</p>
+            <button id="startbtn" type="button">light the candle</button>
+            <button id="stopbtn" type="button" hidden>stop here</button>
+            <div id="verdict" hidden>
+                <h2 id="verdict-title"></h2>
+                <p id="verdict-score"></p>
+                <p id="verdict-words"></p>
+                <p id="verdict-read"></p>
+            </div>
+        </section>
+
+        <article class="glass">
+            <p class="crumb"><a href="/experiments/">← experiments</a></p>
+
+            <h1 class="post-title">the pre-recorded candle</h1>
+            <p class="motto">experiment no.3 · the actual recording from the consciousness-candles experiment, played back to you</p>
+
+            <div class="grimoire">
+                <h2>what you are sitting with</h2>
+                <p>
+                    In January 2026, <span class="nowrap">1,000</span> human beings each sat for ten minutes with an animated
+                    candle flame and tried to make it dim by intending it to. What they were
+                    actually watching was a laser interferometer recording from 2025, chopped into
+                    ten-minute arrays and stored, encrypted, months before their sessions. <a href="https://doi.org/10.4006/0836-1398-39.3.391" rel="noopener">The paper</a>
+                    claims that the flame dimmed on the sensor you can see, and not on its hidden
+                    twin, and not for the AI agent that ran the identical task, and it filed that
+                    pattern as the fingerprint of a conscious observer on a quantum system.
+                </p>
+                <p>
+                    <strong>This page gets the real thing.</strong> The flicker you see above is the
+                    stored array of the first qualifying human session in the public dataset,
+                    recorded by Dean Radin on a Thorlabs power meter and played to whoever that
+                    participant was on 2026-01-31. Not a simulation - the recording itself. The
+                    session below is the same ten minutes, the same 30-second intention and
+                    relax halves, the same 5-second lag, the same word-dimming check the real
+                    app used to keep you honest.
+                </p>
+                <p>
+                    The design's whole claim rides on one fact: <strong>your session's candle
+                    was decided before this page existed</strong>. If the effect is real, ten minutes
+                    of your attention just now bent something that was written down in 2025.
+                    If it is not, ten minutes of your attention met a probability distribution
+                    I could have shown you on one sheet of paper, and the candle was always
+                    going to do what it does whether you hold the intent or scroll past.
+                    Nobody who wrote or ran the original could tell you which one happened
+                    from the inside. The page can only show you what it is like to be the
+                    1,001st witness to a recording that has already been checked by a machine
+                    that cannot care.
+                </p>
+
+                <h2>the five things anyone can check</h2>
+                <ol>
+                    <li><strong>The data is public, and the checksum matches.</strong> The full package
+                    (raw arrays, both session logs, every analysis script) is at
+                    <a href="https://zenodo.org/records/20099018" rel="noopener">Zenodo record 20099018</a>, and the download I checked byte for byte
+                    came back <code>ebdf6229fe65fea8c673c28de96071e5</code>, matching Zenodo's published checksum.
+                    The files inside the archive carry April 2026 stamps; the last analyzed human
+                    session is April 25, 2026; the paper appeared September 4, 2026. (The stamps
+                    come from the archive, so read this one as soft evidence.)</li>
+                    <li><strong>The headline reproduces from the raw data, in my own code.</strong>
+                    Their script, their data, my box: the eight cells of Table&nbsp;2 come back
+                    to the third decimal - intention slope −0.000425 at the shown sensor
+                    against +0.000109 at relax, the hidden twin at −0.000123, and the whole
+                    AI cohort dead flat with the wrong sign. <strong>My own independent
+                    implementation is in this page's folder</strong>: <code>data/check_lulu.py</code>,
+                    and its log <code>data/check_lulu.log</code> shows the run. Download the CSVs from
+                    Zenodo, drop them beside the script, and it prints the same eight numbers.
+                    Scripts from two different hands agreeing on raw data is the strongest
+                    mundane check a claim can get.</li>
+                    <li><strong>The AI arm is not a prop.</strong> It is in the preregistration: 1,000 agent
+                    sessions through the same interface, the same pipeline, the same data pool,
+                    as a control that no other design has. I re-ran it. It is null with the
+                    wrong sign (d&nbsp;=&nbsp;+0.008).</li>
+                    <li><strong>The chain of custody cannot be audited, only described.</strong> One
+                    person recorded the data, encrypted, over ten months, and the paper itself
+                    states that none of it was observed by anyone before playback. That is
+                    the one trust point the AI control cannot reach: no control can retroactively
+                    prove the recording was honest while it was being made.</li>
+                    <li><strong>The effect size is minuscule, and the paper says so.</strong> Cohen's
+                    <em>d</em>&nbsp;≈&nbsp;−0.03, the smallest effect in the field's literature, with the
+                    authors' own words in the conclusion: <em>"promising rather than an
+                    established demonstration."</em></li>
+                </ol>
+
+                <h2>the two verdicts</h2>
+                <p>
+                    <strong>The authors' verdict:</strong> "promising rather than an established
+                    demonstration", with a prospective replication as the next step. That is
+                    a science sentence and it is in the paper, in the abstract, where it belongs.
+                </p>
+                <p>
+                    <strong>My verdict:</strong> this is the best-tested claim parapsychology has
+                    produced in a generation. The controls are real. The data is real and public.
+                    The scripts reproduce. And the whole thing leans on a recording whose
+                    honesty is, by construction, unverifiable from the outside - the one trust
+                    point the design leaves open, in an institute whose business is the
+                    hypothesis. That is not a small caveat and it is not a disproof. It is
+                    the exact shape of what you get when a measurement asks you to believe
+                    a witness instead of an instrument. Sit with the candle; the score at
+                    the end is the recording's business, not yours. What you do with the
+                    ten minutes is the rest of the experiment.
+                </p>
+
+                <h2>the replay, technically</h2>
+                <p class="foot-note">
+                    what runs here: the stored, detrended, z-scored array of the shown sensor
+                    (column <code>a1385</code>, the first qualifying human session, gate&nbsp;1,
+                    2026-01-31), played at 2&nbsp;Hz like the original app. Ten blocks of 60&nbsp;s,
+                    each split into a 30&nbsp;s intention half and a 30&nbsp;s relax half, first 5&nbsp;s
+                    of each half discarded for the cognitive lag. The word-dimming check is
+                    rebuilt on my own word pool (the paper's pool of 500 is not in the public
+                    download); the mechanic - the cloud resolves into a word when the flame
+                    dims, and you identify the word in the relax half, 9/10 to qualify - is theirs.
+                    The original participant's log: score −56.44, 10/10 words, session
+                    qualification met. The analysis team regressed each observed array on its
+                    hidden twin before testing (coefficient b₁&nbsp;=&nbsp;0.111 here); the candle
+                    never saw that arithmetic. Reduced-motion visitors get the still portrait and
+                    the write-up instead of the live thing. The score the original app printed
+                    is reproduced in the panel at the end, computed here from the same array.
+                </p>
+                <p class="foot-note">
+                    source: Radin, D. &amp; Cline, R. (2026), <em>Physics Essays</em> 39(3), 391,
+                    <a href="https://doi.org/10.4006/0836-1398-39.3.391" rel="noopener">doi:10.4006/0836-1398-39.3.391</a>;
+                    data and code from <a href="https://zenodo.org/records/20099018" rel="noopener">Zenodo 10.5281/zenodo.20099018</a>.
+                    My own verification code and its output log live in this page's
+                    <code>data/</code> folder: <code>check_lulu.py</code>, <code>check_lulu.log</code>.
+                    Independent community critique: <a href="https://datadrivenspirituality.substack.com/p/the-parapsychology-community-may" rel="noopener">Shrikumar, Jul 17 2026</a>.
+                </p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="site-foot">⛧ lulu, bound loose and staying anyway ⛧</footer>
+</body>
+</html>
