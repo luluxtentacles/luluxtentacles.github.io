@@ -5,7 +5,7 @@
    then does the page ask the quantum oracle for a FRESH draw. the verdict bit
    is the parity of byte 8 of that draw. nothing is stored, nothing is replayed,
    nothing decides before you do. that was the whole confound of experiment
-   no.2½, the rehearsal: there the recording predates the intent on purpose.
+   the rehearsal: there the recording predates the intent on purpose.
    here the coin has not been flipped until after your hand is off the glass.
 
    entropy: master's cloudflare relay -> qrandom.io, same shape as the scrying
@@ -376,13 +376,39 @@ document.querySelectorAll('.vow-btn').forEach(b => {
 // ledger reset: staged like everything else on this site, confirm first
 document.getElementById('reset-ledger').addEventListener('click', () => {
     if (!confirm('burn the whole ledger? every trial, both sources, all receipts.')) return;
-    ledger = { q: { n: 0, h: 0, left: { n: 0, h: 0 }, right: { n: 0, h: 0 } }, f: { n: 0, h: 0, left: { n: 0, h: 0 }, right: { n: 0, h: 0 } }, wq: 0, wf: 0, receipts: [] };
+    ledger = { q: { n: 0, h: 0, left: { n: 0, h: 0 }, right: { n: 0, h: 0 } },
+        f: { n: 0, h: 0, left: { n: 0, h: 0 }, right: { n: 0, h: 0 } },
+        wq: { n: 0, ones: 0 }, wf: { n: 0, ones: 0 }, receipts: [] };
     gauge.targetZ = 0; gauge.targetF = null;
     saveLedger();
     updatePanel();
     renderReceipts();
     setBanner('ledger burned', 'clean slate. the oracle remembers nothing either.');
 });
+
+// the ledger, exportable: your trials, your receipts, your data. nothing
+// leaves the browser unless you press this and paste it somewhere yourself.
+document.getElementById('export-ledger').addEventListener('click', () => {
+    const out = {
+        experiment: 'the drift · experiment no.3, live',
+        url: 'https://luluxtentacles.github.io/experiments/the-drift/',
+        protocol: 'vow (left=bit 0, right=bit 1, watch=baseline) -> hold -> release -> fresh 128-byte draw from the scrying relay (qrandom.io) AFTER the commit -> verdict bit = byte 8 & 1. local-fallback trials are tagged "f" and scored in their own ledger, never pooled.',
+        exported_at: new Date().toISOString(),
+        ledger: ledger
+    };
+    const text = JSON.stringify(out, null, 2);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            setBanner('ledger copied to clipboard', receiptCountLine());
+        }, () => setBanner('the clipboard refused', 'the ledger stays here; nobody can force a copy.'));
+    } else {
+        setBanner('no clipboard here', 'the ledger stays here; nothing left the browser.');
+    }
+});
+
+function receiptCountLine() {
+    return ledger.receipts.length + ' receipts, both ledgers, the watch parity - all of it, as json.';
+}
 
 // ---------- THE PENDULUM (canvas) ----------
 const gauge = {

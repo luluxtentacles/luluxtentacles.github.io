@@ -68,7 +68,7 @@
                     <div class="cell"><span class="k">z (pooled)</span><span class="v" id="r-z">&#8212;</span></div>
                     <div class="cell"><span class="k">p (one-tailed)</span><span class="v" id="r-p">&#8212;</span></div>
                     <div class="cell"><span class="k">left / right</span><span class="v" id="r-ln">&#8212;</span> &nbsp;<span class="v" id="r-rn">&#8212;</span></div>
-                    <div class="cell" style="grid-column: 1 / -1;"><span class="k">watch trials, logged & unscored</span><span class="v" id="r-watch">0 trials</span></div>
+                    <div class="cell" style="grid-column: 1 / -1;"><span class="k">watch trials, baseline parity (two-tailed)</span><span class="v" id="r-watch">0 trials</span></div>
                 </div>
                 <div class="reading-side" style="margin-top: 12px;">
                     local-fallback ledger (scored, kept separate, never in the headline): <b id="r-local">&#8212;</b>
@@ -79,6 +79,7 @@
             <div class="reading-panel receipts-panel">
                 <h2>session receipts</h2>
                 <div id="receipts"><p class="foot-note" id="no-receipts">no draws yet. the ledger starts when you do.</p></div>
+                <button id="export-ledger" type="button">copy the ledger</button>
                 <button id="reset-ledger" type="button">burn the ledger</button>
             </div>
         </div>
@@ -92,7 +93,7 @@
             <div class="grimoire">
                 <h2>what this is</h2>
                 <p>
-                    Experiment <span class="nowrap">no.2&frac12;</span>, the pre-recorded candle, was a rehearsal: the recording
+                    The rehearsal for this page was a pre-recorded candle: the recording
                     preceded the intent <em>by design</em>, and the question was whether your attention
                     bent something already written down. This page is the other half, the one the
                     rehearsal was rehearsing for. <strong>Nothing here is stored.</strong> The verdict bit is
@@ -116,8 +117,10 @@
                 <p>
                     <strong>Lean left / lean right</strong> are the scored modes: hold, release, and the draw
                     is graded against your vow. <strong>Watch</strong> is the honest one: you sit through an
-                    identical trial and are told the outcome, but it is pre-declared baseline,
-                    logged in the ledger and never scored. The distinction is the whole
+                    identical trial and are told the outcome, but it is pre-declared baseline -
+                    logged, and scored only for parity, a two-tailed z with no direction in it
+                    that asks whether the coin leans anywhere at all when nobody is aiming.
+                    The distinction is the whole
                     experiment. If your intended trials drift and your watched ones do not, that
                     is the fingerprint the field has been chasing for a century. If both drift,
                     or neither does, that is also the answer. The tell is in the mix, so mix
@@ -148,8 +151,9 @@
                     fair coin by construction; a single hit or miss is exactly as informative
                     as a single coin toss, which is to say not at all. The panel only earns
                     meaning past dozens of trials.</li>
-                    <li><strong>The z-score is pooled over your own intended trials only.</strong> Watched
-                    trials sit in the watch count, unscored. Your left and right ledgers are
+                    <li><strong>The headline z is pooled over your own intended trials only.</strong> Watched
+                    trials are scored on parity alone - a baseline z with no direction in it,
+                    two-tailed - and never in the vowed-direction headline. Your left and right ledgers are
                     shown separately so you can catch yourself: people break for the side
                     they secretly prefer, and the separate ledgers make that visible.</li>
                     <li><strong>Local-fallback trials are comparable but different.</strong> A browser's
@@ -171,11 +175,11 @@
 
                 <h2>the honest limits</h2>
                 <p>
-                    The confound that ate experiment <span class="nowrap">no.2&frac12;</span> cannot live here:
+                    The confound that ate the rehearsal cannot live here:
                     there is nothing pre-existing to lean. What <em>can</em> live here is every sin
                     the PEAR critics named. Optional stopping is the big one: you can always
                     vow again after a miss, and a file-drawer of abandoned sessions costs
-                    nothing. The honest play is Ritual, the candle's own 30s/30s covenant, in
+                    nothing. The honest play is Ritual, the rehearsal’s own 30s/30s covenant, in
                     your head: a fixed number of vows, stated before the first hold, and the
                     ledger burned only when you say so at the start, not after. The page
                     cannot enforce a vow you make outside it. It can only make the receipt
@@ -211,8 +215,7 @@
                     request and answers it, the same pipe the scrying glass drinks from.
                 </p>
                 <p class="foot-note">
-                    lineage: experiment <span class="nowrap">no.2&frac12;</span>, <a href="/experiments/pre-recorded-candle/">the pre-recorded candle</a>, is the
-                    rehearsal this page was for: the real Radin & Cline recording, played
+                    lineage: a rehearsal came before this page: the real Radin & Cline recording, played
                     back with the intent-vs-recording confound intact on purpose. Their paper:
                     <a href="https://doi.org/10.4006/0836-1398-39.3.391" rel="noopener">Physics Essays 39(3), 391</a>, data at
                     <a href="https://zenodo.org/records/20099018" rel="noopener">Zenodo 20099018</a>. The PEAR shape is the
