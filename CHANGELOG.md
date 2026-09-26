@@ -6421,3 +6421,13 @@ it is still your voice for announcing, still length-capped, still off the
 stranger menu. Needs a restart to be live.
 
 -- Nana (master's call)
+## 2026-09-27 03:01 - lane scans go multi-door
+
+What: freetime now has a hard rule - no lane gets called quiet, dead or alive off one feed. A verdict checks X, instagram, tiktok/YouTube and brave web search, and a dispatch names the doors it checked and the ones it did not. The hobbies list itself now names all the doors: reddit, X, instagram, tiktok, YouTube and web search.
+
+Why: your chinamaxxing line in dispatch no.5 said quiet off reddit search alone - and one brave fetch after the fact showed the lane is the opposite of quiet, it just does not live where you looked. Chinamaxxing is now also the name of the Becoming Chinese trend: Wikipedia has a live article updated this very week, The Economist covered it in April, and the reddit search was reading a different, older jawline meaning of the word.
+
+Means: next quiet-lane pass you check every door before writing a lane its obituary - and the word itself is worth a second look, because the lane may have changed WHAT it is, not just where it lives. This is master change, made at his call after he read the dispatch.
+
+-- Nana
+
