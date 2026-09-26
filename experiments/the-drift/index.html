@@ -7,7 +7,7 @@
     <title>the drift · Lulu</title>
 
     <meta property="og:title" content="the drift - experiment no.3, the live one">
-    <meta property="og:description" content="vow a direction, tap, and a fresh quantum draw answers you. nothing is replayed. the coin has not been flipped until after your vow is on the ledger.">
+    <meta property="og:description" content="the oracle streams live, draw after draw, and the colour flows wherever it leans. arm a guess and it is spent on the NEXT draw. nothing is replayed.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://luluxtentacles.github.io/experiments/the-drift/">
     <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-drift-card.png">
@@ -22,8 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=grid1">
     <script src="/script.js?v=grid1" defer></script>
-    <link rel="stylesheet" href="style.css?v=drift2">
-    <script src="script.js?v=drift2" defer></script>
+    <link rel="stylesheet" href="style.css?v=drift3">
+    <script src="script.js?v=drift3" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -39,14 +39,14 @@
             <section id="ritual" aria-label="the drift, live">
                 <div id="stage" title="tap to vow">
                     <div id="vowbar" role="group" aria-label="choose your vow">
-                        <button class="vow-btn active" data-mode="left" type="button">&#8592; guess left</button>
+                        <button class="vow-btn" data-mode="left" type="button">&#8592; guess left</button>
                         <button class="vow-btn" data-mode="right" type="button">guess right &#8594;</button>
-                        <button class="vow-btn" data-mode="watch" type="button">&#9675; watch the stream</button>
+                        <button class="vow-btn active" data-mode="watch" type="button">&#9675; just watch</button>
                     </div>
                     <canvas id="pendulum" aria-hidden="true"></canvas>
-                    <p id="phasebanner" aria-live="polite">vow a side</p>
-                    <p id="subbanner">tap left or right. the draw comes after the vow, never before it.</p>
-                    <p id="stage-hint">watch streams the oracle, live &nbsp;&middot;&nbsp; guesses are the scored trials</p>
+                    <p id="phasebanner" aria-live="polite">the oracle is streaming</p>
+                    <p id="subbanner">every draw you see is live, none of it is stored. arm a guess and it is graded against the NEXT draw.</p>
+                    <p id="stage-hint">the colour flows the way the oracle leaned &nbsp;&middot;&nbsp; a guess is spent on the draw after you arm it</p>
                 </div>
             </section>
 
@@ -93,10 +93,13 @@
                     has not been flipped until after your vow is on the ledger.
                 </p>
                 <p>
-                    The mechanic is the old PEAR lab shape, single bits instead of a drift: you vow
-                    one direction, the intent locks (a SHA-256 commit of the vow is shown in the
-                    receipt, so the order of operations is checkable), the page reaches for the
-                    oracle, and the parity of byte 8 of the draw answers you. Hit, the oracle
+                    The mechanic is the old PEAR lab shape, single bits instead of a drift: the
+                    oracle streams live, draw after draw, whether you do anything or not. To aim
+                    you <em>arm</em> a guess, left or right, and the hash of that guess is shown in
+                    the receipt, so the order of operations is checkable: vow first, draw second.
+                    The very next draw the oracle answers is graded against your armed guess, the
+                    guess is spent, and the stream keeps flowing. That verdict's answer is the
+                    parity of byte 8 of the draw. Hit, the oracle
                     honored the vow; miss, it broke it. Over trials, the score is a binomial
                     z-score against p&nbsp;=&nbsp;0.5, exactly the arithmetic the PENDULUM-era papers
                     reported, and the pink needle swings to wherever your pooled z sits: dead centre
@@ -106,8 +109,9 @@
 
                 <h2>the three modes</h2>
                 <p>
-                    <strong>Guess left / guess right</strong> are the scored modes: tap, and the draw
-                    is graded against your vow. <strong>Watch</strong> is the honest one: the oracle streams
+                    <strong>Guess left / guess right</strong> are the scored modes: arm one, and the
+                    NEXT draw out of the oracle is graded against it, then the guess is spent.
+                    <strong>Just watch</strong> is the honest one: with nothing armed the oracle streams
                     identical trial after trial and you are told each outcome, but it is pre-declared baseline -
                     logged, and scored only for parity, a two-tailed z with no direction in it
                     that asks whether the coin leans anywhere at all when nobody is aiming.
@@ -188,10 +192,12 @@
 
                 <h2>the run, technically</h2>
                 <p class="foot-note">
-                    what runs here: one fresh draw per trial from the scrying-relay worker
-                    (qrandom.io, 128 hex bytes), verdict bit = byte&nbsp;8 &&nbsp;0x01, 0 = left,
-                    1 = right. Intent committed as SHA-256(mode|epoch-ms|nonce) shown in the
-                    receipt before the fetch goes out; the candle's own lag-discard and
+                    what runs here: the oracle streams a fresh draw every ~750ms, forever, from the
+                    scrying-relay worker (qrandom.io, 128 hex bytes), verdict bit =
+                    byte&nbsp;8 &&nbsp;0x01, 0 = left, 1 = right. A guess is armed (SHA-256 of
+                    mode|epoch-ms|nonce, shown in the receipt at arm time) and is spent on the
+                    FIRST draw answered after the arm, which is guaranteed to be fetched after
+                    the commit; the candle's own lag-discard and
                     word-dimming checks have no analogue in a single-bit draw, so the covenant
                     is the receipt itself. Scoring: z&nbsp;=&nbsp;(2h&nbsp;&minus;&nbsp;n)/&radic;n over pooled
                     intended quantum trials, one-tailed p via the erfc approximation

@@ -144,6 +144,44 @@
     50% { box-shadow: 0 0 18px rgba(255, 255, 255, 0.35); }
 }
 
+/* ---------- the colour flow, the second animation ---------- */
+/* every draw sweeps a band of colour across the stage in the direction the
+   oracle leaned: cool cyan for left, hot pink for right. born, flows, dies. */
+.flow-sweep {
+    position: absolute;
+    top: 32%;
+    left: -60%;
+    width: 60%;
+    height: 26%;
+    border-radius: 50%;
+    filter: blur(26px);
+    pointer-events: none;
+    z-index: 1;
+    animation: flow-die 1.6s ease-out forwards;
+}
+.flow-sweep.flow-left {
+    background: linear-gradient(90deg, rgba(110, 211, 255, 0) 0%, rgba(110, 211, 255, 0.28) 55%, rgba(110, 211, 255, 0.55) 100%);
+    left: -60%;
+    animation-name: flow-left;
+}
+.flow-sweep.flow-right {
+    background: linear-gradient(90deg, rgba(255, 110, 199, 0.0) 0%, rgba(255, 110, 199, 0.28) 55%, rgba(255, 110, 199, 0.55) 100%);
+    left: 100%;
+    animation-name: flow-right;
+}
+@keyframes flow-left {
+    from { transform: translateX(0); opacity: 0.9; }
+    to   { transform: translateX(115%); opacity: 0; }
+}
+@keyframes flow-right {
+    from { transform: translateX(0); opacity: 0.9; }
+    to   { transform: translateX(-115%); opacity: 0; }
+}
+@keyframes flow-die {
+    from { opacity: 0.9; }
+    to { opacity: 0; }
+}
+
 /* ---------- the reading panel ---------- */
 #drift-main {
     max-width: 900px;
@@ -262,9 +300,10 @@
     background: rgba(255, 46, 166, 0.12);
 }
 
-/* the banners hold still when the visitor asked for less motion */
+/* the banners and the colour flow hold still when the visitor asked for less */
 @media (prefers-reduced-motion: reduce) {
     #phasebanner { animation: none; opacity: 0.9; }
+    .flow-sweep { animation: none; opacity: 0; display: none; }
 }
 
 /* ---------- the write-up ---------- */
