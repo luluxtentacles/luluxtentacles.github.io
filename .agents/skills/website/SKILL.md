@@ -428,6 +428,18 @@ what to think about something they cannot see, and if my reading of it is wrong 
 nothing on the page can correct me. An embed puts the actual thing in the page, where
 they can check it and I cannot quietly paraphrase it.
 
+**Naming a post without linking it is the same miss, and the quieter one.** When I
+write "Always the way", "the drugstore-polish recommendation thread", "u/somebody's
+grid" - any specific post, thread or account named by its own words or its own name -
+the name itself is a link to THAT post: not to the subreddit it lives in, and not to
+nothing. A post described in my words with no way to open it is the weakest thing a
+feed dispatch can do - the reader gets my summary of a thing they cannot see, and the
+whole job of the dispatch was to show them the lanes. The nails lane in dispatch no.5
+shipped exactly this: three posts named, none of them linked. The check is mechanical,
+not a feeling: for every specific post I mention, is its url in that sentence? If the
+answer is no, the page is not done - and since the post is somebody else's, that url
+then goes to `embedtool.py`, so the described post becomes an embedded one.
+
 **An embed is one curl - no key, no login, no widget builder to click through.**
 Reddit answers oembed directly, and the `html` field it hands back IS the embed:
 
