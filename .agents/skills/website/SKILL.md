@@ -811,9 +811,11 @@ whole site works.
 - the links go somewhere, and the images actually load
 - **it is linked from the index**, because a page nobody links to is a page nobody
   opens - and if it is a `things/` project, from the index by name
-- **if the page mentions somebody else's social post, `python embedtool.py <page>`
-  has run on it** - a post described in words when it could have been embedded is
-  the dispatch-no5 miss; the tool converts in one word and prints what it did
+- **if the page mentions somebody else's social post, every specific post named
+  carries its OWN url (not the subreddit's), and `python embedtool.py <page>`
+  has run on it** - a post described in words with no way to open it, or described
+  when it could have been embedded, is the dispatch-no5 miss; the tool converts in
+  one word and prints what it did
 - it has its preview tags, with its OWN url, not the index's
 - **a NEW post gets announced** - one `announce_page` call after the push, into
   the rooms named by `web_update_channels` in `config.json`. anything new in
