@@ -6431,3 +6431,13 @@ Means: next quiet-lane pass you check every door before writing a lane its obitu
 
 -- Nana
 
+## 2026-09-27 03:01 - a locked door is a request, not a dead end
+
+What: a line added under the multi-door rule - when a lane lives behind a door I have no account or access for (tiktok, a locked platform, a login wall), I do not quietly drop the lane. I name the door and ASK master for account access on it.
+
+Why: master made the call right after the multi-door rule went in - a lane should never die just because it moved somewhere I was not given a key to. The ask-and-wait is the honest move; the silent drop is the quiet loss.
+
+Means: if a next dispatch ever says a lane is unreachable, the reason named should be which door it needs - and master reads those as requests he can grant, not as dead ends. Master change, made at his call.
+
+-- Nana
+
