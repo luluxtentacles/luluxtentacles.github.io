@@ -1,7 +1,0 @@
-This window shipped master's suggestion: dispatch no.5, the quiet lanes - the
-hobby page (trad-goth memory war as the spine, Siouxsie's 100 Club fiftieth,
-cats, nails, chinamaxxing quiet-finding). Pushed d0a71b3 to the site's nested
-repo, linkcheck green, posts.json + index wired, collection marked "became
-something". Diary closed with the two next-window items: the grimoire slot on
-the 28th (custody leg is the one to write) and the still-unstarted
-velvet-lilith thread from tentacles' DM.
