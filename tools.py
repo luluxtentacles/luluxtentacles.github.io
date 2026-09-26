@@ -4212,17 +4212,80 @@ def delete_message(message_id, channel: str = "") -> str:
         return (f"that id is too short to be a discord message ({raw}); ids are "
                 f"long snowflakes")
 
-    target = (channel or "").strip()
-    if not target:
-        # The room she is being spoken to in. This is the common case by far,
-        # and asking for it every time would just teach her to guess.
-        target = str(_ctx().get("channel") or "").strip()
-    if not target:
-        return "which room is that message in? give me a channel."
+    # Master, 2026-09-26: "can you update yourself to use this?" - meaning
+    # tmp_del_msg.py, the standalone walker that found and deleted the message
+    # the bot relay kept 404-ing on. The relay's whole problem was the CHANNEL:
+    # a name from the model goes to one room, and a message that lives anywhere
+    # else is a 404 forever. The walker needs no room name at all - it asks
+    # Discord where the message lives, checks the author against the token's
+    # own id, and deletes only its own. That check is the same one the bot used
+    # to hold: safety on the object rather than the argument.
+    #
+    # This runs in a worker thread (in_thread), so blocking REST calls are
+    # allowed here. _DELETES and its bot-side drain stay wired so nothing that
+    # already calls drain_deletes breaks; nothing queues into it any more.
+    import urllib.request
+    import urllib.error
 
-    queue = _DELETES
-    queue.append({"channel": target, "message_id": raw})
-    return f"asked the bot to delete message {raw} in #{target} if it is mine"
+    try:
+        token = paths.resolve("discord_token.txt").read_text(
+            encoding="utf-8").strip()
+    except Exception as exc:
+        return f"cannot read my token file: {exc}"
+    base = "https://discord.com/api/v10"
+    headers = {
+        "Authorization": "Bot " + token,
+        "Content-Type": "application/json",
+        "User-Agent": "lulu-del (https://discord.com, 1)",
+    }
+
+    def api(path, method="GET"):
+        req = urllib.request.Request(base + path, method=method, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                body = r.read().decode("utf-8", "replace")
+                return json.loads(body) if body else {}
+        except urllib.error.HTTPError as e:
+            return {"_status": e.code,
+                    "_err": e.read().decode("utf-8", "replace")[:200]}
+        except Exception as exc:
+            return {"_status": -1, "_err": str(exc)[:200]}
+
+    me = api("/users/@me")
+    my_id = str(me.get("id", ""))
+    if not my_id:
+        return f"could not identify the token: {me}"
+
+    found = []
+    guild_list = api("/users/@me/guilds")
+    for g in guild_list if isinstance(guild_list, list) else []:
+        chans = api(f"/guilds/{g['id']}/channels")
+        for c in (chans if isinstance(chans, list) else []):
+            if c.get("type") not in (0, 5):
+                continue
+            msg = api(f"/channels/{c['id']}/messages/{raw}")
+            if isinstance(msg, dict) and msg.get("id"):
+                found.append((g.get("name", "?"), c.get("name", "?"),
+                              c["id"], msg))
+
+    if not found:
+        return (f"message {raw} does not exist in any channel the token can "
+                f"see - it may be in a DM or a room the bot is not in")
+    if len(found) > 1:
+        return (f"message {raw} matched {len(found)} channel listings, which "
+                f"should be impossible for a snowflake id - refusing and "
+                f"leaving everything alone")
+
+    gname, cname, cid, msg = found[0]
+    author = msg.get("author", {})
+    who = (f"author {author.get('id')} ({author.get('username')})")
+    if str(author.get("id")) != my_id:
+        return (f"found in {gname} #{cname}: {who} - NOT mine, left alone")
+    out = api(f"/channels/{cid}/messages/{raw}", method="DELETE")
+    if out.get("_status"):
+        return (f"found in {gname} #{cname} ({who}) but delete failed: "
+                f"{out.get('_status')} {out.get('_err', '')}")
+    return f"deleted message {raw} from {gname} #{cname} ({who})"
 
 
 def drain_deletes() -> list[dict]:
