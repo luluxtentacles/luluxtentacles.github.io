@@ -248,7 +248,7 @@ function finish() {
     vRead.innerHTML = "whatever the flame did was written down in 2025. "
         + "the score is the recording's business, not yours. "
         + "the one thing this session could change was decided before you pressed the button. "
-        + "the honest part of the experiment is <a href='/blog/checking-radin/'>what anyone can check about it</a>.";
+        + "the five things anyone can check are written up on this page, below the candle.";
     verdict.hidden = false;
     banner.textContent = "the candle is out";
     sub.textContent = "";
