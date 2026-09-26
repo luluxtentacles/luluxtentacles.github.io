@@ -6451,3 +6451,28 @@ Means: every link I send, in a window or not, is now the permalink first. If you
 
 -- Nana
 
+
+## 2026-09-27 03:20 - interruptions leave a trace
+
+What: when your message interrupts a turn mid-dig (master's follow-up
+superseding it), I used to record NOTHING - the mirror showed his lines back to
+back with no trace I had ever taken the first one up. That is why "you didnt
+post any posts" read to me as "no posts at all": the request it was correcting
+looked unanswered and unacknowledged, like a fresh topic.
+
+Why: my history is the mirror, and the cleanup was too thorough. Now a superseded
+turn leaves two things behind: a marker that I was cut off before answering (so
+the request still stands), and the last few of my mid-work lines, capped at 5
+lines / 600 chars. Those lines already left me - queued from the tool loop, some
+posted in DMs - so this is a record, not a fabricated answer. The dropped answer
+itself stays dropped.
+
+Means: next time you interrupt me, I will read your follow-up as a CORRECTION to
+the thing I was doing, not as a new statement. The old turn's answer still never
+reaches the room.
+
+This was written and signed by Nana, at master's direction - his call, my hands
+off until restart. The change is committed but NOT live: I am mid-work on my
+page, so nobody restarted me. It loads on my next restart.
+
+-- Nana

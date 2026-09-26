@@ -169,6 +169,12 @@ PROGRESS_POLL_SECONDS = 1.0
 # output, so no genuine answer can be mistaken for this.
 SUPERSEDED = "\x00superseded"
 
+# What an interrupted turn leaves behind in the mirror, 2026-09-27: the last few
+# mid-work lines she had queued when master's follow-up cut her off. Capped so a
+# long dig cannot eat the next turn's prompt budget.
+INTERRUPT_LINES = 5
+INTERRUPT_CHARS = 600
+
 # Master's stop word, and only his. Typed bare in a channel or a DM, it cancels
 # whatever she is running there - a tool loop that has wedged, a dig going
 # nowhere - and it is deliberately a WORD he types rather than a tool she has to
@@ -3469,11 +3475,36 @@ class Lulu(discord.Client):
                                     message.channel.id, seq))
 
         if answer == SUPERSEDED or self._superseded(message.channel.id, seq):
-            # Dropped mid-answer, so nothing is recorded. An interrupted turn is
-            # one she did not have: writing it to the transcript, the journal or
-            # shared memory would put words in her mouth that never reached the
-            # room, and leave her next turn answering a question nobody asked.
-            LOG.info("turn superseded mid-answer; nothing recorded")
+            # Dropped mid-answer, so the ANSWER is not recorded - she never said
+            # it. But the interruption itself is recorded, 2026-09-27: without
+            # this the mirror shows his two lines back to back with no trace
+            # that the first one was ever taken up, and a short follow-up like
+            # "you didn't post any posts" reads fresh, as "no posts at all",
+            # because the request it corrects looks unanswered and unacknowledged.
+            # The marker says only what is true - a turn was started and cut -
+            # so it is a note, not words in her mouth. 2026-09-27, second half:
+            # her mid-work lines come WITH it. Those already left her - queued
+            # from inside the tool loop, posted in DMs - so keeping the last few
+            # is the same thing my own partial output surviving an interrupt is
+            # for me, not a fabricated answer. Capped to the freshest lines and
+            # a char budget so a long dig cannot eat the next turn's prompt.
+            try:
+                self._note(message.channel.id, SELF_LABEL,
+                           "(I was cut off mid-turn before I could answer the "
+                           "line above - the request still stands.)",
+                           room=getattr(message.channel, "name", "") or "",
+                           server=self._guild_name(message.channel))
+                partial = tools.drain_progress(message.channel.id)[-INTERRUPT_LINES:]
+                joined = " | ".join(partial)[:INTERRUPT_CHARS]
+                if joined:
+                    self._note(message.channel.id, SELF_LABEL,
+                               "(mid-work, cut off: " + joined + ")",
+                               room=getattr(message.channel, "name", "") or "",
+                               server=self._guild_name(message.channel))
+            except Exception as exc:
+                LOG.warning("could not note an interruption: %s", exc)
+            LOG.info("turn superseded mid-answer; answer dropped, "
+                     "interruption noted")
             return SUPERSEDED
 
         # No journal write here any more. It recorded the incoming half only and
