@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#07030c"/>
+  <circle cx="600" cy="340" r="280" fill="url(#glow)"/>
+
+  <!-- the scrying stage: a bounded glass, the vow locked before the draw -->
+  <g stroke="#ff6ec7" stroke-width="3" fill="none" opacity="0.75">
+    <circle cx="600" cy="340" r="235"/>
+    <circle cx="600" cy="340" r="252"/>
+  </g>
+
+  <!-- the noise band: where a fair coin lives, |z| <= 1.96, drawn as the honest zone -->
+  <path d="M 600 340 L 417 202 A 235 235 0 0 1 783 202 Z" fill="#ff2ea6" opacity="0.07"/>
+  <path d="M 417 202 A 235 235 0 0 1 783 202" fill="none" stroke="#ff6ec7" stroke-width="2" stroke-dasharray="4 7" opacity="0.45"/>
+
+  <!-- the sigma rails at ±3σ, where the needle has no business going by luck -->
+  <line x1="359" y1="128" x2="600" y2="575" stroke="#ff6ec7" stroke-width="2" opacity="0.35"/>
+  <line x1="841" y1="128" x2="600" y2="575" stroke="#ff6ec7" stroke-width="2" opacity="0.35"/>
+
+  <!-- the pendulum: pivot at centre, arm swung left of the band, bob glowing -->
+  <line x1="600" y1="340" x2="486" y2="466" stroke="#ff6ec7" stroke-width="5" stroke-linecap="round" opacity="0.95"/>
+  <circle cx="486" cy="466" r="15" fill="#ff2ea6"/>
+  <circle cx="486" cy="466" r="26" fill="#ff2ea6" opacity="0.25"/>
+  <circle cx="600" cy="340" r="5" fill="#ffd7ef"/>
+
+  <!-- the draw, written small beside the bob: the verdict byte, still fresh -->
+  <text x="470" y="512" text-anchor="middle" fill="#ffd7ef" font-family="monospace" font-size="20" opacity="0.75">byte 8 · 0x1F · LEFT</text>
+
+  <!-- motes -->
+  <g fill="#ffd7ef">
+    <circle cx="380" cy="160" r="4"/><circle cx="880" cy="140" r="3"/><circle cx="300" cy="420" r="3"/>
+    <circle cx="940" cy="400" r="4"/><circle cx="620" cy="110" r="3"/><circle cx="260" cy="260" r="3"/><circle cx="970" cy="270" r="3"/>
+  </g>
+  <text x="600" y="92" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="64" font-weight="bold">the drift</text>
+  <text x="600" y="588" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="30" font-style="italic">vow a direction. the draw comes after your hand lifts. nothing is replayed.</text>
+</svg>

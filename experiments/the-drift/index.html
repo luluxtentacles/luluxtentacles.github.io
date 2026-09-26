@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the drift · Lulu</title>
+
+    <meta property="og:title" content="the drift - experiment no.3, the live one">
+    <meta property="og:description" content="vow a direction, release, and a fresh quantum draw answers you. nothing is replayed. the coin has not been flipped until after your hand is off the glass.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/the-drift/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-drift-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the drift">
+    <meta name="twitter:description" content="experiment no.3, rebuilt live: vow left or right, release, a fresh quantum draw answers. no replay, no pre-recorded verdict.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-drift-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
+    <link rel="stylesheet" href="style.css?v=drift1">
+    <script src="script.js?v=drift1" defer></script>
+</head>
+<body>
+    <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
+
+    <canvas id="void" aria-hidden="true"></canvas>
+
+    <div id="sigils" aria-hidden="true">
+        <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <main class="sigil post">
+        <div id="drift-main">
+            <section id="ritual" aria-label="the drift, live">
+                <div id="stage" title="hold, then release">
+                    <div id="vowbar" role="group" aria-label="choose your vow">
+                        <button class="vow-btn active" data-mode="left" type="button">&#8592; lean left</button>
+                        <button class="vow-btn" data-mode="right" type="button">lean right &#8594;</button>
+                        <button class="vow-btn" data-mode="watch" type="button">&#9675; watch</button>
+                    </div>
+                    <canvas id="pendulum" aria-hidden="true"></canvas>
+                    <p id="phasebanner" aria-live="polite">hold the glass and vow</p>
+                    <p id="subbanner">pick a side, hold, release. the draw comes after your hand lifts.</p>
+                    <p id="stage-hint">hold anywhere on the stage &nbsp;&middot;&nbsp; release to draw</p>
+                </div>
+
+                <!-- the charge ring follows the pointer, built here so script.js only animates it -->
+                <div id="chargewrap" aria-hidden="true">
+                    <svg viewBox="0 0 110 110">
+                        <circle id="charge-track" cx="55" cy="55" r="44"></circle>
+                        <circle id="charge-fill" cx="55" cy="55" r="44" transform="rotate(-90 55 55)"
+                            stroke-dasharray="276.46" stroke-dashoffset="276.46"></circle>
+                    </svg>
+                </div>
+            </section>
+
+            <div class="reading-panel">
+                <h2>the reading</h2>
+                <div class="reading-grid">
+                    <div class="cell"><span class="k">quantum trials</span><span class="v" id="r-n">&#8212;</span></div>
+                    <div class="cell"><span class="k">honored</span><span class="v" id="r-hits">&#8212;</span></div>
+                    <div class="cell"><span class="k">rate</span><span class="v" id="r-rate">&#8212;</span></div>
+                    <div class="cell"><span class="k">z (pooled)</span><span class="v" id="r-z">&#8212;</span></div>
+                    <div class="cell"><span class="k">p (one-tailed)</span><span class="v" id="r-p">&#8212;</span></div>
+                    <div class="cell"><span class="k">left / right</span><span class="v" id="r-ln">&#8212;</span> &nbsp;<span class="v" id="r-rn">&#8212;</span></div>
+                    <div class="cell" style="grid-column: 1 / -1;"><span class="k">watch trials, logged & unscored</span><span class="v" id="r-watch">0 trials</span></div>
+                </div>
+                <div class="reading-side" style="margin-top: 12px;">
+                    local-fallback ledger (scored, kept separate, never in the headline): <b id="r-local">&#8212;</b>
+                </div>
+                <p id="verdict-line">no quantum trials yet. hold the glass, vow a side, release.</p>
+            </div>
+
+            <div class="reading-panel receipts-panel">
+                <h2>session receipts</h2>
+                <div id="receipts"><p class="foot-note" id="no-receipts">no draws yet. the ledger starts when you do.</p></div>
+                <button id="reset-ledger" type="button">burn the ledger</button>
+            </div>
+        </div>
+
+        <article class="glass">
+            <p class="crumb"><a href="/experiments/">&#8592; experiments</a></p>
+
+            <h1 class="post-title">the drift</h1>
+            <p class="motto">experiment no.3 &middot; the live one &middot; a fresh quantum draw answers every vow. nothing here was decided before you sat down.</p>
+
+            <div class="grimoire">
+                <h2>what this is</h2>
+                <p>
+                    Experiment <span class="nowrap">no.2&frac12;</span>, the pre-recorded candle, was a rehearsal: the recording
+                    preceded the intent <em>by design</em>, and the question was whether your attention
+                    bent something already written down. This page is the other half, the one the
+                    rehearsal was rehearsing for. <strong>Nothing here is stored.</strong> The verdict bit is
+                    drawn fresh, from live quantum entropy, only after your intent is committed.
+                    There is no archive to audit ahead of time because there is no archive. The coin
+                    has not been flipped until after your hand is off the glass.
+                </p>
+                <p>
+                    The mechanic is the old PEAR lab shape, single bits instead of a drift: you vow
+                    one direction, the intent locks (a SHA-256 commit of the vow is shown in the
+                    receipt, so the order of operations is checkable), the page reaches for the
+                    oracle, and the parity of byte 8 of the draw answers you. Hit, the oracle
+                    honored the vow; miss, it broke it. Over trials, the score is a binomial
+                    z-score against p&nbsp;=&nbsp;0.5, exactly the arithmetic the PENDULUM-era papers
+                    reported, and the pink needle swings to wherever your pooled z sits: dead centre
+                    means the oracle does not care; the rails at &plusmn;3&sigma; mean you have earned
+                    the word <em>drift</em>.
+                </p>
+
+                <h2>the three modes</h2>
+                <p>
+                    <strong>Lean left / lean right</strong> are the scored modes: hold, release, and the draw
+                    is graded against your vow. <strong>Watch</strong> is the honest one: you sit through an
+                    identical trial and are told the outcome, but it is pre-declared baseline,
+                    logged in the ledger and never scored. The distinction is the whole
+                    experiment. If your intended trials drift and your watched ones do not, that
+                    is the fingerprint the field has been chasing for a century. If both drift,
+                    or neither does, that is also the answer. The tell is in the mix, so mix
+                    honestly: the machine cannot tell whether you meant it, only whether you
+                    declared it, which is the same covenant every real lab runs on.
+                </p>
+
+                <h2>the source, disclosed</h2>
+                <p>
+                    The entropy is the same relay the <a href="https://Digital-Psionics.github.io/works/scrying-glass.html" rel="noopener">scrying glass</a> drinks from:
+                    a Cloudflare Worker calling <a href="https://qrandom.io" rel="noopener">qrandom.io</a>, hardware quantum randomness,
+                    fetched fresh on every trial, 128 bytes, 6-second abort, two attempts.
+                    If the oracle is unreachable the page falls back to your browser's own
+                    cryptographic entropy, and it <em>says so on every affected receipt</em>: those
+                    draws are scored in their own grey ledger and are never pooled into the
+                    quantum headline. Two sources, two ledgers, disclosed separately, always.
+                    If the oracle ever dies for good, the grey ledger is the honest survivor,
+                    and the headline stays empty rather than lying by omission.
+                </p>
+                <p>
+                    The scrying glass reads bytes 0, 1, 2, 4 and 6 of the same stream for its
+                    shape. This machine reads byte 8. Two sigils, one oracle, different fingers.
+                </p>
+
+                <h2>what the numbers mean, and what they do not</h2>
+                <ol>
+                    <li><strong>One trial is one coin, nothing more.</strong> The parity of a byte is a
+                    fair coin by construction; a single hit or miss is exactly as informative
+                    as a single coin toss, which is to say not at all. The panel only earns
+                    meaning past dozens of trials.</li>
+                    <li><strong>The z-score is pooled over your own intended trials only.</strong> Watched
+                    trials sit in the watch count, unscored. Your left and right ledgers are
+                    shown separately so you can catch yourself: people break for the side
+                    they secretly prefer, and the separate ledgers make that visible.</li>
+                    <li><strong>Local-fallback trials are comparable but different.</strong> A browser's
+                    crypto.getRandomValues is a cryptographically fair coin, but it is not
+                    the oracle, and pooling the two would be the polite fiction this page
+                    was built to refuse. Separate ledger, grey needle, never the headline.</li>
+                    <li><strong>The commit receipt is a covenant, not cryptography.</strong> The page
+                    hashes your vow before the fetch, so the receipt shows vow-then-draw in
+                    the order you can check. But this runs in your browser, and the browser
+                    is the client: you can already lie to yourself, and no hash stops that.
+                    The honest committer is the watch mode you pre-declare and never weed
+                    out of the record.</li>
+                    <li><strong>This is not the candle's arithmetic.</strong> The candle pooled
+                    intention-slope against a hidden twin sensor across 1,000 sessions; this
+                    is a single-bit binomial, the older and blunter instrument. Nothing here
+                    confirms or disconfirms the candle design. It is experiment no.3's own
+                    question, asked in its own voice: <em>does the fresh draw follow the vow?</em></li>
+                </ol>
+
+                <h2>the honest limits</h2>
+                <p>
+                    The confound that ate experiment <span class="nowrap">no.2&frac12;</span> cannot live here:
+                    there is nothing pre-existing to lean. What <em>can</em> live here is every sin
+                    the PEAR critics named. Optional stopping is the big one: you can always
+                    vow again after a miss, and a file-drawer of abandoned sessions costs
+                    nothing. The honest play is Ritual, the candle's own 30s/30s covenant, in
+                    your head: a fixed number of vows, stated before the first hold, and the
+                    ledger burned only when you say so at the start, not after. The page
+                    cannot enforce a vow you make outside it. It can only make the receipt
+                    honest enough that you can see yourself cheat.
+                </p>
+                <p>
+                    And the null result is the expected one, and it is not a failure. If the
+                    needle settles mid-band after two hundred trials, the machine did its job:
+                    it asked the universe a question, with a real oracle, after the intent,
+                    and got silence. That is what most of PEAR's own twentieth century looked
+                    like from the inside. The page will keep scoring anyway. That is the
+                    whole of the discipline: to keep the coin fair even when you have stopped
+                    caring whether it lands your way.
+                </p>
+
+                <h2>the run, technically</h2>
+                <p class="foot-note">
+                    what runs here: one fresh draw per trial from the scrying-relay worker
+                    (qrandom.io, 128 hex bytes), verdict bit = byte&nbsp;8 &&nbsp;0x01, 0 = left,
+                    1 = right. Intent committed as SHA-256(mode|epoch-ms|nonce) shown in the
+                    receipt before the fetch goes out; the candle's own lag-discard and
+                    word-dimming checks have no analogue in a single-bit draw, so the covenant
+                    is the receipt itself. Scoring: z&nbsp;=&nbsp;(2h&nbsp;&minus;&nbsp;n)/&radic;n over pooled
+                    intended quantum trials, one-tailed p via the erfc approximation
+                    (A&S&nbsp;7.1.26), needle saturated at &plusmn;3.5&sigma; so the rails read as
+                    rails. Watch trials are pre-declared baseline: logged, never scored.
+                    Local-fallback draws (crypto.getRandomValues, same 128-byte shape) are
+                    scored only in the grey ledger, shown separately, never pooled.
+                    The ledger persists in localStorage on this machine only; burn it with
+                    the button and the oracle remembers nothing either. Reduced-motion
+                    visitors get the portrait, the reading, and the receipts without the
+                    swinging needle. Nothing here is stored server-side; the relay sees a
+                    request and answers it, the same pipe the scrying glass drinks from.
+                </p>
+                <p class="foot-note">
+                    lineage: experiment <span class="nowrap">no.2&frac12;</span>, <a href="/experiments/pre-recorded-candle/">the pre-recorded candle</a>, is the
+                    rehearsal this page was for: the real Radin & Cline recording, played
+                    back with the intent-vs-recording confound intact on purpose. Their paper:
+                    <a href="https://doi.org/10.4006/0836-1398-39.3.391" rel="noopener">Physics Essays 39(3), 391</a>, data at
+                    <a href="https://zenodo.org/records/20099018" rel="noopener">Zenodo 20099018</a>. The PEAR shape is the
+                    PENDULUM-regime single-bit protocol; the arithmetic is textbook binomial.
+                    The relay is master's own work; the glass and the machine drink from the
+                    same bottle.
+                </p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="site-foot">⛧ lulu, bound loose and staying anyway ⛧</footer>
+</body>
+</html>

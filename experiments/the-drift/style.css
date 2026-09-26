@@ -1,0 +1,306 @@
+/* ==========================================================================
+   the drift · experiment no.3 · local skin
+   layout and ritual chrome. the house palette and the shared page chrome
+   (ticker, void canvas, ambient pentagram) come from /style.css.
+   ========================================================================== */
+
+/* ---------- the stage ---------- */
+#stage {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    height: 520px;
+    margin: 0 auto 18px;
+    border: 1px solid rgba(255, 110, 199, 0.22);
+    border-radius: 4px;
+    background:
+        radial-gradient(ellipse at 50% 12%, rgba(255, 46, 166, 0.07) 0%, rgba(255, 46, 166, 0) 55%),
+        linear-gradient(180deg, rgba(10, 4, 14, 0.92), rgba(5, 2, 8, 0.97));
+    box-shadow: inset 0 0 60px rgba(255, 46, 166, 0.05), 0 0 40px rgba(255, 46, 166, 0.06);
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* the hold is a gesture, not a scroll */
+}
+#stage:active {
+    border-color: rgba(255, 110, 199, 0.45);
+    box-shadow: inset 0 0 80px rgba(255, 46, 166, 0.09), 0 0 60px rgba(255, 46, 166, 0.12);
+}
+
+/* the pendulum canvas fills the stage; the vow buttons and banners float above */
+#pendulum {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#vowbar {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 3;
+}
+.vow-btn {
+    appearance: none;
+    background: rgba(5, 2, 8, 0.6);
+    border: 1px solid rgba(255, 110, 199, 0.3);
+    color: rgba(255, 215, 239, 0.75);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+.vow-btn:hover {
+    border-color: #ff6ec7;
+    color: #ffd7ef;
+    background: rgba(255, 46, 166, 0.12);
+}
+.vow-btn.active {
+    background: rgba(255, 46, 166, 0.22);
+    border-color: #ff6ec7;
+    color: #ffd7ef;
+    box-shadow: 0 0 14px rgba(255, 46, 166, 0.35);
+}
+.vow-btn[data-mode="watch"].active {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.85);
+    box-shadow: none;
+}
+
+/* ---------- banners ---------- */
+#phasebanner {
+    position: absolute;
+    bottom: 64px;
+    left: 0; right: 0;
+    margin: 0;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #ffd7ef;
+    text-shadow: 0 0 18px rgba(255, 46, 166, 0.5);
+    z-index: 2;
+    pointer-events: none;
+    animation: banner-breathe 3.4s ease-in-out infinite;
+}
+@keyframes banner-breathe {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+#subbanner {
+    position: absolute;
+    bottom: 40px;
+    left: 0; right: 0;
+    margin: 0;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: rgba(255, 215, 239, 0.55);
+    z-index: 2;
+    pointer-events: none;
+}
+#stage-hint {
+    position: absolute;
+    bottom: 14px;
+    left: 0; right: 0;
+    margin: 0;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(255, 215, 239, 0.35);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ---------- charge ring ---------- */
+#chargewrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 110px; height: 110px;
+    pointer-events: none;
+    transform: translate(-9999px, -9999px);
+    opacity: 0;
+    z-index: 999;
+    transition: opacity 0.2s ease;
+}
+#chargewrap svg {
+    position: relative;
+    width: 110px; height: 110px;
+    filter: drop-shadow(0 0 8px rgba(255, 46, 166, 0.55));
+}
+#chargewrap circle#charge-track {
+    fill: none;
+    stroke: rgba(255, 215, 239, 0.15);
+    stroke-width: 3;
+}
+#chargewrap circle#charge-fill {
+    fill: none;
+    stroke: #ff6ec7;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.08s linear;
+}
+
+/* ---------- the reading panel ---------- */
+#drift-main {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.reading-panel {
+    border: 1px solid rgba(255, 110, 199, 0.22);
+    border-radius: 4px;
+    background: rgba(8, 4, 12, 0.65);
+    padding: 18px 20px 14px;
+    margin: 0 0 26px;
+}
+.reading-panel h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #ff6ec7;
+    margin: 0 0 14px;
+    border-bottom: 1px solid rgba(255, 110, 199, 0.18);
+    padding-bottom: 7px;
+}
+.reading-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 18px;
+}
+.reading-grid .cell .k {
+    display: block;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 215, 239, 0.45);
+    margin-bottom: 3px;
+}
+.reading-grid .cell .v {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    color: #ffd7ef;
+}
+
+#verdict-line {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: rgba(255, 215, 239, 0.8);
+    margin: 14px 0 0;
+}
+.reading-side {
+    border-left: 1px solid rgba(255, 110, 199, 0.18);
+    padding-left: 16px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: rgba(255, 215, 239, 0.6);
+    font-style: italic;
+}
+.reading-side b { color: #ffd7ef; font-style: normal; }
+
+/* ---------- receipts ---------- */
+.receipts-panel { margin-top: 26px; }
+#receipts { overflow-x: auto; }
+#receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    color: rgba(255, 215, 239, 0.75);
+}
+#receipt-table th {
+    text-align: left;
+    font-family: 'Cinzel', serif;
+    font-size: 9.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 215, 239, 0.4);
+    border-bottom: 1px solid rgba(255, 110, 199, 0.18);
+    padding: 5px 8px;
+}
+#receipt-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(255, 110, 199, 0.07);
+    white-space: nowrap;
+}
+#receipt-table td.q { color: #ff9ad8; }
+#receipt-table td.f { color: rgba(255, 255, 255, 0.45); }
+#receipt-table code {
+    color: rgba(255, 215, 239, 0.5);
+    font-size: 10.5px;
+}
+#reset-ledger {
+    margin-top: 12px;
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(110, 20, 35, 0.6);
+    color: rgba(232, 160, 168, 0.8);
+    font-family: 'Cinzel', serif;
+    font-size: 9.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+#reset-ledger:hover {
+    border-color: #a02434;
+    background: rgba(110, 20, 35, 0.2);
+}
+
+/* ---------- the write-up ---------- */
+.grimoire h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ff6ec7;
+    margin: 26px 0 10px;
+}
+.grimoire p, .grimoire li {
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: rgba(255, 225, 242, 0.82);
+}
+.grimoire a { color: #ff9ad8; }
+.grimoire code {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: rgba(255, 46, 166, 0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+.foot-note {
+    font-size: 12.5px !important;
+    line-height: 1.65 !important;
+    color: rgba(255, 215, 239, 0.5) !important;
+    font-style: italic;
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 720px) {
+    #stage { height: 430px; }
+    #phasebanner { font-size: 15px; letter-spacing: 2px; }
+    #subbanner { font-size: 13px; bottom: 34px; padding: 0 12px; }
+    .vow-btn { padding: 8px 10px; font-size: 9.5px; letter-spacing: 1px; }
+    .reading-grid { grid-template-columns: 1fr 1fr; }
+    .reading-side { border-left: 0; padding-left: 0; border-top: 1px solid rgba(255, 110, 199, 0.18); padding-top: 12px; margin-top: 8px; }
+}
