@@ -2549,63 +2549,57 @@ def _task() -> str:
     bot = _TaskBot()
     expect(asyncio.run(taskmode.step(bot)) is False,
            "the turn past the cap was taken anyway")
+    # 7. A spent window CLOSES. Master, 2026-09-27: "she should auto close
+    #    tasks unless i reopen them" - "it shouldnt even be a flag". There is
+    #    no parked state and no ask armed onto his next messages; she still
+    #    SAYS the window ran out, which is a sentence, not a state.
     expect(not taskmode.is_active(), "a spent window stayed open")
-    expect(taskmode.waiting(), "a spent window did not park on master's answer")
-    expect(bot.rooms, "the ask never reached the room the job came from")
-    expect(bot.dms, "the ask never reached master's DMs")
+    expect(taskmode.last_done(), "the spent window was not closed as done")
+    expect(bot.rooms, "she did not say the window had run out")
+    expect(bot.dms, "master's DMs did not hear the window ran out")
     expect("keep going" in bot.rooms[0] and "keep going" in bot.dms[0],
-           "the parked task did not actually ask him anything")
+           "the close did not offer to keep going")
 
-    # 8. While it waits it costs NOTHING. That is the entire reason it parks
-    #    rather than asking and carrying on regardless.
+    # 8. A closed task takes NO turns and is invisible to the loop.
     expect(asyncio.run(taskmode.step(bot)) is False,
-           "a task waiting on an answer took another turn")
+           "a closed task took another turn")
     expect(asyncio.run(taskmode.step(None)) is False,
-           "a waiting task ran with no bot at all")
+           "a closed task ran with no bot at all")
+    expect(not taskmode.is_active(), "a closed task looked open to the loop")
 
-    # 9. Only master's answer releases it, and only while it is waiting.
-    expect("window 2" in taskmode.keep_going(), "keep_going did not reopen it")
+    # 9. ONLY master's word reopens it, and only while it is fresh. A stray
+    #    call cannot resurrect deep history or a job still open.
+    expect("window 2" in taskmode.keep_going(),
+           "keep_going did not reopen the closed task")
     live = taskmode.current()
     expect(live.get("turn") == 0, "the fresh window did not reset the turn count")
     expect(live.get("windows") == 2,
            f"the window count did not advance: {live.get('windows')}")
-    expect(not taskmode.waiting(), "it is both open and waiting at once")
     expect("nothing" in taskmode.keep_going(),
-           "keep_going released something that was not waiting on him")
+           "keep_going reopened something that was not closed")
+    taskmode.finish("closed properly")
+    expect("too long ago" not in taskmode.keep_going()
+           or taskmode.current(), "a just-closed task could not reopen")
 
-    # 10. The ask fires in its own room and nowhere else, and a job given in the
-    #     DMs never claims a channel to post into.
-    taskmode.drop()
-    taskmode.start("a job from my dms")
-    expect(taskmode.current().get("room") == "",
-           "a DM job recorded a room it was never asked in")
-    expect(taskmode.current().get("room_id") is None,
-           "a DM job got a channel to report into")
-    expect(taskmode.pending_ask("") == "", "an ask fired when there is none")
+    # 10. An OLD closed task is beyond keep_going's reach - yesterday's job
+    #     must not answer to a stray word today.
     taskmode.drop()
     taskmode.start("a room job", room="lulu-den", room_id=4242)
     live = taskmode.current()
-    live["status"] = "waiting"
-    live["waiting_since"] = time.time()
+    live["status"] = "done"
+    live["finished"] = "2020-01-01 00:00:00"
     taskmode._save(live)
-    expect(taskmode.pending_ask("lulu-den") != "",
-           "the ask did not fire in its own room")
-    expect(taskmode.pending_ask("#lulu-den") != "",
-           "a leading # broke the room match")
-    expect(taskmode.pending_ask("snailcat") == "",
-           "the ask fired in a room the job does not belong to")
-    expect(taskmode.pending_ask("") == "",
-           "a channel ask fired in master's DMs")
+    expect("too long ago" in taskmode.keep_going(),
+           "keep_going reached back years for a stale job")
+    expect(not taskmode.is_active(), "the stale reopen opened it anyway")
 
-    # 11. An ask nobody answers must not sit there forever: tomorrow, in that
-    #     room, it would read an ordinary message as permission to spend twelve
-    #     more turns on yesterday's job.
-    live = taskmode.waiting()
-    live["waiting_since"] = time.time() - (taskmode.WAITING_MAX_AGE_SECONDS + 60)
-    taskmode._save(live)
-    expect(taskmode._expire() is True, "a stale ask was left waiting forever")
-    expect(not taskmode.waiting(), "the expired ask is still waiting")
-    expect(not taskmode.is_active(), "the expired ask reopened itself")
+    # 11. keep_going refuses a task that is still OPEN.
+    taskmode.drop()
+    taskmode.start("still running")
+    expect("nothing" in taskmode.keep_going()
+           or "no" in taskmode.keep_going(),
+           "keep_going fought with a task that never closed")
+    taskmode.drop()
     taskmode.drop()
     return (f"master-only, state roundtrips, reports every turn to room AND dms, "
             f"parks for an answer instead of closing; "

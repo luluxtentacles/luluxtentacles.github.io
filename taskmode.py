@@ -59,17 +59,14 @@ because a job held in silence looks exactly like a job that has hung.
 
 WHAT HAPPENS WHEN THE TURNS RUN OUT
 
-It used to close, quietly, on a summary nobody saw. Master's call, 2026-09-21:
-she gets the window, and when it ends with the job unfinished she says so and
-asks whether to keep going - so a job bigger than one window is a conversation
-rather than a dead end. The task goes to `waiting`, which is NOT `open`, so
-watch() stops taking turns and the meter stops with it. Master answers in the
-room he gave the job in; the turn that hears that answer calls keep_going and the
-task gets a fresh window with its history intact.
-
-A task that waits longer than WAITING_MAX_AGE_SECONDS is boxed up as done
-instead. An ask he never answered must not sit there and then fire the next time
-he says something unrelated in that room.
+It closes. Master, 2026-09-27: "she should auto close tasks unless i reopen
+them" - and "it shouldnt even be a flag to be honest". So there is no parked
+state, no ask riding along on his next messages, nothing that stays armed. The
+spent window is marked done and she says so, with an offer to keep going; if he
+wants the job continued he says so in words, and the turn that hears it calls
+keep_going - which reopens the most recent closed task within a day, history
+intact. An unrelated message cannot wake a closed job, because nothing is
+listening for one.
 
 WHERE IT SPEAKS
 
@@ -106,10 +103,12 @@ MAX_TASK_TURNS = 2
 IDLE_TURNS_BEFORE_STOP = 2
 # One report per turn, so it cannot grow into a wall.
 ANNOUNCE_MAX = 1200
-# How long an unanswered "shall I keep going?" waits before the task is closed
-# for good. See the docstring: a stale ask that fires hours later, when master
-# says something unrelated in that room, is worse than a task that just ended.
-WAITING_MAX_AGE_SECONDS = 24 * 3600
+# How far back keep_going may reach to reopen a CLOSED task on master's say-so.
+# Master, 2026-09-27: "she should auto close tasks unless i reopen them" - so a
+# task is done the moment its window is spent, and the only way back in is his
+# word through keep_going. A day bounds how stale a job he can still resurrect;
+# older than that and he re-asks, which is cheaper than a zombie.
+REOPEN_MAX_AGE_SECONDS = 24 * 3600
 
 BRIEF = """\
 You are on a long task, not answering a message. Master gave you a job and you
@@ -176,13 +175,15 @@ def current() -> dict:
     return _task("open")
 
 
-def waiting() -> dict:
-    """The task parked on master's answer, or {} when there is none.
+def last_done() -> dict:
+    """The most recently closed task, only while it is fresh enough to reopen.
 
-    Deliberately not the same as current(): a waiting task must cost nothing, so
-    watch() - which drives off is_active() - leaves it alone until he answers.
+    There is no parked state to find - a spent window is DONE, like any other
+    finished job. This is what keep_going reads, and the age gate in keep_going
+    is what keeps yesterday's corpse from answering to a stray word today.
+    {} when there is nothing. Never raises.
     """
-    return _task("waiting")
+    return _task("done")
 
 
 def is_active() -> bool:
@@ -265,16 +266,26 @@ def drop() -> str:
 
 
 def keep_going(note: str = "") -> str:
-    """Master said carry on: same task, fresh window, history kept.
+    """Master said carry on: reopen the recent closed task, history kept.
 
-    Only ever answers a task that is actually WAITING - and that is what makes
-    this safe to hand a model. "Keep going" cannot resurrect a job that finished
-    or one that was never opened; it can only release one she has already
-    stopped on and asked about.
+    Only master's explicit word reopens anything - the tool description says so
+    and the model is the only reader of his words there is. What the CODE
+    guarantees is narrower and honest: the only thing that can be reopened is
+    the most recent task, closed, inside the last day. A job from last week, a
+    job still open, a job that never was - all answer "nothing to reopen", so a
+    stray call can never resurrect deep history.
     """
-    live = waiting()
+    live = last_done()
     if not live:
-        return "nothing of mine is waiting on an answer"
+        return "nothing of mine was closed recently enough to reopen"
+    try:
+        from datetime import datetime
+        fin = datetime.strptime(str(live.get("finished") or ""),
+                                "%Y-%m-%d %H:%M:%S").timestamp()
+    except ValueError:
+        fin = 0.0
+    if time.time() - fin > REOPEN_MAX_AGE_SECONDS:
+        return "that one closed too long ago - give me the job fresh instead"
     live["status"] = "open"
     live["turn"] = 0
     live["idle"] = 0
@@ -283,58 +294,10 @@ def keep_going(note: str = "") -> str:
     if note:
         live["answer"] = " ".join(str(note).split())[:600]
     _save(live)
-    LOG.info("task window %s opened on: %s", live.get("windows"),
+    LOG.info("task window %s reopened on: %s", live.get("windows"),
              str(live.get("goal"))[:120])
     return (f"back on it - window {live.get('windows')}, {MAX_TASK_TURNS} more "
             f"turns on: {str(live.get('goal'))[:160]}")
-
-
-def _expire(now: float | None = None) -> bool:
-    """Close a task nobody answered. True when one was boxed up.
-
-    The ask must not sit forever: a waiting task that fires tonight, when master
-    says something unrelated in that room, would have her reading an ordinary
-    message as permission to spend twelve more turns on yesterday's job. Cheap
-    to sweep here because the loop already runs every tick.
-    """
-    live = waiting()
-    if not live:
-        return False
-    try:
-        age = (now if now is not None else time.time()) - float(
-            live.get("waiting_since"))
-    except (TypeError, ValueError):
-        age = WAITING_MAX_AGE_SECONDS + 1
-    if age <= WAITING_MAX_AGE_SECONDS:
-        return False
-    live["status"] = "done"
-    live["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    live["summary"] = "closed: nobody answered whether to keep going"
-    _save(live)
-    LOG.info("task expired unanswered after %.0fs", age)
-    return True
-
-
-def pending_ask(room: str = "") -> str:
-    """The job she is parked on in this room, or "" when there is none.
-
-    Read by the message path, so that the turn which hears master's reply knows
-    it IS the reply - otherwise he says "yeah go on" and she answers it as a
-    fresh remark with no idea what she is agreeing to. The room has to match,
-    for the same reason resume_brief insists on it, and an empty name means his
-    DMs.
-
-    Returns the goal RAW. Escaping belongs to the caller that builds the prompt,
-    the same as every other line that reaches one.
-    """
-    live = waiting()
-    if not live:
-        return ""
-    where = str(live.get("room") or "").strip().lstrip("#").lower()
-    here = str(room or "").strip().lstrip("#").lower()
-    if where != here:
-        return ""
-    return str(live.get("goal") or "")
 
 
 def _record(live: dict, said: str, used_tools: bool) -> dict:
@@ -408,23 +371,29 @@ def _tools_used(turns: list) -> bool:
     return False
 
 
-async def _park(bot, live: dict) -> bool:
-    """The window is spent and the job is not: ask, do not close.
+async def _spent(bot, live: dict) -> bool:
+    """The window is spent and the job is not: say so, and CLOSE.
 
-    Master's call, 2026-09-21. The task goes to `waiting`, which is not `open`,
-    so the loop that takes turns stops here and the meter stops with it until he
-    answers. Always returns False - a turn was not taken.
+    Master, 2026-09-27: "she should auto close tasks unless i reopen them" - and
+    "it shouldnt even be a flag". The old shape parked the task on a `waiting`
+    flag and armed an ask onto his next messages in the room, which is how a
+    finished job got eight more windows off his unrelated chatter. Now the task
+    is simply done. She still TELLS him it ran out and offers to keep going -
+    that is a sentence in a chat, not a state machine - and only his explicit
+    word, through keep_going, brings it back. Always returns False - a turn was
+    not taken.
     """
-    live["status"] = "waiting"
-    live["waiting_since"] = time.time()
+    live["status"] = "done"
+    live["finished"] = time.strftime("%Y-%m-%d %H:%M:%S")
     live["summary"] = (f"used all {MAX_TASK_TURNS} turns of window "
                        f"{live.get('windows') or 1} without finishing")
     _save(live)
-    LOG.info("task parked on master after %s turn(s)", live.get("turn"))
+    LOG.info("task closed with its window spent after %s turn(s)",
+             live.get("turn"))
     await _tell(bot,
                 f"not done on: {str(live.get('goal'))[:200]}. i've used all "
                 f"{MAX_TASK_TURNS} turns of this window - want me to keep "
-                f"going?", live)
+                f"going? say so and i'll reopen it.", live)
     return False
 
 
@@ -495,7 +464,7 @@ async def step(bot) -> bool:
 
     turn = int(live.get("turn") or 0) + 1
     if turn > MAX_TASK_TURNS:
-        return await _park(bot, live)
+        return await _spent(bot, live)
 
     # ONE CONVERSATION FOR THE TASK. Master, 2026-09-23: *"fix this for task
     # also"*. Each turn used to be built from scratch out of a digest of the last
@@ -597,15 +566,13 @@ async def watch(bot, tick: int = TICK_SECONDS) -> None:
 
     Deliberately not an unconditional loop over step(): a task closed by its own
     last turn must stop costing money immediately, so each pass re-reads the file
-    rather than trusting a variable held in memory. The same pass sweeps an ask
-    nobody answered, so a waiting task cannot live forever.
+    rather than trusting a variable held in memory. There is nothing to sweep -
+    a spent window closes itself now, so nothing parks.
     """
     while True:
         try:
             if is_active():
                 await step(bot)
-            else:
-                _expire()
         except Exception as exc:
             LOG.warning("the task loop stumbled: %s", exc)
         await asyncio.sleep(tick)

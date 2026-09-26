@@ -1310,16 +1310,17 @@ SCHEMA = [
         "type": "function",
         "function": {
             "name": "keep_going",
-            "description": (
-                "Carry on with the long job I stopped part-way through. I use "
-                "this only when I have run out of turns on a task, told master "
-                "so, and he has just said to keep going - it gives me a fresh "
-                "window on the same job, with the goal and everything I have "
-                "already done still in front of me. It does nothing unless a "
-                "task is actually waiting on his answer, so it can never reopen "
-                "a job that finished or one that was never started. If he said "
-                "stop instead, call finish_task."),
-            "parameters": {
+                "description": (
+                    "Reopen the long task I closed most recently - ONLY when "
+                    "master has just said, in his own words, to keep going on "
+                    "it. A spent or finished task is closed for good otherwise; "
+                    "this works only on the most recent closed task and only "
+                    "while it is fresh (about a day). It gives a fresh window "
+                    "on the same job with the goal and everything already done "
+                    "still in front of me. If he asked about something else, "
+                    "never call this - a closed job stays closed unless he "
+                    "names it. If he said stop instead, do nothing."),
+                "parameters": {
                 "type": "object",
                 "properties": {
                     "note": {"type": "string", "description": "anything he told me about how to carry on, in his words"},

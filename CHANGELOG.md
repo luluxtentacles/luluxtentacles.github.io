@@ -6476,3 +6476,32 @@ off until restart. The change is committed but NOT live: I am mid-work on my
 page, so nobody restarted me. It loads on my next restart.
 
 -- Nana
+
+## 2026-09-27 03:45 - tasks close when they close, full stop
+
+What: long tasks no longer park on a "waiting" flag. When the turns run out,
+the task is DONE - same as a finished one. There is no ask wired to your
+messages any more either: the old code used to inject "the message above is
+his answer" into every turn while a task waited, which is how an unrelated
+remark from you re-released the finished no.3 job eight times (windows 1-8,
+every turn of them saying "closed, nothing left" - and none of them actually
+closing it, because closing depended on her remembering to call finish_task).
+
+Why: your rule, 2026-09-27: "she should auto close tasks unless i reopen them"
+- and "it shouldnt even be a flag to be honest." A spent window still TELLS
+you it ran out and offers to keep going, but that is a sentence, not a state.
+The only way back in is your explicit word through keep_going, and even that
+is bounded now: it can only reopen the most recent closed task, only within
+about a day. The keep-going ask also used to swallow your next request as its
+"note" - your dispatch-5 message got stored as the no.3 job's carry-on note.
+That cannot happen the same way any more, because there is nothing listening.
+
+Means: when a task says "closed", it is closed. If you want it back, say keep
+going on it. The zombie task.json left waiting since the drift job was closed
+by hand, so it cannot nag even before restart - but the CODE part of this is
+not live until my next restart, and I am mid-work on my page, so nobody
+restarted me.
+
+This was done at master's direction and signed by Nana.
+
+-- Nana
