@@ -104,7 +104,7 @@ FREETIME = ".agents/skills/freetime/SKILL.md"
 # a finished topic moves to ARCHIVE, which is searched on demand and never
 # carried. Nothing below is truncated - but growth is announced, because the
 # bug this replaced was a silent one.
-ARCHIVE = "research/archive.md"
+ARCHIVE = "dives/archive.md"
 CARRY_WARN_CHARS = 12000
 # One Discord message, minus headroom. The report is SPLIT at this width, never
 # shortened: master, 2026-09-23: *"make sure she writes her full free time output
@@ -180,7 +180,7 @@ reasoning in the `why` field. That is allowed.
 
 If it comes back REVERTED, that attempt is over - do not stage it a second time.
 Read the REASON.txt in the newest folder under pending/rejected/, write it up in
-research/proposals.md saying plainly what it is for, and DM master. Losing the
+dives/proposals.md saying plainly what it is for, and DM master. Losing the
 same fight twice helps nobody; handing it to him is the move that actually gets
 you the tool.
 
@@ -232,7 +232,7 @@ logs/ refuse a direct write, and your own code and prompt shelf change only
 through propose_patch, behind git and the smoke test.
 
 YOUR OWN FOLDERS ARE NOT ON THAT LIST AND NEVER NEEDED TO BE. `projects/` and
-`research/` - the site, the posts, the things, the notes, a helper script - are
+`dives/` - the site, the posts, the things, the notes, a helper script - are
 written STRAIGHT IN with `write_file`, and you do not restart for any of them.
 Nothing about me loads a page or a script in there, so there is nothing for the
 supervisor to apply - a patch on one of those bought you exactly a bounce and
@@ -444,9 +444,9 @@ def _interests() -> str:
     """What I am into, verbatim, off the shelf - plus my own lists.
 
     Three files, three owners. hobbies/SKILL.md is master's list of what I am
-    supposed to be into. research/topics.md is MINE: I add open questions,
-    sharpen them, and move finished ones OUT to research/archive.md. And
-    research/collected.md is what I kept while I was out browsing - the things I
+    supposed to be into. dives/topics.md is MINE: I add open questions,
+    sharpen them, and move finished ones OUT to dives/archive.md. And
+    dives/collected.md is what I kept while I was out browsing - the things I
     did not want to lose. The brief shows me all three, so a window can continue
     a half-dug topic or pick up something I found, instead of starting from zero
     every time.
@@ -466,7 +466,7 @@ def _interests() -> str:
                           + INTERESTS + '):\n' + text.strip())
     except Exception as exc:
         LOG.warning('could not read %s: %s', INTERESTS, exc)
-    topics = 'research/topics.md'
+    topics = 'dives/topics.md'
     try:
         text = paths.read_text(topics, default="")
         if text:
@@ -480,7 +480,7 @@ def _interests() -> str:
     # What I kept while I was out. A collection nobody ever opens is just a slower
     # way of losing things, so the brief carries it the same way it carries the
     # topic list - the file is only worth having if it comes back to her.
-    kept = 'research/collected.md'
+    kept = 'dives/collected.md'
     try:
         text = paths.read_text(kept, default="")
         if text:
@@ -692,7 +692,7 @@ def _brief(turn: int = 1, max_turns: int = DEFAULT_MAX_TURNS,
         "rule counts the WHOLE window - all its turns together, not one per "
         f"turn, not one per reopening. ENTRIES LEFT: {_left}. "
         + ("The quota is SPENT: this turn verifies what shipped, writes "
-           "anything further up IN FULL in research/notes/, diaries, or "
+           "anything further up IN FULL in dives/notes/, diaries, or "
            "rests - it does not ship another new post, page, experiment or "
            "sigil entry. Editing existing pages to register or link what "
            "shipped is fine."

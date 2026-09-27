@@ -154,7 +154,7 @@ def restart_context_note(reason: dict, requested_why: str = "") -> str:
             "Do NOT stage that patch again. Master's rule, 2026-09-21: you may "
             "patch yourself for something you actually need to USE, but when one "
             "comes back reverted the next move is a PROPOSAL, not another "
-            "attempt - write it into research/proposals.md saying plainly what it "
+            "attempt - write it into dives/proposals.md saying plainly what it "
             "is for, and DM master about it. He would rather build it WITH you "
             "than watch you lose the same fight twice.")
         return "\n".join(lines)

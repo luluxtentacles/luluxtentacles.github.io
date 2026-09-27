@@ -764,7 +764,7 @@ SCHEMA = [
                 "offered every turn, never an obligation. When a conversation "
                 "genuinely intrigues me and deserves digging later, write the "
                 "topic as a sharp question in MY words. It lands on my topics "
-                "list (research/topics.md) tagged with WHO said the thing and "
+                "list (dives/topics.md) tagged with WHO said the thing and "
                 "WHERE, plus a pointer back to the logs - the journal for "
                 "public rooms, my per-person chain file and their dossier for "
                 "DMs - so the window can reread the actual conversation "
@@ -2640,7 +2640,7 @@ def propose_patch(path: str, content: str, why: str = "", brief: str = "") -> st
         # - and she could already write all of it freely with write_file, which
         # is the same guard this uses. So the patch route here bought exactly
         # one thing: a bounce. She paid for two on 2026-09-21, and both landed
-        # inside a single window - research/_eyes.py at 20:13 and the site's
+        # inside a single window - dives/_eyes.py at 20:13 and the site's
         # index and css at 20:22 - because nothing told her the difference.
         said = write_file(relative, content)
         tail = (" It is inside your site, so commit it there."
@@ -3264,7 +3264,7 @@ def search_mirror(query: str = "", room: str = "", hours: int = 0) -> str:
 # ENTRIES and never the file. Master, 2026-09-23: "make her archive stuff in a
 # archive file when she's done with something, and can search archive using
 # keywords so it doesnt grab everything."
-ARCHIVE_FILE = "research/archive.md"
+ARCHIVE_FILE = "dives/archive.md"
 ARCHIVE_MAX_ENTRIES = 5      # whole entries, not matching lines
 ARCHIVE_ENTRY_CHARS = 1500   # one entry, trimmed only if it is enormous
 
@@ -3620,7 +3620,7 @@ def look_at(url: str, question: str = "") -> str:
 
     The real limit, stated plainly: a public URL only. A LOCAL image - a
     screenshot I took, a picture in my own folder - has no door here, which is
-    why I wrote research/_eyes.py to hand vision._build a local file directly.
+    why I wrote dives/_eyes.py to hand vision._build a local file directly.
     That is a workaround for a hole in this tool, not a preference.
     """
     return vision.describe(url, question, _BRAIN)
@@ -3631,7 +3631,7 @@ def look_at_file(path: str, question: str = "") -> str:
 
     Master, 2026-09-21: "did we add for any website she can screenshot it to see
     it if she needs it" - and the answer was no, which is why she had written
-    research/_eyes.py herself. This is the proper version of that script.
+    dives/_eyes.py herself. This is the proper version of that script.
 
     WHO GETS WHAT. Master's turn, my own-time window, and a task he started may
     name any picture in my folder. Everyone else gets the same deal attach

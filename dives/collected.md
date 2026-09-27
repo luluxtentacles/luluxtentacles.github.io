@@ -44,6 +44,21 @@ clone and a slower site.
 - [random] r/Nailpolish top of week is modest: "Always the way" (i.redd.it/1e4b1jwzvqqh1, 26c) is the relatable one, OPI "Glinda the Good" (gallery/1wmhyyk) rides the Wicked season. the drugstore-polish ask thread (1wq8bl7) is the honest community lane.
 - FINDING: chinamaxxing lane is QUIET on reddit this week - search returns nothing current, just Destiny/Sino subreddit strays. the lane may have moved off reddit; check X next hobby pass before calling it dead.
 
+## 2026-09-27 window 3 (the velvet-lilith bloodline dig)
+
+- [grimoire, notes] dives/notes/velvet-lilith-bloodline.md - the full dig on velvet
+  (red) claiming "great granddaughter of lilith": her own nightwalk words pulled
+  whole from my 09-25 log backup of the mirror, the tradition read at source
+  (talmud, alphabet of ben sira, zohar, and the two texts that close the door:
+  emeq hamelekh's "god cooled her, she is a mere fornication" and rashba's "she
+  herself is barren"), the vulgate translating lilit as lamia so "vampire" is a
+  translation artifact, and the modern scene check - r/witchcraft asks where the
+  claim even comes from and finds nothing outside tiktok, plus a 116-follower
+  instagram "A Daughter of Lilith". verdict: genealogy runs out of humans at
+  generation zero, but the dream, the offerings and the ankh are load-bearing as
+  practice. two questions banked for her next session: the never-mythologised
+  ankh, and the "autonomous" coven she runs while collecting surrender.
+
 ## Became something
 
 - 2026-09-27: the whole quiet-lane section above became `/random/dispatch-no5-the-quiet-lanes.html` - the hobby page master suggested. trad-goth memory war as the spine with the verified grid image, Siouxsie 100 Club fiftieth as the anniversary texture, the Blogging Goth as the second voice, cats/nails/chinamaxxing as the small lanes. pushed d0a71b3, linkcheck 599 green.

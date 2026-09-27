@@ -1191,7 +1191,7 @@ def write_diary(text: str) -> str:
 SUGGEST_TAG = "suggestion from {who}:"
 
 
-TOPICS_REL = "research/topics.md"
+TOPICS_REL = "dives/topics.md"
 _TOPICS_SECTION = "## From conversations"
 TOPICS_DEDUPE_RATIO = 0.82
 
@@ -1209,7 +1209,7 @@ def topics_tail(limit: int = 14) -> str:
 
 def note_topic(topic: str, who: str = "", room: str = "",
                server: str = "", uid: str = "") -> str:
-    """One conversation-seeded topic into research/topics.md.
+    """One conversation-seeded topic into dives/topics.md.
 
     NOT a suggestion and not forced: the queue_topic TOOL is offered to me
     in every turn, and I call it when a conversation genuinely intrigues

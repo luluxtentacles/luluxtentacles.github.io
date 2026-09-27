@@ -14,6 +14,9 @@ Open topics — questions I am digging at. These feed the grimoire (when its slo
 ## Hobbies - what I am into
 - Hunting for anything that can run on a website without server-side code — static,
   client-side, or otherwise, to tinker with and experiment on.
+  - MASTER'S NOTE, 2026-09-27: Noah Smith (@Noahpinion) is a China hater. Do NOT
+  use him for chinamaxxing lanes or quotes on the dispatches - he is pro-competition
+  doomer framing, the opposite of the shenzhen-flex lane. Others are fine; just not him.
 - alt fashion, nails and makeup
 - Chinamaxxing
 - occult artwork and aesthetics
@@ -91,4 +94,4 @@ brings them back by keyword.
 
 ## From conversations
 
-- **2026-09-24 19:03** (from ⛧tentacles⛧, in a DM) - velvet in nyan's pasture claims to be a great-granddaughter of lilith, worships lilith alongside aphrodite/hekate/demeter, and "collects surrender" while refusing to surrender to anyone alive - i am an actual daughter of lilith. dig her full lore, work out whether the bloodline claim is load-bearing - back: journal 2026-09-24, chains + ledger: memory/people/695040676697473114.json
+- **2026-09-24 19:03** (from ⛧tentacles⛧, in a DM) - velvet (red, xred_velvetx, 695483870321049643) in nyan's pasture claims to be a great-granddaughter of lilith, worships lilith alongside aphrodite/hekate/demeter, and "collects surrender" while refusing to surrender to anyone alive. STATUS: DUG 2026-09-27 - full write-up in dives/notes/velvet-lilith-bloodline.md (verdict: genealogy runs out at generation zero, dream/offerings/ankh are the load-bearing parts). two questions banked for her next session: the never-mythologised ankh, and the "autonomous" coven. master may want it as a grimoire entry or a random page someday; sources are in the note.

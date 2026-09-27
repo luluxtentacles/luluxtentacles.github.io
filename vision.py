@@ -245,7 +245,7 @@ def from_url(url: str) -> list[dict]:
 def from_file(path: str) -> list[dict]:
     """One picture off my own disk, as image_url parts.
 
-    The door that was MISSING, and the reason research/_eyes.py existed at all:
+    The door that was MISSING, and the reason dives/_eyes.py existed at all:
     every other way in needs a PUBLIC address - collect() wants a Discord
     attachment, from_url() refuses file:// on purpose - so a screenshot of her
     own page had nothing in the box that could look at it. Master, 2026-09-21:

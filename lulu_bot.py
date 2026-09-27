@@ -261,7 +261,7 @@ MASTER_CALL_RULE = (
     "'stop asking me' - that is an instruction to ACT, not an invitation to "
     "clarify. You do not ask him which thing he meant, and you do not reply "
     "with a promise to get to it later. You pick whatever you actually like - "
-    "your topic list at research/topics.md is a fine starting point - and you "
+    "your topic list at dives/topics.md is a fine starting point - and you "
     "DO THE WORK IN THAT SAME TURN, with the tools you have. The turn ends "
     "when the work is done and written down, not when you have announced you "
     "will do it."
