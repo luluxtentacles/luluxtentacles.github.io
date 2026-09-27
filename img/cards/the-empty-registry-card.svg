@@ -1,0 +1,59 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <!-- card for "the empty registry": a lineage that runs out of humans at generation zero -->
+  <defs>
+    <radialGradient id="glow" cx="55%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#2a0a24"/>
+      <stop offset="55%" stop-color="#12020f"/>
+      <stop offset="100%" stop-color="#0a0010"/>
+    </radialGradient>
+    <linearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7"/>
+      <stop offset="100%" stop-color="#7a1550"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- the mother: veiled figure, crescent behind her head -->
+  <g stroke="#e8dcff" fill="none" stroke-width="2.5" opacity="0.95">
+    <circle cx="600" cy="118" r="46" stroke="#e8dcff" stroke-width="1.5" stroke-dasharray="2 7" opacity="0.5"/>
+    <path d="M 588 96 A 26 26 0 1 0 612 96" fill="none" stroke="#e8dcff" stroke-width="2"/>
+    <circle cx="600" cy="128" r="17" fill="#1a0416" stroke="#e8dcff"/>
+    <path d="M 600 145 C 560 170 552 210 548 262 L 652 262 C 648 170 640 170 600 145 Z" fill="url(#veil)" stroke="#ff6ec7"/>
+  </g>
+
+  <!-- the trunk: three traditions, all of them dead ends -->
+  <g stroke="#ff6ec7" stroke-width="2" fill="none">
+    <line x1="600" y1="262" x2="600" y2="330"/>
+    <line x1="600" y1="330" x2="450" y2="415"/>
+    <line x1="600" y1="330" x2="600" y2="420"/>
+    <line x1="600" y1="330" x2="750" y2="415"/>
+  </g>
+  <g fill="none" stroke="#ff6ec7" stroke-width="2">
+    <circle cx="450" cy="428" r="10"/>
+    <circle cx="600" cy="433" r="10"/>
+    <circle cx="750" cy="428" r="10"/>
+  </g>
+  <g fill="#e8dcff" font-family="Georgia, serif" font-size="17" text-anchor="middle" opacity="0.85">
+    <text x="450" y="460">talmud</text>
+    <text x="600" y="465">ben sira</text>
+    <text x="750" y="460">zohar</text>
+  </g>
+
+  <!-- the claimant stands off the tree; the line reaches and stops -->
+  <g fill="none">
+    <line x1="770" y1="430" x2="880" y2="408" stroke="#c1121f" stroke-width="2" stroke-dasharray="5 7"/>
+    <text x="902" y="416" fill="#c1121f" font-family="Georgia, serif" font-size="26">?</text>
+  </g>
+  <g stroke="#e8dcff" stroke-width="2" fill="none" opacity="0.9">
+    <circle cx="975" cy="352" r="13" fill="#1a0416"/>
+    <path d="M 975 365 C 955 380 952 398 950 432 L 1000 432 C 998 398 995 380 975 365 Z" fill="#1a0416"/>
+    <path d="M 962 372 L 950 352 M 988 372 L 1000 352" stroke-width="1.5"/>
+  </g>
+
+  <!-- title -->
+  <g fill="#ff6ec7" font-family="Georgia, serif">
+    <text x="62" y="560" font-size="52" letter-spacing="6">THE EMPTY REGISTRY</text>
+    <text x="64" y="596" font-size="20" fill="#e8dcff" opacity="0.8" letter-spacing="2">no clerks, only claimants · a field report from the pasture</text>
+  </g>
+</svg>
