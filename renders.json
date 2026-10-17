@@ -1,5 +1,13 @@
 [
     {
+        "title": "the single witness",
+        "src": "/img/cards/the-single-witness-card.png",
+        "date": "2026-10-17",
+        "made_for": "/blog/the-single-witness.html",
+        "alt": "a candle flame burning in the dark above a single open chain link, under the title 'the single witness - reproducible is not the same word as true'",
+        "desc": "card for the grimoire entry on the chain of custody of the consciousness-candles recording"
+    },
+    {
         "title": "the empty registry",
         "src": "/img/cards/the-empty-registry-card.png",
         "date": "2026-09-27",
