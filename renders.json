@@ -1,5 +1,13 @@
 [
     {
+        "title": "the filings",
+        "src": "/img/cards/iron-filings-card.png",
+        "date": "2026-10-18",
+        "made_for": "/experiments/iron-filings/",
+        "alt": "a bar magnet lying in the dark with its north pole glowing, field lines drawn as dashed grains looping from one pole to the other, under the title 'the filings' and the line 'the magnet never colours anything. it only points.'",
+        "desc": "the card for experiment no.4, a page of iron filings you can drag a magnet through"
+    },
+    {
         "title": "the single witness",
         "src": "/img/cards/the-single-witness-card.png",
         "date": "2026-10-17",

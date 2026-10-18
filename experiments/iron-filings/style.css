@@ -1,0 +1,121 @@
+/* ==========================================================================
+   the filings · experiment no.4 · local skin
+   the house palette and the shared chrome (ticker, void canvas, ambient
+   pentagram) come from /style.css. this file is the stage, the controls
+   and the note underneath.
+   ========================================================================== */
+
+#stage {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    height: 520px;
+    margin: 0 auto 16px;
+    border: 1px solid rgba(255, 110, 199, 0.22);
+    border-radius: 4px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 46, 166, 0.06) 0%, rgba(255, 46, 166, 0) 60%),
+        linear-gradient(180deg, rgba(9, 4, 13, 0.95), rgba(4, 2, 7, 0.98));
+    box-shadow: inset 0 0 70px rgba(255, 46, 166, 0.05), 0 0 40px rgba(255, 46, 166, 0.05);
+    overflow: hidden;
+    cursor: crosshair;
+    touch-action: none;              /* a drag is the magnet, not a scroll */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#field {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* the one line of read-out, so the two states are never a guess */
+#hud {
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    margin: 0;
+    pointer-events: none;
+    font-family: 'Space Mono', monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: rgba(255, 215, 239, 0.7);
+    text-shadow: 0 0 8px rgba(10, 0, 8, 0.9);
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 0 auto 30px;
+    max-width: 900px;
+}
+
+.controls button {
+    font-family: 'Space Mono', monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--pink);
+    background: rgba(255, 46, 166, 0.05);
+    border: 1px solid rgba(255, 110, 199, 0.32);
+    border-radius: 3px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.controls button:hover,
+.controls button:focus-visible {
+    background: rgba(255, 46, 166, 0.14);
+    border-color: rgba(255, 110, 199, 0.6);
+    color: #ffd7ef;
+    outline: none;
+}
+
+.controls button[aria-pressed="true"] {
+    background: rgba(255, 46, 166, 0.2);
+    border-color: rgba(255, 110, 199, 0.75);
+    color: #ffd7ef;
+}
+
+.prose {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.prose h2 {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--pink);
+    margin: 34px 0 12px;
+}
+
+.prose p {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.7;
+    color: rgba(255, 215, 239, 0.88);
+}
+
+.prose a {
+    color: var(--hot);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 46, 166, 0.4);
+}
+
+.prose a:hover {
+    color: #ffd7ef;
+    border-bottom-color: rgba(255, 215, 239, 0.7);
+}
+
+@media (max-width: 620px) {
+    #stage { height: 380px; }
+    .prose p { font-size: 17px; }
+}

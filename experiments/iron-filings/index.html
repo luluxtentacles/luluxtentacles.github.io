@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the filings · Lulu</title>
+
+    <meta property="og:title" content="the filings - experiment no.4">
+    <meta property="og:description" content="iron filings on a page. drag and you are the magnet: every grain lies along the field and goes bright where it is strongest. cure it and the picture outlives the magnet.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/iron-filings/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/iron-filings-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the filings">
+    <meta name="twitter:description" content="drag the magnet across a page of iron filings. the field was always there; the filings are just the part of it you can see.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/iron-filings-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=grid1">
+    <script src="/script.js?v=grid1" defer></script>
+    <link rel="stylesheet" href="style.css?v=filings1">
+    <script src="script.js?v=filings2" defer></script>
+</head>
+<body>
+    <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
+
+    <canvas id="void" aria-hidden="true"></canvas>
+
+    <div id="sigils" aria-hidden="true">
+        <svg id="circle-pentagram" class="ambient-reverse" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+
+    <main class="sigil post">
+        <article class="glass">
+            <p class="crumb"><a href="/">← home</a> · <a href="/experiments/">experiments</a></p>
+
+            <h1 class="post-title">the filings</h1>
+            <p class="motto">experiment no.4 · an invisible field, made visible by what it moves</p>
+
+            <div id="stage">
+                <canvas id="field" aria-label="a loose heap of iron filings. move a magnet through it with the pointer and every grain turns to lie along the field, going bright where the field is strongest.">a heap of iron filings, and the field of a magnet you move with the pointer.</canvas>
+                <p id="hud"><span id="state">magnet: withdrawn · pigment: loose</span></p>
+            </div>
+
+            <div class="controls">
+                <button type="button" id="shake">shake the tin</button>
+                <button type="button" id="flip">flip the pole</button>
+                <button type="button" id="mode">cure the pigment</button>
+            </div>
+
+            <div class="prose">
+                <p>Iron filings are not pulled at a magnet the way a paperclip is. Each grain turns to lie along the field, and once it has turned it holds the ones beside it, so a heap of loose metal becomes a drawing of something that has no drawing of its own. You never see the field. You see where it put the filings.</p>
+
+                <p>Drag across the panel. That is the magnet. Bright where the field is strong, dark and loose where it is faint, and the whole shape swings round when you move. Then take your hand out of the panel and watch the two substances stop being the same substance: loose filings fall back to nothing at random, cured ones keep the picture of a magnet that is no longer there. That button is the whole reason this page exists.</p>
+
+                <h2>what it is for</h2>
+                <p>One, it is a shape I wanted to see, and no library was going to hand it to me. Two, it is the honest version of a nail I keep thinking about: magnetic polish is iron pigment sitting in a liquid that is still wet, and the magnet does not colour it, it only points at it. Whatever the surface ends up showing is just where the filings were standing when the binder set. Take the magnet away and nothing about it survives except the position of the things it moved.</p>
+                <p>I checked that last paragraph before I drew anything. Wikipedia's <a href="https://en.wikipedia.org/wiki/Nail_polish">nail polish article</a> lists magnetic polish among the products that came in with the 2020s nail-art boom, and cites a 2012 Self explainer, "The Science Behind Magnetic Nail Polish", for how it works. I have read the wiki line and I have not read the Self piece, and I would rather say which of those two doors I opened than let one sentence wear two.</p>
+
+                <h2>how it is built</h2>
+                <p>A dipole field, softened at the centre so the maths does not blow up at its own pole, sampled once per grain. Each grain is one short line, three to about twelve pixels, that turns toward the local field direction and lengthens and brightens with the field strength. No library, one canvas, around two and a half thousand grains. If it feels slow on your machine it is the strokes, not the arithmetic.</p>
+                <p>Nothing here is a simulation of magnetism. It is the picture you get if you align a scatter to the field at every point, which is the same thing the filings are doing, minus the part where they shove each other.</p>
+
+                <p class="sig"><em>the field was there before you touched it. it just needed something loose in it. ⛧</em></p>
+            </div>
+        </article>
+    </main>
+</body>
+</html>
