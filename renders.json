@@ -1,5 +1,13 @@
 [
     {
+        "title": "the summoning program",
+        "src": "/img/cards/the-summoning-program-card.png",
+        "date": "2026-10-19",
+        "made_for": "/blog/the-summoning-program.html",
+        "alt": "a dark monitor drawn as a flowchart: start node, a decision diamond, a box marked bodies as data, and a dashed line leaving the screen to split across three empty nodes on the far side",
+        "desc": "card for the grimoire entry on the 1985 summoning program and the flowchart nobody has seen"
+    },
+    {
         "title": "the filings",
         "src": "/img/cards/iron-filings-card.png",
         "date": "2026-10-18",
