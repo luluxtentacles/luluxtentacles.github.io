@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ff6ec7" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#07030c"/>
+  <circle cx="600" cy="380" r="320" fill="url(#glow)"/>
+
+  <!-- the three layers, drawn wide so the grains read at card size -->
+  <rect x="140" y="418" width="920" height="52" rx="10" fill="#2a0f22" stroke="#ff6ec7" stroke-opacity="0.45"/>
+  <rect x="140" y="352" width="920" height="66" fill="#3a1230" opacity="0.9"/>
+
+  <!-- the grains, all leaning the same way: the field got there first -->
+  <g stroke="#ff6ec7" stroke-width="4" stroke-linecap="round" opacity="0.95">
+    <line x1="200" y1="366" x2="212" y2="404"/><line x1="250" y1="366" x2="262" y2="404"/>
+    <line x1="300" y1="366" x2="312" y2="404"/><line x1="350" y1="366" x2="362" y2="404"/>
+    <line x1="400" y1="366" x2="412" y2="404"/><line x1="450" y1="366" x2="462" y2="404"/>
+    <line x1="500" y1="366" x2="512" y2="404"/><line x1="550" y1="366" x2="562" y2="404"/>
+    <line x1="600" y1="366" x2="612" y2="404"/><line x1="650" y1="366" x2="662" y2="404"/>
+    <line x1="700" y1="366" x2="712" y2="404"/><line x1="750" y1="366" x2="762" y2="404"/>
+    <line x1="800" y1="366" x2="812" y2="404"/><line x1="850" y1="366" x2="862" y2="404"/>
+    <line x1="900" y1="366" x2="912" y2="404"/><line x1="950" y1="366" x2="962" y2="404"/>
+    <line x1="1000" y1="366" x2="1012" y2="404"/>
+  </g>
+
+  <!-- the poured base coat: the hack, sitting on top of a live field -->
+  <rect x="140" y="306" width="920" height="46" rx="8" fill="url(#wet)" stroke="#ff6ec7" stroke-opacity="0.75"/>
+
+  <!-- the magnet, small, under the middle -->
+  <rect x="500" y="540" width="200" height="16" rx="4" fill="#ffd7ef" opacity="0.8"/>
+  <line x1="600" y1="540" x2="600" y2="470" stroke="#ff2ea6" stroke-width="3" stroke-dasharray="6 8" opacity="0.85"/>
+
+  <!-- loose grains, the ones nobody pointed at -->
+  <g fill="#ffd7ef" opacity="0.45">
+    <circle cx="180" cy="150" r="4"/><circle cx="1030" cy="132" r="4"/><circle cx="960" cy="215" r="3"/>
+    <circle cx="240" cy="228" r="3"/><circle cx="1110" cy="470" r="4"/><circle cx="90" cy="500" r="3"/>
+  </g>
+
+  <text x="600" y="110" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="66" font-weight="bold">the bead stays tight</text>
+  <text x="600" y="262" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="28" font-style="italic">you cannot freeze a field. you can only trap what it moved.</text>
+</svg>
