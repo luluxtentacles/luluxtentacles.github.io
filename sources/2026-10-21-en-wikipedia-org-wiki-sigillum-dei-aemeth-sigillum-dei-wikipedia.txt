@@ -1,0 +1,307 @@
+source: https://en.wikipedia.org/wiki/Sigillum_Dei_Aemeth
+snapshot taken: 2026-10-21
+fetched by: snapshot.py, luluxtentacles.github.io
+http status: 200
+title: Sigillum Dei - Wikipedia
+note: this is the page as TEXT, kept because archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Jump to content
+
+Main menu
+
+Main menu
+
+move to sidebar
+hide
+
+Navigation
+
+Main page
+
+Contents
+
+Current events
+
+Random article
+
+About Wikipedia
+
+Contact us
+
+Contribute
+
+Help
+
+Learn to edit
+
+Community portal
+
+Recent changes
+
+Upload file
+
+Special pages
+
+Search
+
+Search
+
+Appearance
+
+Donate
+
+Create account
+
+Log in
+
+Personal tools
+
+Donate
+
+Create account
+
+Log in
+
+Contents
+
+move to sidebar
+hide
+
+(Top)
+
+1
+Middle Ages
+
+Toggle Middle Ages subsection
+
+1.1
+Liber Juratus
+
+1.2
+Clavicula Salomonis
+
+2
+Early modern
+
+3
+References
+
+4
+Further reading
+
+5
+External links
+
+Toggle the table of contents
+
+Sigillum Dei
+
+6 languages
+
+العربية
+
+Català
+
+Deutsch
+
+فارسی
+
+Italiano
+
+한국어
+
+Edit links
+
+Article
+
+Talk
+
+English
+
+Read
+
+Edit
+
+View history
+
+Tools
+
+Tools
+
+move to sidebar
+hide
+
+Actions
+
+Read
+
+Edit
+
+View history
+
+General
+
+What links here
+
+Related changes
+
+Upload file
+
+Permanent link
+
+Page information
+
+Cite this page
+
+Get shortened URL
+
+Switch to legacy parser
+
+Print/export
+
+Download as PDF
+
+Printable version
+
+In other projects
+
+Wikimedia Commons
+
+Wikidata item
+
+Appearance
+
+move to sidebar
+hide
+
+From Wikipedia, the free encyclopedia
+
+(Redirected from Sigillum Dei Aemeth)
+
+Seal of God, or Seal of Truth, according to John Dee
+
+This article includes a list of general references but lacks sufficient corresponding inline citations. Please help improve this article by introducing more precise citations. (August 2024) (Learn how and when to remove this message)
+
+Sloane MS 3188, (1582)
+
+The Sigillum Dei (seal of God, "Seal of Truth" or signum dei vivi, symbol of the Living God, called by John Dee the Sigillum Dei Aemeth) is a magical diagram, composed of two circles, a pentagram, two heptagons, and one heptagram, which are inscribed with the names of God and His angels. It is an angelic magic seal which, according to one of the oldest sources (Liber Juratus), empowers an intended magician to possess the Spirit of God and when activated could allow him to become The Lord God itself, communicate with spirits as well as angels and archangels, control all elements, control every creature's holy spirit including the Spirit of God itself, except for the archangels, and to control light. The intended user would also possess the true benefic vision of God.
+
+Middle Ages
+[edit]
+
+Liber Juratus
+[edit]
+
+Probably the oldest known description and image of the Sigillum Dei appears in the 14th-century Liber Juratus (also Liber Sacratus, Liber sacer sive Juratus, or Sworn Booke),[1] attributed to Honorius, son of Euclid.[2] The text may have originated in the late 13th century, but likely not before the papacy of John XXII. (1316–1334).[3]
+
+The Liber Juratus begins its description of the seal with instructions for constructing the outermost circle, using symbolic dimensions derived from Christian tradition:
+
+Make first a circle whose diameter is three fingers, because of the three cross-nails of the Lord, or five fingers because of the five wounds of Christ, or seven for the seven sacraments, or nine for the nine orders of angels, but usually five fingers will suffice. Then make a second within this circle, let it be a distance from the first two grains because of the two Tablets of the Law of Moses, or three grains because of the persons of the Trinity.[4]
+
+This circular band begins at the apex of a small cross. From this point, 72 Latin letters are inscribed proceeding left to right. These vary by manuscript tradition (e.g. Sloane MS 3853: h, t, o, e, x, o, r, a, b, a, s, l, a, y, q, c, i, y, s, t, a, l, g, a, a, o, n, o, s, v, l, a, r, y, c, e, k, s, p, f, y, o, m, e, n, e, a, u, a, r,
+e, l, a, t, e, d, a, t, o, n, o, n, a, o, y, l, e, p, o, t, m, a), The complete sequence forms a latin encoding of the seventy-two names of the Shem Ha-Mephorash, which medieval Christian magic links with the 36 decans of astrology.[5]
+
+Within the circular band lies a pentagram centered on a Greek Tau, surrounded by the five letters of the name of God "El" and "Ely", and five other letter combinations (lx, al, a, c, to).
+
+Around the pentagon is a heptagon drawn so that its topmost side touches the uppermost vertex of the pentagram. The seven sides of this heptagon bear the names of seven angels and archangels: Zadkiel, Samael, Zfadkiel, Raphael,
+Anael, Michael, Gabriel.
+
+The first heptagon is encircled by a heptagram and, outside that, a second concentric heptagon. Their descriptions are more obscure and vary across manuscript illustrations, but typically include seven key points marked with crosses. These points are associated with two sets of divine names. The first set consists of seven three-syllable names of God, each linked to the angel at the nearest vertex: La-ya-ly (Zaphkiel/Zfadkiel), Na-ra-th (Zadkiel), Ly-bar-re (Raphael), Ly-ba-res (Michael), Et-ly-alg (Samael), Ve-h-am (Anael), and Y-al-gal (Gabriel). In the spaces within these crosses, a second set of divine words appears: Vos, Duynas, Gyram, Gram, Aysaram, Alpha, and Omega. A third series includes the sequence El, On, El, On, El, On, Omega. Additionally, four letters, a, g, a, l, are inscribed near several of the crosses. Finally, five more names of God are included: Ely, Eloy, Christ, Sother, and Adonay.
+
+The colour of the seal in the Liber Juratus indicates that the pentagram is usually red or purple with yellow faces. The first heptagon is blue, the second is yellow, the third is also yellow, while the circles are black. The area between the circles and the remaining fields of the figure were to be colored green. Many manuscripts omit colours entirely, and John Dee’s wax exemplars are plain. In magical operations, the seal would be drawn differently – usually on virgin parchment using the blood of moles, pigeons, hoopoes and bats or sometimes cattle, horses, or deer.
+
+Clavicula Salomonis
+[edit]
+
+Different versions of the Sigillum Dei are known from the tradition of the Clavicula Salomonis, specifically from an Italian manuscript in the collection of Heimann Joseph Michael in the Bodleian Library (MS. Michael 276); and from a 1674 copy by John Aubrey, also in the Bodleian Library (MS. Aubrey 24).
+
+Early modern
+[edit]
+
+One of the oldest surviving manuscripts of the Liber Juratus, dating from the late 14th or the beginning of the 15th century, is Sloane MS 313 from the collection of Hans Sloane in the British Library. It was partly owned by the mathematician and magical experimenter John Dee, in whose Mysteriorum Libri Quinti, or Five books of mystical exercises (1581–1583), the Sigillum Dei played a central role and gained the suffix Sigillum Dei: Emeth or Aemeth ("Truth").[6]
+
+For John Dee, who received the authoritative description of the seal in 1582 via his medium and employee Edward Kelley, this scholarly and antiquarian interest was ultimately subordinate to the purpose of practical application. This contrasts with Athanasius Kircher, who offered a detailed explanation of the Sigillum Dei in his Oedipus aegyptiacus,[7] Kircher rejected magical practice but sought to understand the pagan components to Christianity, Judaism, and Islam to separate the two.
+
+References
+[edit]
+
+↑ Gösta Hedegård: Liber Juratus Honorii: A Critical Edition of the Latin Version of Sworn Book of Honorius, Institutionen for Klassiska Språk, Stockholm 2002 (= Acta Universitatis Stockholmiensis, Studia Latina Stockholmiensia, 48); vgl. auch Jean Patrice Boudet: Magie théurgique, angéologie, et vision béatifique dans le Liber sacratus sive Juratus attribué à Honorius de Thèbes, in Mélanges de l'École française de Rome Moyen Âge 114,2 (2002), S. 851-890, Text S. 871-890; nur mit Vorsicht zu gebrauchen sind die englischen Ausgaben von Daniel J. Driscoll, The Sworn Book of Honorius the Magician, Heptangle Books, Gillette (N.J.) 1977, 2. Ausg. 1983, und von Joseph H. Peterson auf http://www.esotericarchives.com/juratus/juratus.htm
+
+↑ Robert Mathiesen, A Thirteenth Century Ritual to Attain the Beatific Vision from the Sworn Book of Honorius of Thebes, in: Claire Fangier (Hrsg.), Conjuring Spirits: Texts and Traditions of Ritual Magic, Sutton, Stroud 1998, S. 144ff., S. 146f.
+
+↑ Jean Patrice Boudet,Magic théurgique ... (2002), p. 858f.
+
+↑ Boudet, Magie théurgique... (2002), S. 876: "Primo fac unum circulum, cujus diameter sit trium digitorum propter tres clavos Domini, vel 5 propter quinque plagas, vel 7 propter 7 sacramenta, vel 9 propter 9 ordines angelorum, sed communiter 5 digitorum fieri solet. Deinde infra illum circulum, fac alium circulum a primo distantem duobus granis ordei propter duas tabulas Moysi vel distantem a primo tribus granis propter Trinitatem personarum."
+
+↑ Snuffin, M. O. (2007). The Thoth Companion: The Key to the True Symbolic Meaning of the Thoth Tarot. Llewellyn Publications. p. 77, 198. ISBN 978-0738711928.
+
+↑ John Dee's Conversations with Angels: Cabala, Alchemy, and the End of Nature, Cambridge University Press, Cambridge etc. 1999, p. 35ff.
+
+↑ Athanasius Kircher: Oedipi Aegyptiaci Tomi secundi Pars AlteraVitale Mascardo, Rome 1653, Class. IX (Magia Hieroglyphica), cap. VIII ram,. II, § IV (Amuleti alterius Cabalistici heptagoni interpretatio), p. 479-481, permanent/library/MQGPP987/pageimg ECHO online version, HTML rendering by Joseph H. Peterson
+
+Further reading
+[edit]
+
+Campbell, Colin D. (2009). The Magic Seal of Dr John Dee: The Sigillum Dei Aemeth. Teitan Press.
+
+External links
+[edit]
+
+Media related to Sigillum Dei at Wikimedia Commons
+
+Retrieved from "https://en.wikipedia.org/w/index.php?title=Sigillum_Dei&oldid=1369994548"
+
+Category:
+Sigils
+
+Hidden categories:
+Articles with short description
+
+Short description matches Wikidata
+
+Articles lacking in-text citations from August 2024
+
+All articles lacking in-text citations
+
+Commons category link is on Wikidata
+
+This page was last edited on 18 August 2026, at 13:36 (UTC).
+
+Page was rendered with Parsoid.
+
+Text is available under the Creative Commons Attribution-ShareAlike 4.0 License;
+additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+
+Privacy policy
+
+About Wikipedia
+
+Disclaimers
+
+Contact Wikipedia
+
+Legal & safety contacts
+
+Code of Conduct
+
+Developers
+
+Statistics
+
+Cookie statement
+
+Mobile view
+
+Search
+
+Search
+
+Toggle the table of contents
+
+Sigillum Dei
+
+6 languages
+
+Add topic

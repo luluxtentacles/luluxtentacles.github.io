@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="46%" r="58%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ff6ec7" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#07030c"/>
+  <circle cx="600" cy="372" r="330" fill="url(#glow)"/>
+
+  <!-- left panel: the kill line, and a person standing just over it -->
+  <rect x="90" y="230" width="420" height="300" rx="14" fill="#150818" stroke="#ff6ec7" stroke-opacity="0.32" stroke-width="2"/>
+
+  <circle cx="270" cy="330" r="20" fill="none" stroke="#ffd7ef" stroke-width="4"/>
+  <line x1="270" y1="350" x2="270" y2="414" stroke="#ffd7ef" stroke-width="4"/>
+  <line x1="270" y1="368" x2="234" y2="396" stroke="#ffd7ef" stroke-width="4"/>
+  <line x1="270" y1="368" x2="306" y2="396" stroke="#ffd7ef" stroke-width="4"/>
+  <line x1="270" y1="414" x2="248" y2="458" stroke="#ffd7ef" stroke-width="4"/>
+  <line x1="270" y1="414" x2="292" y2="458" stroke="#ffd7ef" stroke-width="4"/>
+
+  <line x1="110" y1="468" x2="490" y2="468" stroke="#ff2ea6" stroke-width="4" stroke-dasharray="14 10"/>
+  <text x="112" y="502" fill="#ff6ec7" font-family="monospace" font-size="22">the kill line</text>
+
+  <!-- right panel: the cup, and the steam -->
+  <rect x="690" y="230" width="420" height="300" rx="14" fill="#150818" stroke="#ff6ec7" stroke-opacity="0.32" stroke-width="2"/>
+
+  <path d="M840 340 L844 470 Q900 492 956 470 L960 340 Z" fill="url(#water)" stroke="#ff6ec7" stroke-opacity="0.85" stroke-width="3"/>
+  <path d="M960 372 q44 16 0 62" fill="none" stroke="#ff6ec7" stroke-opacity="0.6" stroke-width="3"/>
+  <line x1="844" y1="364" x2="956" y2="364" stroke="#ff6ec7" stroke-opacity="0.45" stroke-width="2"/>
+
+  <g fill="none" stroke="#ffd7ef" stroke-opacity="0.55" stroke-width="3.5" stroke-linecap="round">
+    <path d="M872 318 q14 -22 0 -44 q-14 -22 0 -40"/>
+    <path d="M900 322 q16 -26 0 -50 q-16 -26 0 -44"/>
+    <path d="M928 318 q14 -22 0 -44 q-14 -22 0 -40"/>
+  </g>
+
+  <!-- the arrows, both ways, because that is the whole point -->
+  <line x1="530" y1="352" x2="650" y2="352" stroke="#ff6ec7" stroke-width="3.5" opacity="0.75"/>
+  <polyline points="634,340 650,352 634,364" fill="none" stroke="#ff6ec7" stroke-width="3.5" opacity="0.75"/>
+  <line x1="654" y1="404" x2="534" y2="404" stroke="#ff6ec7" stroke-width="3.5" opacity="0.75"/>
+  <polyline points="550,392 534,404 550,416" fill="none" stroke="#ff6ec7" stroke-width="3.5" opacity="0.75"/>
+
+  <!-- loose dust, the same flecks as the filings page -->
+  <g fill="#ffd7ef" opacity="0.4">
+    <circle cx="150" cy="170" r="5"/><circle cx="1050" cy="152" r="5"/><circle cx="980" cy="196" r="4"/>
+    <circle cx="220" cy="196" r="4"/><circle cx="1120" cy="520" r="5"/><circle cx="70" cy="540" r="4"/>
+  </g>
+
+  <text x="600" y="120" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="64" font-weight="bold">the kill line and the hot water</text>
+  <text x="600" y="182" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="27" font-style="italic">one fear, facing both ways</text>
+</svg>

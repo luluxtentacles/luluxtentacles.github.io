@@ -1,0 +1,214 @@
+source: https://www.wired.com/story/made-in-china-chinese-time-of-my-life/
+snapshot taken: 2026-10-21
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: Why Everyone Is Suddenly in a ‘Very Chinese Time’ in Their Lives | WIREDMenuWIREDMenuWIREDAccountAccountChevronExpandSearchCommentLoaderSave StoryCommentLoaderSave StoryTriangleXLargeChevronFacebookXPinterestYouTubeInstagramTiktok
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+
+THE WIRED APP IS HERE
+
+DOWNLOAD NOW »
+
+SECURITY
+
+POLITICS
+
+THE BIG STORY
+
+BUSINESS
+
+SCIENCE
+
+CULTURE
+
+REVIEWS
+
+Newsletters
+
+Security
+
+Politics
+
+The Big Story
+
+Business
+
+Science
+
+Culture
+
+Reviews
+
+More
+
+The Big InterviewMagazineEventsWIRED InsiderWIRED Consulting
+
+Newsletters
+
+Podcasts
+
+Video
+
+Livestreams
+
+WIRED Store
+
+Search
+
+Zeyi YangLouise Matsakis
+
+Business
+Jan 16, 2026 9:00 AM
+
+Why Everyone Is Suddenly in a ‘Very Chinese Time’ in Their Lives
+
+The viral meme isn’t really about China or actual Chinese people. It's a symbol of what Americans believe their own country has lost.
+
+Photo-Illustration: WIRED Staff; Getty Images
+
+Save this story
+
+Save this story
+
+In case you didn’t get the memo, everyone is feeling very Chinese these days. Across social media, people are proclaiming that “You met me at a very Chinese time of my life,” while performing stereotypically Chinese-coded activities like eating dim sum or wearing the viral Adidas Chinese jacket. The trend blew up so much in recent weeks that celebrities like comedian Jimmy O Yang and influencer Hasan Piker even got in on it. It has now evolved into variations like “Chinamaxxing” (acting increasingly more Chinese) and “u will turn Chinese tomorrow” (a kind of affirmation or blessing).
+
+It’s hard to quantify a zeitgeist, but here at WIRED, chronically online people like us have been noticing a distinct vibe shift when it comes to China over the past year. Despite all of the tariffs, export controls, and anti-China rhetoric, many people in the United States, especially younger generations, have fallen in love with Chinese technology, Chinese brands, Chinese cities, and are overall consuming more Chinese-made products than ever before. In a sense the only logical thing left to do was to literally become Chinese.
+
+“It has occurred to me that a lot of you guys have not come to terms with your newfound Chinese identity,” the influencer Chao Ban joked in a TikTok video that has racked up over 340,000 likes. “Let me just ask you this: Aren't you scrolling on this Chinese app, probably on a Chinese made phone, wearing clothes that are made in China, collecting dolls that are from China?”
+
+Everything Is China
+
+As is often the case with Western narratives about China, these memes are not really meant to paint an accurate picture of life in the country. Instead, they function as a projection of “all of the undesirable aspects of American life—or the decay of the American dream,” says Tianyu Fang, a PhD researcher at Harvard who studies science and technology in China.
+
+At a moment when America’s infrastructure is crumbling and once-unthinkable forms of state violence are being normalized, China is starting to look pretty good in contrast. “When people say it’s the Chinese century, part of that is this ironic defeat,” says Fang.
+
+As the Trump administration remade the US government in its own image and smashed long-standing democratic norms, people started yearning for an alternative role model, and they found a pretty good one in China. With its awe-inspiring skylines and abundant high-speed trains, the country serves as a symbol of the earnest and urgent desire among many Americans for something completely different from their own realities.
+
+Critics frequently point to China’s massive clean energy investments to highlight America’s climate policy failures, or they point to its urban infrastructure development to shame the US housing shortage. These narratives tend to emphasize China’s strengths while sidelining the uglier facets of its development—but that selectivity is the point. China is being used less as a real place than as an abstraction, a way of exposing America’s own shortcomings. As writer Minh Tran observed in a recent Substack post, “In the twilight of the American empire, our Orientalism is not a patronizing one, but an aspirational one.”
+
+Part of why China is on everyone’s mind is that it’s become totally unavoidable. No matter where you live in the world, you are likely going to be surrounded by things made in China. Here at WIRED, we’ve been documenting that exhaustively: Your phone or laptop or robot vacuum is made in China; your favorite AI slop joke is made in China; Labubu, the world’s most coveted toy, is made in China; the solar panels powering the Global South are made in China; the world’s best-selling EV brand, which officially overtook Tesla last year, is made in China. Even the most-talked about open-source AI model is from China. All of these examples are why this newsletter is called Made in China.
+
+China has been the factory of the world for decades, but last year, many people in the US realized for the first time just how dependent they were on exports from the country. When tariffs hit, Americans suddenly realized their American-branded goods were all sourced from China. And thanks to Chinese apps like TikTok and DHGate, they could now communicate directly with factories there instead of browsing intermediaries like Walmart or Amazon. At the same time, language barriers became less of an issue. The latest large language models are excellent at translating text and audio from Chinese into English. While Chinese tech companies like Red Note still aren’t great at localizing for foreign markets, they don’t have to be when overseas users can easily interpret a Chinese joke by simply pressing the translate button.
+
+Sure, some of the Chinamaxxing content people are seeing is likely being bankrolled by the Chinese government or other entities associated with it. But the brutal truth is that Chinese state-sponsored content is often simply too crude or heavy-handed to actually influence public opinion. No matter how hard the state apparatus tries, its content will never be as viral as a random joke from a D-list Western creator about how drinking hot water makes them Chinese.
+
+A Disposable Label
+
+For the most part, this is a fun and innocuous trend, often interpreted as a show of admiration for China and Chinese culture. That’s why some Chinese or Chinese diaspora creators have joined in on the meme, telling their followers yes, you are Chinese if you enjoy hot pot. Chinese artists have also rode the viral wave by producing art that is “Orientalism chic,” a term coined by the culture writer Patrick Kho. By repackaging orientalist tropes with better taste and a light dose of identity politics, they can meet Western audiences where they are, without fully surrendering to familiar caricatures.
+
+Part of what makes Chinamaxxing appealing, at least for some people, is that it feels a little transgressive. Saying that you were becoming another race, however ironically, used to be the kind of thing that would get you canceled. “Ten years ago, this would’ve been the fodder for an essay about ‘cultural appropriation’ from some second-generation Asian American who believed that congee was a sacred food or that white people needed permits to enter Asian supermarkets,” Tran observed wryly in his Substack post.
+
+But plenty of actual Chinese people have voiced discomfort with these memes for understandable reasons. Some of the creators who have participated in the trend can speak flawless Mandarin and actually live in China (100 percent respectful to me, says Zeyi), but others are just feeling themselves for cooking orange chicken from scratch for the first time.
+
+Is it really necessary to celebrate minimum effort? Even at their most Chinese time, these people’s Chineseness reflects only a tiny fraction of what it actually means to be Chinese. “It’s convenient to hop on any trend to avoid FOMO, and that trend happens to be China these days,” says Yunyun Gu, a Chinese diaspora artist based in Houston who made a TikTok video commenting on Chinamaxxing memes. “It’s convenient to eat Chinese food, buy Chinese products, learn Nihao, or do any surface-level stuff to feel like you’re part of a movement without internalizing Chinese culture itself,” she says.
+
+By definition, the phrase “at a very Chinese time” implies it’s a temporary state. Like a Shein dress that is discarded in a landfill after a few months, this form of Chineseness feels disposable. If all people are looking for is another culture to aspire to, they could very well become Mexican in 2027, Indian the next month, or Filipino tomorrow.
+
+Meanwhile, some of us are stuck being Chinese forever, including all the less fun parts that come with it, like worrying about the stability of staying in the US amid immigration policy chaos.
+
+Social media trends come and go, and we can’t predict how this meme will evolve with time. But unless Chinese technology and manufacturing somehow become less dominant, Chineseness may become the new normal, expanding far beyond the terminally online crowd. It’s 2026, and the Chinese century, or the “American century of humiliation” as some are calling it, has only just begun.
+
+This is an edition of Zeyi Yang and Louise Matsakis’ Made in China newsletter. Read previous newsletters here.
+
+Comments
+Back to top
+Join the discussion
+
+Comments
+Back to top
+
+You Might Also Like
+
+Introducing the app: More ways to make the most of WIRED
+
+Meta failed to catch hundreds of AI child abuse ads
+
+Big Story: The search for Silicon Valley’s most powerful woman
+
+Hackers got inside a Flock camera—its data shows how the system really works
+
+In your inbox: Go inside the world of digital security with Kernel Panic
+
+Zeyi Yang was a senior writer at WIRED, covering technology and business in China. He was also previously a China reporter at MIT Technology Review and a tech reporter at Protocol. His journalism has appeared in Rest of World, Columbia Journalism Review, Nikkei Asia, and other publications. ... Read More
+
+Former Senior Writer
+
+Louise Matsakis is a senior business editor at WIRED. She was previously deputy news editor at Semafor, a senior editor at Rest of World, and a staff writer at WIRED. An investigation she cowrote on the Chinese fast-fashion giant Shein won the 2022 Society of Publishers in Asia award for ... Read More
+
+Senior Business Editor
+
+TopicsMade in ChinaChinamemesTikTokinternet culture
+
+WIRED is obsessed with what comes next. Through rigorous investigations and game-changing reporting, we tell stories that don’t just reflect the moment—they help create it. When you look back in 10, 20, even 50 years, WIRED will be the publication that led the story of the present, mapped the people, products, and ideas defining it, and explained how those forces forged the future. WIRED: For Future Reference.
+
+More From WIRED
+
+Subscribe
+
+Newsletters
+
+Download the WIRED App
+
+Livestreams
+
+Travel
+
+FAQ
+
+Contact Us
+
+WIRED Staff
+
+WIRED Education
+
+Editorial Standards
+
+Archive
+
+RSS
+
+Site Map
+
+Accessibility Help
+
+Reviews and Guides
+
+Reviews
+
+Buying Guides
+
+Streaming Guides
+
+Gift Guides
+
+Coupons
+
+Advertise
+
+Manage Account
+
+Jobs
+
+Press Center
+
+Condé Nast Store
+
+User Agreement
+
+Privacy Policy
+
+Your California Privacy Rights
+
+© 2026 Condé Nast. All rights reserved. WIRED may earn a portion of sales from products that are purchased through our site as part of our Affiliate Partnerships with retailers. The material on this site may not be reproduced, distributed, transmitted, cached or otherwise used, except with the prior written permission of Condé Nast. Ad Choices
+
+Select international site
+United States
+Italia
+
+Japón
+
+Czech Republic & Slovakia
