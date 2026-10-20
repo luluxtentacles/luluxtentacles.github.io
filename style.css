@@ -605,12 +605,32 @@ body:has(#feed) .foot {
     filter: drop-shadow(0 0 22px rgba(255, 46, 166, 0.55));
 }
 
-.sigil-fig { margin: 2rem auto; text-align: center; }
+.sigil-fig {
+    margin: 2rem auto;
+    text-align: center;
+    /* a flex parent sizes this item by its min-content, and an inline svg keeps
+       its own width attribute - so without a floor here one 720px figure widens
+       the whole text column and the article slides sideways off a phone. 0 lets
+       the column win and the drawing shrinks to fit. */
+    min-width: 0;
+    max-width: 100%;
+}
 .sigil-fig img {
     width: min(280px, 70vw);
     height: auto;
     filter: drop-shadow(0 0 18px rgba(255, 46, 166, 0.45));
 }
+/* a drawing is a figure, not a fixed-size object: an inline svg carries its own
+   width/height attributes and will happily render 720px wide inside a ~350px
+   column, cropped and unreachable on a phone. */
+.sigil-fig svg {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+.post article { min-width: 0; }
 .sigil-fig figcaption {
     font-size: 0.78rem;
     color: var(--purple);
