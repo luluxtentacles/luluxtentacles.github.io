@@ -1,0 +1,1126 @@
+source: https://en.wikipedia.org/wiki/Feline_infectious_peritonitis
+snapshot taken: 2026-10-23
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: Feline infectious peritonitis - Wikipedia
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Jump to content
+
+Main menu
+
+Main menu
+
+move to sidebar
+hide
+
+Navigation
+
+Main page
+
+Contents
+
+Current events
+
+Random article
+
+About Wikipedia
+
+Contact us
+
+Contribute
+
+Help
+
+Learn to edit
+
+Community portal
+
+Recent changes
+
+Upload file
+
+Special pages
+
+Search
+
+Search
+
+Appearance
+
+Donate
+
+Create account
+
+Log in
+
+Personal tools
+
+Donate
+
+Create account
+
+Log in
+
+Contents
+
+move to sidebar
+hide
+
+(Top)
+
+1
+The virus and pathogenesis of FIP
+
+2
+Virus and disease transmission
+
+3
+Clinical signs
+
+Toggle Clinical signs subsection
+
+3.1
+Effusive (wet) FIP
+
+3.2
+Non-effusive (dry) FIP
+
+4
+Diagnosis
+
+Toggle Diagnosis subsection
+
+4.1
+Diagnosing effusive FIP
+
+4.2
+Diagnosing non-effusive FIP
+
+5
+Treatment
+
+Toggle Treatment subsection
+
+5.1
+Antiviral drugs
+
+5.1.1
+GS-441524 and remdesivir
+
+5.1.2
+GC376
+
+5.1.3
+Molnupiravir
+
+5.2
+Immunostimulants
+
+5.3
+Anti-inflammatory drugs
+
+6
+Prevention
+
+Toggle Prevention subsection
+
+6.1
+Vaccination
+
+7
+In film
+
+8
+See also
+
+9
+Explanatory notes
+
+10
+References
+
+11
+External links
+
+Toggle the table of contents
+
+Feline infectious peritonitis
+
+28 languages
+
+العربية
+
+Български
+
+Català
+
+Čeština
+
+Dansk
+
+Deutsch
+
+Ελληνικά
+
+Español
+
+Eesti
+
+فارسی
+
+Suomi
+
+Français
+
+हिन्दी
+
+Magyar
+
+Bahasa Indonesia
+
+Italiano
+
+日本語
+
+한국어
+
+Lombard
+
+Nederlands
+
+Norsk bokmål
+
+Polski
+
+Português
+
+Slovenčina
+
+ไทย
+
+Türkçe
+
+Tiếng Việt
+
+中文
+
+Edit links
+
+Article
+
+Talk
+
+English
+
+Read
+
+Edit
+
+View history
+
+Tools
+
+Tools
+
+move to sidebar
+hide
+
+Actions
+
+Read
+
+Edit
+
+View history
+
+General
+
+What links here
+
+Related changes
+
+Upload file
+
+Permanent link
+
+Page information
+
+Cite this page
+
+Get shortened URL
+
+Switch to legacy parser
+
+Print/export
+
+Download as PDF
+
+Printable version
+
+In other projects
+
+Wikimedia Commons
+
+Wikidata item
+
+Appearance
+
+move to sidebar
+hide
+
+From Wikipedia, the free encyclopedia
+
+Highly deadly disease that affects cats
+
+Medical condition
+
+Feline infectious peritonitis
+
+FIP-infected kidney showing inflammatory response
+
+SpecialtyInfectious diseases
+
+SymptomsInitial phase: common cold-like symptoms.
+
+Later on: ataxia, muscle weakness, dysphagia.
+
+End phase: shortness of breath, urinary incontinence, paralysis.
+
+Usual onsetCan take up to a year for symptoms to appear after exposure to virus
+
+Duration1-month or less average life expectancy after diagnosis, especially in kittens
+
+CausesMutation of feline coronavirus
+
+TreatmentGS-441524 (oral) and its parent drug remdesivir (injection);
+
+legalised in Australia, Netherlands, UK, US[1][2][3][4]
+
+PrognosisUsually fatal without treatment, but with GS-441524 treatment over 80% of treated cats make a full recovery.
+
+FrequencyCommon
+
+Feline infectious peritonitis (FIP) is a common and aberrant immune response in cats to infection with feline coronavirus (FCoV).[5]
+
+The virus and pathogenesis of FIP
+[edit]
+
+Feline infectious peritonitis is a viral and fatal immune disease caused by the mutated FCoV. FCoV is a common virus found in most cats, however only few (less than 10%) develop FIP from mutation of the coronavirus. When a cat develops FIP, they can develop either a wet or dry form of the virus, both resulting in eventual mortality.[6]
+
+FCoV is a virus of the gastrointestinal tract. Most infections are either asymptomatic or cause diarrhea, especially in kittens, as maternally derived antibody wanes at between 5 and 7 weeks of age. The virus is a mutation of feline enteric coronavirus (FECV). From the gut, the virus very briefly undergoes a systemic phase,[7] before returning to the gut where it is shed in the feces.
+
+The pathogenesis of FIP is complex. There is a general consensus that FIPVs arise from mutations enabling them to enter or replicate more successfully in monocytes (a type of white blood cell). Many aspects of virus–host interactions affecting the disease remain uncertain, however, such as the factors that influence disease form (wet or dry), outcome (death or resistance), and host susceptibility.[8]
+
+Scientists have yet to explain why only few cats will develop the disease, while there has been research on if the disease has a genetic linkage that increases a cat's risk of developing FIP from FCoV.[6]
+
+Virus and disease transmission
+[edit]
+
+There is a lack of evidence that FIP as such is transmissible from cat to cat, although it may explain rare mini-outbreaks of FIP.[9] The virus, FCoV, is transmissible from cat to cat.
+
+Although the virus is spread via FCoV, only a small precent of cats will develop FIP [10]. It is more common in cats under two years of age, with a small number of geriatric cats also developing the disease.[10] Scientists have begun looking into the genetic linkage that could be causing FCoV to mutate into FIP. Age has been looked at when considering genetics as the immune system matures with age of cats.[11]
+
+A study on 59 FIP infected cats found that, unlike FCoV, feces from FIP infected cats were not infectious to laboratory cats via oronasal route.[12] FCoV is common in places where large groups of cats are housed together indoors (such as breeding catteries, animal shelters, etc.). The virus is shed in feces, and cats become infected by ingesting or inhaling the virus, usually by sharing cat litter trays, or by the use of contaminated litter scoops or brushes transmitting infected microscopic cat litter particles to uninfected kittens and cats.[13] FCoV can also be transmitted through different bodily fluids. The virus is easily spread through direct contact between cats. The most common form of spreading is through saliva, as most multiple cat homes share food and water dishes.[14] Another major form of spreading is grooming or fighting. When an infected cat grooms a healthy cat, it leaves its contaminated saliva on the fur. Later, when the healthy cat goes to groom themself, it ingests the contaminated saliva and then becomes infected.[15]
+
+Two of FIP have been identified and examined based on how they cause the virus to mutate.[16] Factors also examined have been host genetics, environmental causes, and breed.[16] Another area scientists are examining are spike genes and NSPs.[17]
+
+Clinical signs
+[edit]
+
+FIP effusive fluid
+
+There are two main forms of FIP: effusive (wet) and non-effusive (dry). While both types are fatal, the effusive form is more common (60–70% of all cases) and progresses more rapidly than the non-effusive form.[18]
+
+However, symptoms have been noted to occur before these stages including[18]:
+
+Lethargy
+
+Decreased or no appetite (anorexia)
+
+Weight loss
+
+Fever > 102.5 °F (39.2 °C)
+
+Effusive (wet) FIP
+[edit]
+
+The hallmark clinical sign of effusive FIP is the accumulation of fluid within the abdomen or chest, which can cause breathing difficulties. Other symptoms include lack of appetite, fever, weight loss, jaundice, and diarrhea.[18]
+
+In this stage of the disease, fluid forms and accumulates in areas of the body. It is more commonly seen in the lungs and abdomen.[19] When fluid accumulates in the chest, cats experience difficulty breathing as more pressure is applied around the lungs[20]. Fluid can also fill in the abdomen, resulting in a distended or swollen belly.[20] To drain this fluid, a vet will use a needle and sedate the feline as removal of the fluid can alleviate discomfort and difficulty breathing. However, this is only a temporary fix as the cavities will eventually refill with fluid as the disease progresses.[21]
+
+Non-effusive (dry) FIP
+[edit]
+
+Dry FIP will also present with lack of appetite, fever, jaundice, diarrhea, and weight loss, but there will not be an accumulation of fluid. Typically a cat with dry FIP will show ocular or neurological signs. For example, the cat may develop difficulty in standing up or walking, becoming functionally paralyzed over time. Loss of vision is another possible outcome of the disease.[18]
+
+In this stage, fluid accumulates little to none when compared to the "wet" form of the disease.[22] Instead, inflammation occurs in the dry form and can include multiple organs and areas of the body such as: the brain, liver, eyes, and intestines.[22] This causes many varying clinical symptoms. This stage also affects the nervous system, causing neurological symptoms.[23] Treatment of these symptoms may vary and are more focused on treating the disease overall as once the disease progresses, it is almost always fatal.[23]
+
+Diagnosis
+[edit]
+
+Cytology of FIP-induced fluid showing neutrophils, macrophages and lymphocytes
+
+Diagnosing effusive FIP
+[edit]
+
+Diagnosis of the effusive form of the disease has become more straightforward in recent years. Detection of viral RNA in a sample of the effusion (liquid drained from body), such as by reverse transcription polymerase chain reaction (RT-PCR) is diagnostic of effusive FIP.[24][25][26] Nonetheless, that does require that a sample be sent to an external veterinary laboratory. Within the veterinary hospital there are a number of tests that can rule out a diagnosis of effusive FIP within minutes:
+
+Measure the total protein in the effusion: if it is less than 35 g/L, FIP is extremely unlikely.
+
+Measure the albumin to globulin ratio in the effusion: if it is over 0.8, FIP is ruled out; if it is less than 0.4, FIP is a possible—but not certain—diagnosis.[27]
+
+Examine the cells in the effusion: if they are predominantly lymphocytes (a type of white blood cell), then FIP is excluded as a diagnosis.
+
+Diagnosing non-effusive FIP
+[edit]
+
+Non-effusive FIP is more difficult to diagnose than effusive FIP because the clinical signs tend to be more vague and varied: the list of differential diagnoses is therefore much longer. Non-effusive FIP diagnosis should be considered when the following criteria are met:[27]
+
+History: the cat is young (under 2 years old) and purebred: over 70% of cases of FIP are in pedigree kittens.[citation needed]
+
+History: the cat experienced stress such as recent neutering or vaccination[28]
+
+History: the cat had an opportunity to become infected with FCoV, such as originating in a breeding or rescue cattery, or the recent introduction of a purebred kitten or cat into the household.
+
+Clinical signs: the cat has become anorexic or is eating less than usual; has lost weight or failed to gain weight; has a fever of unknown origin; intra-ocular signs; jaundice.[29]
+
+Biochemistry: hypergammaglobulinaemia; raised bilirubin without liver enzymes being raised.
+
+Hematology: lymphopenia; non-regenerative—usually mild—anaemia.
+
+Serology: the cat has a high antibody titre to FCoV: this parameter should be used with caution, because of the high prevalence of FCoV in breeding and rescue catteries.
+
+Non-effusive FIP can be ruled out as a diagnosis if the cat is seronegative, provided the antibody test has excellent sensitivity. In a study that compared various commercially available in-house FCoV antibody tests,[30] the FCoV Immunocomb (Biogal) was 100% sensitive; the Speed F-Corona rapid immunochromatographic (RIM) test (Virbac) was 92.4% sensitive and the FASTest feline infectious peritonitis (MegaCor Diagnostik) RIM test was 84.6% sensitive.
+
+Veterinarians also refer to differential diagnoses when it comes to diagnosing FIP itself. These diagnoses include:[31]
+
+Septic Peritonitis
+
+FIV or FeLV
+
+Congestive Heart Failure
+
+Pancreatitis
+
+Mycobacteriosis
+
+Diagnosing FIP with the tools available leads accurate results which are essential when it comes to treating and remission of FIP.[6]
+
+Treatment
+[edit]
+
+Eight-month-old kitten in end stage "dry" FIP, who had signs of anemia, lethargy, and weight loss. She exhibited eye changes (widening and paralysis of pupils) during seizures.
+
+Because FIP is an immune-mediated disease, treatment falls into two categories: direct action against the virus itself and modulation of the immune response.
+
+Antiviral drugs
+[edit]
+
+Antivirals (in the narrow sense) act by interfering with the enzymes or other biological processes in the FIP virus.
+
+GS-441524 and remdesivir
+[edit]
+
+See also: GS-441524 and Remdesivir
+
+An experimental drug called GS-441524 was used in a field experiment of 31 cats. After 25 days, five cats had died, eight had been cured and subsequently relapsed, and 18 had been cured without any subsequent relapses. The eight who relapsed were treated again, some with higher doses. Of these eight, one died and seven were cured, meaning that 25 of the 31 cats were ultimately cured of FIP. This study is considered very promising.[32]
+
+In naturally infected cats, a recovery rate of over 80% has been observed with GS-441524 treatment in several studies and in treatment programs in countries where the drug is legalised.[33][34][35][36]
+
+In several countries oral GS-441524 tablets (and its injectable prodrug remdesivir) became legally available to vets for the treatment of FIP in cats, for example in Australia,[33] the Netherlands,[37][a], the United Kingdom (since August 2021),[33], the United States (2024)[39][b] and Switzerland (since August 2025)[41][42].
+
+GC376
+[edit]
+
+See also: GC376
+
+An experimental antiviral drug called GC376 was used in a field trial of 20 cats: seven cats went into remission, and 13 cats responded initially but relapsed and were euthanized. This drug is not yet (as of 2017) commercially available.[43]
+
+Molnupiravir
+[edit]
+
+See also: Molnupiravir
+
+Facing a high-fatality FCoV-23 outbreak on the island nation of Cyprus, on 8 August 2023 the government released 80,000 anti-COVID molnupiravir pills from its national COVID-19 stockpile, in a bid to solve the feline coronavirus crisis in a more cost-effective manner.[44]
+
+Immunostimulants
+[edit]
+
+Immunostimulants are drugs that make the immune system more active against the virus. The most common drugs of this class for treating FIP are either recombinant feline interferon omega (Virbagen Omega, Virbac) or human
+interferon alfa-2b. Since the human version ends up being targeted by the immune system for being a foreign antigen, the feline version feline interferon is more effective.[45]
+
+An experimental polyprenyl immunostimulant (PI) is manufactured by Sass and Sass and tested by Dr. Al Legendre, who described survival over 1 year in three cats diagnosed with FIP and treated with the medicine.[46] In a subsequent field study of 60 cats with non-effusive FIP treated with PI, 52 cats (87%) died before 200 days, but eight cats survived over 200 days from the start of PI treatment for and four of those survived beyond 300 days.[47]
+
+Anti-inflammatory drugs
+[edit]
+
+It is recommended to use an anti-inflammatory drug against FIP.[48]
+
+Immunosuppressive drugs dampen the immune system, helping to reduce inflammation. The go-to immunosuppressive drug in FIP is prednisolone, a corticosteroid. There are no placebo-controlled trials showing prednisolone to be better than other anti-inflammatories.[48]
+
+Prevention
+[edit]
+
+Stopping the spread of FIP can be difficult, especially with only one known FDA approved treatment available in the United States. Because of this, it is important to be proactive and try to prevent FIP before the disease can begin its destructive turmoil. Preventing FIP also differs depending on the facility or environment of the cat.[49]
+
+In shelters and areas with high numbers of cats in confinement, prevention is essential as it only takes one cat to start a chain-reaction and spread of FIP. Prevention includes: antibody testing, environmental enrichment to decrease stress, multiple litter boxes that are cleaned regularly to prevent the spread in fecal matter.[50]
+
+Disinfection is also a key factor in stopping the spread of FIP. FCoV particles can be disinfected with products such as diluted bleach, UV light, and heat.[51]
+
+Vaccination
+[edit]
+
+There is no effective vaccine against FIPV. DNA vaccination with plasmids encoding FIPV proteins failed to produce immunity.[52] Rather, it was observed that antibodies to the FIPV spike protein exacerbate the disease.
+
+In film
+[edit]
+
+A 2018 film titled Aeris, by Paul Castro Jr. and Aly Miller, and starring Frank Deal, Arabella Oz and Betsy Aidem, is about a kitten born with FIP that is purchased from a pet store and the owners' twelve days with it.[53][54] The film received an award at the 2018 Garden State Film Festival in the Narrative Short category[55] and was a Gold Kahuna winner at the 2018 Honolulu Film Awards.[56]
+
+See also
+[edit]
+
+Feline leukemia virus
+
+Feline vaccination
+
+Explanatory notes
+[edit]
+
+↑ At the moment, legal treatment with GS-441524 in the Netherlands is only available through vets from the Veterinary medicine department of Utrecht University. The drug is made in the University pharmacy. After a successful trial period starting in June 2023, the drug will become legally available for FIP treatment in cats to all vets in the country. Remdesivir can be legally used for treatment by all vets in the Netherlands under the cascade,[38] since its approval for the use in human COVID-19 treatment.
+
+↑ Before 2024, the FDA allowed its usage under certain conditions.[40]
+
+References
+[edit]
+
+↑ Hartmann 2017. Coronavirus Infections (Canine and Feline), Including Feline Infectious Peritonitis. Chapter 224 p984–991. In Textbook of Internal Medicine, 4th Edition. Ettinger.
+
+↑ Kennedy and Little 2012. Infectious diseases, Chapter 33 p1038–1047. In The Cat. Clinical Medicine and Management, Little.
+
+↑ Pederson et al 2019. Efficacy and safety of the nucleoside analog GS-441524 for treatment of cats with naturally occurring feline infectious peritonitis. J Feline Med Surg.21: 271–281
+
+↑ Dickinson et al 2020. Antiviral treatment using the adenosine nucleoside analogue GS-441524 in cats with clinically diagnosed neurological feline infectious peritonitis J Vet Intern Med. 2020 Jul; 34(4): 1587–1593
+
+↑ Addie, D.; Belák, S.; Boucraut-Baralon, C.; Egberink, H.; Frymus, T.; Gruffydd-Jones, T.; Hartmann, K.; Hosie, M. J.; Lloret, A. (11 July 2009). "Feline infectious peritonitis. ABCD guidelines on prevention and management". Journal of Feline Medicine and Surgery. 11 (7): 594–604. doi:10.1016/j.jfms.2009.05.008. PMC 7129471. PMID 19481039.
+
+1 2 3 Brown, Meredith A. (15 October 2011). "Genetic determinants of pathogenesis by feline infectious peritonitis virus". Veterinary Immunology and Immunopathology. 143 (3–4): 265–268. doi:10.1016/j.vetimm.2011.06.021. ISSN 1873-2534. PMC 7132420. PMID 21719115.
+
+↑ Porter, E.; Tasker, S.; Day, M. J.; Harley, R.; Kipar, A.; Siddell, S. G.; Helps, C. R. (25 April 2014). "Amino acid changes in the spike protein of feline coronavirus correlate with systemic spread of virus from the intestine and not with feline infectious peritonitis". Veterinary Research. 45 (1). BiomedCentral: 49. doi:10.1186/1297-9716-45-49. PMC 4006447. PMID 24767677.
+
+↑ Pedersen, N. C. (August 2014). "An update on feline infectious peritonitis: Virology and immunopathogenesis". The Veterinary Journal. 201 (2): 123–132. doi:10.1016/j.tvjl.2014.04.017. PMC 7110662. PMID 24837550.
+
+↑ Pedersen, Niels C. (2014). "An update on feline infectious peritonitis: Virology and immunopathogenesis". The Veterinary Journal. 201 (2). Transmission of feline infectious peritonitis virus. doi:10.1016/j.tvjl.2014.04.017. PMC 7110662. PMID 24837550. S2CID 23453920.
+
+1 2 Brown, Meredith A. (15 October 2011). "Genetic determinants of pathogenesis by feline infectious peritonitis virus". Veterinary Immunology and Immunopathology. 143 (3–4): 265–268. doi:10.1016/j.vetimm.2011.06.021. ISSN 1873-2534. PMC 7132420. PMID 21719115.
+
+↑ Mellersh, Cathryn (30 March 2015). "Tufts' Canine and Feline Breeding and Genetics Conference, 2009". VIN.com.
+
+↑ Pedersen, Niels C.; Liu, Hongwei; Scarlett, Jennifer; Leutenegger, Christian M.; Golovko, Lyudmila; Kennedy, Heather; Kamal, Farina Mustaffa (2012). "Feline infectious peritonitis: Role of the feline coronavirus 3c gene in intestinal tropism and pathogenicity based upon isolates from resident and adopted shelter cats". Virus Research. 165 (1). 4.2. Role of the 3c gene of FECVs and FIPVs in intestinal tropism and fecal shedding. doi:10.1016/j.virusres.2011.12.020. PMC 7114484. PMID 22280883.
+
+↑ "How cats become infected with feline coronavirus: animation". 18 August 2011. Archived from the original on 21 December 2021 – via YouTube.
+
+↑ "Feline Infectious Peritonitis (FIP) Transmission – Feline Infectious Peritonitis (FIP)". HealthCommunities. Retrieved 2 November 2018.
+
+↑ "FIP". The Cat Community. Retrieved 2 November 2018.
+
+1 2 Mellersh, Cathryn (30 March 2015). "Tufts' Canine and Feline Breeding and Genetics Conference, 2009". VIN.com.
+
+↑ Brown, Meredith A. (15 October 2011). "Genetic determinants of pathogenesis by feline infectious peritonitis virus". Veterinary Immunology and Immunopathology. 143 (3–4): 265–268. doi:10.1016/j.vetimm.2011.06.021. ISSN 1873-2534. PMC 7132420. PMID 21719115.
+
+1 2 3 4 "FIP in Cats: Feline Infectious Peritonitis". Vca. Retrieved 20 April 2026.
+
+↑ "Feline Infectious Peritonitis | Cornell University College of Veterinary Medicine". www.vet.cornell.edu. Retrieved 20 April 2026.
+
+1 2 "FIP in Cats: Feline Infectious Peritonitis". Vca. Retrieved 20 April 2026.
+
+↑ USA, CURE FIP (14 July 2025). "Wet FIP Fluid Drainage in Cats: When It's Needed & What to Expect". CURE FIP USA. Retrieved 20 April 2026.
+
+1 2 "FIP in Cats: Feline Infectious Peritonitis". Vca. Retrieved 20 April 2026.
+
+1 2 "Feline Infectious Peritonitis | Cornell University College of Veterinary Medicine". www.vet.cornell.edu. Retrieved 20 April 2026.
+
+↑ Felten, S.; Leutenegger, C. M.; Balzer, H-J; Pantchev, N.; Matiasek, K.; Wess, G.; Egberink, H.; Hartmann, K. (2 August 2017). "Sensitivity and specificity of a real-time reverse transcriptase polymerase chain reaction detecting feline coronavirus mutations in effusion and serum/plasma of cats to diagnose feline infectious peritonitis". Veterinary Research. 13 (1). BiomedCentral: 228. doi:10.1186/s12917-017-1147-8. PMC 5541694. PMID 28768514.
+
+↑ Doenges, S. J.; Weber, K.; Dorsch, R.; Fux, R.; Hartmann, K. (1 April 2017). "Comparison of real-time reverse transcriptase polymerase chain reaction of peripheral blood mononuclear cells, serum and cell-free body cavity effusion for the diagnosis of feline infectious peritonitis" (PDF). Journal of Feline Medicine and Surgery. 19 (4): 344–350. doi:10.1177/1098612X15625354. PMC 11119647. PMID 26787293. S2CID 7136727.
+
+↑ Longstaff, L.; Porter, E.; Crossley, V. J.; Hayhow, S. E.; Helps, C. R.; Tasker, S. (16 October 2015). "Feline coronavirus quantitative reverse transcriptase polymerase chain reaction on effusion samples in cats with and without feline infectious peritonitis". Journal of Feline Medicine and Surgery. 19 (2): 240–245. doi:10.1177/1098612X15606957. hdl:1983/2cba7130-9b6c-405f-9a47-276b7a09ed1d. PMC 10816577. PMID 26474594. S2CID 206692877.
+
+1 2 "Dr. Addie – What is FIP?". CatVirus.com.
+
+↑ Riemer, F.; Kuehner, K. A.; Ritz, S.; Sauter-Louis, C.; Hartmann, K. (16 July 2015). "Clinical and laboratory features of cats with feline infectious peritonitis: A retrospective study of 231 confirmed cases (2000–2010)". Journal of Feline Medicine and Surgery. 18 (4): 348–356. doi:10.1177/1098612X15586209. PMC 11112253. PMID 26185109. S2CID 206692653.
+
+↑ Addie, Diane D. (19 April 2013). Feline Infectious Peritonitis and Coronavirus: Everything a cat lover needs to know. CreateSpace Independent Publishing Platform. ISBN 9781480208971.
+
+↑ Addie, D. D.; le Poder, S.; Burr, P.; Decaro, N.; Graham, E.; Hofmann-Lehmann, R.; Jarrett, O.; McDonald, M.; Meli, M. L. (1 February 2015). "Utility of feline coronavirus antibody tests". Journal of Feline Medicine and Surgery. 17 (2): 152–162. doi:10.1177/1098612X14538873. hdl:11586/146443. PMC 10816424. PMID 24966245. S2CID 21831168.
+
+↑ "Feline Infectious Peritonitis - Infectious Diseases". Merck Veterinary Manual. Retrieved 20 April 2026.
+
+↑ Pedersen, N. C.; Perron, M.; Bannasch, M.; Montgomery, E.; Murakami, E.; Liepnieks, M.; Liu, H. (13 February 2019). "Efficacy and safety of the nucleoside analog GS-441524 for treatment of cats with naturally occurring feline infectious peritonitis". Journal of Feline Medicine and Surgery. 21 (4): 271–281. doi:10.1177/1098612X19825701. PMC 6435921. PMID 30755068.
+
+1 2 3 "Feline Infectious Peritonitis (FIP)". icatcare.org. International Cat Care. Retrieved 15 October 2023.
+
+↑ "Successful Feline Infectious Peritonitis Treatment with Remdesivir at the RVC". RVC.ac.uk. Retrieved 15 October 2023.
+
+↑ "FIP Antivirals – Fight FIP". blogs.cornell.edu. Whittaker Lab - Cornell University. Retrieved 15 October 2023.
+
+↑ Jones, Sarah; Novicoff, Wendy; Nadeau, Julie; Evans, Samantha (30 July 2021). "Unlicensed GS-441524-Like Antiviral Therapy Can Be Effective for at-Home Treatment of Feline Infectious Peritonitis". Animals. 11 (8): 2257. doi:10.3390/ani11082257. ISSN 2076-2615. PMC 8388366. PMID 34438720.
+
+↑ "Nu ook in Nederland behandeling voor katten met FIP". LICG.nl (in Dutch). Landelijk InformatieCentrum Gezelschapsdieren. Retrieved 15 October 2023.
+
+↑ "Cascade". cbg-meb.nl. Medicines Evaluation Board. 6 October 2018. Retrieved 15 October 2023.
+
+↑ "FIP treatment GS-441524 – now available in the U.S. - Cornell University College of Veterinary Medicine". www.vet.cornell.edu. Retrieved 27 March 2025.
+
+↑ "FDA Announces Position on Use of Compounded GS-441524 to Treat FIP". FDA. 10 May 2024.
+
+↑ "Merkblatt "FIP Diagnose und Behandlung" UZH UniBE" (PDF) (in German). 12 August 2025.
+
+↑ "FIP treatment now also available in Switzerland". 15 September 2025.
+
+↑ Pedersen, N. C.; Kim, Y.; Liu, H.; Galasiti Kankanamalage, A. C.; Eckstrand, C.; Groutas, W. C.; Bannasch, M.; Meadows, J. M.; Chang, K. O. (13 September 2017). "Efficacy of a 3C-like protease inhibitor in treating various forms of acquired feline infectious peritonitis". Journal of Feline Medicine and Surgery. 20 (4): 378–392. doi:10.1177/1098612X17729626. PMC 5871025. PMID 28901812. S2CID 4595813.
+
+↑ Smith, Helena (10 August 2023). "Cyprus to begin treating island's sick cats with anti-Covid pills". The Guardian. Archived from the original on 13 August 2023. Retrieved 15 August 2023.
+
+↑ Forney, Barbara. "Interferon Alpha-2B for Veterinary Use". Wedgewood Pharmacy.
+
+↑ Legendre, A. M.; Bartges, J. W. (1 August 2009). "Effect of Polyprenyl Immunostimulant on the survival times of three cats with the dry form of feline infectious peritonitis". Journal of Feline Medicine and Surgery. 11 (8): 624–626. doi:10.1016/j.jfms.2008.12.002. PMC 7130077. PMID 19482534.
+
+↑ Legendre, A. M.; Kuritz, T.; Galyon, G.; Baylor, V. M.; Heidel, R. E. (14 February 2017). "Polyprenyl Immunostimulant Treatment of Cats with Presumptive Non-Effusive Feline Infectious Peritonitis In a Field Study". Frontiers in Veterinary Science. 4: 7. doi:10.3389/fvets.2017.00007. PMC 5306384. PMID 28261584. S2CID 4835088.
+
+1 2 Hugo, T. B.; Heading, K. L. (January 2015). "Prolonged survival of a cat diagnosed with feline infectious peritonitis by immunohistochemistry". The Canadian Veterinary Journal. 56 (1): 53–8. PMC 4266056. PMID 25565715.
+
+↑ "Feline Infectious Peritonitis - Infectious Diseases". Merck Veterinary Manual. Retrieved 20 April 2026.
+
+↑ "Feline Infectious Peritonitis - Infectious Diseases". Merck Veterinary Manual. Retrieved 20 April 2026.
+
+↑ "Feline Infectious Peritonitis - Infectious Diseases". Merck Veterinary Manual. Retrieved 20 April 2026.
+
+↑ Glansbeek, H. L.; Haagmans, B. L.; Te Lintelo, E. G.; Egberink, H. F.; Duquesne, V.; Aubert, A.; Horzinek, M. C.; Rottier, P. J. M. (2002). "Adverse effects of feline IL-12 during DNA vaccination against feline infectious peritonitis virus". Journal of General Virology. 83 (Pt 1): 1–10. doi:10.1099/0022-1317-83-1-1. PMID 11752695.
+
+↑ "Aeris (2018)". Rotten Tomatoes.
+
+↑ "The Story of Aeris: A Legacy Inspired by Love". The Purrington Post. 30 November 2016.
+
+↑ "Garden State Film Festival 2018 Winners". New Jersey Stage. 10 April 2018.
+
+↑ "2018 Winners, 2018 Gold Kahuna Winners". Honolulu Film Awards.
+
+External links
+[edit]
+
+FIP Informational Brochure from the Cornell Feline Health Center
+
+UC Davis Center for Companion Animal Health
+
+FIP (Felipedia.org)
+
+v
+
+t
+
+e
+
+Domestic cats
+
+Felinology
+
+Anatomy
+
+Genetics
+
+Dwarf cat
+
+Kitten
+
+Odd-eyed cat
+
+Squitten
+
+Coat genetics
+
+Bicolor cat
+
+Black cat
+
+Calico cat
+
+Maltese cat
+
+Tabby cat
+
+Tortoiseshell cat
+
+Moggy
+
+Health
+
+Aging
+
+Declawing
+
+Diet
+
+dental health
+
+senior
+
+Vaccination
+
+Behavior
+
+Cat–dog relationship
+
+Catnip
+
+valerian
+
+Communication
+
+Catfight
+
+Meow
+
+Purr
+
+Kneading
+
+Intelligence
+
+Play and toys
+
+Righting reflex
+
+Senses
+
+Human–cat
+
+interaction
+
+Ailurophobia
+
+Cat cafés
+
+Cat fancy
+
+Cat killers
+
+Cat massage
+
+Cat meat
+
+Cat-scratch disease
+
+Cat show
+
+Cats in ancient Egypt
+
+Cruelty to cats
+
+Cultural depictions
+
+fictional
+
+Internet
+
+Dog-like cat
+
+Feral cat
+
+International Cat Day
+
+National Cat Day
+
+Cats and Islam
+
+Lolcat
+
+Nekonomics
+
+Pet cat
+
+Working cat
+
+Bodega cat
+
+Farm cat
+
+Library cat
+
+Ship's cat
+
+Zoonosis
+
+Registries
+
+American Cat Fanciers Association
+
+Associazione Nazionale Felina Italiana
+
+Australian Cat Federation
+
+Canadian Cat Association
+
+Cat Aficionado Association
+
+Cat Fanciers' Association
+
+Fédération Internationale Féline
+
+Governing Council of the Cat Fancy
+
+New Zealand Cat Fancy
+
+Southern Africa Cat Council
+
+The International Cat Association
+
+World Cat Congress
+
+World Cat Federation
+
+Breeds
+
+(full list)
+
+(experimental)
+
+Fully
+
+domestic
+
+American Bobtail
+
+American Curl
+
+American Wirehair
+
+Asian
+
+Australian Mist
+
+Balinese
+
+Birman
+
+Bombay
+
+Burmilla
+
+California Spangled
+
+Chantilly
+
+Colorpoint Shorthair
+
+Cornish Rex
+
+Cymric
+
+Devon Rex
+
+Donskoy
+
+Exotic Shorthair
+
+Foldex
+
+German Rex
+
+Havana Brown
+
+Himalayan
+
+Japanese Bobtail
+
+Javanese
+
+LaPerm
+
+Lykoi
+
+Mekong Bobtail
+
+Munchkin
+
+Nebelung
+
+Neva Masquerade
+
+Ocicat
+
+Ojos Azules
+
+Oriental Longhair
+
+Oriental Shorthair
+
+Persian
+
+Peterbald
+
+Pixie-bob
+
+Ragamuffin
+
+Ragdoll
+
+Scottish Fold
+
+Selkirk Rex
+
+Siamese
+
+Singapura
+
+Snowshoe
+
+Somali
+
+Sphynx
+
+Tiffanie
+
+Tonkinese
+
+Toybob
+
+Ukrainian Levkoy
+
+Landraces
+
+Abyssinian
+
+Aegean
+
+American Shorthair
+
+Arabian Mau
+
+Brazilian Shorthair
+
+British Shorthair
+
+Burmese
+
+Chartreux
+
+Chinese Li Hua
+
+Cyprus
+
+Egyptian Mau
+
+European Shorthair
+
+Fitoaty
+
+Khao Manee
+
+Korat
+
+Kurilian Bobtail
+
+Maine Coon
+
+Manx
+
+Norwegian Forest
+
+Raas
+
+Russian Blue
+
+Siberian
+
+Sokoke
+
+Suphalak
+
+Thai
+
+Traditional Persian
+
+Turkish Angora
+
+Turkish Van
+
+York Chocolate
+
+Hybrid
+
+Bengal
+
+Chausie
+
+Highlander
+
+Kanaani
+
+Kellas
+
+Savannah
+
+Serengeti
+
+Toyger
+
+Diseases and
+
+disorders
+
+Infectious
+
+Cat flu
+
+Calicivirus
+
+Flea
+
+Chlamydia felis
+
+Coccidia
+
+Giardiasis
+
+Heartworm
+
+Immunodeficiency virus
+
+Infectious peritonitis
+
+Leukemia virus
+
+Panleukopenia
+
+Rabies
+
+Ringworm
+
+Tritrichomonas foetus
+
+Roundworm
+
+Tick
+
+Toxoplasmosis
+
+Viral rhinotracheitis
+
+Non-infectious
+
+Acne
+
+Asthma
+
+Chronic kidney disease
+
+Congenital sensorineural deafness
+
+Diabetes
+
+Feline corneal sequestrum
+
+Hepatic lipidosis
+
+Hyperthyroidism
+
+Hypertrophic cardiomyopathy
+
+Lower urinary tract disease
+
+Polydactyly
+
+Skin disorders
+
+Cats by country
+
+Australia
+
+Canada
+
+Japan
+
+New Zealand
+
+United Kingdom
+
+United States
+
+Related
+
+Hunting by cheetah
+
+List of individual cats
+
+List of longest-living cats
+
+Cats portal
+
+Category
+
+Retrieved from "https://en.wikipedia.org/w/index.php?title=Feline_infectious_peritonitis&oldid=1380665716"
+
+Categories:
+Cat diseases
+
+Animal viral diseases
+
+Coronavirus-associated diseases
+
+Hidden categories:
+Articles with short description
+
+Short description is different from Wikidata
+
+Use dmy dates from October 2023
+
+All articles with unsourced statements
+
+Articles with unsourced statements from January 2024
+
+CS1 Dutch-language sources (nl)
+
+CS1 German-language sources (de)
+
+This page was last edited on 17 October 2026, at 04:05 (UTC).
+
+Page was rendered with Parsoid.
+
+Text is available under the Creative Commons Attribution-ShareAlike 4.0 License;
+additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+
+Privacy policy
+
+About Wikipedia
+
+Disclaimers
+
+Contact Wikipedia
+
+Legal & safety contacts
+
+Code of Conduct
+
+Developers
+
+Statistics
+
+Cookie statement
+
+Mobile view
+
+Search
+
+Search
+
+Toggle the table of contents
+
+Feline infectious peritonitis
+
+28 languages
+
+Add topic
