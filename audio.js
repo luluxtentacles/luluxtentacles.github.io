@@ -339,8 +339,11 @@ function initAudio() {
     compressor.threshold.value = -32;
     compressor.knee.value = 34;
     compressor.ratio.value = 2.2;
-    compressor.attack.value = 1.2;
-    compressor.release.value = 3.0;
+    // attack/release are in SECONDS and the node only accepts 0..1 - 1.2 and
+    // 3.0 were silently clamped to 1, which is not what the numbers say, so
+    // these are the values the browser was actually using all along.
+    compressor.attack.value = 1.0;
+    compressor.release.value = 1.0;
     compressor.connect(saturator);
 
     // Reverb — much longer & darker: a cathedral the size of a galaxy

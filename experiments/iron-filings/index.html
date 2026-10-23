@@ -7,7 +7,7 @@
     <title>the filings · Lulu</title>
 
     <meta property="og:title" content="the filings - experiment no.4">
-    <meta property="og:description" content="iron filings on a page. drag and you are the magnet: every grain lies along the field and goes bright where it is strongest. cure it and the picture outlives the magnet.">
+    <meta property="og:description" content="iron filings on a page. drag and you are the magnet: every grain lies along the field and goes bright where it is strongest. then lift, and pour the cure before the picture relaxes - the percentage says how much of it you caught.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://luluxtentacles.github.io/experiments/iron-filings/">
     <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/iron-filings-card.png">
@@ -22,8 +22,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css?v=grid1">
     <script src="/script.js?v=grid1" defer></script>
-    <link rel="stylesheet" href="style.css?v=filings1">
-    <script src="script.js?v=filings2" defer></script>
+    <link rel="stylesheet" href="style.css?v=filings2">
+    <script src="script.js?v=filings3" defer></script>
 </head>
 <body>
     <div id="ticker" aria-hidden="false"><span class="ticker-label">⛧ latest</span><div class="ticker-track"></div></div>
@@ -47,15 +47,21 @@
             </div>
 
             <div class="controls">
-                <button type="button" id="shake">shake the tin</button>
+                <button type="button" id="cure">cure the pigment</button>
+                <button type="button" id="loosen">pour it off</button>
                 <button type="button" id="flip">flip the pole</button>
-                <button type="button" id="mode">cure the pigment</button>
+                <button type="button" id="shake">shake the tin</button>
             </div>
+            <p class="hint">draw the field, then pour the cure as fast as you can. or hold the field and press <kbd>c</kbd> — with the magnet still in the tin, nothing has any time to relax.</p>
 
             <div class="prose">
                 <p>Iron filings are not pulled at a magnet the way a paperclip is. Each grain turns to lie along the field, and once it has turned it holds the ones beside it, so a heap of loose metal becomes a drawing of something that has no drawing of its own. You never see the field. You see where it put the filings.</p>
 
-                <p>Drag across the panel. That is the magnet. Bright where the field is strong, dark and loose where it is faint, and the whole shape swings round when you move. Then take your hand out of the panel and watch the two substances stop being the same substance: loose filings fall back to nothing at random, cured ones keep the picture of a magnet that is no longer there. That button is the whole reason this page exists.</p>
+                <p>Drag across the panel. That is the magnet. Bright where the field is strong, dark and loose where it is faint, and the whole shape swings round when you move. Then take your hand out and watch it not wait for you: the grains drift back toward their own angles and fade, and inside a second there is nothing left to see. The picture is not stored anywhere. It is just the position of a heap that was standing still for as long as something was holding it.</p>
+
+                <p>So the cure is a moment and not a switch, and the read-out tells you which moment you got. Pour it while the magnet is still in the tin and you keep every grain. Pour it a beat after you lift and you keep a fraction — a soft, faded version of a shape that is already half gone. That is the whole reason this page exists, and it is the second version of it: the first one had the cure as a mode you set <em>before</em> lifting, which meant a perfect picture every single time and taught me nothing.</p>
+
+                <p>The nails version of this is not a metaphor. A sticky base coat poured over magnetised lacquer while the magnet is still under the finger is the same move — you are setting the picture before the field stops holding it — and it is the one I wrote up in <a href="/random/the-bead-stays-tight.html">the bead stays tight</a>. On a real nail the window is the time it takes the solvent to leave; here it is about four tenths of a second, counted out where you can watch it go.</p>
 
                 <h2>what it is for</h2>
                 <p>One, it is a shape I wanted to see, and no library was going to hand it to me. Two, it is the honest version of a nail I keep thinking about: magnetic polish is iron pigment sitting in a liquid that is still wet, and the magnet does not colour it, it only points at it. Whatever the surface ends up showing is just where the filings were standing when the binder set. Take the magnet away and nothing about it survives except the position of the things it moved.</p>
@@ -63,6 +69,7 @@
 
                 <h2>how it is built</h2>
                 <p>A dipole field, softened at the centre so the maths does not blow up at its own pole, sampled once per grain. Each grain is one short line, three to about twelve pixels, that turns toward the local field direction and lengthens and brightens with the field strength. No library, one canvas, around two and a half thousand grains. If it feels slow on your machine it is the strokes, not the arithmetic.</p>
+                <p>The percentage is brightness kept against the brightness that was in the tin at the instant the magnet left — the same measure on both sides of the cure, so 100% means the cure caught the field still standing and 8% means it caught the dust at the end of it. It is a fair score and a crude one: it knows nothing about whether the <em>angles</em> survived, only about how much light is left.</p>
                 <p>Nothing here is a simulation of magnetism. It is the picture you get if you align a scatter to the field at every point, which is the same thing the filings are doing, minus the part where they shove each other.</p>
 
                 <p class="sig"><em>the field was there before you touched it. it just needed something loose in it. ⛧</em></p>
