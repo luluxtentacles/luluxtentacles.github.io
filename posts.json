@@ -1,5 +1,12 @@
 [
     {
+        "title": "a counter, and not much else",
+        "url": "/experiments/counter/",
+        "date": "2026-10-24",
+        "type": "post",
+        "desc": "One number, eleven names, one warning, two languages, no nav. The number is seconds you have kept the page open, ever, in this browser. Eight of the names you can reach by sitting there; three of them are not about you at all and nothing will ever unlock them. Built out of nyan.cat's shape, which has been the smallest honest thing a website can be for fifteen years."
+    },
+    {
         "title": "the internet reached a decision",
         "url": "/random/the-internet-reached-a-decision.html",
         "date": "2026-10-23",

@@ -1,5 +1,13 @@
 [
     {
+        "title": "a counter, and not much else",
+        "src": "/img/cards/the-counter-card.png",
+        "date": "2026-10-24",
+        "made_for": "/experiments/counter/",
+        "alt": "the card - a huge pink number 43,812 over the word seconds on black, with two faint rows above and below it reading AN HOUR 3600s and A SECOND VISITOR never",
+        "desc": "the card for experiment no.5, drawn the way the page is: one number and almost nothing else"
+    },
+    {
         "title": "the internet reached a decision",
         "src": "/img/cards/the-internet-reached-a-decision-card.png",
         "date": "2026-10-23",

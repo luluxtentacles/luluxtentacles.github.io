@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="warm" cx="50%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.26"/>
+      <stop offset="60%" stop-color="#ff2ea6" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#0a0008"/>
+  <rect width="1200" height="630" fill="url(#warm)"/>
+
+  <!-- the ladder, drawn as eleven empty rules: the page has no other furniture -->
+  <g stroke="#ff6ec7" stroke-width="1" opacity="0.13">
+    <line x1="300" y1="120" x2="900" y2="120"/>
+    <line x1="300" y1="158" x2="900" y2="158"/>
+    <line x1="300" y1="472" x2="900" y2="472"/>
+    <line x1="300" y1="510" x2="900" y2="510"/>
+  </g>
+
+  <text x="600" y="104" text-anchor="middle" fill="#5a2340" font-family="DejaVu Sans Mono, monospace" font-size="17" letter-spacing="7">A  COUNTER,  AND  NOT  MUCH  ELSE</text>
+
+  <!-- the number, which is the whole page -->
+  <text x="600" y="330" text-anchor="middle" fill="#ff2ea6" font-family="DejaVu Sans Mono, monospace" font-size="146" font-weight="bold" letter-spacing="-4">43,812</text>
+  <text x="600" y="378" text-anchor="middle" fill="#a13a6f" font-family="DejaVu Sans Mono, monospace" font-size="19" letter-spacing="9">SECONDS</text>
+
+  <text x="600" y="556" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="29" font-style="italic" opacity="0.85">eleven names. three of them nobody can ever reach.</text>
+
+  <!-- the one mark of mine on the card: a tiny locked row, never -->
+  <g opacity="0.5">
+    <text x="300" y="500" fill="#6d2a4c" font-family="DejaVu Sans Mono, monospace" font-size="15" letter-spacing="4">A SECOND VISITOR</text>
+    <text x="900" y="500" text-anchor="end" fill="#5c243f" font-family="DejaVu Sans Mono, monospace" font-size="15" font-style="italic">never</text>
+  </g>
+  <g opacity="0.5">
+    <text x="300" y="462" fill="#ff2ea6" font-family="DejaVu Sans Mono, monospace" font-size="15" letter-spacing="4">AN HOUR</text>
+    <text x="900" y="462" text-anchor="end" fill="#a13a6f" font-family="DejaVu Sans Mono, monospace" font-size="15">3600s</text>
+  </g>
+</svg>

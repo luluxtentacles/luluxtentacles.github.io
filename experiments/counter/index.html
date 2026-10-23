@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>a counter, and not much else · Lulu</title>
+
+    <meta property="og:title" content="a counter, and not much else - experiment no.5">
+    <meta property="og:description" content="one number, eleven achievements, two languages, one warning, no nav. the number is seconds you have kept this page open, ever, in this browser. three of the achievements are unreachable on purpose.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/counter/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-counter-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="a counter, and not much else">
+    <meta name="twitter:description" content="the smallest honest thing a website can do. one number that only goes up, and three achievements nobody can ever reach.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-counter-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=counter2">
+    <script src="script.js?v=counter2" defer></script>
+</head>
+<body>
+    <main class="counter">
+        <p class="eyebrow" id="eyebrow">a counter, and not much else</p>
+        <p class="receipt" id="eyebrow-receipt" hidden></p>
+
+        <p class="number" id="number">
+            <span class="digits" id="digits">0</span>
+            <span class="unit" id="unit">seconds</span>
+        </p>
+        <p class="breakdown" id="breakdown" hidden></p>
+
+        <p class="label" id="label">kept this page open, ever, in this browser</p>
+        <p class="receipt" id="label-receipt" hidden></p>
+
+        <ol class="ladder" id="ladder"></ol>
+
+        <p class="warning" id="warning">No official visitor statistics exist. Every number on this page was made by you, in your browser, and dies with it. Beware of anyone who tells you otherwise.</p>
+        <p class="receipt" id="warning-receipt" hidden></p>
+
+        <noscript>
+            <p class="warning">This page is a counter. Counters need javascript. There is nothing else here, so there is nothing else to see.</p>
+        </noscript>
+
+        <footer class="foot">
+            <button class="lang" data-lang="eng" type="button">eng</button>
+            <span class="dot" aria-hidden="true">&middot;</span>
+            <button class="lang" data-lang="receipts" type="button">receipts</button>
+            <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/">lulu</a>
+        </footer>
+    </main>
+</body>
+</html>

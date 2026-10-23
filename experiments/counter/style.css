@@ -1,0 +1,269 @@
+/* a counter, and not much else - experiment no.5
+   the whole page is: one number, eleven names, one warning, two languages.
+   no nav, no hero, no footer sig line. that restraint is the experiment. */
+
+:root {
+    --ink: #0a0008;
+    --pink: #ff6ec7;
+    --hot: #ff2ea6;
+    --dim: #a13a6f;
+    --locked: #6d2a4c;
+    --faint: #431b30;
+    --rule: rgba(255, 110, 199, 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html {
+    background: #0a0008;
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7vh 6vw;
+    background: #0a0008;
+    color: var(--pink);
+    font-family: "Space Mono", ui-monospace, "Courier New", monospace;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* the only decoration: a glow that gets warmer the longer the page is open.
+   --heat is set from script.js, 0 to 1, on a log scale of the number. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: radial-gradient(62vmax 46vmax at 50% 28%,
+                rgba(255, 110, 199, calc(0.03 + 0.13 * var(--heat, 0))),
+                rgba(255, 46, 166, calc(0.02 + 0.05 * var(--heat, 0))) 45%,
+                transparent 72%);
+    transition: background 2s linear;
+}
+
+.counter {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 33rem;
+    text-align: center;
+}
+
+/* ---------- the eyebrow ---------- */
+
+.eyebrow {
+    margin: 0 0 2.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+/* ---------- the number, which is the page ---------- */
+
+.number {
+    margin: 0;
+    line-height: 0.92;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.035em;
+    color: var(--hot);
+    text-shadow: 0 0 34px rgba(255, 46, 166, 0.35);
+}
+
+.number .digits {
+    display: block;
+    font-size: clamp(3.1rem, 13vw, 5.6rem);
+    font-weight: 700;
+}
+
+.number .unit {
+    display: block;
+    margin-top: 0.9rem;
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-shadow: none;
+}
+
+.breakdown {
+    margin: 0.5rem 0 0;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--locked);
+    font-variant-numeric: tabular-nums;
+}
+
+.label {
+    margin: 1.5rem 0 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    color: var(--dim);
+}
+
+/* ---------- the ladder ---------- */
+
+.ladder {
+    list-style: none;
+    margin: 3.4rem 0 0;
+    padding: 0;
+    text-align: left;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 0.9rem;
+    padding: 0.72rem 0.15rem 0.68rem;
+    border-top: 1px solid var(--rule);
+    color: var(--locked);
+    transition: color 0.9s ease;
+}
+
+.row:last-child { border-bottom: 1px solid var(--rule); }
+
+.row .name {
+    font-size: 0.74rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.9s ease, text-shadow 0.9s ease;
+}
+
+.row .at {
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+}
+
+.row .line {
+    grid-column: 1 / -1;
+    margin: 0.34rem 0 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-style: italic;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    color: var(--locked);
+    opacity: 0.34;
+    transition: opacity 0.9s ease, color 0.9s ease;
+}
+
+.row .receipt {
+    grid-column: 1 / -1;
+    margin: 0.4rem 0 0;
+    font-size: 0.6rem;
+    line-height: 1.65;
+    letter-spacing: 0.01em;
+    color: #7c3559;
+}
+
+.row .share {
+    grid-column: 1 / -1;
+    display: none;
+    margin-top: 0.55rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--hot);
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(255, 46, 166, 0.5);
+    justify-self: start;
+}
+
+/* unlocked */
+.row.done { color: var(--pink); }
+
+.row.done .name {
+    color: var(--hot);
+    text-shadow: 0 0 16px rgba(255, 46, 166, 0.45);
+}
+
+.row.done .line {
+    opacity: 1;
+    color: var(--pink);
+}
+
+.row.done .share { display: inline-block; }
+
+/* the three that cannot be reached, ever */
+.row.never .at { color: #5c243f; font-style: italic; }
+.row.never .line { opacity: 0.2; }
+
+/* ---------- the warning, and the foot ---------- */
+
+.warning {
+    margin: 2.6rem 0 0;
+    font-size: 0.62rem;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    color: var(--locked);
+}
+
+.receipt {
+    margin: 0.5rem 0 0;
+    font-size: 0.6rem;
+    line-height: 1.65;
+    color: #7c3559;
+    text-align: left;
+}
+
+.foot {
+    margin-top: 2.6rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.foot .dot { margin: 0 0.6rem; }
+
+.foot a {
+    color: var(--faint);
+    text-decoration: none;
+}
+
+.foot a:hover,
+.foot a:focus-visible { color: var(--pink); }
+
+.lang {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: var(--faint);
+    cursor: pointer;
+}
+
+.lang:hover,
+.lang:focus-visible { color: var(--pink); }
+
+.lang[aria-pressed="true"] {
+    color: var(--pink);
+    border-bottom: 1px dotted rgba(255, 110, 199, 0.5);
+}
+
+/* ---------- a phone, measured not squinted at ---------- */
+
+@media (max-width: 420px) {
+    body { padding: 5vh 5vw; }
+    .row .name { font-size: 0.68rem; letter-spacing: 0.16em; }
+    .number .digits { font-size: clamp(2.6rem, 14vw, 4rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+}
