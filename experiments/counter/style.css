@@ -7,9 +7,14 @@
     --pink: #ff6ec7;
     --hot: #ff2ea6;
     --dim: #a13a6f;
-    --locked: #6d2a4c;
+    --locked: #93406a;
     --faint: #431b30;
     --rule: rgba(255, 110, 199, 0.10);
+
+    /* no webfont, on purpose: this page makes no request to any other host,
+       so it uses what the machine already has. the receipts language says why. */
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
@@ -28,7 +33,7 @@ body {
     padding: 7vh 6vw;
     background: #0a0008;
     color: var(--pink);
-    font-family: "Space Mono", ui-monospace, "Courier New", monospace;
+    font-family: var(--mono);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
 }
@@ -105,7 +110,7 @@ body::before {
 
 .label {
     margin: 1.5rem 0 0;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
     font-size: 1.05rem;
     line-height: 1.45;
@@ -143,19 +148,19 @@ body::before {
 .row .at {
     font-size: 0.66rem;
     letter-spacing: 0.1em;
-    color: var(--faint);
+    color: #7a3055;
     font-variant-numeric: tabular-nums;
 }
 
 .row .line {
     grid-column: 1 / -1;
     margin: 0.34rem 0 0;
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--serif);
     font-style: italic;
     font-size: 0.98rem;
     line-height: 1.4;
     color: var(--locked);
-    opacity: 0.34;
+    opacity: 0.5;
     transition: opacity 0.9s ease, color 0.9s ease;
 }
 
@@ -165,7 +170,7 @@ body::before {
     font-size: 0.6rem;
     line-height: 1.65;
     letter-spacing: 0.01em;
-    color: #7c3559;
+    color: #9a4670;
 }
 
 .row .share {
@@ -197,24 +202,24 @@ body::before {
 .row.done .share { display: inline-block; }
 
 /* the three that cannot be reached, ever */
-.row.never .at { color: #5c243f; font-style: italic; }
-.row.never .line { opacity: 0.2; }
+.row.never .at { color: #7f3459; font-style: italic; }
+.row.never .line { opacity: 0.38; }
 
 /* ---------- the warning, and the foot ---------- */
 
 .warning {
     margin: 2.6rem 0 0;
-    font-size: 0.62rem;
+    font-size: 0.66rem;
     line-height: 1.8;
     letter-spacing: 0.02em;
-    color: var(--locked);
+    color: #b04a7a;
 }
 
 .receipt {
     margin: 0.5rem 0 0;
     font-size: 0.6rem;
     line-height: 1.65;
-    color: #7c3559;
+    color: #9a4670;
     text-align: left;
 }
 

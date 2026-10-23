@@ -108,7 +108,7 @@
 
     var NOTES = {
         eyebrow: 'the whole page: one number, eleven names, one warning, two languages, no nav. if it needed a thirteenth string it would not be a counter any more',
-        label: 'the claim: this number is total (it survives a reload), monotonic (it never goes down) and local (it never leaves). the instrument: localStorage, one key, lulu.counter.ms. no cookie, no beacon, no analytics, no request on load except this page\'s own files',
+        label: 'the claim: this number is total (it survives a reload), monotonic (it never goes down) and local (it never leaves). the instrument: localStorage, one key, lulu.counter.ms. no cookie, no beacon, no analytics, no request to any host but this one - which is why the page loads no webfont and the type is whatever your machine already had',
         warning: 'the shape of this line is nyan.cat\'s, which has warned visitors about nyan coins since an officially licensed Nyancoin existed in january 2014. no such thing exists here. the line is still true, which is why it is the joke'
     };
 
