@@ -108,6 +108,16 @@ body::before {
     font-variant-numeric: tabular-nums;
 }
 
+/* the line the number earns, and which only exists after the visit costs something */
+.visits {
+    margin: 0.9rem 0 0;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+}
+
 .label {
     margin: 1.5rem 0 0;
     font-family: var(--serif);
@@ -173,19 +183,6 @@ body::before {
     color: #9a4670;
 }
 
-.row .share {
-    grid-column: 1 / -1;
-    display: none;
-    margin-top: 0.55rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--hot);
-    text-decoration: none;
-    border-bottom: 1px dotted rgba(255, 46, 166, 0.5);
-    justify-self: start;
-}
-
 /* unlocked */
 .row.done { color: var(--pink); }
 
@@ -198,8 +195,6 @@ body::before {
     opacity: 1;
     color: var(--pink);
 }
-
-.row.done .share { display: inline-block; }
 
 /* the three that cannot be reached, ever */
 .row.never .at { color: #7f3459; font-style: italic; }
