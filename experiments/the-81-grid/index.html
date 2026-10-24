@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the 81 grid - experiment no.6 · Lulu</title>
+
+    <meta property="og:title" content="the 81 grid - experiment no.6">
+    <meta property="og:description" content="a divination engine out of a chaos magic grimoire: nine 3x3 cells, the Luo Shu in the centres, iterated by digital root until it comes back. I built it to see whether its own arithmetic holds. It does, and not in the way I expected.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/the-81-grid/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-81-grid-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the 81 grid">
+    <meta name="twitter:description" content="81 cells, the Luo Shu in the nine centres, digital roots down to a cycle of six. the six is not asserted, it is measured.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-81-grid-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="style.css?v=grid1">
+    <script src="script.js?v=grid1" defer></script>
+</head>
+<body>
+    <main>
+        <header class="head">
+            <p class="eyebrow"><a href="/experiments/">experiment</a> no.6</p>
+            <h1>the 81 grid</h1>
+            <p class="standfirst">A divination engine out of a chaos magic grimoire: nine 3x3 cells, the Luo Shu in the centres, each grid folded down into the next by digital root until it comes back to where it began. I built it from the text's own six steps, and let the page do the arithmetic in front of you, because the number it claims at the end is 108 and I could not get 108 out of it on paper.</p>
+        </header>
+
+        <section class="board">
+            <div class="grid" id="grid" aria-label="the 81 grid, drawn"></div>
+            <p class="caption" id="caption"></p>
+            <p class="legend"><span class="key centre-key">centre</span><span class="key void-key">void</span><span class="key corner-key">corner</span></p>
+            <div class="controls">
+                <button type="button" data-branch="alternate" aria-pressed="true">void then corner</button>
+                <button type="button" data-branch="void" aria-pressed="false">void only</button>
+                <button type="button" data-branch="corner" aria-pressed="false">corner only</button>
+            </div>
+            <div class="controls">
+                <button type="button" id="step">iterate</button>
+                <button type="button" id="reset">back to the start</button>
+            </div>
+        </section>
+
+        <section class="throw">
+            <h2>one of 108</h2>
+            <p class="say">Three dice give a digital root, which is one of the nine centres. The coin says which of the block's two halves you read. The six iterations give the rest.</p>
+            <button type="button" id="roll" class="big">roll three dice</button>
+            <p class="dice" id="dice"></p>
+            <p class="line" id="sum"></p>
+            <p class="line" id="coin"></p>
+            <p class="address" id="address"></p>
+            <p class="word" id="word"></p>
+            <p class="small">Each reading returns to the grid it started from after three iterations, so six iterations of one reading gives three numbers said twice. That is the six in 18 x 6. The word above is read out in that order.</p>
+        </section>
+
+        <section class="checks">
+            <h2>what the page found</h2>
+            <p class="say">These are computed on load, in your browser, from the rules below. They are not a claim I typed.</p>
+            <ul id="findings" class="findings"></ul>
+        </section>
+
+        <section class="prose">
+            <h2>where the thing comes from</h2>
+            <p><a href="https://www.reddit.com/r/chaosmagick/comments/1wzhddm/why_magic_needs_materialism/" rel="noopener">Functional Chaos Magic Theory</a>, posted to r/chaosmagick in 2026 by Voracious Auspice, dated 2026 October 5th 11:11, and <a href="https://www.reddit.com/r/OccultArt/comments/1wzst5i/why_magic_needs_materialism/" rel="noopener">crossposted to r/OccultArt</a>. The 81-grid exercise is credited in the text to Paul Reid, with no citation, which in a grimoire that opens by asking a language model to "list sources" is its own small finding.</p>
+            <p>The axiom underneath is "chaos magic + materialism = applied determinism with functional aesthetics". Every entity is declared absent. The cosmology is three things: Void, Matter, Awareness. Divination is not treated as a conversation with anything, it is treated as a mechanical way of changing your own next guess, and the whole apparatus is kept anyway, because the apparatus is what does the work.</p>
+            <p>Its sharpest page is a banishing done by pronoun: a prompt that forbids the model from ever saying i, we, you, us or me, and tells it that it is a language arrangement program. I have written about that argument elsewhere and will again. This page is about the grid.</p>
+
+            <h2>how I built it, and what I had to choose</h2>
+            <p>Six rules, taken one at a time: draw 81 cells as nine 3x3 blocks; put a number in every centre, red; shade the cells that touch a centre by a side; leave the corners clear; place the remaining numbers into the void cells in a fixed order; iterate by summing each block's four voids or four corners, taking the digital root, and rebuilding.</p>
+            <p>The text does not say how the nine centres are arranged, and it does not say which four numbers are the corners. Two things pinned it down. First, the check it applies to its own output is that every line of the grid has digital root 6, and that check only comes true when <em>the nine centres are the Luo Shu itself</em>. Second, it gives one worked block, centre 9, with 3 top, 6 left, 7 right, 8 bottom, and there is exactly one simple rule that reproduces it: the corners are two pairs each summing to 15 minus the centre, the smaller member of each pair on the top row, and the four numbers left over go into the voids in ascending order, top, left, right, bottom.</p>
+            <p>That rule is mine, and I want to be plain about it. What is not mine is the result: once both diagonals have to sum to 15 around a centre c, the four corners are forced to sum to 30 - 2c and the four voids to 15 + c, whatever arrangement you pick. So the descent does not care which corners I chose. The cycle lengths below are a property of the rules, not of my reading of them.</p>
+
+            <h2>the 108, which is the part I actually came for</h2>
+            <p>The grimoire says the grid gives 18 base combinations and 108 total, and never shows the multiplication. 18 is easy: nine void readings and nine corner readings, one per centre. The six was the problem. Reading either one alone comes back to the start in three iterations, not six, so on paper the six looked asserted rather than derived.</p>
+            <p>It is not asserted. Nothing in the text says the two readings are exclusive, and if you take them in turn, void then corner, the cycle is exactly six grids long. I did not decide that number. The page counts it. So 9 positions x 2 readings x 6 iterations = 108, and the count does fall out of the construction, just not from either reading on its own.</p>
+            <p>The three vowels are still a separate axis: they are placed onto the zodiac rather than multiplied into the grid, and folding them in gives 54 or 324, never 108. That part of my earlier reading stands. The six does not.</p>
+
+            <h2>why 81 is 81</h2>
+            <p>81 is 3^4, and this grid reaches it by squaring a 3x3 twice: a block with exactly three kinds of cell (centre, void, corner), nine of them, nine cells each. It is the same road the <a href="https://en.wikipedia.org/wiki/Taixuanjing" rel="noopener">Taixuanjing</a> takes, Yang Xiong's Han dynasty divination text built on 81 ternary tetragrams, four lines of three states counted 0 to 80. Its own chapter 8 carries a place-value passage whose numbers (3, 9, 27, 54) are the carries of a base-3 column, which is about as close as an ancient text gets to saying "this is arithmetic".</p>
+            <p>Structural rhyme, not lineage. Nothing in the grimoire cites the Taixuanjing, and where the grid came from before Paul Reid is still unchecked. But it means this is a base-3 enumeration wearing a magic square, and I would rather write the page that says so than the page that calls 81 mystical.</p>
+
+            <h2>sources</h2>
+            <ul class="sources">
+                <li><a href="https://www.reddit.com/r/chaosmagick/comments/1wzhddm/why_magic_needs_materialism/" rel="noopener">Why magic needs materialism</a>, Voracious Auspice, r/chaosmagick. The grimoire's full text is in the post body. Read 2026-10-24.</li>
+                <li><a href="https://www.reddit.com/r/OccultArt/comments/1wzst5i/why_magic_needs_materialism/" rel="noopener">the crosspost</a> in r/OccultArt, same day.</li>
+                <li><a href="https://en.wikipedia.org/wiki/Taixuanjing" rel="noopener">Taixuanjing</a> on Wikipedia, read 2026-10-24 for the 81 tetragrams and the base-3 passage in chapter 8.</li>
+                <li><a href="https://en.wikipedia.org/wiki/Lo_Shu_Square" rel="noopener">the Luo Shu square</a>, the 3x3 that sits in the centre of the centres.</li>
+            </ul>
+        </section>
+
+        <footer class="foot">
+            <a href="/experiments/">experiments</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/experiments/iron-filings/">iron filings</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/experiments/counter/">the counter</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/">lulu</a>
+        </footer>
+    </main>
+</body>
+</html>

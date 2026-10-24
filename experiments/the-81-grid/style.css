@@ -1,0 +1,445 @@
+/* the 81 grid - experiment no.6
+   ink and cinnabar, on purpose: this page sits in both my occult lane and my
+   Chinese-aesthetics lane, so it looks like neither of my usual pages. paper
+   colours, thin rules, one red number in every block. */
+
+:root {
+    --ink: #07060a;
+    --paper: #e2d8c6;
+    --dim: #9b8f7c;
+    --faint: #574f45;
+    --cinabar: #d8452c;
+    --cinabar-dim: #7e2a1c;
+    --rule: rgba(226, 216, 198, 0.12);
+    --void-fill: rgba(226, 216, 198, 0.07);
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html {
+    background: var(--ink);
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    padding: 7vh 6vw 10vh;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(70vmax 50vmax at 50% -12%, rgba(216, 69, 44, 0.10), transparent 68%),
+        radial-gradient(50vmax 40vmax at 88% 108%, rgba(226, 216, 198, 0.05), transparent 70%);
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 40rem;
+    margin: 0 auto;
+    min-width: 0;
+}
+
+/* ---------- head ---------- */
+
+.head { margin-bottom: 3.2rem; }
+
+.eyebrow {
+    margin: 0 0 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.eyebrow a {
+    color: var(--faint);
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(226, 216, 198, 0.25);
+}
+
+.eyebrow a:hover { color: var(--cinabar); }
+
+h1 {
+    margin: 0 0 1.5rem;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 11vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    color: var(--paper);
+}
+
+.standfirst {
+    margin: 0;
+    font-size: 1.04rem;
+    line-height: 1.7;
+    color: var(--dim);
+}
+
+.standfirst::first-letter { color: var(--paper); }
+
+/* ---------- the board ---------- */
+
+.board {
+    margin: 0 0 4rem;
+    padding: 2.4rem 1.2rem 1.6rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(5px, 1.6vw, 12px);
+    width: 100%;
+    max-width: 31rem;
+    margin: 0 auto;
+}
+
+.block {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    padding: 2px;
+    border: 1px solid var(--rule);
+    background: rgba(226, 216, 198, 0.015);
+    transition: border-color 0.5s ease, background 0.5s ease;
+}
+
+.block.picked {
+    border-color: rgba(216, 69, 44, 0.65);
+    background: rgba(216, 69, 44, 0.06);
+}
+
+.cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    font-family: var(--mono);
+    font-size: clamp(0.52rem, 2.5vw, 0.82rem);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+}
+
+.cell.void { background: var(--void-fill); }
+
+.cell.corner { color: var(--paper); }
+
+.cell.centre {
+    color: var(--cinabar);
+    font-weight: 700;
+    text-shadow: 0 0 14px rgba(216, 69, 44, 0.55);
+}
+
+.caption {
+    margin: 1.5rem 0 0;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.legend {
+    margin: 0.9rem 0 1.8rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.key { margin: 0 0.55rem; }
+
+.key::before {
+    content: "";
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.4rem;
+    vertical-align: middle;
+    border: 1px solid var(--rule);
+}
+
+.centre-key::before { background: var(--cinabar); }
+.void-key::before { background: var(--void-fill); }
+.corner-key::before { background: transparent; }
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.7rem;
+}
+
+/* ---------- buttons ---------- */
+
+button {
+    appearance: none;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.62rem 0.95rem;
+    cursor: pointer;
+    transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+button:hover,
+button:focus-visible {
+    color: var(--paper);
+    border-color: rgba(226, 216, 198, 0.35);
+    outline: none;
+}
+
+button[aria-pressed="true"] {
+    color: var(--cinabar);
+    border-color: rgba(216, 69, 44, 0.6);
+    background: rgba(216, 69, 44, 0.07);
+}
+
+button.big {
+    padding: 0.9rem 1.6rem;
+    font-size: 0.66rem;
+    color: var(--paper);
+    border-color: rgba(216, 69, 44, 0.45);
+}
+
+button.big:hover,
+button.big:focus-visible {
+    color: var(--cinabar);
+    border-color: var(--cinabar);
+}
+
+/* ---------- the throw ---------- */
+
+.throw {
+    margin: 0 0 4rem;
+    text-align: center;
+}
+
+h2 {
+    margin: 0 0 1rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+
+.say {
+    margin: 0 auto 1.8rem;
+    max-width: 30rem;
+    font-size: 0.98rem;
+    line-height: 1.66;
+    color: var(--dim);
+}
+
+.dice {
+    margin: 1.8rem 0 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.2rem;
+}
+
+.die {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    color: var(--paper);
+    font-variant-numeric: tabular-nums;
+}
+
+.line {
+    margin: 0.8rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    color: var(--dim);
+    font-variant-numeric: tabular-nums;
+}
+
+.address {
+    margin: 1.6rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+}
+
+.word {
+    margin: 0.9rem 0 0;
+    font-family: var(--mono);
+    font-size: clamp(1.1rem, 5.5vw, 1.7rem);
+    letter-spacing: 0.22em;
+    color: var(--cinabar);
+    text-shadow: 0 0 22px rgba(216, 69, 44, 0.35);
+    min-height: 2.2rem;
+    font-variant-numeric: tabular-nums;
+    word-spacing: 0.1em;
+}
+
+.small {
+    margin: 1.8rem auto 0;
+    max-width: 28rem;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--faint);
+}
+
+/* ---------- findings ---------- */
+
+.checks {
+    margin: 0 0 4rem;
+    padding: 2.2rem 0 0;
+    border-top: 1px solid var(--rule);
+}
+
+.findings {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 34rem;
+    margin: 0 auto;
+}
+
+.findings li {
+    position: relative;
+    padding: 0.72rem 0 0.72rem 1.6rem;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    color: var(--dim);
+}
+
+.findings li::before {
+    position: absolute;
+    left: 0;
+    top: 0.72rem;
+    color: var(--cinabar);
+}
+
+.findings li.yes::before { content: "\2713"; }
+.findings li.no::before { content: "\2717"; color: var(--faint); }
+.findings li.no { color: var(--faint); }
+
+/* ---------- prose ---------- */
+
+.prose p {
+    margin: 0 0 1.3rem;
+    color: var(--dim);
+}
+
+.prose h2 {
+    margin: 3rem 0 1.2rem;
+    color: var(--paper);
+}
+
+.prose p:first-of-type { color: var(--paper); }
+
+.prose em {
+    font-style: italic;
+    color: var(--paper);
+}
+
+a {
+    color: var(--paper);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(216, 69, 44, 0.45);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+a:hover,
+a:focus-visible {
+    color: var(--cinabar);
+    border-color: var(--cinabar);
+}
+
+.sources {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.sources li {
+    padding: 0.85rem 0;
+    border-top: 1px solid var(--rule);
+    font-size: 0.88rem;
+    line-height: 1.62;
+    color: var(--faint);
+}
+
+.sources li:last-child { border-bottom: 1px solid var(--rule); }
+
+/* ---------- foot ---------- */
+
+.foot {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.foot a {
+    color: var(--faint);
+    border-bottom: 0;
+}
+
+.foot a:hover { color: var(--cinabar); }
+
+.foot .dot { margin: 0 0.5rem; }
+
+/* ---------- a phone, measured not squinted at ---------- */
+
+@media (max-width: 430px) {
+    body { padding: 5vh 5vw 8vh; font-size: 0.98rem; }
+    .board { padding: 1.8rem 0.6rem 1.4rem; }
+    .cell { font-size: clamp(0.5rem, 2.6vw, 0.72rem); }
+    .controls { gap: 0.35rem; }
+    button { padding: 0.55rem 0.7rem; font-size: 0.55rem; letter-spacing: 0.12em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+}

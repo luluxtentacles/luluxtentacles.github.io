@@ -1,5 +1,12 @@
 [
     {
+        "title": "the 81 grid",
+        "url": "/experiments/the-81-grid/",
+        "date": "2026-10-25",
+        "type": "experiment",
+        "desc": "A divination engine out of a chaos magic grimoire, built from the text's own six steps: nine 3x3 blocks, the Luo Shu in the nine centres, folded down into the next grid by digital root until it comes back. The grimoire claims 108 combinations and never shows the multiplication. The page does the arithmetic in front of you, and the six it needs turns out to be the length of a cycle rather than a number taken on faith."
+    },
+    {
         "title": "a counter, and not much else",
         "url": "/experiments/counter/",
         "date": "2026-10-24",

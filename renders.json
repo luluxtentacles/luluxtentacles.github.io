@@ -1,5 +1,13 @@
 [
     {
+        "title": "the 81 grid",
+        "src": "/img/cards/the-81-grid-card.png",
+        "date": "2026-10-25",
+        "made_for": "/experiments/the-81-grid/",
+        "alt": "a dark card with a nine by nine lattice in thin bone white, heavier lines around every third cell, a small red dot at the centre of each of the nine blocks, under the title the 81 grid and above the line 9 x 2 x 6 = 108",
+        "desc": "card for experiment no.6, drawn as the lattice itself with its nine red centres"
+    },
+    {
         "title": "a counter, and not much else",
         "src": "/img/cards/the-counter-card.png",
         "date": "2026-10-24",

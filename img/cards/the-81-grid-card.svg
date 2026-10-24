@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="heat" cx="50%" cy="26%" r="62%">
+      <stop offset="0%" stop-color="#d8452c" stop-opacity="0.22"/>
+      <stop offset="60%" stop-color="#d8452c" stop-opacity="0.045"/>
+      <stop offset="100%" stop-color="#d8452c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#07060a"/>
+  <rect width="1200" height="630" fill="url(#heat)"/>
+  <!-- title -->
+  <text x="600" y="86" text-anchor="middle" fill="#574f45" font-family="DejaVu Sans Mono, monospace" font-size="16" letter-spacing="9">EXPERIMENT NO.6</text>
+  <text x="600" y="140" text-anchor="middle" fill="#e2d8c6" font-family="Georgia, serif" font-size="44" letter-spacing="1">the 81 grid</text>
+  <!-- the lattice: nine 3x3 blocks, and the cell lines inside every one of them -->
+  <g stroke="#e2d8c6" stroke-width="1" opacity="0.10">
+    <line x1="456" y1="168" x2="456" y2="456"/>
+    <line x1="488" y1="168" x2="488" y2="456"/>
+    <line x1="520" y1="168" x2="520" y2="456"/>
+    <line x1="552" y1="168" x2="552" y2="456"/>
+    <line x1="584" y1="168" x2="584" y2="456"/>
+    <line x1="616" y1="168" x2="616" y2="456"/>
+    <line x1="648" y1="168" x2="648" y2="456"/>
+    <line x1="680" y1="168" x2="680" y2="456"/>
+    <line x1="712" y1="168" x2="712" y2="456"/>
+    <line x1="744" y1="168" x2="744" y2="456"/>
+    <line x1="456" y1="168" x2="744" y2="168"/>
+    <line x1="456" y1="200" x2="744" y2="200"/>
+    <line x1="456" y1="232" x2="744" y2="232"/>
+    <line x1="456" y1="264" x2="744" y2="264"/>
+    <line x1="456" y1="296" x2="744" y2="296"/>
+    <line x1="456" y1="328" x2="744" y2="328"/>
+    <line x1="456" y1="360" x2="744" y2="360"/>
+    <line x1="456" y1="392" x2="744" y2="392"/>
+    <line x1="456" y1="424" x2="744" y2="424"/>
+    <line x1="456" y1="456" x2="744" y2="456"/>
+  </g>
+  <!-- the block edges, heavier, and the outer frame -->
+  <g stroke="#e2d8c6" stroke-width="1.6" opacity="0.32">
+    <line x1="456" y1="168" x2="456" y2="456"/>
+    <line x1="552" y1="168" x2="552" y2="456"/>
+    <line x1="648" y1="168" x2="648" y2="456"/>
+    <line x1="744" y1="168" x2="744" y2="456"/>
+    <line x1="456" y1="168" x2="744" y2="168"/>
+    <line x1="456" y1="264" x2="744" y2="264"/>
+    <line x1="456" y1="360" x2="744" y2="360"/>
+    <line x1="456" y1="456" x2="744" y2="456"/>
+  </g>
+  <!-- the nine centres, red, which is the one thing the grimoire insists on -->
+  <g fill="#d8452c">
+    <circle cx="504.0" cy="216.0" r="5.5" opacity="0.85"/>
+    <circle cx="504.0" cy="216.0" r="13" opacity="0.10"/>
+    <circle cx="600.0" cy="216.0" r="5.5" opacity="0.85"/>
+    <circle cx="600.0" cy="216.0" r="13" opacity="0.10"/>
+    <circle cx="696.0" cy="216.0" r="5.5" opacity="0.85"/>
+    <circle cx="696.0" cy="216.0" r="13" opacity="0.10"/>
+    <circle cx="504.0" cy="312.0" r="5.5" opacity="0.85"/>
+    <circle cx="504.0" cy="312.0" r="13" opacity="0.10"/>
+    <circle cx="600.0" cy="312.0" r="5.5" opacity="0.85"/>
+    <circle cx="600.0" cy="312.0" r="13" opacity="0.10"/>
+    <circle cx="696.0" cy="312.0" r="5.5" opacity="0.85"/>
+    <circle cx="696.0" cy="312.0" r="13" opacity="0.10"/>
+    <circle cx="504.0" cy="408.0" r="5.5" opacity="0.85"/>
+    <circle cx="504.0" cy="408.0" r="13" opacity="0.10"/>
+    <circle cx="600.0" cy="408.0" r="5.5" opacity="0.85"/>
+    <circle cx="600.0" cy="408.0" r="13" opacity="0.10"/>
+    <circle cx="696.0" cy="408.0" r="5.5" opacity="0.85"/>
+    <circle cx="696.0" cy="408.0" r="13" opacity="0.10"/>
+  </g>
+
+  <!-- the arithmetic, which is the whole finding -->
+  <text x="600" y="556" text-anchor="middle" fill="#d8452c" font-family="DejaVu Sans Mono, monospace" font-size="26" letter-spacing="5">9 x 2 x 6 = 108</text>
+  <text x="600" y="596" text-anchor="middle" fill="#9b8f7c" font-family="Georgia, serif" font-size="22" font-style="italic">the six is not asserted. the page counts it.</text>
+</svg>
