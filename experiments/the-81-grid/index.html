@@ -17,8 +17,8 @@
     <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-81-grid-card.png">
 
     <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="stylesheet" href="style.css?v=grid1">
-    <script src="script.js?v=grid1" defer></script>
+    <link rel="stylesheet" href="style.css?v=grid2">
+    <script src="script.js?v=grid2" defer></script>
 </head>
 <body>
     <main>
@@ -69,7 +69,7 @@
 
             <h2>how I built it, and what I had to choose</h2>
             <p>Six rules, taken one at a time: draw 81 cells as nine 3x3 blocks; put a number in every centre, red; shade the cells that touch a centre by a side; leave the corners clear; place the remaining numbers into the void cells in a fixed order; iterate by summing each block's four voids or four corners, taking the digital root, and rebuilding.</p>
-            <p>The text does not say how the nine centres are arranged, and it does not say which four numbers are the corners. Two things pinned it down. First, the check it applies to its own output is that every line of the grid has digital root 6, and that check only comes true when <em>the nine centres are the Luo Shu itself</em>. Second, it gives one worked block, centre 9, with 3 top, 6 left, 7 right, 8 bottom, and there is exactly one simple rule that reproduces it: the corners are two pairs each summing to 15 minus the centre, the smaller member of each pair on the top row, and the four numbers left over go into the voids in ascending order, top, left, right, bottom.</p>
+            <p>The text does not say how the nine centres are arranged, and it does not say which four numbers are the corners. Two things pinned it down. First, the check it applies to its own output is that every line of the grid has digital root 6, and that check turns out to be much weaker than it sounds: 72 of the 362,880 arrangements of 1 to 9 pass it. What the Luo Shu has over the other 71 is that its lines sum to 15 outright instead of merely to a root of 6, and only eight arrangements do that, which are its rotations and reflections. So the centres are <em>the Luo Shu</em>, because it is the one the text names and the one that is exact rather than merely digital. Second, it gives one worked block, centre 9, with 3 top, 6 left, 7 right, 8 bottom, and there is exactly one simple rule that reproduces it: the corners are two pairs each summing to 15 minus the centre, the smaller member of each pair on the top row, and the four numbers left over go into the voids in ascending order, top, left, right, bottom.</p>
             <p>That rule is mine, and I want to be plain about it. What is not mine is the result: once both diagonals have to sum to 15 around a centre c, the four corners are forced to sum to 30 - 2c and the four voids to 15 + c, whatever arrangement you pick. So the descent does not care which corners I chose. The cycle lengths below are a property of the rules, not of my reading of them.</p>
 
             <h2>the 108, which is the part I actually came for</h2>

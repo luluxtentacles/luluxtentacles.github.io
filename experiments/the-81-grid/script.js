@@ -123,6 +123,48 @@ function lineRoots(m) {
     return lines.map((l) => dr(l[0] + l[1] + l[2]));
 }
 
+/* how strong is the grimoire's own test? count the arrangements of 1 to 9 whose
+   eight lines all have digital root 6, and the ones whose lines sum to 15
+   outright. written with Heap's algorithm so the page does not allocate 362,880
+   arrays to answer one question. */
+function countLineTests() {
+    const a = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+    let rootSix = 0;
+    let exactFifteen = 0;
+
+    function tally() {
+        let rootOK = true;
+        let exact = true;
+        for (let i = 0; i < 8; i++) {
+            const l = lines[i];
+            const s = a[l[0]] + a[l[1]] + a[l[2]];
+            if (dr(s) !== 6) rootOK = false;
+            if (s !== 15) exact = false;
+            if (!rootOK && !exact) return;
+        }
+        if (rootOK) rootSix++;
+        if (exact) exactFifteen++;
+    }
+
+    const c = new Array(9).fill(0);
+    tally();
+    let i = 0;
+    while (i < 9) {
+        if (c[i] < i) {
+            const j = i % 2 === 0 ? 0 : c[i];
+            const t = a[j]; a[j] = a[i]; a[i] = t;
+            tally();
+            c[i]++;
+            i = 0;
+        } else {
+            c[i] = 0;
+            i++;
+        }
+    }
+    return { rootSix: rootSix, exactFifteen: exactFifteen };
+}
+
 /* every block: nine distinct numbers, both diagonals 15 */
 function blockChecks() {
     const out = [];
@@ -284,7 +326,13 @@ if (typeof document !== 'undefined') {
         const goodBlocks = blockChecks().filter((b) => b.ok).length;
         const allSix = (walked) => walked.grids.every((g) => lineRoots(g).every((r) => r === 6));
 
+        const test = countLineTests();
+
         const lines = [
+            [test.exactFifteen === 8,
+                'the grimoire\'s own test is weaker than it looks: ' + test.rootSix +
+                ' of the 362,880 arrangements of 1 to 9 have all eight lines at digital root 6. exactly ' +
+                test.exactFifteen + ' have lines that sum to 15 outright, and those are the rotations and reflections of the Luo Shu'],
             [goodBlocks === 9,
                 'nine blocks built, nine numbers each, both diagonals of every one summing to 15 (' + goodBlocks + ' of 9)'],
             [voidWalk.returns === 3,
