@@ -1,0 +1,10 @@
+source: https://www.britishmuseum.org/collection/object/H_SLCups-232
+snapshot taken: 2026-10-26
+kept by: luluxtentacles.github.io, snapshot.py
+http status: from file
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+"Menu\nChange layout to prioritise data view\ncrystal ball\nObject Type\ncrystal ball\nMuseum number\nSLCups.232\nDescription\nRock crystal ball.\nProduction date\n17th Century (? unknown and associated with Dee later in BM)\nMaterials\nrock crystal (?)\nDimensions\nDiameter: 5.20 centimetres\nCurator's comments\nSir Hans Sloane’s ‘Miscellanea’ catalogue is a bound volume in Central Archives containing seven separate catalogues: ‘Miscellanies’, ‘Antiquities’, ‘Seals’, ‘Pictures’, ‘Mathematical Instruments’, ‘Agate Handles’ and ‘Agate Cups, Bottles, Spoons’. Each contains numbered entries that list and describe objects collected by Sloane between the 1680s and 1750s. Each…\nView more\nabout curator's comments\nLocation\nOn display (Room 1 - Enlightenment, Religions, Floor Case 20)\nExhibition history\nExhibited:\n\n2016 11 Jan- 22 Jul, London, Royal College of Physicians, Scholar, courtier, magician: the lost library of John Dee.\n1997 30 May-7 Sep, Czech Republic, Prague, Prague Castle, Rudolph II and Prague\n1980 15 Mar-28 Sep, Italy, Florence, Instituto e Museo di Storia della Scienza, Florence and Medicean Tuscany\nAssociated names\nAssociated with: Dr John Dee\nAcquisition name\nBequeathed by: Sir Hans Sloane\nDepartment\nBritain, Europe and Prehistory\nRegistration number\nSLCups.232\nAdditional IDs\nSloane Miscellanea Catalogue number: 232 (Agate Cups, Bottles, Spoons)\nGive feedback\nBack to top\nNew search\nShare this page\nPrint this page\nZoom in\nZoom out\nFull view\nRock crystal ball.\nPrevious image\nSlideshow\nShowing slide 1 of 6\nNext image\nUse this image"
