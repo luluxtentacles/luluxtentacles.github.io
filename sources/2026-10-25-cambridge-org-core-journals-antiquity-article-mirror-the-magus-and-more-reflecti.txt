@@ -1,0 +1,715 @@
+source: https://www.cambridge.org/core/journals/antiquity/article/mirror-the-magus-and-more-reflections-on-john-dees-obsidian-mirror/38D4BFEA2CB9766973791029C2EE1289
+snapshot taken: 2026-10-25
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: The mirror, the magus and more: reflections on John Dee's obsidian mirror | Antiquity | Cambridge Core Logo for Cambridge Core from Cambridge University Press. Click to return to homepage.  Logo for Cambridge Core from Cambridge University Press. Click to return to homepage.
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+
+Accessibility help
+
+Login Alert
+
+Cancel
+
+Log in
+
+×
+
+×
+
+Discover Content
+
+Products and Services
+
+Register
+
+Log In
+
+(0) Cart
+
+Search
+
+Browse
+
+Services
+
+Open research
+
+Institution Login
+
+Search
+
+Hostname: page-component-8678677fb7-9r95c
+Total loading time: 0
+Render date: 2026-10-23T11:14:07.654Z
+Has data issue: false
+hasContentIssue false
+
+Home
+
+>Journals
+
+>Antiquity
+
+>Volume 95 Issue 384
+
+>The mirror, the magus and more: reflections on John...
+
+English
+
+Français
+
+Antiquity
+
+Article contents
+
+Abstract
+
+Introduction
+
+John Dee: scholar and magus
+
+Obsidian mirrors in the British Museum
+
+Geological provenance of the British Museum mirrors
+
+Discussion
+
+Conclusions
+
+References
+
+The mirror, the magus and more: reflections on John Dee's obsidian mirror
+
+Published online by Cambridge University Press:
+07 October 2021
+
+Stuart Campbell [Opens in a new window] ,
+
+Elizabeth Healey [Opens in a new window] ,
+
+Yaroslav Kuzmin [Opens in a new window] and
+
+Michael D. Glascock [Opens in a new window]
+
+Show author details
+
+Stuart Campbell* Affiliation:
+Department of Classics, Ancient History, Archaeology & Egyptology, University of Manchester, UK
+
+Elizabeth Healey Affiliation:
+Department of Classics, Ancient History, Archaeology & Egyptology, University of Manchester, UK
+
+Yaroslav Kuzmin Affiliation:
+Sobolev Institute of Geology and Mineralogy, Siberian Branch of the Russian Academy of Sciences, Novosibirsk, Russia
+
+Michael D. Glascock Affiliation:
+Archaeometry Laboratory, University of Missouri, USA
+
+*
+
+*Author for correspondence stuart.campbell@manchester.ac.uk
+
+Article
+
+Figures
+
+Supplementary materials
+
+Metrics
+
+Article contents
+Abstract
+
+Introduction
+
+John Dee: scholar and magus
+
+Obsidian mirrors in the British Museum
+
+Geological provenance of the British Museum mirrors
+
+Discussion
+
+Conclusions
+
+References
+
+Save PDF
+
+Save PDF (7 mb)
+View PDF
+[Opens in a new window] Save to Dropbox Save to Google Drive Save to Kindle
+
+Share
+
+Cite Rights & Permissions
+[Opens in a new window]
+
+Abstract
+
+The obsidian mirror associated with the Elizabethan polymath and magus John Dee (1527–1608/1609) has been an object of fascination for centuries. The mirror, however, has a deeper history as an Aztec artefact brought to Europe soon after the Spanish conquest. The authors present the results of new geochemical analysis, and explore its history and changing cultural context to provide insights into its meaning during a period in which entirely new world views were emerging. The biography of the mirror demonstrates how a complex cultural history underpins an iconic object. The study highlights the value of new compositional analyses of museum objects for the reinterpretation of historically significant material culture.
+
+Keywords
+
+MesoamericaAztecJohn DeeobsidianXRFmirrors
+
+Information
+
+Type
+Research Article
+
+Information
+
+Antiquity
+
+,
+Volume 95
+
+,
+Issue 384
+, December 2021 , pp. 1547 - 1564
+
+DOI: https://doi.org/10.15184/aqy.2021.132
+[Opens in a new window]
+
+Creative Commons
+
+This is an Open Access article, distributed under the terms of the Creative Commons Attribution licence (http://creativecommons.org/licenses/by/4.0/), which permits unrestricted re-use, distribution, and reproduction in any medium, provided the original work is properly cited.
+
+Copyright
+
+Copyright © The Author(s), 2021. Published by Cambridge University Press on behalf of Antiquity Publications Ltd.
+
+Introduction
+
+One of the most well-known objects on display in the British Museum's Enlightenment Gallery is the obsidian mirror associated with John Dee, the Renaissance polymath, magus and confidant of Queen Elizabeth I. The mirror's links to Dee's occult practices have created a unique set of meanings around this object. Nevertheless, other aspects of the mirror also deserve attention. As a material, for example, obsidian is often regarded as special; though widely used in tool manufacture, its use to make mirrors has often added to its allure and symbolic nature. Obsidian mirrors were first made in the seventh millennium BC in the Near East, although mirrors such as the one associated with Dee are likely to have been of Aztec origin (Ackermann & Devoy Reference Ackermann and Devoy2012; Smith Reference Smith and Baquedano2014). How this particular mirror came into his possession in sixteenth-century Europe is not entirely clear. Doubts have even been raised about how reliable its attribution to Dee is and whether it might be a copy, made with obsidian of European origin.
+
+Here we review the history of the mirror and its association with John Dee, together with similar artefacts in the British Museum (Table 1). This includes determination of the geological origins of these obsidian objects. Researching an expanded corpus of Mexican mirrors and related artefacts (see Table S1 in the online supplementary material (OSM)) allows us to place them within a wider perspective, helping us to understand how associated meanings may have accrued and changed over time as the objects moved through different contexts (Kopytoff Reference Kopytoff and Appadurai1986; Gosden & Marshall Reference Gosden and Marshall1999). This process took place at a critical period in history, in which the John Dee mirror is not only associated with the growing European engagement with the New World, but also came to symbolise the entangled relationship between science and magic in the late Renaissance. The contested position of the mirror across cultures and understandings of the world persists in its more recent collection history.
+
+Table 1.
+Details of the objects examined in the British Museum.
+
+John Dee: scholar and magus
+
+John Dee lived from 1527 to 1608/1609 (Harkness Reference Harkness1999; Woolley Reference Woolley2001; Clucas Reference Clucas2006; Parry Reference Parry2010) (Figure 1). He was an archetypal Renaissance scholar, writing on diverse subjects including alchemy and astrology. Dee initially straddled the fine line between natural ‘magic’, which was considered a science, and demonic magic, which was considered a perversion of religion (Kieckhefer Reference Kieckhefer1989: 9), but the one into which he eventually crossed. Dee amassed a vast library and collected a variety of navigational equipment. He also had several glass mirrors that he used to demonstrate optical illusions. He was well connected with European intellectuals and travelled extensively in Europe. In 1558, he became scientific advisor and astrologer to Queen Elizabeth I. Between c. 1550 and 1570, he advised on English voyages of discovery to the New World and showed great interest in accounts of the initial Spanish encounters in the region (Sherman Reference Sherman and Clucas2006). By the 1580s, he had become increasingly involved with the supernatural and took various scryers or mediums to communicate with spirits through the use of mirrors or crystals—most notably Edward Kelley—into his service as intermediaries between himself and the angels. It is for this period of his life that he is best known in the public imagination, and it was probably also the time that the obsidian mirror discussed here came to the fore.
+
+Figure 1.
+John Dee (c. 1594, anonymous) (image © Ashmolean Museum, University of Oxford).
+
+Exactly how and when Dee obtained this object is uncertain. Mirrors feature in several lists of early shipments of artefacts to Hapsburg Europe following the conquest of Mexico (1519–1521), including eight mirrors of various types sent in the care of Diego de Soto (Martínez Reference Martínez1990: no. 37). Dee would have had the opportunity to acquire one of these mirrors as he mixed in courts and diplomatic circles during his visits to Europe. He may have obtained “the mirror during his studies at Louvain during 1548–1550” (Ackermann & Devoy Reference Ackermann and Devoy2012: 543; see also Tait Reference Tait and Hunting1967: 205). A later date, however, may be more in keeping with his developing interest in the occult. As he maintained extensive intellectual and diplomatic contacts with the Hapsburg Empire, it is possible that he acquired the mirror while he lived in Bohemia in the early 1580s (Thrush Reference Thrush2016: 31), by which time New World objects were increasingly being displayed in the Kunstkammer of Europe (Yaya Reference Yaya2008).
+
+By c. 1770, the mirror was certainly in the possession of the politician and antiquarian Horace Walpole. A hand-written label on the case, written by Walpole himself, states: “The Black Stone into which Dr Dee used to call his Spirits V. his book. This Stone was mentioned in the Catalogue of the Collection of the Earls of Peterborough from whom it came to Lady Elizabeth Germaine”.
+
+Walpole further noted in 1784 that, in the now lost catalogue of the Earls of Peterborough, the object was described as “the black stone into which Dr Dee used to call his spirits” (Tait Reference Tait and Hunting1967: 200). This matches records documenting that the collection of the Earls of Peterborough passed to Sir John Germain in 1705, and subsequently to Lady Elizabeth Germaine (Ackermann & Devoy Reference Ackermann and Devoy2012: 542–43). It was probably part of the collection of the second Earl of Peterborough, Henry Mordaunt (1623–1697), as he possessed books on the occult, and Tait argued that it may originally have been acquired by the first Earl of Peterborough (Tait Reference Tait and Hunting1967: 210–11).
+
+While the association between the mirror and Dee has persisted, so too have questions concerning the lack of key documentation about the connection (Whitby Reference Whitby1988: 138–41; Harkness Reference Harkness1999: 30; Ackermann & Devoy Reference Ackermann and Devoy2012: 543). The link gains strong support, however, from a less well-known source from within the decade following Dee's death. Many of Dee's books and other possessions passed to John Pontois, following supernatural advice in one of Dee's final attempts to converse with angels (Roberts & Watson Reference Roberts and Watson1990: 60). In a 1624 lawsuit after Pontois's death, a deposition made by Thomas Hawes records seeing in Pontois's house—prior to the latter's departure to serve in the Virginia Company at the end of 1618—“a certain round flat stone like Cristall which Pountis said was a stone which an Angell brought to doctor dye [sic] wherein he did worke and know many strange things” (Roberts & Watson Reference Roberts and Watson1990: 61). Pontois's collection was only dispersed in 1625 and 1626, at which point the first Earl of Peterborough may have acquired it.
+
+The mirror changed hands several times after Walpole's collection was dispersed, and it was auctioned at least four times before its acquisition by the British Museum in 1966 (Tait Reference Tait and Hunting1967), where it immediately became a popular exhibit. Notably, the British Museum categorises the mirror by its association with Dee, placing it in the Department of Britain, Europe and Prehistory, rather than by its likely origin (Ackermann & Devoy Reference Ackermann and Devoy2012: 543). It has often been loaned to other museums for exhibitions on medicine, science and magic. Rather than focusing exclusively on the connection with Dee, it is useful to consider the mirror as an object with a wider context and a set of associations that changed during its history. The association with John Dee is important, but there is a wider story.
+
+Obsidian mirrors in the British Museum
+
+We examined the John Dee mirror, together with a group of related objects in the British Museum, including two other circular mirrors of similar type, and one rectangular mirror (Table 1). The latter three mirrors are held in the Department of Africa, Oceania and the Americas. Like Dee's mirror, the exact paths by which these objects moved from their original contexts to the British Museum are unclear, but all have notable biographies nonetheless.
+
+John Dee's mirror is almost circular, measuring 195 × 185mm, with a short, square, perforated tab or handle (artefact 1; Figure 2). Both the front and back surfaces have been finely ground and highly polished, with no pitting visible under low magnification. The mirror's well-preserved state may be because it was kept in a case—at least, by the time it was in Walpole's possession. Chipping around the perforation may have been caused by the mirror's suspension.
+
+Figure 2.
+The John Dee mirror (artefact 1) (figure by S. Campbell).
+
+The second mirror (artefact 2; Figure 3.1) is larger, measuring approximately 260mm in diameter, and has a teardrop-shaped tab. It was collected by William Bullock in Mexico in 1823, and formed part of his exhibition of Mexican material in the Egyptian Hall in Piccadilly, a display that greatly influenced the reintroduction of Mexican heritage to British attention (Costeloe Reference Costeloe2006; Achim Reference Achim2017: 36–46). The original catalogue describes it as “An Azteck Mirror, composed of a large plate of Obsidian, polished on both sides” (Bullock Reference Bullock1824: 30). It was purchased by the British Museum in 1825, following the closure of Bullock's exhibition, and is currently exhibited with John Dee's mirror in the Enlightenment Gallery, creating a new context by association. It was previously also exhibited in 2009/2010 in the British Museum's Moctezuma exhibition.
+
+Figure 3.
+Other mirrors and rectangular slab in the British Museum (artefacts 2–3 and 19) (figure by S. Campbell).
+
+The third circular mirror (artefact 3; Figure 3.2) has a square tab, like John Dee's mirror, and measures approximately 240mm in diameter. It was collected in the nineteenth century by Sir Edgar Thornton while he was an attaché in Mexico, before being acquired by the museum in 1907 (Tait Reference Tait and Hunting1967: 204). It is not currently on display, but has been loaned for exhibitions on Magical Consciousness (in Bristol) and Treasures of the World's Cultures (in Abu Dhabi, Bonn and Singapore).
+
+We also examined a rectangular slab (artefact 19; Figure 3.3) held in the British Museum collections. The object measures 225 × 190mm and is 30mm thick. It has one polished, mirror-like surface that appears identical to those of the circular mirrors, its underside is flat but rough, and the edges of the slab have been intentionally shaped by flaking. The object was acquired from an unknown source by Sir Cuthbert Edgar Peek, who presumably included it in his museum at Rousden in Dorset; it was purchased by the British Museum in 1926.
+
+Although circular mirrors are a well-known type of Aztec object, no examples have previously been confirmed by analytical provenancing. One circular mirror previously included in this category (Smith Reference Smith and Baquedano2014: tab 1.1, 9) has recently been shown to have come from the Mullumica obsidian deposit in Ecuador (Calligaro et al. Reference Calligaro, Chiappero, Gendron and Poupeau2019), and is therefore excluded here. Seven rectangular obsidian slabs with polished surfaces have been provenanced using proton-induced X-ray emission, with the conclusion that six come from the Ucareo-Zinapecuaro source area (following the nomenclature of Healan (Reference Healan1997)) and one from Pachuca (Calligaro et al. Reference Calligaro2007), both in central Mexico. X-ray fluorescence (XRF) traces a further example to the Ucareo-Zinapecuaro source area (Pixley Reference Pixley2013).
+
+Geological provenance of the British Museum mirrors
+
+To determine the source of the obsidian exploited for the artefacts in the British Museum, we used a portable XRF (pXRF) instrument (Niton XL3T 980 GOLDD+). The use of pXRF analysis has been successful in determining the geological sources of artefacts in many parts of the world (Craig et al. Reference Craig2007; Millhauser et al. Reference Millhauser, Rodríguez-Alegría and Glascock2011, Reference Millhauser2018; Frahm et al. Reference Frahm, Doonan and Kilikoglou2014). Our analytical procedure followed a well-established methodology (Campbell & Healey Reference Campbell and Healey2016). Three 90-second readings were taken in two locations on each mirror. Although the consistent readings from different spots—with a mean used for subsequent interpretation—are reassuring, we were unable to clean the surfaces of these museum objects. Thus, there was some potential for contamination resulting from several centuries of handling. While this seems unlikely to be a source of major error, such contamination could lead to some scattering of the readings.
+
+The instrument readings were subject to an internal fundamental parameters calibration and a further linear calibration against a set of 16 international standards, to produce final elemental concentrations (Table S2). The elements reported here have a good relationship to the published values for our set of international standards, with R2 values of >0.95 for elements included in Table 2. Repeatability is also good, with the percentage relative standard deviation below 10 per cent.
+
+Table 2.
+Results of artefacts and source analysis (selected elements); all values in ppm.
+
+To determine the exact source of obsidian, we analysed a series of geological samples from potential Mexican sources, selected from the collection of the University of Missouri after an initial review of the readings (Table 2). They included obsidian from Otumba (three samples), Pachuca (four samples), Ucareo (two samples) and Zaragoza (four samples)—all originally collected during the fieldwork of Robert H. Cobean. Each source sample was analysed five times, with the mean of each sample subsequently used. A comparison of the readings from these sources was made with results obtained in Missouri using a Bruker III-V pXRF instrument. This shows a high correspondence for manganese (R2 = 0.91), iron (R2 = 0.98), zinc (R2 = 0.97), rubidium (R2 = 0.95), strontium (R2 = 1.0) and yttrium (R2 = 0.99).
+
+Analysis of the data from the four mirrors indicates that they fall into two geochemical groups that remain consistent over multiple elements (Figure 4). Bivariate plots suggest that these two groups correspond closely to the geological source material from Pachuca and Ucareo. While the association with the Pachuca source samples is a little looser, the source itself is more varied (Lighthart Ponomarenko Reference Lighthart Ponomarenko2004).
+
+Figure 4.
+Scattergrams showing source differentiation using different element pairs (figure by S. Campbell).
+
+Artefact 1 (the John Dee mirror) closely matches the geological obsidian from Pachuca, as does Artefact 3, the one most similar in shape to the John Dee mirror. Artefacts 2 and 19 belong in the second compositional group, closely matching the geological obsidian from Ucareo. That the mirrors are made of obsidian from different sources is not particularly surprising, as several sources of obsidian were exploited by the Aztecs (Figure 5). The Pachuca source was the most heavily exploited and was located within Aztec territory. This obsidian is described as being particularly pure in quality and was the preferred material for prismatic blade cores (Lighthart Ponomarenko Reference Lighthart Ponomarenko2004). The Ucareo-Zinapecuaro source area was in Tarascan territory and includes several sub-sources, of which Ucareo is the most commonly attested archaeologically (Healan Reference Healan1997). This source sometimes outcrops in slabs, which make it ideal for mirror manufacture (Calligaro et al. Reference Calligaro2007: fig. 5). It is notable that eight of the nine rectangular slabs that have now been sourced come from Ucareo, suggesting that this may have been the location of specialist manufacture using a form of obsidian particularly suited to this application. Both sources were exploited in the Late Postclassical (1200–1521) and early colonial periods (1521 onwards).
+
+Figure 5.
+Map of obsidian sources (figure by S. Campbell).
+
+Discussion
+
+The mirrors in the British Museum are not unique. Smith (Reference Smith and Baquedano2014: tab. 1.1) identified 16 circular mirrors of Aztec origin in collections around the world. We can now exclude two of those examples and add an additional four, to give a total of 18 (Table S1). Most have tabs, presumably used to attach the mirror to the body of an individual or to a sculpture (Smith Reference Smith and Baquedano2014: 17). In some cases, the tab is broken, and others have no tab. Smith (Reference Smith and Baquedano2014: 19) suggested that these mirrors fall into two size groups, but this no longer seems clear: although diameters of 185–220mm are most common, examples occur up to 300mm in diameter. John Dee's mirror is at the smaller end of the range, but the other two circular mirrors that we examined are larger. Some may have had wooden frames, and the example now in the American Museum of Natural History has a decorated gilt frame that may be original (Saville Reference Saville1925: 87–88; Taube Reference Taube and Berlo1992: 184), or was perhaps a later addition (Smith Reference Smith and Baquedano2014: 17). Circular mirrors are depicted in codex illustrations created by Indigenous artists at the time of the Spanish conquest, seemingly with frames (Figures 6–7). Secure archaeological contexts for these objects are lacking; while most examples probably come from the Late Postclassical period (Smith Reference Smith and Baquedano2014), production of circular mirrors may have continued into the early colonial era.
+
+Figure 6.
+Aztec depictions of mirrors. Codex Tepetlaoztoc (Codex Kingsborough) (image © The Trustees of the British Museum).
+
+Figure 7.
+Tezcatlipoca, lord of the smoking mirror, with circular obsidian mirrors on his temple, his chest and his foot highlighted (Codex Borgia) (figure by S. Campbell, after Díaz & Rodgers Reference Díaz and Rodgers1993: pl. 17).
+
+Polished rectangular slabs are also well known. At least 31 objects of this type can be identified in museum collections (Table S1). They are often included alongside the circular mirrors, and the production of their polished upper surfaces seems to draw on the same technologies. They may, however, have had a different purpose, as none have tabs or suspension holes to enable attachment to a body or sculpture. Many were certainly used in the early colonial period as portable altars, or aras, by Christian missionaries (Saunders Reference Saunders and Toby-Evans2010), although we have no evidence that the latter were aware of the earlier symbolic significance of obsidian mirrors. The rectangular slabs were probably manufactured during the sixteenth century. In the second quarter of the sixteenth century, Gonzalo Fernández de Oviedo y Valdés “had four aras of black Mexican stone in Santo Domingo […] Viceroy Mendoza […] had sent the Emperor two black aras with ‘a vein in the middle, of bright red like a ruby’” (McAndrew Reference McAndrew1965: 357). In the late sixteenth century, Zinapecuaro (doubtless including the Ucareo source) was noted for the presence of a “quarry of black stone from which they have taken many good pieces for aras”, and in the market were “stones which serve for mirrors, and are very good for making altares” (McAndrew Reference McAndrew1965: 357). One small, rectangular slab bears an inscribed date interpreted as 9 December 1483 (Hamy Reference Hamy1883; Saunders Reference Saunders and Toby-Evans2010), suggesting that it may belong to an older tradition. That it is also the only known example made of Pachuca obsidian, however, also marks it as different (Calligaro et al. Reference Calligaro2007). The concentration of mirror production in the Ucareo-Zinapecuaro source area suggests that there was continuity in the knowledge of these sources, as well as in aspects of manufacturing technique. Four examples of rectangular slabs apparently come from funerary contexts (Table S1: Artefacts 25, 26, 36 and 44), suggesting that the role of these artefacts may be more varied—perhaps carrying connotations of protection, as noted below. In Aztec mythologies, there are many associations of obsidian with the underworld and with death (Saunders Reference Saunders2001: 224; Pastrana & Athie Reference Pastrana, Athie, Levine and Carballo2014: 96–97).
+
+Obsidian was an important resource in the Aztec Empire and was used for military and domestic equipment, as well as in religious activities (Pastrana & Athie Reference Pastrana, Athie, Levine and Carballo2014). During the final stage of the Aztec Empire, production of obsidian items was increasingly carried out by specialist craftsmen controlled by the elite (Melgar Tísoc & Solís Ciriaco Reference Melgar Tísoc and Solís Ciriaco2009). Mirrors, made of obsidian or pyrite, had complex symbolism and were time-consuming to manufacture (Gallaga Murrieta & Blainey Reference Gallaga Murrieta and Blainey2016). Much of the information about obsidian mirrors in the Aztec world comes from Fray Bernadino de Sahagún (c. 1499–1590), the Fransiscan missionary and ethnographer who compiled the General history of the things of New Spain in the early colonial period. Mirrors were made by specialists (tezcachiuhqui):
+
+The mirror stone-seller […] (is the one who makes them), a lapidary, a polisher. He abrades [… with] abrasive sand; he cuts; he carves; he uses glue […] polishes with a fine cane, makes it shiny. He sells mirror-stones—round, circular; pierced on both sides [translucent]; two-faced, single-faced, concave […] Mirrors are seldom used nowadays (Pastrana Cruz et al. Reference Pastrana Cruz, Fournier García, Parry, Otis Charlton and Alexander2019: 22).
+
+These types of mirrors and their origins were also described: “one is round; one is long: they call it acaltezcul. [These mirror stones] can be excavated in mines” (Dibble & Anderson Reference Dibble and Anderson1963: 228).
+
+Obtaining, working and using obsidian involved myth and ritual, while also having practical applications. Obsidian was used in many ways, including for medicinal and protective purposes; the reflective appearance acted as a shield against bad spirits, and captured the image and soul of a person (Pastrana & Athie Reference Pastrana, Athie, Levine and Carballo2014: 84–88). Perhaps unsurprisingly, several deities were associated with obsidian—most notably Tezcatlipoca, whose name means “smoking mirror” (Saunders Reference Saunders and Willis1990; Olivier Reference Olivier2003; Smith Reference Smith and Baquedano2014). He is commonly depicted with circular obsidian mirrors on his head, chest or back, and characteristically replacing his missing foot (Figure 7). Although a complex and ambivalent figure, his most relevant attributes in this context include prediction in a chaotic world, with his obsidian mirror acting as a medium and symbol of revelation, premonition and power (Olivier Reference Olivier2003).
+
+In varying ways, these mirrors were situated on the boundary between the pre-conquest and early colonial worlds of Mexico. In post-conquest Mexico, earlier beliefs and artefacts retained symbolic power and inherited meanings. Saunders (Reference Saunders2001: 227–28) has drawn attention to both the literal and syncretic incorporation of circular obsidian mirrors in atrial crosses of the early colonial period; some circular mirrors now in museum collections may have come from those crosses. Even the earliest artefacts sent from Mexico to Europe included many that were commissioned and designed by Spanish conquistador Hernán Cortés, potentially blurring the transition between pre- and post-conquest artefacts (Russo Reference Russo2011). While earlier technologies were almost certainly used in their manufacture, it is inevitable that the complex associations of obsidian mirrors retained relevance in Mexico during the sixteenth century, and perhaps more distantly in Europe as these objects were imported from Mesoamerica.
+
+When it made its appearance in a European context, the John Dee mirror fitted into a wider pattern, within which many of these artefacts have complex biographies, moving between owners and accruing different meanings as they transferred between cultural settings and continents. Given that they were often first documented within collections over the last 200 years, the biography of John Dee's mirror is unusually complete. Some of these biographies may interweave. Feest (Reference Feest1990: 32), for example, suggested that the acquisition of a rectangular mirror by Rudolf II (artefact 30, now in Vienna and probably acquired between 1607 and 1635) was perhaps inspired by John Dee's use of his own mirror while in Prague. Along with other elite artefacts that passed into European collections during and after the conquest of Mexico, it is difficult to know the extent to which meanings associated with these objects in their original Aztec context were retained by their new owners.
+
+Some rectangular slabs and one circular mirror were used to provide an innovative medium as ‘canvasses’ on which to paint, by, for example, Murrillo and Stella (Meslay Reference Meslay2001; Calligaro et al. Reference Calligaro2007; Pixley Reference Pixley2013). The Stella painted slab is the earliest, dating to c. 1630 (Pixley Reference Pixley2013: 17–18). The artists may have had little knowledge of the original purposes of these mirrors, although Murillo worked in Seville, which had long-established connections with New Spain. The visual appearance of the obsidian may therefore have influenced the subject matter (Meslay Reference Meslay2001). While these painted examples are slightly later than John Dee's use of his mirror, they similarly show the creative engagement afforded by a novel material and artefact type.
+
+When John Dee acquired his mirror, he obtained an unfamiliar and stimulating object, redolent of new and exotic knowledge, which would have been even more unique in an English than in a continental context (Yaya Reference Yaya2008). Given Dee's interest in the New World, he may have been aware of the significance of obsidian, and the omniscience of Tezcatlipoca's mirrors would have had an obvious attraction. Indeed, this may have been a primary reason for its acquisition. He also, however, lived in an era in which the use of mirrors for magical purposes in Europe—particularly black mirrors (Maillet Reference Maillet2004)—meant that the context was receptive to the use of a mirror of exotic origin (Forshaw Reference Forshaw, Boschung and Bremmer2015).
+
+Conclusions
+
+Our geochemical analysis allows us to demonstrate that all the obsidian mirrors in the British Museum are of Mexican origin. John Dee's mirror (Artefact 1) and a second mirror (Artefact 3) are similar in form and are both made of obsidian from the Pachuca source, which may prove to be typical of this type of artefact. The other mirror, with the tear-drop shaped tab (Artefact 2), and the rectangular slab (artefact 19) are made of obsidian from Ucareo.
+
+We have strengthened the association of the mirror with John Dee and argued that its study benefits from being placed into a wider context that considers both the history of the individual object and of the corpus of artefacts to which it originally belonged. This approach allows us to document how the meaning and understanding of an object can change with context and how new meanings are accrued. In this case, it illuminates several different episodes, helping us to understand the obsidian sources used to make elite artefacts in Aztec Mexico, the dispersal of such artefacts into colonial Europe and finally, John Dee's appropriation of what was then a novel artefact for occult practices in sixteenth century England. These artefacts continued to acquire new meanings as they moved through different collections and museum displays. Contexts of display always create meanings, and the contexts in which these objects have been displayed are exceptionally varied. The John Dee connection has been particularly charismatic, making his mirror, and others like it, representative in the modern world of the Aztecs, of the Elizabethan renaissance and of European occult beliefs, in a constant cycle of appropriation and repurposing.
+
+Acknowledgements
+
+We are indebted to Andrew Meeks, Jago Cooper, Kim Sloan and Naomi Speakman for their help in the British Museum. Fr Thomas Flowers, S.J. introduced us to Kieckhefer. We would like to thank the two anonymous reviewers for their helpful comments.
+
+Funding statement
+
+The pXRF instrument was provided by the archaeology laboratory in the School of Arts, Languages and Cultures, Department of Classics, Ancient History, Archaeology & Egyptology, University of Manchester. Y. Kuzmin's research was supported by the State Assignment of Sobolev Institute of Geology and Mineralogy.
+
+Supplementary material
+
+To view supplementary material for this article, please visit https://doi.org/10.15184/aqy.2021.132
+
+References
+
+Achim, M. 2017. From idols to antiquity: forging the National Museum of Mexico. Lincoln: University of Nebraska Press. https://doi.org/10.2307/j.ctt1w6tbhzCrossRefGoogle Scholar
+
+Ackermann, S. & Devoy, L.. 2012. ‘The lord of the smoking mirror’: objects associated with John Dee in the British Museum. Studies in History and Philosophy of Science Part A 43: 539–49. https://doi.org/10.1016/j.shpsa.2011.11.007CrossRefGoogle Scholar
+
+Bullock, W. 1824. A descriptive catalogue of the exhibition, entitled ancient and modern Mexico. London: J. Bullock. https://doi.org/10.5479/sil.153284.39088012533121Google Scholar
+
+Calligaro, T. et al. 2007. PIXE analysis of the obsidian support of two paintings from the Louvre by Murillo. Revista Mexicana de Física 53: 43–48.Google Scholar
+
+Calligaro, T., Chiappero, P.J., Gendron, F. & Poupeau, G.. 2019. New clues on the origin of the ‘Inca mirror’ at the Museum National d'Histoire Naturelle in Paris. Latin American Antiquity 30: 1–7. https://doi.org/10.1017/laq.2019.3CrossRefGoogle Scholar
+
+Campbell, S. & Healey, E.. 2016. Multiple sources: the pXRF analysis of obsidian from Kenan Tepe, S.E. Turkey. Journal of Archaeological Science: Reports 10: 377–89. https://doi.org/10.1016/j.jasrep.2016.10.014Google Scholar
+
+Clucas, S. (ed.). 2006. John Dee: interdisciplinary studies in English Renaissance thought. London: Springer. https://doi.org/10.1007/1-4020-4246-9CrossRefGoogle Scholar
+
+Costeloe, M.P. 2006. William Bullock and the Mexican connection. Mexican Studies 22: 275–309. https://doi.org/10.1525/msem.2006.22.2.275CrossRefGoogle Scholar
+
+Craig, N. et al. 2007. Comparison of XRF and PXRF for analysis of archaeological obsidian from southern Perú. Journal of Archaeological Science 34: 2012–24. https://doi.org/10.1016/j.jas.2007.01.015CrossRefGoogle Scholar
+
+Díaz, G. & Rodgers, A.. 1993. The Codex Borgia: a full-color restoration of the ancient Mexican manuscript. New York: Dover.Google Scholar
+
+Dibble, C.E. & Anderson, A.J.O.. 1963. The Florentine Codex: general history of the things of New Spain (book 11). Santa Fe (NM): School of American Research.Google Scholar
+
+Feest, C.F. 1990. Vienna's Mexican treasures: Aztec, Mixtec, and Tarascan works from 16th century Austrian collections. Archiv für Völkerkunder 44: 1–66.Google Scholar
+
+Forshaw, P.J. 2015. Magical material & material survivals: amulets, talismans, and mirrors in early modern Europe, in Boschung, D. & Bremmer, J.N. (ed.) The materiality of magic: 357–78. Paderborn: Wilhelm Fink. https://doi.org/10.30965/9783846757253_016Google Scholar
+
+Frahm, E., Doonan, R. & Kilikoglou, V.. 2014. Handheld portable X-ray fluorescence of Aegean obsidians. Archaeometry 56: 228–60. https://doi.org/10.1111/arcm.12012CrossRefGoogle Scholar
+
+Gallaga Murrieta, E. & Blainey, M.G. (ed.). 2016. Manufactured light: mirrors in the Mesoamerican realm. Boulder: University Press of Colorado. https://doi.org/10.5876/9781607324089Google Scholar
+
+Gosden, C. & Marshall, Y.. 1999. The cultural biography of objects. World Archaeology 31: 169–78. https://doi.org/10.1080/00438243.1999.9980439CrossRefGoogle Scholar
+
+Hamy, E.T. 1883. Note sur une inscription chronographique de la fin de la période aztèque, appartenant au Musée du Trocadéro. Revue d'Ethnographie 2: 193–202.Google Scholar
+
+Harkness, D.E. 1999. John Dee's conversations with angels: Cabala, alchemy, and the end of nature. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9781107340909CrossRefGoogle Scholar
+
+Healan, D.M. 1997. Pre-Hispanic quarrying in the Ucareo-Zinapécuaro obsidian source area. Ancient Mesoamerica 8: 77–100. https://doi.org/10.1017/S0956536100001590CrossRefGoogle Scholar
+
+Kieckhefer, R. 1989. Magic in the middle ages. Cambridge: Cambridge University Press.Google Scholar
+
+Kopytoff, I. 1986. The cultural biography of things: commoditization as process, in Appadurai, A. (ed.) The social life of things: commodities in cultural perspective: 64–92. Cambridge: Cambridge University Press. https://doi.org/10.1017/CBO9780511819582.004CrossRefGoogle Scholar
+
+Lighthart Ponomarenko, A.L. 2004. The Pachuca obsidian source, Hidalgo, Mexico: a geoarchaeological perspective. Geoarchaeology 19: 71–91. https://doi.org/10.1002/gea.10104CrossRefGoogle Scholar
+
+Maillet, A. 2004. The Claude Glass: use and meaning of the black mirror in Western art. New York: Zone Books.Google Scholar
+
+Martínez, J.L. 1990. Documentos Cortesianos I. Mexico City: Fondo de Cultura Económica.Google Scholar
+
+McAndrew, J. 1965. The open-air churches of sixteenth-century Mexico: atrios, posas, open chapels, and other studies. Cambridge (MA): Harvard University Press. https://doi.org/10.4159/harvard.9780674186354CrossRefGoogle Scholar
+
+Melgar Tísoc, E.R. & Solís Ciriaco, R.B.. 2009. Caracterización de huellas de manufactura en objetos lapidarios de obsidiana del Templo Mayor de Tenochtitlan. Arqueología 42: 118–34.Google Scholar
+
+Meslay, O. 2001. Murillo and ‘smoking mirrors’. The Burlington Magazine 143: 73–79.Google Scholar
+
+Millhauser, J.K., Rodríguez-Alegría, E. & Glascock, M.D.. 2011. Testing the accuracy of portable X-ray fluorescence to study Aztec and Colonial obsidian supply at Xaltocan, Mexico. Journal of Archaeological Science 38: 3141–52. https://doi.org/10.1016/j.jas.2011.07.018CrossRefGoogle Scholar
+
+Millhauser, J.K. et al. 2018. Geochemical variability in the Paredón obsidian source, Puebla and Hidalgo, Mexico: a preliminary assessment and inter-laboratory comparison. Archaeometry 60: 453–70. https://doi.org/10.1111/arcm.12330CrossRefGoogle Scholar
+
+Olivier, G. 2003. Mockeries and metamorphoses of an Aztec god: Tezcatlipoca, ‘lord of the smoking mirror’. Boulder: University Press of Colorado.Google Scholar
+
+Parry, G. 2010. The arch-conjuror of England: John Dee and magic at the courts of Renaissance Europe. New Haven (CT): Yale University Press.Google Scholar
+
+Pastrana, A. & Athie, I.. 2014. The symbolism of obsidian in postclassic central Mexico, in Levine, M.N. & Carballo, D.M. (ed.) Obsidian reflections: symbolic dimensions in Mesoamerica: 75–110. Boulder: University of Colorado Press.CrossRefGoogle Scholar
+
+Pastrana Cruz, A., Fournier García, P., Parry, W.J. & Otis Charlton, C.L.. 2019. Obsidian production and use in central Mexico after the Spanish invasion, in Alexander, R.T. (ed.) Technology and tradition in Mesoamerica after the Spanish invasion: archaeological perspectives: 15–33. Albuquerque: University of New Mexico Press. https://doi.org/10.5876/9781607323013.c003Google Scholar
+
+Pixley, M.L. 2013. Preserved for eternity on obsidian: a Baroque painting showing the miracle of milk at St. Catherine of Alexandria's martyrdom. Muse 46: 1–39.Google Scholar
+
+Roberts, J. & Watson, A.G.. 1990. John Dee's library catalogue. London: Bibliographical Society.Google Scholar
+
+Russo, A. 2011. Cortés's objects and the idea of New Spain: inventories as spatial narratives. Journal of the History of Collections 23: 229–52. https://doi.org/10.1093/jhc/fhq041CrossRefGoogle Scholar
+
+Saunders, N.J. 1990. Tezcatlipoca: jaguar metaphors and the Aztec mirror of nature, in Willis, R.G. (ed.) Signifying animals: human meaning in the natural world: 151–69. London: Routledge.Google Scholar
+
+Saunders, N.J. 2001. A dark light: reflections on obsidian in Mesoamerica. World Archaeology 33: 220–36. https://doi.org/10.1080/00438240120079262CrossRefGoogle Scholar
+
+Saunders, N.J. 2010. Obsidian mirror or portable altar, in Toby-Evans, S. (ed.) Ancient Mexican art in Dumbarton Oaks: 76–77. Washington, D.C.: Dumbarton Oaks.Google Scholar
+
+Saville, M.H. 1925. The wood-carver's art in ancient Mexico. New York: Museum of the American Indian & Heye Foundation. https://doi.org/10.5479/sil.263924.39088016090490CrossRefGoogle Scholar
+
+Sherman, W.H. 2006. John Dee's Columbian encounter, in Clucas, S. (ed.) John Dee: interdisciplinary studies in English Renaissance thought: 131–40. Dordrecht: Springer.CrossRefGoogle Scholar
+
+Smith, M.E. 2014. The archaeology of Tezcatlipoca, in Baquedano, E. (ed.) Tezcatlipoca: trickster and supreme deity : 7–39. Boulder: University Press of Colorado. https://doi.org/10.5876/9781607322887.c001Google Scholar
+
+Tait, H. 1967. The Devil's looking glass: the magical speculum of Dr John Dee, in Hunting, W. (ed.) Horace Walpole: writer, politician, and connoisseur : 195–212. New Haven (CT): Yale University Press.Google Scholar
+
+Taube, K.A. 1992. The iconography of mirrors at Teotihuacan, in Berlo, J.C. (ed.) Art, polity and the city of Teotihuacan: 169–204. Washington, D.C.: Dumbarton Oaks.Google Scholar
+
+Thrush, C. 2016. Indigenous London: native travelers at the heart of empire. New Haven (CT): Yale University Press. https://doi.org/10.12987/yale/9780300206302.001.0001CrossRefGoogle Scholar
+
+Whitby, C. 1988. John Dee's actions with spirits (volumes 1–2). New York: Garland.Google Scholar
+
+Woolley, B. 2001. The Queen's conjurer: the science and magic of Dr John Dee, advisor to Queen Elizabeth I. London: HarperCollins.Google Scholar
+
+Yaya, I. 2008. Wonders of America: the curiosity cabinet as a site of representation and knowledge. Journal of the History of Collections 20: 173–88. https://doi.org/10.1093/jhc/fhm038CrossRefGoogle Scholar
+
+View in content
+
+Table 1. Details of the objects examined in the British Museum.
+
+View in content
+
+Figure 1. John Dee (c. 1594, anonymous) (image © Ashmolean Museum, University of Oxford).
+
+View in content
+
+Figure 2. The John Dee mirror (artefact 1) (figure by S. Campbell).
+
+View in content
+
+Figure 3. Other mirrors and rectangular slab in the British Museum (artefacts 2–3 and 19) (figure by S. Campbell).
+
+View in content
+
+Table 2. Results of artefacts and source analysis (selected elements); all values in ppm.
+
+View in content
+
+Figure 4. Scattergrams showing source differentiation using different element pairs (figure by S. Campbell).
+
+View in content
+
+Figure 5. Map of obsidian sources (figure by S. Campbell).
+
+View in content
+
+Figure 6. Aztec depictions of mirrors. Codex Tepetlaoztoc (Codex Kingsborough) (image © The Trustees of the British Museum).
+
+View in content
+
+Figure 7. Tezcatlipoca, lord of the smoking mirror, with circular obsidian mirrors on his temple, his chest and his foot highlighted (Codex Borgia) (figure by S. Campbell, after Díaz & Rodgers 1993: pl. 17).
+
+Campbell et al. supplementary material
+
+Campbell et al. supplementary material
+
+PDF
+513.4 KB
+
+Campbell et al. supplementary material
+
+Table S1
+
+File
+19.3 KB
+
+Campbell et al. supplementary material
+
+Table S2
+
+File
+14 KB
+
+You have
+Access
+
+Open access
+
+7 Cited by
+
+Cited by
+
+Loading...
+
+Cited by
+
+0
+
+No CrossRef data available.
+
+Google Scholar Citations
+
+View all Google Scholar citations
+for this article.
+
+×
+
+Our Site
+
+Accessibility
+
+Contact & Help
+
+Legal Notices
+
+Cookie Settings
+
+Cancel your order
+
+Quick Links
+
+Cambridge Core
+
+Cambridge Open Engage
+
+Cambridge Aspire website
+
+Our Products
+
+Journals
+
+Books
+
+Elements
+
+Textbooks
+
+Courseware
+
+Join us online
+
+Location
+
+Please choose a valid location.
+
+Update
+
+Legal Information
+
+Rights & Permissions
+
+Copyright
+
+Privacy Notice
+
+Terms of Use
+
+Cookies Policy
+
+Cambridge University Press 2026
+
+Cancel
+
+Confirm
+
+×
+
+Save article to Kindle
+
+To send this article to your Kindle, first ensure no-reply@cambridge.org is added to your Approved Personal Document E-mail List under your Personal Document Settings on the Manage Your Content and Devices page of your Amazon account. Then enter the ‘name’ part of your Kindle email address below. Find out more about sending to your Kindle.
+Find out more about saving to your Kindle.
+
+Note you can select to save to either the @free.kindle.com or @kindle.com variations. ‘@free.kindle.com’ emails are free but can only be saved to your device when it is connected to wi-fi. ‘@kindle.com’ emails can be delivered even when you are not connected to wi-fi, but note that service fees apply.
+
+Find out more about the Kindle Personal Document Service.
+
+The mirror, the magus and more: reflections on John Dee's obsidian mirror
+
+Volume 95, Issue 384
+
+Stuart Campbell (a1), Elizabeth Healey (a1), Yaroslav Kuzmin (a2) and Michael D. Glascock (a3)
+
+DOI: https://doi.org/10.15184/aqy.2021.132
+
+Your Kindle email address
+
+Please provide your Kindle email.
+
+@free.kindle.com
+@kindle.com (service fees apply)
+
+Available formats
+
+PDF
+
+Please select a format to save.
+
+By using this service, you agree that you will only keep content for personal use, and will not openly distribute them via Dropbox, Google Drive or other file sharing services
+Please confirm that you accept the terms of use.
+
+Cancel
+
+Save
+
+×
+
+Save article to Dropbox
+
+To save this article to your Dropbox account, please select one or more formats and confirm that you agree to abide by our usage policies. If this is the first time you used this feature, you will be asked to authorise Cambridge Core to connect with your Dropbox account.
+Find out more about saving content to Dropbox.
+
+The mirror, the magus and more: reflections on John Dee's obsidian mirror
+
+Volume 95, Issue 384
+
+Stuart Campbell (a1), Elizabeth Healey (a1), Yaroslav Kuzmin (a2) and Michael D. Glascock (a3)
+
+DOI: https://doi.org/10.15184/aqy.2021.132
+
+Available formats
+
+PDF
+
+Please select a format to save.
+
+By using this service, you agree that you will only keep content for personal use, and will not openly distribute them via Dropbox, Google Drive or other file sharing services
+Please confirm that you accept the terms of use.
+
+Cancel
+
+Save
+
+×
+
+Save article to Google Drive
+
+To save this article to your Google Drive account, please select one or more formats and confirm that you agree to abide by our usage policies. If this is the first time you used this feature, you will be asked to authorise Cambridge Core to connect with your Google Drive account.
+Find out more about saving content to Google Drive.
+
+The mirror, the magus and more: reflections on John Dee's obsidian mirror
+
+Volume 95, Issue 384
+
+Stuart Campbell (a1), Elizabeth Healey (a1), Yaroslav Kuzmin (a2) and Michael D. Glascock (a3)
+
+DOI: https://doi.org/10.15184/aqy.2021.132
+
+Available formats
+
+PDF
+
+Please select a format to save.
+
+By using this service, you agree that you will only keep content for personal use, and will not openly distribute them via Dropbox, Google Drive or other file sharing services
+Please confirm that you accept the terms of use.
+
+Cancel
+
+Save
+
+×
+
+×
+
+Reply to:
+
+Submit a response
+
+Title *
+
+Please enter a title for your response.
+
+Contents *
+
+Contents help
+
+Close Contents help
+
+- No HTML tags allowed
+
+- Web page URLs will display as text only
+
+- Lines and paragraphs break automatically
+
+- Attachments, images or tables are not permitted
+
+Please enter your response.
+
+Your details
+
+First name *
+
+Please enter a valid first name. Only letters, spaces, hyphens, apostrophes, and periods are allowed.
+
+Last name *
+
+Please enter a valid last name. Only letters, spaces, hyphens, apostrophes, and periods are allowed.
+
+Email *
+
+Email help
+
+Close Email help
+
+Your email address will be used in order to notify you when your comment has been reviewed by the moderator and in case the author(s) of the article or the moderator need to contact you directly.
+
+Please enter a valid email address.
+
+Occupation
+
+Please enter your occupation.
+
+Affiliation
+
+Please enter any affiliation.
+
+You have entered the maximum number of contributors
+
+Conflicting interests
+
+Do you have any conflicting interests? *
+
+Conflicting interests help
+
+Close Conflicting interests help
+
+Please list any fees and grants from, employment by, consultancy for, shared ownership in or any close relationship with, at any time over the preceding 36 months, any organisation whose interests may be affected by the publication of the response. Please also list any non-financial associations or interests (personal, professional, political, institutional, religious or other) that a reasonable reader would want to know about in relation to the submitted work. This pertains to all the authors of the piece, their spouses or partners.
+
+Yes
+
+No
+
+More information *
+
+Please enter details of the conflict of interest or select 'No'.
+
+Please tick the box to confirm you agree to our Terms of use. *
+
+Please accept terms of use.
+
+Please tick the box to confirm you agree that your name, comment and conflicts of interest (if accepted) will be visible on the website and your comment may be printed in the journal at the Editor’s discretion. *
+
+Please confirm you agree that your details will be displayed.
