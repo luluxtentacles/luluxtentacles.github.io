@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <!-- card for "the label on the skirt" - one word sitting on top of another, and the top one is cream paper -->
+  <defs>
+    <radialGradient id="sglow" cx="0.5" cy="0.45" r="0.65">
+      <stop offset="0%" stop-color="#7a3fae" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#2a1236" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#0a0810" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pleat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.42"/>
+      <stop offset="100%" stop-color="#ff6ec7" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="#0a0810"/>
+  <circle cx="640" cy="400" r="470" fill="url(#sglow)"/>
+
+  <!-- the older name, big and faint, living underneath everything -->
+  <text x="640" y="452" text-anchor="middle" font-family="Georgia, serif" font-size="176" letter-spacing="14"
+        fill="#ff6ec7" opacity="0.11">MAMIANQUN</text>
+
+  <!-- the skirt: a waistband and pleats, thin, the object nobody argued about -->
+  <g>
+    <rect x="470" y="128" width="340" height="34" rx="6" fill="#241028" stroke="#ff6ec7" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M470 162 L330 640 L950 640 L810 162 Z" fill="none" stroke="url(#pleat)" stroke-width="2.5"/>
+    <g stroke="#ff6ec7" stroke-opacity="0.2" stroke-width="1.6">
+      <line x1="523" y1="168" x2="418" y2="636"/>
+      <line x1="576" y1="168" x2="506" y2="636"/>
+      <line x1="629" y1="168" x2="594" y2="636"/>
+      <line x1="682" y1="168" x2="682" y2="636"/>
+      <line x1="735" y1="168" x2="770" y2="636"/>
+      <line x1="788" y1="168" x2="858" y2="636"/>
+    </g>
+  </g>
+
+  <!-- the label itself: cream paper, tilted, sewn across the waistband and covering the name -->
+  <g transform="rotate(-4 640 330)">
+    <rect x="392" y="248" width="508" height="182" rx="5" fill="#000000" opacity="0.35" transform="translate(7,9)"/>
+    <rect x="392" y="248" width="508" height="182" rx="5" fill="#e8dcc0"/>
+    <!-- the stitching round the edge, because a label that gets sewn in stays -->
+    <rect x="404" y="260" width="484" height="158" rx="2" fill="none" stroke="#b9a985" stroke-width="1.5" stroke-dasharray="9 7"/>
+    <text x="432" y="318" font-family="Georgia, serif" font-size="46" letter-spacing="2" fill="#2a2118">HALLMARK</text>
+    <text x="432" y="364" font-family="Georgia, serif" font-size="46" letter-spacing="2" fill="#2a2118">SILHOUETTE</text>
+    <text x="432" y="398" font-family="Georgia, serif" font-style="italic" font-size="21" fill="#4a3b2c">a new elegant and modern variation</text>
+    <text x="790" y="398" text-anchor="end" font-family="monospace" font-size="19" fill="#6a5642">$3,800</text>
+  </g>
+
+  <!-- a tag on a thread, hanging off the waistband, the market's own price on the same garment -->
+  <line x1="812" y1="150" x2="1010" y2="196" stroke="#ffd7ef" stroke-opacity="0.4" stroke-width="2"/>
+  <g transform="rotate(7 1082 246)">
+    <rect x="1006" y="196" width="152" height="98" rx="4" fill="#1a0f1c" stroke="#ff6ec7" stroke-opacity="0.5" stroke-width="2"/>
+    <text x="1082" y="228" text-anchor="middle" font-family="monospace" font-size="14" fill="#ffd7ef" opacity="0.8">the same shape</text>
+    <text x="1082" y="250" text-anchor="middle" font-family="monospace" font-size="14" fill="#ffd7ef" opacity="0.8">already had a name</text>
+    <text x="1082" y="276" text-anchor="middle" font-family="monospace" font-size="13" fill="#ff6ec7">and a price</text>
+  </g>
+
+  <!-- title and footer -->
+  <text x="640" y="86" text-anchor="middle" font-family="Georgia, serif" font-size="54" fill="#ffd7ef">the label on the skirt</text>
+  <text x="640" y="700" text-anchor="middle" font-family="monospace" font-size="18" fill="#ff6ec7" opacity="0.65">dior, 马面裙, and a noun that already belonged to somebody</text>
+</svg>
