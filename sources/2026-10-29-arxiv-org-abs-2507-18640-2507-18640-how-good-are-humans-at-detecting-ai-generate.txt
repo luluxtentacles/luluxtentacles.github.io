@@ -1,0 +1,239 @@
+source: https://arxiv.org/abs/2507.18640
+snapshot taken: 2026-10-29
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: [2507.18640] How good are humans at detecting AI-generated images? Learnings from an experiment
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+
+Search
+
+Submit
+Donate
+
+Log in
+
+Search arXiv
+
+Press Enter to search · Advanced search
+
+Computer Science > Human-Computer Interaction
+
+arXiv:2507.18640 (cs)
+
+[Submitted on 12 May 2025]
+
+Title:How good are humans at detecting AI-generated images? Learnings from an experiment
+
+Authors:Thomas Roca, Anthony Cintron Roman, Jehú Torres Vega, Marcelo Duarte, Pengce Wang, Kevin White, Amit Misra, Juan Lavista Ferres
+
+View a PDF of the paper titled How good are humans at detecting AI-generated images? Learnings from an experiment, by Thomas Roca and 6 other authors
+
+View PDF
+HTML (experimental)
+
+Abstract:As AI-powered image generation improves, a key question is how well human beings can differentiate between "real" and AI-generated or modified images. Using data collected from the online game "Real or Not Quiz.", this study investigates how effectively people can distinguish AI-generated images from real ones. Participants viewed a randomized set of real and AI-generated images, aiming to identify their authenticity. Analysis of approximately 287,000 image evaluations by over 12,500 global participants revealed an overall success rate of only 62\%, indicating a modest ability, slightly above chance. Participants were most accurate with human portraits but struggled significantly with natural and urban landscapes. These results highlight the inherent challenge humans face in distinguishing AI-generated visual content, particularly images without obvious artifacts or stylistic cues. This study stresses the need for transparency tools, such as watermarks and robust AI detection tools to mitigate the risks of misinformation arising from AI-generated content
+
+Subjects:
+
+Human-Computer Interaction (cs.HC); Artificial Intelligence (cs.AI); Computer Vision and Pattern Recognition (cs.CV)
+
+Cite as:
+arXiv:2507.18640 [cs.HC]
+
+(or
+arXiv:2507.18640v1 [cs.HC] for this version)
+
+https://doi.org/10.48550/arXiv.2507.18640
+
+Focus to learn more
+
+arXiv-issued DOI via DataCite
+
+Submission history
+From: Thomas Roca [view email]
+
+[v1]
+Mon, 12 May 2025 21:55:13 UTC (5,552 KB)
+
+Full-text links:
+
+Access Paper:
+
+View a PDF of the paper titled How good are humans at detecting AI-generated images? Learnings from an experiment, by Thomas Roca and 6 other authors
+
+View PDF
+
+HTML (experimental)
+
+TeX Source
+
+view license
+
+Additional Features
+
+Audio Summary
+
+Current browse context:
+
+cs.HC
+
+< prev
+
+|
+next >
+
+new
+|
+recent
+| 2025-07
+
+Change to browse by:
+
+cs
+
+cs.AI
+
+cs.CV
+
+References & Citations
+
+SciX
+
+Google Scholar
+
+Semantic Scholar
+
+export BibTeX citation
+Loading...
+
+BibTeX formatted citation
+
+×
+
+loading...
+
+Data provided by:
+
+Bookmark
+
+Bibliographic Tools
+
+Bibliographic and Citation Tools
+
+Bibliographic Explorer Toggle
+
+Bibliographic Explorer (What is the Explorer?)
+
+Connected Papers Toggle
+
+Connected Papers (What is Connected Papers?)
+
+Litmaps Toggle
+
+Litmaps (What is Litmaps?)
+
+scite.ai Toggle
+
+scite Smart Citations (What are Smart Citations?)
+
+Code, Data, Media
+
+Code, Data and Media Associated with this Article
+
+alphaXiv Toggle
+
+alphaXiv (What is alphaXiv?)
+
+Links to Code Toggle
+
+CatalyzeX Code Finder for Papers (What is CatalyzeX?)
+
+DagsHub Toggle
+
+DagsHub (What is DagsHub?)
+
+GotitPub Toggle
+
+Gotit.pub (What is GotitPub?)
+
+Huggingface Toggle
+
+Hugging Face (What is Huggingface?)
+
+ScienceCast Toggle
+
+ScienceCast (What is ScienceCast?)
+
+Demos
+
+Demos
+
+Replicate Toggle
+
+Replicate (What is Replicate?)
+
+Spaces Toggle
+
+Hugging Face Spaces (What is Spaces?)
+
+Spaces Toggle
+
+TXYZ.AI (What is TXYZ.AI?)
+
+Related Papers
+
+Recommenders and Search Tools
+
+Link to Influence Flower
+
+Influence Flower (What are Influence Flowers?)
+
+Core recommender toggle
+
+CORE Recommender (What is CORE?)
+
+Author
+
+Venue
+
+Institution
+
+Topic
+
+About arXivLabs
+
+arXivLabs: experimental projects with community collaborators
+
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+
+Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs.
+
+Which authors of this paper are endorsers? |
+Disable MathJax (What is MathJax?)
+
+We gratefully acknowledge support from our major funders,
+member institutions, ,
+and all contributors.
+
+About ·
+Help ·
+Contact ·
+Subscribe ·
+Copyright ·
+Privacy ·
+Accessibility ·
+Operational Status (opens in new tab)
+
+Major funding support from
+
+(opens in new tab)
+
+(opens in new tab)
+
+(opens in new tab)
