@@ -1,0 +1,893 @@
+source: https://www.reddit.com/r/cats/comments/1uye0qo/letting_users_remove_posts
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-10-29
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Letting users remove posts. : r/cats
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+Repost
+Go to cats
+r/cats
+•
+3mo ago
+u/Merari01
+Letting users remove posts.
+Discussion
+
+Hello everyone,
+
+As you are aware, on reddit moderators approve and remove content and subreddit subscribers can report to us.
+
+Today we'd like to start an experiment here on r/Cats where we will give trusted subreddit participants access to a keyword that will allow them to remove posts.
+
+When you exceed a certain level of subreddit specific comment karma and when you have a CQS score of highest you can now use the keyword "!remove" to pull a post from our feed. (Spelled exactly like that, case sensitive, top-level comment only as opposed to a reply to a comment.)
+
+This will work for posts only, not for comments.
+
+There are some things to keep in mind:
+
+When you comment here on an account that exceeds the limit automod will assign you a special flair class and send you a message explaining you can now use the keyword.
+
+Users will keep their existing flair text. However, changing your flair to a different pre-made flair option will also reset the flair class giving you access to this removal ability. Next comment you make it will be re-applied and you will be sent another message.
+
+We are sent a modmail when a subscriber removes a post, explaining what post was removed and who used the keyword. Please do not abuse this ability. If posts are removed for bad reasons we will take away your ability to remove posts.
+
+That means, use this keyword if you see spam or other rulebreaking posts only.
+
+Please keep in mind that it is currently very popular to accuse posters of making an AI generated post. An accusation does not mean that what they are being accused of is true. Human beings can detect AI at 60% accuracy, just a little better than the results of flipping a coin. An AI can only accurately detect AI content if an AI watermark is attached to the image. It is best not to remove a post just because someone is accused of something. Use your own best judgement and our rules as your litmus, not what other people are saying.
+
+Since this is a test run, when I ran a very minor proof of concept trial, a few people have already been assigned this special flair class who have not been sent a message. u/kiaeej, u/chux4w, u/MilmoWK, u/ms_rdr, u/Electronic_Ad357, u/WhiteMouse42097, u/BeMoreKnope, u/bluecedarood, u/Robobanditos, congratulations, you can remove posts.
+
+Should you for any reason not want to have this ability then you should send us a modmail after receiving the message from automod. That way we can exempt you in our code.
+
+Initially we are going to monitor how this functions closely so we can see if we need to make changes to the threshold level for activation.
+
+Nothing will change about the way we handle user-made reports on content. This is not a replacement for that, but an addition. If you see rulebreaking content of any kind, please report.
+
+We hope that this change will be something that has a positive influence on the content on this subreddit.
+
+Thank you for reading, and thank you all for making this subreddit a great place to be
+
+Share
+Roblox
+•
+Ad
+Be anyone. Build any life. Discover roleplay worlds on Roblox.
+Play Now
+roblox.com
+Collapse video player
+Sort by:
+Comments Section
+CashewSwagger
+•
+3mo ago
+
+Excellent idea to increase response time on problematic posts. Good thinking!
+
+catcuddlezzz
+•
+2mo ago
+
+I think mods act so quickly I don’t even see them. How would you describe problematic posts? (So I know what to look out for?)
+
+aiko_builds
+•
+3mo ago
+
+!remove
+
+Merari01
+•
+3mo ago
+
+Nice try, but obviously moderator posts are exempted in the code
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Lol
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+I'm excited to see how this is going to play out
+
+Minifig81
+•
+3mo ago
+Moxie Roo
+
+So are we.
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Just casually referring to yourself as we
+
+Minifig81
+•
+3mo ago
+Moxie Roo
+
+I meant the mod team of this subreddit as a whole.
+
+MoonPieKitty
+•
+3mo ago
+Tuxedo
+
+Without my glasses, I thought you called ALazy_Cat an a-hole and I was about to report you to a MOD. 😂😂
+
+I now have my glasses. Have a good day.
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Imagine a mod calling another mod an asshole in public when they're a mod on the same sub
+
+Cozy_Willow6632
+•
+1mo ago
+Rusty_Meadow4570
+•
+2mo ago
+Minifig81
+•
+3mo ago
+Moxie Roo
+
+LoL.
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+If you called me an asshole, it would only be fair for me to call you an asshole back and create some internal mod banter in the public
+
+Minifig81
+•
+3mo ago
+Moxie Roo
+
+Yup, but you know I wouldn't do that.
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Would be funny though
+
+Elegant_Range4914
+•
+2mo ago
+Marcieford
+•
+3mo ago
+
+😂😅🤣
+
+Holden3DStudio
+•
+3mo ago
+
+I wish more subs would do this. There's one that has been over 90% bots lately (I checked it out of curiosity). Most of the accounts posting were 0 days old. Some were even reposting content that had just been posted the day before. It's getting out of hand, and people don't understand the serious implications of social engineering via karma farming.
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Not all subs can do this. Some subs have users too happy to remove posts to even attempt this
+
+Holden3DStudio
+•
+3mo ago
+
+True. There are some gung-ho Karens out there! 🤣
+
+Elegant_Range4914
+•
+2mo ago
+survivaloftheartist
+•
+2mo ago
+
+your flair is EVERYTHING.
+
+ALazy_Cat
+•
+2mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Sadly I can't take credit for it, but thank you
+
+nicoleof1984
+•
+2mo ago
+
+Why did they remove the picture of the adorable little boy and his cat in Gaza? It got 700 upvotes in 25 minutes and all positive comments?
+
+ALazy_Cat
+•
+2mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Go in modmail for this. Mod actions are never discussed in public
+
+u/huntresslabs
+•
+Ad
+Reddit had some nice things to say.
+huntress.com
+Learn More
+Resplendent-Sun
+•
+3mo ago
+Domestic Housecat
+
+Are there a lot of posts that get taken down as it is? I'm guessing most users don't see the backend so we don't know.
+
+Anyhow, thanks for the work that y'all do!
+
+Merari01
+•
+3mo ago
+
+These are our stats for the past year, showing published posts in blue and removals in grey
+
+EstablishmentHot6541
+•
+3mo ago
+Russian Blue
+
+I find it wild how evenly distributed the removals are, until June. Then a lil hike, and a leap down to July
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+I believe it updates once per day, so you're only seeing half a month
+
+Elegant_Range4914
+•
+2mo ago
+Elegant_Range4914
+•
+2mo ago
+PatioGardener
+•
+3mo ago
+
+Interesting. I’m a mod in another group and I didn’t even know we could do this. Thanks for the add.
+
+id0ntexistanymore
+•
+3mo ago
+•
+Edited 3mo ago
+
+We need a bot patrol weeoowEEOOO
+
+Wait why do I have a mod flair 😅
+
+I swear I read the post before commenting, apparently it just took a little longer for things to connect lol
+
+(I will say I haven't received any automod explanation yet)
+
+Merari01
+•
+3mo ago
+
+Where are you seeing this flair?
+
+id0ntexistanymore
+•
+3mo ago
+
+https://preview.redd.it/rqgtwbmdeodh1.png?width=1080&format=png&auto=webp&s=e8783552c1a32476ec8938490c742dbb0fd178f4
+
+I use a 3rd party app and noticed it right after making that initial comment about bots. It also shows on u/its_bennyyy on my end. I was gonna see if it was a glitch my trying to remove my own comment but also didn't want to make a false report on myself lol
+
+its_bennyyy
+•
+3mo ago
+Mod 🐈
+
+I’m a mod here :) maybe I should’ve used the “show mod label” feature on my initial comment. I added it now to remove any confusion!
+
+id0ntexistanymore
+•
+3mo ago
+
+Ah! See, your "mod" flair showed up blue and lowercase like mine, not caps and pink like the others (which I guess is how it shows on my app when the mod label is selected) lol so I just assumed 🤦🏽‍♀️
+
+Merari01
+•
+3mo ago
+
+You won't be able to remove comments, only posts, using the keyword.
+
+The flair class being visible to you is a result of you using a 3rd party app.
+
+It is invisible to users on old reddit and shreddit.
+
+You might stop seeing it if you give yourself a user flair on this subreddit.
+
+id0ntexistanymore
+•
+3mo ago
+
+You won't be able to remove comments, only posts, using the keyword.
+
+The way I forgot about this in between reading the post and making that comment 🫠 Today is just not my day lol
+
+u/Gameloft_Games
+•
+Ad
+Play, explore, and capture every moment with Bluey and Bingo
+Learn More
+uac.sng.link
+Collapse video player
+Bender_on_Bum
+•
+3mo ago
+Moggy
+
+i really hope this goes well. I'm sure there will be people who abuse it as they always will, but if nothing else, would love if there were more people added to the "Special flair class" for actually doing what was intended.
+
+along with this, could there be a "!review" command so others who meet the requirement can see it and and go yes/no. was thinking this for it might be a rule breaking post, mostly down to rule 3, as what i view as low effort, for instance, might not be the same as others and the mod team.
+
+Thoughts?
+
+Merari01
+•
+3mo ago
+
+We're sent a modmail every time the keyword is used and are able to exclude specific users in the code.
+
+So far a couple of hundred keyword access messages have been sent out and it's been used inappropriately zero times.
+
+It helps that the requirements are steep. The only people getting access are longterm subscribers who know this sub and its culture, and rules.
+
+Bender_on_Bum
+•
+3mo ago
+Moggy
+
+thats good to know. i got the mail but wasn't sure if it was sent to all, or just us.
+
+boIica
+•
+3mo ago
+
+My cqs is highest but what does that mean??? I'm just really active in my favorite subreddits like the sims 3 and cats
+
+Merari01
+•
+3mo ago
+
+https://support.reddithelp.com/hc/en-us/articles/19023371170196-What-is-the-Contributor-Quality-Score
+
+This explains CQS
+
+boIica
+•
+3mo ago
+
+Oh thank you! I totally misunderstood the post and thought that highest cqs meant you're like a spammer or something. Thank you
+
+AintNobodygotime13
+•
+3mo ago
+Lots of kitties!
+
+every sub should have this
+
+would cut down on the nonsense exponentially
+
+Important_Bid_4321
+•
+3mo ago
+
+I think this could really help keep the subreddit cleaner and more engaging! Can't wait to see it in action.
+
+aaa11aaa
+•
+3mo ago
+
+0
+
+its_bennyyy
+•
+3mo ago
+Mod 🐈
+
+Looking forward to seeing this in action
+
+zumera
+•
+3mo ago
+
+Interesting experiment!
+
+Eastern-Protection83
+•
+3mo ago
+
+Very interestin! I hope this works out great!
+
+May I also suggest to request anyone whom removes a post also, report via 'custom report' or whatever is applicable because context of why a person thinks somethin is in violation of the rules is not always apparent to another
+
+Merari01
+•
+3mo ago
+
+Once a post is removed it can no longer be reported.
+
+Eastern-Protection83
+•
+3mo ago
+
+Switch the "order"
+
+A removed post will retain the report on it fer the mod team to see. This only makes it easier on your mod team than to have a mod double checkin why a post was removed. Is it spam, was it stolen content, etc instead of searchin through post comments to get a clue why. If not spot checkin is the plan, this suggestion is moot
+
+Merari01
+•
+3mo ago
+
+People are free to make a comment, but a removed post can not have reports on it.
+
+We are sent a modmail with every post that is removed.
+
+Eastern-Protection83
+•
+3mo ago
+
+Honestly, very curious how that was coded. But I wouldn't know how anyway since its programmin out of my scope with external code to check if any reports were made on a post and then to allow the removal command usin automod
+
+The whole is a novel furtherance of crowdsourcin with extra eyes on the sub and very interestin
+
+Some-Body-Else
+•
+3mo ago
+Tabbycat
+
+Great idea!
+
+JupiterSWarrior
+•
+3mo ago
+
+I’ve a silly question. What is a “CQS score”?
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+You can check your CQS at r/WhatIsMyCQS
+
+Merari01
+•
+3mo ago
+
+https://support.reddithelp.com/hc/en-us/articles/19023371170196-What-is-the-Contributor-Quality-Score
+
+CompleteDeniability
+•
+3mo ago
+
+Is there like a sandbox where we can try this in this sub?
+
+Merari01
+•
+3mo ago
+
+I could make a test post, but you are not eligible for the ability yet.
+
+IronFeather101
+•
+3mo ago
+
+That's interesting, I hope it works out well!
+
+ALazy_Cat
+•
+3mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+From my knowledge, only two abused one, one of which because they thought it worked on comments
+
+BlepMaster500
+•
+3mo ago
+
+Holy meowers!
+
+I HAVE DA POWAAAAHHHH!!!
+
+Calculagraph
+•
+3mo ago
+
+I'm interested to see how this works; an interesting experiment at the least.
+
+PinkPussycatPower
+•
+3mo ago
+Maine Coon
+
+Wow, I’m excited to see how the experience goes! 🍀
+
+NewRefrigerator1254
+•
+3mo ago
+Tortoiseshell
+
+Sounds like a good idea
+
+Aelis_
+•
+3mo ago
+
+Just would like to point out these parameters can be easily influenced using scripting to post comments and raise karma, therefore I do encourage and the mods to consider reverifying the removed posts , and to involve humans
+
+ALazy_Cat
+•
+2mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+We always get a notification when it's used so we can check it
+
+Aelis_
+•
+2mo ago
+
+ah, that is reassuring! thank you 😊
+
+1hockeygirl97
+•
+2mo ago
+
+Dino looks like he had a rough night at the cat bar last night.
+
+Your_lovely_friend
+•
+2mo ago
+
+Meow
+
+virtualchoirboy
+•
+2mo ago
+American Shorthair
+
+Very interesting experiment. I hope it's successful.
+
+Wise-Vegetable-1997
+•
+2mo ago
+
+My post got removed lol
+
+ALazy_Cat
+•
+2mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+Send a modmail about it
+
+SurgyJack
+•
+2mo ago
+
+Some kind of general filter would be handy if there isn't one already.
+
+I love cute kitty pics and I feel for people who lose theirs; but when every 4th post is "here's my now dead cat" it's kind of a bummer ;(
+
+ALazy_Cat
+•
+2mo ago
+🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
+Top 1% Commenter
+
+-flair_text:"loss"
+
+Only works while in the sub, doesn't work on your overall feed
+
+DataRevolutionary165
+•
+2mo ago
+
+When the queen is due for a nap
+
+Fearless_Fill_5366
+•
+1mo ago
+Dildondo
+•
+1mo ago
+
+How do I block all the mourning/loss posts without blocking the entire sub?
+
+Soxwin91
+•
+1mo ago
+American Shorthair
+
+It’s explained in the sidebar but mostly works most effectively on the desktop site.
+
+The_Flying_Skunk
+•
+25d ago
+
+I posted an Original Picture and mods took it down with no explanation. Would be nice to know why... I thought it was a great picture. I guess this is a toxic community or?
+
+The_Flying_Skunk
+•
+25d ago
+
+All good - I unjoined - not worth being a part of something toxic
+
+Intrepid-Cloud9965
+•
+17d ago
+
+2026ig
+
+Intrepid-Cloud9965
+•
+17d ago
+
+ehee
+
+Ok-Newspaper4637
+•
+15d ago
+
+Mods just removed a post about why people kiss their cats with tons of cute photos...wtf
+
+stancucinelli
+•
+15d ago
+
+I left a cute jokey comment on a post yesterday and it was removed for no reason
+
+Longjumping-Lock-241
+•
+11d ago
+
+Benny and Boozhie
+
+icyitzie
+•
+3mo ago
+Orange
+
+OMGGGGG I am excited on this one, this is good idea kudos to y'all mods
+
+[deleted]
+•
+2mo ago
+[deleted]
+•
+3mo ago
+[deleted]
+•
+1mo ago
+Created Apr 14, 2008
+Public
+3.4M78K
+USER FLAIR
+Fair_Dinner_4295
+COMMUNITY BOOKMARKS
+Wiki
+Rules Explained
+r/Cats Discord
+Exclude flair
+Sort by flair
+EXCLUDE MOURNING/ LOSS POSTS
+
+This button will show you a feed excluding mourning/ loss posts. This does not work on Apple devices!
+
+Exclude mourning posts
+Exclude mourning posts
+MANUALLY EXCLUDE FLAIRS
+
+If you are on the app then the button for filtering flairs from your feed may not work.
+
+If you navigate to the search function in r/cats you can manually exclude specific filters like so:
+
+-flair_text:"loss"
+
+This will exclude "mourning/ loss" posts from your feed.
+
+If you want to exclude more than one flair type then you can add a second query after the first like so:
+
+-flair_text:"loss" -flair_text:"medical"
+
+Where each new query is added after a space.
+
+The default sorting option is "relevant". You can manually alter that to "new" or "hot" should that be your preferred sort.
+
+DISCORD
+
+Join our Discord server!
+
+discord.gg/rcats
+discord.gg/rcats
+R/CATS RULES
+1
+Respect other users
+2
+No Animal Cruelty or NSFW Content
+3
+No Spam, Memes, Low-Effort Content, Ads or Fundraising
+4
+No False OC or Content Theft
+5
+Use Correct Flair & Follow Post Guidelines
+6
+Disallowed Topics
+7
+'Name my cat/kitten' posts are allowed, but require the correct flair + verification to ensure OC.
+8
+Moderator Discretion
+SUBREDDIT FRIENDS
+r/happycowgifs
+406,433 members
+r/PupliftingNews
+541,588 members
+r/kittengifs
+98,279 members
+r/hydrokitties
+123,317 members
+r/rescuecats
+44,632 members
+r/teefies
+417,580 members
+r/Straycats
+67,130 members
+r/tortitude
+13,527 members
+r/piratecats
+10,208 members
+MEDICAL ADVICE
+
+The moderators of this subreddit are not responsible for any medical advice given and we suggest that you don't follow or post it. Go see a vet! Please do not give medical advice to posters if you are not a medical professional with experience treating cats.
+
+SORT BY FLAIR
+Cat Picture - OC
+Video - OC
+🎤 Cat Talk 🎙️
+Stories
+Announcement
+Humor
+Advice
+Medical Questions
+Mourning/Loss
+4 MILLION EVENT WINNERS!
+
+Click here to see who won :)
+
+4M subscriber contest!
+4M subscriber contest!
+MODERATORS
+Message Mods
+u/Minifig81
+
+Moxie Roo
+Minifig, though if we're friends, call me Mini.
+u/Merari01
+u/PhlogistonAster
+u/lordairbus
+
+Human catnip
+Airbus
+u/stuffed02
+
+2 grumpy kitties
+u/adzm
+u/iamdeirdre
+
+Creamsicle cat
+I am Deirdre!
+u/Jennyreviews1
+Lover of Cats 💜😻
+u/I_Am_A_Real_Hacker
+u/sweatycat
+
+Alumni
+View all moderators
+INSTALLED APPS
+updateme-dev
+Modmail Automator
+Bot Bouncer
+Flooding Assistant
+Trending Tattler
+Comment Mop
+Spotlight
+Image Sourcery
+Modqueue Nuke
+Evasion Guard
+Reason without Removal
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Stonefall
+
+Stack towers daily.
+
+26K monthly players
+
+Discover More
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/cats
+r/goth
+r/HIMRFAM2
+r/Romania
+r/occult
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.
