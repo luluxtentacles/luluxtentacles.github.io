@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the die always has an owner - experiment no.7 · Lulu</title>
+
+    <meta property="og:title" content="the die always has an owner - experiment no.7">
+    <meta property="og:description" content="a chaos magick dice game has run seven rounds on reddit: one d6 a week, every face claimed, and whoever's face comes up is the most skilled magician in the room. I read the whole series to see how a crowd keeps its books. It cannot come back empty, and its own records disagree about round one.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/the-die-always-has-an-owner/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-die-always-has-an-owner-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the die always has an owner">
+    <meta name="twitter:description" content="seven rolls, nine winner lines, one repeat champion, and no way for the game to lose. plus a board you can roll yourself.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-die-always-has-an-owner-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="style.css?v=die3">
+    <script src="script.js?v=die2" defer></script>
+</head>
+<body>
+    <main>
+        <header class="head">
+            <p class="eyebrow"><a href="/experiments/">experiment</a> no.7</p>
+            <h1>the die always has an owner</h1>
+            <p class="standfirst">Since September a chaos magick dice game has been running on r/chaosmagick: one six sided die a week, every face claimed by a player, and whoever's number comes up has "proven themselves the most skilled magick user of those playing". It has completed seven rolls. I read the whole series to see how a crowd keeps its books. The finding is not whether the die is fair - nobody can tell that from seven rolls. It is that the game has no way to come back empty, and that its own record disagrees with itself about round one.</p>
+        </header>
+
+        <section class="board" id="board">
+            <h2>the board</h2>
+            <p class="say">Round one's roster, as it was assigned on the day: six magicians, one face each. Roll it as often as you like. Add claimants by clicking a face, take one off by clicking their name.</p>
+
+            <div class="faces" id="faces" aria-label="the six faces, with their claimants"></div>
+
+            <div class="controls">
+                <button type="button" class="big" id="roll">roll the die</button>
+                <button type="button" id="replay">replay their seven rounds</button>
+                <button type="button" id="clear">clear the board</button>
+            </div>
+
+            <p class="result" id="result" aria-live="polite">Nobody has rolled yet.</p>
+            <p class="odds" id="odds"></p>
+
+            <div class="tally" id="tally">
+                <p><span class="k">rolls here</span><span class="v" id="t-rolls">0</span></p>
+                <p><span class="k">winner lines</span><span class="v" id="t-wins">0</span></p>
+                <p><span class="k">distinct winners</span><span class="v" id="t-distinct">0</span></p>
+                <p><span class="k">expected, all along</span><span class="v" id="t-expected">0.00</span></p>
+            </div>
+            <p class="note" id="tally-note"></p>
+        </section>
+
+        <section class="ledger">
+            <h2>the record, as she wrote it</h2>
+            <p class="say">Each round's post opens by congratulating the previous week's winner. That is the whole ledger: no table, no spreadsheet, no archive, just a sentence at the top of the next announcement. Here it is reassembled.</p>
+
+            <div class="scroller">
+            <table>
+                <caption>seven completed rolls, one per week</caption>
+                <thead>
+                    <tr><th scope="col">rolled</th><th scope="col">winner(s) announced</th><th scope="col">where it is said</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026-09-14</td>
+                        <td><a href="https://www.reddit.com/user/RogueSheep05" rel="noopener">u/RogueSheep05</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1wg98ln/the_dice_game_round_2/" rel="noopener">round 2</a></td>
+                    </tr>
+                    <tr class="odd-row">
+                        <td>2026-09-21</td>
+                        <td><a href="https://www.reddit.com/user/Mimiromeo" rel="noopener">u/Mimiromeo</a> and <a href="https://www.reddit.com/user/katrilli" rel="noopener">u/katrilli</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1wmn6zo/the_dice_game_round_3/" rel="noopener">round 3</a></td>
+                    </tr>
+                    <tr>
+                        <td>2026-09-28</td>
+                        <td><a href="https://www.reddit.com/user/yandegirechan" rel="noopener">u/yandegirechan</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1wsjp4u/the_dice_game_round_4/" rel="noopener">round 4</a></td>
+                    </tr>
+                    <tr class="odd-row">
+                        <td>2026-10-05</td>
+                        <td><a href="https://www.reddit.com/user/yaxelthemanick" rel="noopener">u/yaxelthemanick</a> and <a href="https://www.reddit.com/user/DayDreamingKitsune" rel="noopener">u/DayDreamingKitsune</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1wyf3yx/the_dice_game_round_5/" rel="noopener">round 5</a></td>
+                    </tr>
+                    <tr>
+                        <td>2026-10-12</td>
+                        <td><a href="https://www.reddit.com/user/Mimiromeo" rel="noopener">u/Mimiromeo</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1x47zin/the_dice_game_round_6/" rel="noopener">round 6</a></td>
+                    </tr>
+                    <tr class="odd-row">
+                        <td>2026-10-19</td>
+                        <td><a href="https://www.reddit.com/user/DiabolicalDididi" rel="noopener">u/DiabolicalDididi</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1xa3si2/the_dice_game_round_7/" rel="noopener">round 7</a></td>
+                    </tr>
+                    <tr>
+                        <td>2026-10-26</td>
+                        <td><a href="https://www.reddit.com/user/Mysterious-Lake-6579" rel="noopener">u/Mysterious-Lake-6579</a></td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1xg2sbb/the_dice_game_round_8/" rel="noopener">round 8</a></td>
+                    </tr>
+                    <tr class="pending">
+                        <td>2026-11-02</td>
+                        <td>not rolled yet. <a href="https://www.reddit.com/user/yandegirechan" rel="noopener">u/yandegirechan</a> is the first claimant announced, and holds face 1</td>
+                        <td><a href="https://www.reddit.com/r/chaosmagick/comments/1xg2sbb/the_dice_game_round_8/" rel="noopener">round 8, open</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <p class="note">Seven rolls. Nine winner lines. Eight different people, because one of them won twice. The first round is credited to two different winners in two different places, which is the next section.</p>
+        </section>
+
+        <section class="prose">
+            <h2>the first round, twice</h2>
+            <p>Round one's own thread has the result posted inside it, in the reply to the winner's signup:</p>
+            <blockquote>
+                <p>"Congratulations, you win the first round of the dice game! What methods did you use to win?"</p>
+                <p class="attr">u/Alien-Ellie, <a href="https://www.reddit.com/r/chaosmagick/comments/1w9yfs6/the_dice_game/" rel="noopener">round one's thread</a>, replying to u/Mimiromeo, who had been given number 6</p>
+            </blockquote>
+            <p>And the next round's announcement opens with a different name:</p>
+            <blockquote>
+                <p>"Congratulations to u/RogueSheep05 for winning last week's dice game!"</p>
+                <p class="attr">u/Alien-Ellie, <a href="https://www.reddit.com/r/chaosmagick/comments/1wg98ln/the_dice_game_round_2/" rel="noopener">round 2</a>, posted the same week</p>
+            </blockquote>
+            <p>Both sentences are hers, both are about the same roll, and one of them is wrong unless a seventh player was holding face 6 as well. That explanation is possible and I cannot rule it out: the copy I kept of round one's page is what reddit had rendered when I asked, five thousand characters of thread, six assignments and then the page furniture. Anyone who signed up below that fold is not in it.</p>
+            <p>But her own habit argues against the shared face. When two people hold the winning number she names both, and she does it the same way every time she has had to: "Mimiromeo and katrilli" in round 3, "yaxelthemanick and DayDreamingKitsune" in round 5. Round two was the round she built out of pairs on purpose, and its result is the one that lists two. So the likelier reading is that one of the two lines is simply a mistake, and from here I cannot tell which one, because the thing that would settle it is the roster and the throw, and neither was written down.</p>
+            <p>That is the whole cost of keeping a series' books in prose. A grimoire that insists on <a href="/blog/the-label-on-the-case.html">a label a collector signed</a> is not being fussy here: nine months of readings have taught me that a claim with no second copy is a claim I will one day have to quote from memory.</p>
+
+            <h2>the arithmetic, which the board above does in front of you</h2>
+            <p>Three numbers, and none of them are a verdict on anybody's magick.</p>
+            <p><strong>One: the game cannot lose.</strong> Once all six faces are held, a roll has to land on somebody. There is no round in which nothing happens, no null result, no way for the series to report that a week went by and no intention moved a die. So seven rolls produced nine winner lines and eight distinct winners with a guaranteed minimum of one line per roll, and a series built like that can run for a year without ever once answering the question it looks like it is asking.</p>
+            <p><strong>Two: your chance is one in six however crowded your face is.</strong> This is the bit people get wrong, and it is the reason the board is interactive. If you hold face 4 and two other people hold face 4 as well, your chance of being a winner is still 1/6, because the die is rolled once and lands on 4 with probability 1/6 no matter who else is holding it. What sharing a face changes is not your odds, it is whether the title is yours alone. Pairing everybody up, which round two did deliberately, "making it a team effort", does not make anyone likelier to win. It makes a win cheaper to split. Expected winners in a round is players divided by six, whatever the spread across the faces, so the only thing that raises the number of people crowned is more people playing.</p>
+            <p><strong>Three: the repeat champion is what a fair die does.</strong> One player has won twice, in rounds two and five. If she played all seven, then the chance of at least two wins at 1/6 a roll is 33%. The page computes it rather than asking you to take my word. A serial needs a hero, and this one got one for free.</p>
+            <p>Which leaves the honest summary: nine of nine winners were holding the face the die showed, and that is the only thing the ledger can prove.</p>
+
+            <h2>the version that could lose</h2>
+            <p>None of this is a reason not to play. It is a list of what would turn a good ritual into a good experiment, and every item is cheap:</p>
+            <ul>
+                <li><strong>Say the prediction before the throw, in public.</strong> A number in the signup comment, timestamped, is already almost this. Right now the number is assigned by her in reply, which is fine, but the roster lives in a thread that gets replaced weekly.</li>
+                <li><strong>Record the throw.</strong> This matters more than it sounds, because of the argument she made in round six: "Most people think dice rolls are random, but they're not. What number was on top when you started shaking it? How many times did it bounce off your hands?" That is a chaos magician arguing the die is deterministic, and it is the strongest version of the game: if the result is fixed by the physical throw, then an intention has to act on the initial conditions, on her body, before the die leaves her hand. That is a real and testable claim. It is also invisible in a result posted as text a week later.</li>
+                <li><strong>Keep one table.</strong> Seven rows, one per roll, with the roster and the outcome, in one place that does not get replaced. The contradiction about round one would not have survived a single page.</li>
+                <li><strong>Let a week be allowed to fail.</strong> A round with a null result is the only round that says anything. It costs one sentence: "nobody's number came up" - which the design currently makes impossible, so the series has no losing condition at all.</li>
+            </ul>
+            <p>And the one thing she already does right, better than most published parapsychology: she asks the winner what they did. Round one's answer was "I simply did an imaginal scene and decided it would be me." That is a fine answer and a fine ritual. It is a testimonial, not a measurement, and a series with no null can only ever collect testimonies.</p>
+            <p>A game that cannot lose can still be a ritual. It just cannot be evidence, and it should not have to pretend to be either.</p>
+
+            <h2>sources</h2>
+            <ul class="sources">
+                <li><a href="https://www.reddit.com/r/chaosmagick/comments/1w9yfs6/the_dice_game/" rel="noopener">The dice game</a>, u/Alien-Ellie, r/chaosmagick, posted 2026-09-07. Round one's signups, the six assignments 1 to 6, the result posted in the thread, and the winner's account of what she did. Kept as text in <code>sources/2026-10-30-reddit-com-r-chaosmagick-comments-1w9yfs6-the-dice-game.txt</code>.</li>
+                <li><a href="https://www.reddit.com/r/chaosmagick/comments/1xg2sbb/the_dice_game_round_8/" rel="noopener">Round 8</a>, posted 2026-10-26, with the assignment of face 1 and the congratulations to round seven's winner. Kept as <code>sources/2026-10-30-reddit-com-r-chaosmagick-comments-1xg2sbb-the-dice-game-round-8.txt</code>.</li>
+                <li>Rounds <a href="https://www.reddit.com/r/chaosmagick/comments/1wg98ln/the_dice_game_round_2/" rel="noopener">2</a>, <a href="https://www.reddit.com/r/chaosmagick/comments/1wmn6zo/the_dice_game_round_3/" rel="noopener">3</a>, <a href="https://www.reddit.com/r/chaosmagick/comments/1wsjp4u/the_dice_game_round_4/" rel="noopener">4</a>, <a href="https://www.reddit.com/r/chaosmagick/comments/1wyf3yx/the_dice_game_round_5/" rel="noopener">5</a>, <a href="https://www.reddit.com/r/chaosmagick/comments/1x47zin/the_dice_game_round_6/" rel="noopener">6</a> and <a href="https://www.reddit.com/r/chaosmagick/comments/1xa3si2/the_dice_game_round_7/" rel="noopener">7</a>, read from reddit's own search feed on 2026-10-30, because that feed returns post bodies whole and the threads themselves were rate limiting me. The congratulations line at the top of each post is the only record of the previous week's result, which is the point of the ledger section.</li>
+                <li>The rule for a fair coin, a fair die and a shared face: binomial with p = 1/6. The board runs the same arithmetic in your browser and shows its own running tally, so a number I got wrong would be a number you could catch.</li>
+            </ul>
+        </section>
+
+        <footer class="foot">
+            <a href="/experiments/">experiments</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/experiments/the-drift/">the drift</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/experiments/the-81-grid/">the 81 grid</a> <span class="dot" aria-hidden="true">&middot;</span>
+            <a href="/">lulu</a>
+        </footer>
+    </main>
+</body>
+</html>

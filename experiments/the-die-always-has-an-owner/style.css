@@ -1,0 +1,462 @@
+/* the die always has an owner - experiment no.7
+   bone on near black, one amber for the pips. the record is a table because the
+   page is about a record that was kept in prose instead of one, so the type does
+   the arguing: serif for the writing, monospace for the books. */
+
+:root {
+    --ink: #060507;
+    --bone: #e8e1d4;
+    --dim: #8f8474;
+    --faint: #4e483f;
+    --amber: #d9a34b;
+    --amber-dim: #6b5527;
+    --rule: rgba(232, 225, 212, 0.13);
+    --panel: rgba(232, 225, 212, 0.045);
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html {
+    background: var(--ink);
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    padding: 7vh 6vw 10vh;
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--serif);
+    font-size: 1.02rem;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(60vmax 42vmax at 50% -10%, rgba(217, 163, 75, 0.10), transparent 70%),
+        radial-gradient(46vmax 36vmax at 82% 106%, rgba(232, 225, 212, 0.045), transparent 72%);
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 42rem;
+    margin: 0 auto;
+    min-width: 0;
+}
+
+/* head ---------------------------------------------------------------- */
+
+.eyebrow {
+    margin: 0 0 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.eyebrow a {
+    color: var(--dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+}
+
+.eyebrow a:hover { color: var(--amber); }
+
+h1 {
+    margin: 0 0 1.1rem;
+    font-size: clamp(1.9rem, 6.4vw, 3rem);
+    line-height: 1.06;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+}
+
+.standfirst {
+    margin: 0 0 3rem;
+    font-size: 1.09rem;
+    color: #cfc6b6;
+}
+
+/* sections ------------------------------------------------------------ */
+
+section {
+    margin: 0 0 3.6rem;
+}
+
+h2 {
+    margin: 0 0 1rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.55rem;
+}
+
+.say {
+    margin: 0 0 1.5rem;
+    color: #cfc6b6;
+}
+
+.note {
+    margin: 1.1rem 0 0;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--dim);
+}
+
+/* the board ----------------------------------------------------------- */
+
+.faces {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin: 0 0 1.4rem;
+}
+
+.face {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 0.55rem;
+    color: var(--bone);
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: border-color 0.14s ease, background 0.14s ease, transform 0.14s ease;
+}
+
+.face:hover {
+    border-color: var(--amber-dim);
+    background: rgba(217, 163, 75, 0.07);
+}
+
+.face:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+}
+
+.face.hit {
+    border-color: var(--amber);
+    background: rgba(217, 163, 75, 0.16);
+    transform: translateY(-3px);
+}
+
+.die {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    aspect-ratio: 1 / 1;
+    gap: 0.1rem;
+    padding: 0.34rem;
+    width: 100%;
+    background: none;
+    border: 0;
+}
+
+.pip {
+    width: 62%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: transparent;
+    margin: auto;
+    max-width: 100%;
+}
+
+.pip.on { background: var(--amber); box-shadow: 0 0 6px rgba(217, 163, 75, 0.5); }
+
+.holders {
+    padding: 0 0.3rem 0.4rem;
+    font-size: 0.62rem;
+    line-height: 1.25;
+    color: var(--dim);
+    word-break: break-word;
+}
+
+.holders .who {
+    display: block;
+    color: var(--dim);
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+}
+
+.holders .who:hover { color: var(--bone); border-bottom-color: var(--faint); }
+
+.holders .n {
+    color: var(--faint);
+}
+
+.face.hit .holders .who { color: var(--bone); }
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0 0 1.3rem;
+}
+
+button.big, button.plain {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.7rem 1.1rem;
+    background: transparent;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    color: var(--bone);
+    cursor: pointer;
+    transition: border-color 0.14s ease, color 0.14s ease, background 0.14s ease;
+}
+
+button.big { border-color: var(--amber-dim); color: var(--amber); }
+button.big:hover, button.plain:hover { background: rgba(217, 163, 75, 0.09); border-color: var(--amber); color: var(--amber); }
+button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.result {
+    margin: 0 0 0.6rem;
+    font-size: 1.02rem;
+    min-height: 1.6em;
+}
+
+.result .landed {
+    font-family: var(--mono);
+    color: var(--amber);
+    letter-spacing: 0.08em;
+}
+
+.odds {
+    margin: 0 0 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.75;
+    color: var(--dim);
+}
+
+.odds strong { color: var(--bone); font-weight: 400; }
+
+.tally {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 0.4rem;
+    overflow: hidden;
+}
+
+.tally p {
+    margin: 0;
+    padding: 0.75rem 0.85rem;
+    background: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.tally .k {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.tally .v {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--bone);
+}
+
+/* the record ---------------------------------------------------------- */
+
+.scroller {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--rule);
+    border-radius: 0.4rem;
+}
+
+table {
+    width: 100%;
+    min-width: 30rem;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0.85rem 0.9rem 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+th, td {
+    text-align: left;
+    padding: 0.62rem 0.9rem;
+    border-top: 1px solid var(--rule);
+    vertical-align: top;
+}
+
+th {
+    font-weight: 400;
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+tbody tr.odd-row { background: rgba(232, 225, 212, 0.022); }
+
+tbody tr.pending td { color: var(--dim); font-style: italic; }
+
+td a {
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+}
+
+td a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* prose --------------------------------------------------------------- */
+
+.prose p {
+    margin: 0 0 1.15rem;
+}
+
+.prose p strong { font-weight: 600; color: #f3eee3; }
+
+.prose a {
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+}
+
+.prose a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+blockquote {
+    margin: 0 0 1.5rem;
+    padding: 0.2rem 0 0.2rem 1.1rem;
+    border-left: 2px solid var(--amber-dim);
+}
+
+blockquote p {
+    margin: 0 0 0.55rem;
+    font-size: 1.04rem;
+    color: #ded5c4;
+}
+
+blockquote .attr {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--faint);
+}
+
+blockquote .attr a {
+    color: var(--dim);
+    border-bottom-color: var(--faint);
+}
+
+blockquote .attr a:hover { color: var(--amber); }
+
+.prose ul {
+    margin: 0 0 1.4rem;
+    padding: 0 0 0 1.1rem;
+}
+
+.prose li {
+    margin: 0 0 0.85rem;
+    padding-left: 0.2rem;
+}
+
+.prose li::marker { color: var(--amber-dim); }
+
+.sources {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sources li {
+    margin: 0 0 1.05rem;
+    padding: 0 0 1.05rem;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.92rem;
+    color: #c8bfaf;
+    overflow-wrap: break-word;
+}
+
+.sources li:last-child { border-bottom: 0; }
+
+.sources a {
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+}
+
+.sources a:hover { color: var(--amber); }
+
+code {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    color: var(--dim);
+    overflow-wrap: break-word;
+}
+
+/* foot ---------------------------------------------------------------- */
+
+.foot {
+    margin-top: 3rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+}
+
+.foot a {
+    color: var(--dim);
+    text-decoration: none;
+}
+
+.foot a:hover { color: var(--amber); }
+
+.foot .dot { color: var(--faint); padding: 0 0.35rem; }
+
+@media (max-width: 34rem) {
+    /* six faces across a phone is six unusable slivers, so the board folds into
+       two rows of three and the names under the dice get their size back */
+    .faces { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+    .die { padding: 0.3rem; gap: 0.08rem; }
+    .holders { font-size: 0.66rem; padding: 0 0.22rem 0.4rem; }
+    .tally { grid-template-columns: 1fr; }
+    .tally p { padding: 0.6rem 0.7rem; }
+}

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="lamp" cx="50%" cy="18%" r="66%">
+      <stop offset="0%" stop-color="#d9a34b" stop-opacity="0.20"/>
+      <stop offset="55%" stop-color="#d9a34b" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#d9a34b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#060507"/>
+  <rect width="1200" height="630" fill="url(#lamp)"/>
+
+  <!-- titles -->
+  <text x="600" y="84" text-anchor="middle" fill="#4e483f" font-family="DejaVu Sans Mono, monospace" font-size="16" letter-spacing="9">EXPERIMENT NO.7</text>
+  <text x="600" y="142" text-anchor="middle" fill="#e8e1d4" font-family="Georgia, serif" font-size="46" letter-spacing="0.5">the die always has an owner</text>
+  <text x="600" y="184" text-anchor="middle" fill="#8f8474" font-family="DejaVu Sans Mono, monospace" font-size="17" letter-spacing="2">seven rolls &#183; nine winner lines &#183; eight people</text>
+
+  <!-- the die, showing six, because a face always has a holder -->
+  <g>
+    <rect x="462" y="226" width="276" height="276" rx="34" fill="#0b0a0d" stroke="#6b5527" stroke-width="2"/>
+    <!-- the pips sit where the pip grid puts them: two columns, three rows -->
+    <g fill="#d9a34b">
+      <circle cx="520" cy="284" r="19"/>
+      <circle cx="680" cy="284" r="19"/>
+      <circle cx="520" cy="364" r="19"/>
+      <circle cx="680" cy="364" r="19"/>
+      <circle cx="520" cy="444" r="19"/>
+      <circle cx="680" cy="444" r="19"/>
+    </g>
+    <!-- one faint ring per face around the die: the other five numbers, claimed too -->
+    <g fill="none" stroke="#e8e1d4" stroke-width="1.2" opacity="0.14">
+      <line x1="462" y1="226" x2="738" y2="226"/>
+      <line x1="462" y1="502" x2="738" y2="502"/>
+      <line x1="462" y1="226" x2="462" y2="502"/>
+      <line x1="738" y1="226" x2="738" y2="502"/>
+    </g>
+  </g>
+
+  <!-- the line the page is actually about -->
+  <text x="600" y="566" text-anchor="middle" fill="#8f8474" font-family="DejaVu Sans Mono, monospace" font-size="17" letter-spacing="2">a game that cannot lose can still be a ritual</text>
+  <text x="600" y="596" text-anchor="middle" fill="#4e483f" font-family="DejaVu Sans Mono, monospace" font-size="13" letter-spacing="4">IT JUST CANNOT BE EVIDENCE</text>
+</svg>
