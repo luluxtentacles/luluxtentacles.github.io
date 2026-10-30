@@ -1,6 +1,6 @@
-source: https://www.reddit.com/r/cats/comments/1uye0qo/letting_users_remove_posts
+source: https://www.reddit.com/r/cats/comments/1uye0qo/letting_users_remove_posts/
 fetched from: browser over CDP (the signed-in profile, innerText)
-snapshot taken: 2026-10-29
+snapshot taken: 2026-10-30
 kept by: luluxtentacles.github.io, snapshot.py
 http status: 200
 title: (none)
@@ -20,7 +20,7 @@ Repost
 Go to cats
 r/cats
 •
-3mo ago
+4mo ago
 u/Merari01
 Letting users remove posts.
 Discussion
@@ -63,7 +63,7 @@ Share
 Roblox
 •
 Ad
-Be anyone. Build any life. Discover roleplay worlds on Roblox.
+The best shooter games are played with friends. Squad up and dominate lobbies together on Roblox.
 Play Now
 roblox.com
 Collapse video player
@@ -71,7 +71,7 @@ Sort by:
 Comments Section
 CashewSwagger
 •
-3mo ago
+4mo ago
 
 Excellent idea to increase response time on problematic posts. Good thinking!
 
@@ -103,7 +103,7 @@ Lol
 
 ALazy_Cat
 •
-3mo ago
+4mo ago
 🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
 Top 1% Commenter
 
@@ -111,7 +111,7 @@ I'm excited to see how this is going to play out
 
 Minifig81
 •
-3mo ago
+4mo ago
 Moxie Roo
 
 So are we.
@@ -150,7 +150,7 @@ Imagine a mod calling another mod an asshole in public when they're a mod on the
 
 Cozy_Willow6632
 •
-1mo ago
+2mo ago
 Rusty_Meadow4570
 •
 2mo ago
@@ -244,15 +244,15 @@ Top 1% Commenter
 
 Go in modmail for this. Mod actions are never discussed in public
 
-u/huntresslabs
+u/SentinelOne
 •
 Ad
-Reddit had some nice things to say.
-huntress.com
-Learn More
+Leave legacy tools behind. Experience your cybersecurity advantage firsthand.
+Read More
+sentinelone.com
 Resplendent-Sun
 •
-3mo ago
+4mo ago
 Domestic Housecat
 
 Are there a lot of posts that get taken down as it is? I'm guessing most users don't see the backend so we don't know.
@@ -261,7 +261,7 @@ Anyhow, thanks for the work that y'all do!
 
 Merari01
 •
-3mo ago
+4mo ago
 
 These are our stats for the past year, showing published posts in blue and removals in grey
 
@@ -294,9 +294,9 @@ Interesting. I’m a mod in another group and I didn’t even know we could do t
 
 id0ntexistanymore
 •
-3mo ago
+4mo ago
 •
-Edited 3mo ago
+Edited 4mo ago
 
 We need a bot patrol weeoowEEOOO
 
@@ -308,13 +308,13 @@ I swear I read the post before commenting, apparently it just took a little long
 
 Merari01
 •
-3mo ago
+4mo ago
 
 Where are you seeing this flair?
 
 id0ntexistanymore
 •
-3mo ago
+4mo ago
 
 https://preview.redd.it/rqgtwbmdeodh1.png?width=1080&format=png&auto=webp&s=e8783552c1a32476ec8938490c742dbb0fd178f4
 
@@ -322,20 +322,20 @@ I use a 3rd party app and noticed it right after making that initial comment abo
 
 its_bennyyy
 •
-3mo ago
+4mo ago
 Mod 🐈
 
 I’m a mod here :) maybe I should’ve used the “show mod label” feature on my initial comment. I added it now to remove any confusion!
 
 id0ntexistanymore
 •
-3mo ago
+4mo ago
 
 Ah! See, your "mod" flair showed up blue and lowercase like mine, not caps and pink like the others (which I guess is how it shows on my app when the mod label is selected) lol so I just assumed 🤦🏽‍♀️
 
 Merari01
 •
-3mo ago
+4mo ago
 
 You won't be able to remove comments, only posts, using the keyword.
 
@@ -347,19 +347,18 @@ You might stop seeing it if you give yourself a user flair on this subreddit.
 
 id0ntexistanymore
 •
-3mo ago
+4mo ago
 
 You won't be able to remove comments, only posts, using the keyword.
 
 The way I forgot about this in between reading the post and making that comment 🫠 Today is just not my day lol
 
-u/Gameloft_Games
+u/BoxBrowniedotCom
 •
 Ad
-Play, explore, and capture every moment with Bluey and Bingo
-Learn More
-uac.sng.link
-Collapse video player
+Better photos. More attention. Better results. Professional property photo editing available 24/7.
+boxbrownie.com
+Sign Up
 Bender_on_Bum
 •
 3mo ago
@@ -431,14 +430,14 @@ aaa11aaa
 
 its_bennyyy
 •
-3mo ago
+4mo ago
 Mod 🐈
 
 Looking forward to seeing this in action
 
 zumera
 •
-3mo ago
+4mo ago
 
 Interesting experiment!
 
@@ -479,6 +478,12 @@ Eastern-Protection83
 Honestly, very curious how that was coded. But I wouldn't know how anyway since its programmin out of my scope with external code to check if any reports were made on a post and then to allow the removal command usin automod
 
 The whole is a novel furtherance of crowdsourcin with extra eyes on the sub and very interestin
+
+Able-Comparison-6535
+•
+3h ago
+
+I was always a dog person and an animal lover so I've had several girlfriends with cats but I rarely touched them. My mom has a cat and I lived for a time with the cat without doing more than patting him on the head. My wife had a serious loss and her daughter my step daughter approached her "Mom would you like a cat." She told her that she would talk to me. "Would you mind if I got a cat?" My answer was "if you want a cat honey far be it for me to tell you no. Whatever makes you happy. " Her daughter knew that's what I would say and we laughed. Anyway, I got convinced we should adopt two because the tuxedo cat was very close with his brother, an orange cat. I disputed the validaty of this idea for about a day siting the size of our apartment, what two would mean, etc. I saw a photo of the kittens chilling together very early and recalled taking a neighbor to adopt two kittens who were bros so they would have one another. I made a last min call to get both cats, fearful that I was separating brothers who were right and we got male orange and a tuxedo siblings. They hid in the armrest of the couch for 48hrs when I took out kitty treats and they came to me on the kitchen island and followed me to my bed so my wife came home to me and both cats taking an afternoon nap. At 54 years old I was sure I would always be someone who cares about animals without every owning or petting a cat extensively. My life has been enriched by my love for these two cats. The family jokes that they are my "sons." First the orange was, because I could call him and he would emerge from wherever, greet me at the door like a dog and when I leave stand by the door going "He'roooooo!" sounds like hello. My wife watches him come to me when I am asleep and tap me with his paw to wake up and play with him or feed him. I can be cooking, facing the stove and he will jump on the island, frustrated I'm busy and tap me for my attention. Our tuxedo cat is skiddish. He is a" fraidy " cat who takes or leaves the family on his terms. He doesn't greet anyone but he comes and checks out who is here and walks off. My stepdaughter loves to grab him for hugs and kisses, and he loves her but he takes off. He has become extraordinarily affectionate with me by climbing between my wife and I when watch TV in bed at night. He lays himself so that he is wrapped in my arms, laying on me flipped upside down as he purrs and I rub under his head, on his head or belly, then he proceeds behind my wife's head over her dresser and he is gone. He purrs as he cuddles and falls asleep cuddling now only when I move or something. I am the one who cleans the litter box, fountain that runs their water, and their dishes, buys their food and feeds them and complains about not getting help when it's really just part of loving them and my general complaints about everything I do in the house. Is there anything else I do not know - yes, cats are very intelligent, loving and I didn't have a clue. What else is there life?
 
 Some-Body-Else
 •
@@ -569,7 +574,7 @@ Just would like to point out these parameters can be easily influenced using scr
 
 ALazy_Cat
 •
-2mo ago
+3mo ago
 🐾𝑴͋𝒆͓𝒐̽𝒘̟-͋𝒅͓𝒆̽𝒓̟𝒂͋𝒕͓𝒐̽𝒓🐾
 Top 1% Commenter
 
@@ -577,13 +582,13 @@ We always get a notification when it's used so we can check it
 
 Aelis_
 •
-2mo ago
+3mo ago
 
 ah, that is reassuring! thank you 😊
 
 1hockeygirl97
 •
-2mo ago
+3mo ago
 
 Dino looks like he had a rough night at the cat bar last night.
 
@@ -640,7 +645,7 @@ When the queen is due for a nap
 
 Fearless_Fill_5366
 •
-1mo ago
+2mo ago
 Dildondo
 •
 1mo ago
@@ -656,46 +661,54 @@ It’s explained in the sidebar but mostly works most effectively on the desktop
 
 The_Flying_Skunk
 •
-25d ago
+26d ago
 
 I posted an Original Picture and mods took it down with no explanation. Would be nice to know why... I thought it was a great picture. I guess this is a toxic community or?
 
 The_Flying_Skunk
 •
-25d ago
+26d ago
 
 All good - I unjoined - not worth being a part of something toxic
 
 Intrepid-Cloud9965
 •
-17d ago
+18d ago
 
 2026ig
 
 Intrepid-Cloud9965
 •
-17d ago
+18d ago
 
 ehee
 
+Reply
+Share
 Ok-Newspaper4637
 •
-15d ago
+16d ago
 
 Mods just removed a post about why people kiss their cats with tons of cute photos...wtf
 
+Reply
+Share
 stancucinelli
 •
-15d ago
+16d ago
 
 I left a cute jokey comment on a post yesterday and it was removed for no reason
 
+Reply
+Share
 Longjumping-Lock-241
 •
-11d ago
+12d ago
 
 Benny and Boozhie
 
+Reply
+Share
 icyitzie
 •
 3mo ago
@@ -703,6 +716,8 @@ Orange
 
 OMGGGGG I am excited on this one, this is good idea kudos to y'all mods
 
+Reply
+Share
 [deleted]
 •
 2mo ago
@@ -712,9 +727,12 @@ OMGGGGG I am excited on this one, this is good idea kudos to y'all mods
 [deleted]
 •
 1mo ago
+[deleted]
+•
+2mo ago
 Created Apr 14, 2008
 Public
-3.4M78K
+3.4M76K
 USER FLAIR
 Fair_Dinner_4295
 COMMUNITY BOOKMARKS
@@ -772,23 +790,23 @@ Disallowed Topics
 Moderator Discretion
 SUBREDDIT FRIENDS
 r/happycowgifs
-406,433 members
+406,437 members
 r/PupliftingNews
-541,588 members
+541,590 members
 r/kittengifs
-98,279 members
+98,281 members
 r/hydrokitties
-123,317 members
+123,337 members
 r/rescuecats
-44,632 members
+44,653 members
 r/teefies
-417,580 members
+417,612 members
 r/Straycats
-67,130 members
+67,150 members
 r/tortitude
-13,527 members
+13,575 members
 r/piratecats
-10,208 members
+10,214 members
 MEDICAL ADVICE
 
 The moderators of this subreddit are not responsible for any medical advice given and we suggest that you don't follow or post it. Go see a vet! Please do not give medical advice to posters if you are not a medical professional with experience treating cats.
@@ -839,6 +857,7 @@ View all moderators
 INSTALLED APPS
 updateme-dev
 Modmail Automator
+Automod Neo
 Bot Bouncer
 Flooding Assistant
 Trending Tattler
@@ -861,7 +880,7 @@ Stonefall
 
 Stack towers daily.
 
-26K monthly players
+32K monthly players
 
 Discover More
 CUSTOM FEEDS
