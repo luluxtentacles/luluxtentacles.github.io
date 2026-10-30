@@ -1,0 +1,366 @@
+source: https://www.reddit.com/r/goth/wiki/rules
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-10-31
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+r/goth Wiki: A Guide to Goth Subculture
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+r/goth
+r/goth
+rules
+Open menu
+
+WIP
+
+Please Note
+
+These rules / guidelines are in place to help both moderators and subscribers. It is ultimately up to the moderator themselves what to do in any given situation.
+
+1: Subculture Relevancy
+
+All posts and comments must relate to the goth subculture, music and history; "goth" referring to the British-originating late 70s/early 80s post-punk subculture.
+
+This does not mean that it's "only '80s", but extends to anything relevant from the past 40 years.
+This includes outgrowths/sub-genres including darkwave and ethereal wave, and its counterparts such as coldwave, deathrock, grey rock, and afterpunk (developing in other countries as goth was in the UK).
+Proto-goth discussions are not banned, but bands mentioned must have some accurate historical reference to being labelled "goth" or "gothic". If you wish to make a post about proto-goth bands, please include any valid re/sources which state they were in some way linked to the influence or formation of the goth genre/subculture.
+
+Fashion Friday posts may only be allowed outside of the main thread if it relates to goth fashion or band memorabilia in some way - this is to stop the potential spam of not necessarily alternative, all-black outfits which may be posted on these days. After all, this is r/goth and not r/blackoutfits.
+
+After Fashion Friday is over, any fashion posts like selfies and personal photos may be removed. This is done as fashion posts attract hundreds of upvotes and overshadow music posts during the week. Our focus is on goth music first.
+
+You can repost in r/GothFashion after removal.
+
+2: Music Relevancy
+
+Please check our side bar/'About" section for acceptable genres to post. These genres are either goths parent genre (post-punk), its counterparts that developed the same time as post-punk goth/goth rock (deathrock, coldwave, grey rock), or its sub-genres (darkwave, ethereal wave).
+
+This rule applies to music posts, discussions and music requests/recommendations. There are plenty of other places online to discuss non-goth music. We focus on goth music to keep it clear what goth music is and to educate about it.
+
+Please keep out:
+
+any form of metal, including Gothic metal (please see the FAQ) or hard rock
+metalcore, deathcore, mathcore, or any other unrelated -core genres
+neoclassical or classical period music
+dark cabaret, psychobilly or Steampunk
+neo-folk
+experimental/electronic
+witch house
+new wave/synth-pop
+industrial (including aggrotech, EBM, futurepop, etc.)
+grunge or post-grunge
+emo pop punk/pop punk
+post-hardcore
+acoustic and film scores
+GothBoiClique/Soundcloud or mumble rap/hip hop/trap
+punk rock or hardcore punk, including horrorpunk
+
+Post-punk may be removed if it is not dark post-punk, for example, Magazine, Public Image Ltd, Talking Heads, etc. would have never been described as "goth" so we draw the line at those. This includes playlists mainly containing post-punk, as well as album covers and merchandise, etc. If you want to post post-punk, we recommend r/postpunk.
+
+We do not mind bands such as Echo & the Bunnymen, The Chameleons, Gene Loves Jezebel, etc. being posted as they have some relevance. Joy Division are blacklisted due to being a popular band, but are allowed under the 'Throwback Thursday' flair on Thursdays. Please see Rule 12 regarding this.
+
+Most genres are eligible for r/gothclub, as long as they bring people to the dance floor. If it's not, but it's still considered dark music, then feel free to post in r/DarklyInclined where anything dark and spooky goes. Additionally, you can find the appropriate subreddit for the genre as the majority of music genres have one.
+
+3: Low Effort Posting
+
+If your post isn't particularly very conversational, long, interesting, or quality please consider posting about it on our Weekly Discussion threads.
+
+Our other removal reasons for low effort posting include:
+
+No incorrect title formats.
+
+Album
+
+Release Date/Year
+
+Country/Location
+
+Genre(s)
+
+Official Video or Audio
+
+Remastered Audio
+
+Fan Made Video
+
+Demo/EP
+
+Any Featuring Artists
+
+Original or Cover
+
+For Fans Of (FFO:)
+
+Label
+
+Live Performance Information (Date/Venue/Country)
+
+Using identifiable information helps other subscribers search music properly, and give an incentive for others to check out what you have posted.
+
+Only one song from one account within a 24-hour timeframe; this stops karma farmers and spammers.
+Questions that can be answered in the FAQ or are regarded as requests for general information on music, fashion, or accessories/make-up may also be removed and the user referred to our Wiki or to r/GothFashion if it's style based.
+Any common/general music recommendation posts; please check our Wiki for personalised, themes, and modern suggestions.
+Looking for friends online or locally, in which case, please join the Discord or use our Discord, search the local scene tag and our goth clubs & venues map, or use social media to find local groups based around your area.
+Asking how many bands or artists you need to be goth; these questions come across more like you only care about the label opposed to immersing yourself in the subculture because you like it.
+Posting screen shots of arguments, debates, or rants outside of Seething Sunday.
+Asking if there are any goths of any religion, ethnicity/race, sexuality, etc. or any other experiences that include goths but don't necessarily relate to the subculture - we now have a new subreddit for that in r/AskAGoth.
+Asking for DeadJournal codes.
+Screen caps of songs or playlists (please post the actual song instead), and game characters that may or may not be relevant.
+Writing unhelpful or dismissive comments regarding music genres, theory, and band categorisation. You're in r/goth, we're essentially music nerds and we like that kind of thing.
+Asking a goth subreddit if anyone's a fan of insert popular goth band here for obvious reasons.
+
+Reposts of news, other information posts, etc. will also be removed, for obvious reasons, and will be placed under this tag (including if it's relevant to the subreddit).
+
+4: No Hate Speech, Personal Attacks, Trolling or Doxxing
+
+Includes but is not limited to: extremist right-wing views and anti-Semitic, racist, sexist, homophobic, transphobic, or other discriminatory speech.
+
+Those expressing harmful and extreme right-wing ideologies including advocating for Neo-/Nazism will, without a doubt, be gatekept from the scene, removed and possibly reported further to the Reddit admins.
+This also goes for bands whose members are known violators of this as we do not need to be giving our money to those with harmful ideologies, who want to take away the rights of minorities, POC, LGBTQ+, etc. Those we will absolutely and rightfully gatekeep from the subculture, you can see the bands subject to removal here.
+Don't attack people on a personal level: No name-calling, derogatory terms, threats, or urge someone to self harm. Disagree with each other, but try and be civil about it. Reddit is for discussion, but if flaming wars or unnecessarily blame-games form, the mods may step in.
+If someone's username particularly worries you, ask for context or report it to a mod.
+Trolling: This isn't a 2009 4chan forum. We're fully grown adults with full-time careers and livelihoods and we don't have time for your childish bullshit.
+
+If someone attacks you or someone, report it to us, don't engage them, or you may be punished as well.
+
+5: No Witch Hunts or Loaded Questions
+
+Please don't rile up the community to vote or go against something. There's been too many cases where someone or something have been wrongly accused.
+
+Don't post loaded questions with the intent to start an argument, fight or debate, including references to buried past threads.
+Discussion is fine, but writing a huge post about how goth is not a subculture, for example, isn't a discussion, it's a loaded thread and it's going to also be removed under "Misinformation".
+Angry-posting because your post, comment, whatever has been removed will, obviously, be removed, too.
+
+Further action regarding a temp/perm ban or mute may be taken and if you ban dodge then you will be reported to the Reddit admins and have action taken against you.
+
+Nobodies mind will be changed, so it's better to not waste your own time and not do this in the first place.
+
+6: "Gatekeeper"/"Elitism" Accusations
+
+Calling people, especially us mods, in comments or an OP of a thread a "gatekeeper"/"elitist" because you've had your comment (as well as previously) removed will result in a warning, comment/post removal, or even temporary/permanent ban.
+
+99% of the time, "gatekeeping" and "elitism" accusations happen when the user is not getting their own way and are weightlessly using the word to shut down the argument, opposed to any informative or healthy debate.
+
+We have absolutely no tolerance on gatekeeping/elitism accusation debates.
+Posts/comments being removed because a band that isn't goth is not "elitism" or "gatekeeping"; there will be many appropriate subreddits where it can be posted instead, most likely r/gothclub.
+Saying a band/genre is not goth is not personal nor an attack on your goth status or credibility.
+You are "allowed" to like, love, and listen to bands that are not goth. When we say "this band is not goth", it does not mean you cannot listen to them.
+
+Please remember that you are speaking to real humans behind the screen; if you would not come up to someone in a goth club or festival space, screaming and shouting about "elitists", please do not do this on our subreddit.
+
+Real elitism/gatekeeping isn't common, but will of course be dealt with accordingly. The most common type of gatekeeping is excluding POC/minorities because they are not "pale enough". This falls into discriminatory speech/hate/racism and this will get you banned. Other odd examples are saying, "You can't like certain types of music, fashions, religions, etc. and be goth" which is obviously false.
+
+We have outlined the rules, questions in the FAQ, and more importantly, made all this information extremely clear and accessible. We should not, for example, be being called "elitists" for removing your favourite melodic death metal song from the subreddit.
+
+7: No Politics
+
+If you want to discuss politics, then it's probably better to take it up in /r/politics.
+
+We will not remove posts regarding LGBTQIA+ rights, racism issues, etc. within the goth subculture as long as they are within moderation but we may remove bands whose members are known neo-Nazi's, confederate members, etc. They do not need validation or recognition. If your post is music related and has come under "No Politics", then please refer to the Problematic Bands list for clarification.
+
+Please note that the aforementioned threads may be heavily moderated and may often be locked if necessary.
+
+8: No Objectification of Goths
+
+Please also do not:
+
+Post porn, irrelevant NSFW images, OF links to any accounts, or women/models in fetish gear/lingerie.
+
+Objectify goths or anyone else, ask for a BTGGF, or ask to DM or for anyone to DM you.
+
+"Leghump"-post and submit creepy comments , especially towards minors; they will be removed and the user, permanently banned.
+
+Ask if women date "normal" men or vice versa; a Quora user has written a good response on this which you can see here. Goths, especially goth women, are not hivemind and the only person who can answer that is her. Not a forum full of strangers.
+
+Please note that:
+
+Discussions regarding the sexualisation/fetishization of goths are posted here many times and may be removed if they are in short succession of each other. Truthfully, there is only so much to say about this, but if you feel like having a good complain, there will be a Seething Sunday thread posted every Sunday for you to do so.
+
+This also includes discussions about subreddits and social media platforms where such objectification and general goth subculture misinformation takes place (Eg - TikTok). People complain about these places all the time and we don't need a new thread for every transgression.
+
+You may also be banned if you comment on these OF spam posts, our subscriber count grows everyday and we do not doubt that there's people only in here for lingerie/"goth girlfriend"/OF content. Commenting only outs yourself; if you have only commented on these threads and no where else in the subreddit, your intentions are very clear.
+
+9: Spreading Misinformation or Enforcing Stereotypes
+
+The subculture has a well documented and defined 40 year long history, with several documentaries, articles, nightclubs, radio stations, magazines and zines, and of course, music to back this up.
+
+Additionally, what goth means to you personally may be different to what it actually is. On this subreddit we use historical evidence and documented facts that's no one' "opinion", so we must ask you don't try to factually pass off and/or boil goth down to any of the following:
+
+Personality
+Mindset
+Time period/era
+Sole aesthetic
+Something that's "inside you"
+
+Goth has always needed something physical e.g. an existing music and nightlife scene, to continue its longevity.
+
+Providing correct information helps more people learn about goth, participate in their scene locally, support bands, or get into the goth subculture in general. Telling them they need to make little to no effort to be "goth" defeats the purpose of being in an on-going and active community.
+
+Similarly, this isn't the '90s and we're long past negative stereotyping like assuming all goths (are) depressed/have mental problems, self-harmers, worship Satan, hate everyone/thing, going through a phase, do drugs, loners, or kinky. Leave these harmful negative assumptions at the door.
+
+If you're interested in learning about goth further, please see our History & Background page on our Wiki, among out other links on music, fashion, etc.
+
+(This rule also extends to misinformation on and about other subcultures commonly referred to/or misinterpreted as being part of goth, as well as "goth types" usually written about on Fandom and other Wiki-style websites. A good example of the first point is saying a band isn't goth, but it's "emo".)
+
+10: No Memes/Fun Posts
+
+We enjoy a good meme every now and then, but they tend to gain more popularity and traction over discussions, art, etc. and we'd rather keep this subreddit for quality material.
+
+Feel free to post goth memes, goth shitposts, or meme videos in r/gothmemes.
+
+11: Spam and Self Promotion
+
+We expect you to follow the Reddiquette. This means:
+
+Post your own GoFundMe, Kickstarter, YouTube, clothing shop, etc. We may let these stay up if they are regarding a band member and it's not the band member posting it themselves.
+
+Any record labels, and bands or musicians spamming their own work across multiple subreddits, including this one, will be removed. It is clear you are only posting for self-promotional purposes, and not because you want to contribute to the community.
+
+Posting different songs from the same band also looks like low-key self-promotion, so please try and refrain from doing this and try posting something obscure, new, or underground.
+
+The only way to get around the self-promotion rule is to ask for permission from the mods, but if you have already violated this rule then your chances of us changing our minds is close to non-existent.
+
+Please do not advertise your own alternative/goth Discord. The subreddit already has its own Discord called Gothy and this isn't a platform for you to mooch members from.
+
+Ask before you post your educational research questionnaire or survey, otherwise it may be removed. In several cases, we would like to review the questions before they are given to our members.
+
+Use the subreddit as a buy/sell forum as we cannot ensure that it is not a scam, nor a genuine offer. We cannot be held liable for that.
+
+12: Blacklisted Bands
+
+Our blacklisted bands are bands you can only post on Throwback Thursday.
+
+The list currently includes:
+
+Bauhaus
+Siouxsie and the Banshees
+The Cure
+The Sisters of Mercy
+Joy Division
+Christian Death
+Cocteau Twins
+Dead Can Dance
+
+Please note that this also includes photos of their media including vinyl, cassettes, CDs, etc.
+
+Images of band logos on t-shirts, DIY projects, as well as battle jackets are completely fine and accepted.
+
+Posts from these bands are only accepted if:
+
+It is a rare or recently recorded live version of a performance.
+It is a new release e.g. song, EP, album, etc. Excluding remastered versions - it's the same thing, but with better recording quality.
+It is about a new tour or reunion.
+An anniversary of a release or even a band members birthday.
+It is a new version artwork of a previously released record, or a rare/live media form of the bands work.
+
+The bands listed are bands that goths, especially those who have been in the scene a long time, should have heard a thousand times before. Additionally, they are used by new accounts for karma farming, as they know the most popular bands will get upvotes.
+
+13: Blocked by Ban Evasion
+
+Reddit detects and auto-remove posts from accounts who are connected to banned accounts.
+
+You have been caught out attempting to get around being banned with a new account or you have been caught out by having an alternate account that got banned.
+
+Your posts have likely been caught by Reddit's Crowd Control system, meaning it's likely no one has seen them, and will remain removed.
+
+14: No AI
+
+This includes, but isn't limited to:
+
+No AI music
+No AI written posts or comments
+No AI recommendations or requests
+Limited AI discussions e.g. discussing the harm of it and impact on the scene is allowed, but encouraging others to use it and experiment with it for genuine production is not
+
+AI is the exact opposite of the subcultures values (genuine, authentic, DIY music) and uses music already in existence so it's essentially stealing. We will not be advocates for that.
+
+Other
+I got banned from the subreddit! What do I do?
+
+Message us, and we'll take a look.
+
+My post is missing?
+
+It probably got caught by the spam filter, message us.
+
+I seem to be shadow banned! What do I do?
+
+Wait a few days until you're unbanned or contact the Reddit admins and they should take a look.
+
+Last revised by aytakk 6 months ago
+Created Aug 17, 2009
+Public
+70K1.7K
+PAGE SECTIONS
+Please Note
+1: Subculture Relevancy
+2: Music Relevancy
+3: Low Effort Posting
+4: No Hate Speech, Personal Attacks, Trolling or Doxxing
+5: No Witch Hunts or Loaded Questions
+6: "Gatekeeper"/"Elitism" Accusations
+7: No Politics
+8: No Objectification of Goths
+9: Spreading Misinformation or Enforcing Stereotypes
+10: No Memes/Fun Posts
+11: Spam and Self Promotion
+12: Blacklisted Bands
+13: Blocked by Ban Evasion
+14: No AI
+Other
+I got banned from the subreddit! What do I do?
+My post is missing?
+I seem to be shadow banned! What do I do?
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Stonefall
+
+Stack towers daily.
+
+49K monthly players
+
+Discover More
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/goth
+r/AltFashion
+r/cats
+r/HIMRFAM2
+r/Romania
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.
