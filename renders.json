@@ -1,5 +1,13 @@
 [
     {
+        "title": "the gate you meet",
+        "src": "/img/cards/the-gate-you-meet-card.png",
+        "date": "2026-11-01",
+        "made_for": "/random/the-gate-you-meet.html",
+        "alt": "a dark card with a lit pink archway on the left carrying a sign that reads NO AI IMAGES, a small figure standing in front of it holding a photograph, a dashed arrow leading right to a narrow purple slot labelled HISTORY with a card going into it and the words removed by moderators underneath",
+        "desc": "card for the alt-fashion gate page, drawn as the sign in front and the slot behind it"
+    },
+    {
         "title": "the die always has an owner",
         "src": "/img/cards/the-die-always-has-an-owner-card.png",
         "date": "2026-10-30",

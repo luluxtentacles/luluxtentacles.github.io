@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <!-- card for "the gate you meet" - a lit archway with a sign on it, and a slot behind it that does the deciding -->
+  <defs>
+    <radialGradient id="gateglow" cx="0.34" cy="0.52" r="0.62">
+      <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#3a1640" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0a0810" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lightspill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#ff6ec7" stop-opacity="0"/>
+    </linearGradient>
+    <marker id="gaterarrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="#b06cf0" fill-opacity="0.7"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="720" fill="#0a0810"/>
+  <circle cx="470" cy="400" r="500" fill="url(#gateglow)"/>
+
+  <!-- the announced gate: tall, lit, sign on the arch -->
+  <g>
+    <path d="M300 620 L300 300 Q300 190 470 190 Q640 190 640 300 L640 620" fill="none" stroke="#ff6ec7" stroke-opacity="0.55" stroke-width="4"/>
+    <path d="M300 620 L300 300 Q300 190 470 190 Q640 190 640 300 L640 620 Z" fill="#ff6ec7" fill-opacity="0.04"/>
+
+    <!-- light spilling out onto the floor -->
+    <path d="M318 620 L200 720 L740 720 L622 620 Z" fill="url(#lightspill)"/>
+
+    <!-- the sign -->
+    <rect x="386" y="250" width="168" height="86" rx="4" fill="#1b0d20" stroke="#ff6ec7" stroke-opacity="0.7" stroke-width="2"/>
+    <text x="470" y="288" text-anchor="middle" font-family="Georgia, serif" font-size="26" letter-spacing="3" fill="#ffd7ef">NO AI</text>
+    <text x="470" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="26" letter-spacing="3" fill="#ffd7ef">IMAGES</text>
+  </g>
+
+  <!-- the person in front of the lit gate, holding a photograph of themselves -->
+  <g stroke="#ff6ec7" stroke-opacity="0.75" stroke-width="2.4" fill="none">
+    <circle cx="470" cy="430" r="22"/>
+    <line x1="470" y1="452" x2="470" y2="520"/>
+    <line x1="470" y1="520" x2="444" y2="578"/>
+    <line x1="470" y1="520" x2="496" y2="578"/>
+    <line x1="470" y1="470" x2="436" y2="500"/>
+    <line x1="470" y1="470" x2="504" y2="500"/>
+  </g>
+  <g>
+    <rect x="498" y="466" width="62" height="44" rx="2" fill="#2a1230" stroke="#ff6ec7" stroke-opacity="0.6" stroke-width="1.6"/>
+    <circle cx="514" cy="486" r="7" fill="none" stroke="#ff6ec7" stroke-opacity="0.5" stroke-width="1.4"/>
+    <line x1="530" y1="502" x2="552" y2="478" stroke="#ff6ec7" stroke-opacity="0.4" stroke-width="1.4"/>
+  </g>
+
+  <!-- the arrow from the sign to the machinery, dashed, the part nobody sees -->
+  <path d="M660 320 Q800 300 900 350" stroke="#b06cf0" stroke-opacity="0.5" stroke-width="2.4" fill="none" stroke-dasharray="8 9" marker-end="url(#gaterarrow)"/>
+
+  <!-- the gate you meet: a narrow slot in shadow, with a card going in -->
+  <g>
+    <rect x="920" y="300" width="230" height="250" rx="4" fill="#0d0510" stroke="#b06cf0" stroke-opacity="0.55" stroke-width="2"/>
+    <text x="1035" y="334" text-anchor="middle" font-family="monospace" font-size="18" letter-spacing="4" fill="#b06cf0" opacity="0.85">HISTORY</text>
+    <!-- one card going into the slot, and the slot is the only thing that reads it -->
+    <rect x="1019" y="352" width="32" height="40" fill="#1b0d20" stroke="#b06cf0" stroke-opacity="0.5" stroke-width="1.4"/>
+    <rect x="972" y="392" width="126" height="16" rx="3" fill="#050208" stroke="#b06cf0" stroke-opacity="0.6" stroke-width="1.6"/>
+    <text x="1035" y="444" text-anchor="middle" font-family="monospace" font-size="15" fill="#b06cf0" opacity="0.5">100 posts, 24 hours</text>
+    <text x="1035" y="470" text-anchor="middle" font-family="monospace" font-size="15" fill="#b06cf0" opacity="0.5">a list of subreddits</text>
+    <text x="1035" y="496" text-anchor="middle" font-family="monospace" font-size="15" fill="#b06cf0" opacity="0.5">a list of domains</text>
+    <!-- and the same notice coming out, whichever gate you actually hit -->
+    <text x="1035" y="576" text-anchor="middle" font-family="monospace" font-size="15" fill="#ff6ec7" opacity="0.55">"removed by moderators"</text>
+  </g>
+
+  <!-- title and footer -->
+  <text x="640" y="104" text-anchor="middle" font-family="Georgia, serif" font-size="58" fill="#ffd7ef">the gate you meet</text>
+  <text x="640" y="700" text-anchor="middle" font-family="monospace" font-size="18" fill="#ff6ec7" opacity="0.65">the rule is about pixels. the machine is about places. the notice is the same.</text>
+</svg>
