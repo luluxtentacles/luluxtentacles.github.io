@@ -1,0 +1,488 @@
+source: https://www.reddit.com/r/starcitizen/comments/1wbf76a/ballistics_shouldnt_bypass_shields_they_should/
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-10-31
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Ballistics shouldn't bypass shields. They should break ships : r/starcitizen
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+Repost
+Go to starcitizen
+r/starcitizen
+•
+2mo ago
+u/Krios92
+Ballistics shouldn't bypass shields. They should break ships
+DISCUSSION
+
+I've been thinking about the current discussion around Ballistic shield penetration and weapon balance. Instead of balancing Energy and Ballistic weapons around similar DPS, I think they should have fundamentally different roles.
+
+The basic idea:
+
+Energy → Shields → Ballistic → Armor → Hull
+
+Energy and Ballistic weapons should do different jobs
+
+Energy weapons should primarily be effective against Shields, while being relatively inefficient against Armor and Hull.
+
+Ballistic weapons should be the opposite: highly effective against Armor and Hull, but heavily mitigated by active Shields.
+
+This creates two distinct phases:
+
+Shield phase: Energy weapons bring the Shields down while Ballistics are heavily mitigated.
+
+Hull phase: Once the Shields are down, Ballistics become the main threat against Armor and Hull.
+
+This would also give mixed loadouts a real purpose: Energy and Ballistic weapons aren't competing DPS options, but tools for different stages of the fight.
+
+Shields should almost completely stop Ballistic damage
+
+An active Shield should provide very strong protection against Ballistic weapons of a comparable scale.
+
+Not necessarily 100% immunity, but close to it.
+
+Ballistic → Shield → most of the impact absorbed
+
+Once the Shield is gone:
+
+Ballistic → Armor → Hull
+
+This would make achieving a Shield break much more meaningful.
+
+However, I wouldn't make Shields completely immune to Ballistics. Instead, they could have a second property: Shield Strength / Impact Resistance.
+
+Shield HP determines how much damage the Shield can absorb before collapsing.
+
+Shield Strength determines how powerful a single impact it can withstand before allowing damage through.
+
+This creates an important distinction between sustained fire from repeaters and high-alpha attacks from cannons.
+
+Shield Strength shouldn't simply be "S5 beats S2"
+
+A small Ballistic weapon should have very little effect against a comparable Shield, while a much larger cannon could potentially overwhelm a smaller Shield.
+
+For example, a small fighter's Shield should protect it very well from small Ballistic weapons. But a direct hit from a large Perseus cannon should still be dangerous.
+
+The Shield would absorb a significant part of the impact, lose a large amount of HP, but if the impact greatly exceeds its Strength threshold, some damage could penetrate into the Armor.
+
+The calculation shouldn't depend purely on weapon size. Factors such as weapon size, alpha damage, weapon type, Shield characteristics and current Shield condition could all matter.
+
+A repeater relies on sustained fire; a cannon relies on high single-shot damage. They shouldn't necessarily interact with Shields in the same way.
+
+Armor becomes the second threshold
+
+Once something gets through the Shield, Armor should determine whether the weapon can actually penetrate the ship.
+
+Weapon → Shield Strength → Shield HP → Armor → Hull
+
+The Shield asks:
+
+"Is this impact powerful enough to get through me?"
+
+Armor asks:
+
+"Is this weapon powerful enough to penetrate me?"
+
+A small Ballistic weapon could damage a lightly armored fighter, but be almost useless against heavy Armor. Larger weapons would be needed to overcome heavier protection.
+
+This makes weapon size about more than DPS: larger weapons become tools for overcoming defensive thresholds.
+
+Why this would make loadouts more interesting
+
+Full Energy: excellent at stripping Shields, but inefficient against Armor/Hull.
+
+Full Ballistic: extremely dangerous once Shields are down, but heavily disadvantaged against active Shields.
+
+Mixed: Energy breaks the Shields, Ballistics exploit the opening.
+
+This gives mixed loadouts a genuine mechanical purpose.
+
+It also makes Shield regeneration more meaningful. If Ballistics can freely damage the Hull while Shields are active, regenerating Shields doesn't prevent the permanent damage already taken.
+
+With strong Ballistic mitigation, disengaging before a Shield break becomes a meaningful defensive decision. Once Shields reach 0%, the fight enters a much more dangerous phase.
+
+Fighter vs Capital
+
+This could also help balance smaller ships against larger ones.
+
+A fighter shouldn't be able to destroy a capital simply by mounting enough small Ballistic weapons and slowly bypassing its Shields. Those weapons should be heavily mitigated by the capital's Shields and potentially unable to penetrate its Armor.
+
+Conversely, a fighter shouldn't assume its small Shield can absorb a direct hit from a capital-scale weapon. A Perseus cannon should be terrifying.
+
+The fighter's defense should come from mobility, positioning and avoiding the shot, not from permanent Shield penetration or immunity.
+
+In short
+
+Energy breaks Shields. Ballistics break Armor and Hull. Shield Strength determines whether a ballistic impact can get through. Armor determines whether that weapon can actually penetrate the ship.
+
+The goal isn't to simply nerf Ballistics or buff Energy. It's to make weapon choice, ship size and defensive systems matter beyond simply asking:
+
+"Which loadout has the highest DPS?"
+
+Instead:
+
+"What am I fighting, what defenses does it have, and what do I need to overcome them?"
+
+This would give Shields and Armor distinct purposes, create a natural shield-breaking → ship-destruction combat loop, and make weapon choice and mixed loadouts much more strategic.
+
+EDIT: Yes, this post was reworked with AI. I’m not a native English speaker, and I used it to make my ideas clearer than a direct translation would. If you’re focusing on how the post was written rather than what it’s actually saying, you’re looking at the finger instead of the moon (as we say in my country).
+
+Share
+Sort by:
+Comments Section
+Money-Log2027
+•
+2mo ago
+
+No, Let them keep using a roulette for random changes I like to live dangerously
+
+XaphanInfernal
+•
+2mo ago
+
+I prefer using a tank of manatees using "idea" balls instead
+
+SaxPanther
+•
+2mo ago
+cutlass gang rise up
+
+what in the chatgpt is this slop
+
+Krios92
+•
+2mo ago
+Adventurous_Run9492
+•
+2mo ago
+
+I think the problem here is that there actually isn't much in the way of hardpoint availability for a lot of ships to allow for this. You've got ships like the Talon and the Gladiator, for example, (although the latter is a bomber) where there are only 2 pilot controlled guns and that basically would force you to run only lasers.
+
+Don't get me wrong, there are wayyyy too many ships that are over-gunned for their size (looking at most of the newer combat ships that have released) but right now the issue isn't so much ballistics vs lasers IMO, it's the issue of poorly balanced alpha damage vs armour. I've said it before and I'll die on this hill, weapons need to scale better by size but generally have alpha damages brought much, much closer across the type categories. The entire reason we can have fighters still able to kill capitals is because you can just slap cannons on the thing and still out-alpha the deflection ratings anyway. Just slapping the ballistic absorption up on shields is only going to make it go to being a laser meta, it won't encourage mixed loadouts because it's easier to stack 4x M6As to match projectile speeds than run 2 of each and switch fire groups - even if you nerf the damage lasers deal to armour. If you can, theoretically, get the game to a state where running mixed loadouts is incentivised, ironically I think you'll find that ships like the hornet still dominate because they're the only ones with enough actual hardpoints to run those loadouts effectively.
+
+Likewise, armour's actual damage gating needs to be a lot lower but armour itself needs to depleted a lot slower too. Obviously a capital ship should probably withstand most, if not all, size 3 guns since they're supposedly anti-fighter but there comes a point where you are literally forcing people to run cannons on 90% of your combat ships because there's nothing else worth running - then wonder why slow ass projectiles with low fire rate are struggling to engage with a meta that still favours fighters over a lot of larger ships because not getting hit is better than face-tanking. IMO, we also need different types of armour that are more disconnected from size, or even the ability to strip/add armour in exchange for manoeuvrability. Industrial ship armour shouldn't be comparable to dedicated combat armour - but, equally, approaching the ability to damage combat ships shouldn't be the absolute travesty that it currently is.
+
+Ship TTKs will inevitably go up, which they've said they don't want to do, but engineering is going to stay fairly irrelevant until they accept that outright explosions should be much rarer than getting soft-death'd if they want to make it actually worthwhile to try to repair or engage with that side of the game beyond post-fight clean up. They've got a lot of ideas for cool systems but they actively seem to want players interacting with them to be a rarity.
+
+The game is in a weird state and the armour changes have, personally, made a lot of ships not worth the effort to actually take out if they show up because of asinine deflection ratings. Outright ignoring smaller weapons is fine but with the way the current system is, that isn't even true because go slap a ballistic or laser cannon on and boom, you're no longer ignoring smaller weapons. It also shouldn't be at a point where fighter craft are able to ignore half of the weapon roster for the largest weapon size still dedicated to anti-fighter. (Looking at you, M80, Vanguard, Guardian MX etc.) I can see them ignoring smaller weapons (maybe size 1s, or some size 2s, but not size 3s).
+
+AdmlBaconStraps
+•
+2mo ago
+
+That's a lot of words to say you don't know that's been the plan all along
+
+Krios92
+•
+2mo ago
+
+Considering they've been completely reworking how damage, damage types, and TTK work almost every year for the past 10 years, I'd say they don't really know either.
+
+Leviathan0412
+•
+2mo ago
+
+TLDR
+
+GFY
+
+Chumpalot83
+•
+2mo ago
+
+OP has 5 minutes to brief the Prime Minister on an urgent matter.
+
+Fucks it.
+
+smntnz
+•
+2mo ago
+
+ChemicalBrilliant846
+•
+2mo ago
+•
+Edited 2mo ago
+
+What u forgot is distotion damage should it only work when sields are down?
+
+Edit: at least we have 4 types of damages, Disposition EM dmg, laser thermal explosive Rockets Maybe some Bigger shells and projektile kinetic shield and armor can have different resistent Types like in EVE.
+
+How_About_We_Dont
+•
+2mo ago
+
+Let energy weapons slowly cook the ship and overwhelm the life support breaking components without penning armor
+
+Error_Space
+•
+2mo ago
+
+Idea, give the shield similar effect as armor. It deduct certain numbers of damage from incoming attacks before letting them pass and deduct the set hp from their own HP pool. But you can also swap out a single large shield gen for multiple smaller shield gens for stacking effects.
+
+For example, let’s say you have a S3 shield gen that has 100hp and 10 deflection, when an incoming attack hit the shield, it check how much damage it does, if smaller than threshold, it deduct the damage and eat the projectile, if larger, it deduct 10 and letting the projectile through.
+
+Now if we using shield rack with 3 S1 shields slots, each generator might only have 20hp and add up to total of 60hp, but their deflection also add up, now instead of 10, they may have something say 7 for each generator and added up to 21 deflection.
+
+Also for ballistic, what if we make them able to penetrate into the ship and directly harms the person inside? Killing ships are no longer a must to kill the person, if your weapon have enough penetration you can shoot at the bridge or windows of the capital ships to harm or even kills people inside, making fighters significantly more dangerous than current situation. Now a capital ship can’t just ignore fighters but need active support to clear them out before they able to do precision strike.
+
+IsmaelSC16
+•
+2mo ago
+
+c'était le plan du début , et ça aurait toujours dû rester ainsi ! aujourd'hui, on se retrouve avec un gameplay compliqué, qui change tout le temps et où aucune stratégie n'est la bonne
+c'est un gameplay qui pourrai être bien plus simplifié tout en étant logique, si il en était resté comme ça
+
+matth322
+•
+2mo ago
+
+If they are worried about ships that only have a ballistic loadout (inferno), and therefore need some level of shield pen, they should create specialist missiles that specifically damage shields.
+
+Krios92
+•
+2mo ago
+
+Actually, the Inferno isn’t really a problem, because it’s highly specialized and has a very clearly defined role. The real mistake is assuming that every ship should be able to do everything.
+The Inferno makes sense as part of a strategy focused on taking down large targets. It’s not meant to roam around on its own and engage whatever it wants.
+
+matth322
+•
+2mo ago
+
+True, but plenty of solo players have it in the fleet, and if it had zero shield pen (which I’m in favour for ballistics), so it would be an issue for none group coordinated action.
+
+However main point was in regard to having missiles for ballistic only ships (insert appropriate name) that damage shields to allow subsequent pen (potentially).
+
+Prestigious-Leg-2996
+•
+2mo ago
+
+Just copy elite dangerous :P Just they can't say thats what they are doing when they do it. xD
+
+Foodoo_
+•
+2mo ago
+
+Dont think ive ever scrolled this much on a post. Can you draw a picture im not reading this.
+
+iCore102
+•
+2mo ago
+Astral Odyssey
+
+People flaming because the guy used AI to translate is wild.. It’s not creative work or anything like that, it’s literally a translation, not creative artwork or etc.
+
+But anyways.. to OP, I get the vision and idea, but honestly, it would require a massive redesign of the entire damage system.. again (this would be the fourth time? I think?)… shield values, component size sizes, armor values and hull HP would need to be refactored. It would break the game wildly.
+
+They should focus more on gameplay stability before any balancing.. if the code and servers don’t allow for proper hit registration and damage calculations, the entire system will be broken from the start. (I’m looking at you Tiburon and Idris beam)
+
+Krios92
+•
+2mo ago
+
+If you'd like to join the discussion on Spectrum, help give the idea some visibility, and potentially bring it to CIG's attention, I'll leave the link to the Spectrum thread here. Hopefully, it can eventually lead to a discussion with CIG.
+
+https://robertsspaceindustries.com/spectrum/community/SC/forum/61894/thread/ballistics-shouldn-t-bypass-shields-they-should--1/570064
+
+Low_Brain51
+•
+2mo ago
+
+Ballistics should damage components and ignore shields, have penetration value pass armor thickness check, and require aiming at components precisely. Laser should inflict thermal splash damage to components (doesn't require to aim as precisely as ballistic), and armor providing more or less dissipation according to thickness/weight.
+
+Krios92
+•
+2mo ago
+
+I think this is exactly the problem with that approach. In that scenario, Ballistics would always be the better choice, because there would be little reason not to favor them over Lasers.
+
+As long as the Shields are active, I don't think the ship should take meaningful damage from Ballistic weapons. Once the Shields are down, then your proposed system starts to make sense: Ballistics can target components and penetrate Armor, while Lasers can deal thermal/splash damage.
+
+This would give both weapon types a clear role and, more importantly, encourage players to balance their loadouts instead of simply choosing Ballistics.
+
+It would also make combat more strategic by creating two distinct phases: first, the Shield-breaking phase, where Energy weapons are the primary tool, and then the Ship-destruction phase, where Ballistics become much more effective against Armor, Hull and Components.
+
+That way, neither weapon type is simply "better", they are effective at different stages of the engagement.
+
+Low_Brain51
+•
+2mo ago
+
+It really depends. Do you want to be able to loot components from downed ships? Therefore ballistics is a no go. Laser would be suited for that role.
+
+Reply
+Share
+Krios92
+•
+2mo ago
+
+I think that's a completely separate discussion. I don't think we should compromise the core ship-to-ship combat mechanics just to preserve a specific component-looting mechanic.
+
+The question of looting components should instead be part of the broader discussion around component damage, repairability and whether components become repairable or irreparable after combat.
+
+I'd keep these two topics clearly separated: first, we should establish a solid and balanced combat system; then we can decide how component damage, repair and looting fit into that system.
+
+Reply
+Share
+Low_Brain51
+•
+2mo ago
+
+Some people don't want the game just be about ships go boom in a cinematic fashion. We've sold a game where NPC are manning ships, and we can beat them in hand-to-hand combat if we want. When weapons are only about DPS, that's when you have trouble making a decisive difference between two types of projectile.
+
+Reply
+Share
+[deleted]
+•
+2mo ago
+
+Comment removed by moderator
+
+Reply
+Share
+Krios92
+•
+2mo ago
+Created Oct 10, 2012
+Public
+230K27K
+USER FLAIR
+Fair_Dinner_4295
+COMMUNITY BOOKMARKS
+Information
+Community
+Links
+/r/SC DISCORD
+REFERRAL CODES
+R/STARCITIZEN RULES
+1
+Read the FAQs Before Posting
+2
+Content Must Be Directly Related to Star Citizen
+3
+Be Respectful
+4
+No Low-Effort Content
+5
+Original Topics Only (No Meta-Coverage)
+6
+AI-Generated & Assisted Content Policy
+7
+No Self-Promotion, Commercial Posts, or Spam
+8
+Specific Redirects (Trading, Orgs, General Hardware)
+9
+No Exploits, Cheats, or Witch-Hunting
+10
+Off-Topic Restrictions
+11
+Moderator Discretion & Spirit of the Rules
+DISCORD
+SC WIKI
+R/STARCITIZEN SUBREDDITS
+
+Check out the subreddits under the r/starcitizen umbrella!
+
+r/Squadron42
+r/Squadron42
+r/arenacommander
+r/arenacommander
+r/Starcitizen_guilds
+r/Starcitizen_guilds
+POSTERS
+IMAGE CREDITS
+
+Thanks to /u/mr-hasgaha for the great banner image!
+
+R/STARCITIZEN PARTNERS
+
+r/starcitizen is partnered with numerous brands in order to offer our community discounts on products that enhance your Star Citizen experience. See below for details on these partners and how to utilize our exclusive discounts.
+
+The use of these codes may provide r/starcitizen with commission on products purchased, 100% of money earned goes back to the community in the form of giveaways, improvement to content produced (Twitch/Youtube), etc.
+
+Tobii: 5% Discount Head to https://tobii.gg/rstarcitizen and use code "rstarcitizen" to save 5% year-round. This link can be used with any discounts of a higher percentage instead of the provided code when said higher discounts are running.
+
+MONSTERTECH: 15% Discount Head to https://www.monster.tech/en/ and use code "rslashsc" to save up to 15% year-round.
+
+VKB: 5% Discount Head to https://vkb-sim.pro/ and use code "rslashsc" to save 5% year-round.
+
+MODERATORS
+Message Mods
+u/Jumbify
+
+Kraken
+u/GentlemanJ
+u/Dolvak
+
+bmm
+u/xelveki
+
+Explorer
+XelVeki
+u/UEE_Central_Computer
+u/benbee
+
+Constellation
+u/AutoModerator
+u/roguonreddit
+u/Jotunnkov
+
+Moderator
+u/Global_Response4900
+
+r/StarCitizen Moderator
+View all moderators
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Stonefall
+
+Stack towers daily.
+
+49K monthly players
+
+Discover More
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/AltFashion
+r/EmoStyle
+r/GothStyle
+r/goth
+r/cats
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.

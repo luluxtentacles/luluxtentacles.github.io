@@ -1,0 +1,259 @@
+source: http://export.arxiv.org/api/query?search_query=all:%22AI-generated%20image%20detection%22&sortBy=submittedDate&sortOrder=descending&max_results=12
+snapshot taken: 2026-10-31
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: arXiv Query: search_query=all:"AI-generated image detection"&id_list=&start=0&max_results=12Media Intelligence Platform: Multimodal Detection of Synthetic and Manipulated ContentRelative Patch Response Learning for Generalizable AI-Generated Image DetectionEvoKnow: Continual Knowledge Evolution for AI-Generated Image DetectionTypographic Attack Against VLM-based AI-generated Image DetectionLook Closer: Patch-wise Supervision for AI-Generated Image DetectionRED: Reconstruction Evolution Dynamics for Generalizable AI-Generated Image DetectionEIB-Net: Entropy-Guided Information Bottleneck for Generalizable AI-Generated Image DetectionFusion Under Component Failure: Negative Results and Failure Modes in Ensemble AI-Generated Image DetectionFrequency-Domain AI-Generated Image Detection: Exploring Decoder and Channel Attention for Feature RefinementBeyond Natural Images: Rethinking AI-Generated Image Detection in DocumentsLearning Continuous Source Responses For Generalizable AI-Generated Image DetectionFACT: A Forensic Agent with Compiled Tool-Use Trajectories for AI-Generated Image Detection
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+https://arxiv.org/api/xb5BVlPYvcFYUoQ10GFacORFxYw
+
+2026-10-31T05:39:03Z
+
+12
+170
+0
+
+http://arxiv.org/abs/2610.27974v1
+
+2026-10-20T10:18:49Z
+
+The rapid progress of generative artificial intelligence has led to a significant increase in manipulated multimedia content, including synthetic faces, forged videos, AI-generated images, fake audio, and locally edited images. Existing detection approaches are typically designed for a single manipulation type, limiting their applicability in real-world scenarios involving heterogeneous media sources. In this work, we present the Media Intelligence Platform (MIP), a unified web-based framework for multimodal media forensics integrating specialized modules for fake video detection, face morphing detection, AI-generated image detection, audio deepfake detection, localized image manipulation detection, and text analysis. Its modular architecture enables flexible integration of heterogeneous models and supports future extensions for emerging manipulation techniques. Experimental results on representative benchmark datasets demonstrate reliable detection performance across multiple media modalities while providing a practical and user-friendly interface for forensic investigations. The platform highlights the potential of unified multimodal systems for comprehensive deepfake detection in real-world environments, and is accompanied by a public demonstrator released with this workshop submission to support reproducibility and community evaluation.
+
+2026-10-20T10:18:49Z
+ECCV 2026, Workshop on AI for Multimedia Forensics & Disinformation Detection (AI4MFDD2026)
+
+David Fischinger
+
+Marcel Hasenbalg
+
+Silvia Poletti
+
+Davide Antonutti
+
+Mina Schütz
+
+Lam Pham
+
+Justin Ilyes
+
+Péter Rjabcsenkó
+
+Simon Freitter
+
+Martin Boyer
+
+http://arxiv.org/abs/2610.11876v1
+
+2026-10-08T12:49:54Z
+
+Generative models can now synthesize highly realistic images, simultaneously increasing the risks of misinformation and visual forgery. Therefore, detecting AI-generated images becomes more essential, and a reliable detector must generalize to unseen generators and stay robust to unseen perturbations in the wild. Existing detectors are typically trained on either independently collected real and generated images or aligned real-generated pairs designed to mitigate content bias. Building on aligned pairs, recent methods form a mixed view by replacing some patches of the real image with their generated counterparts. However, we find that self-attention lets real and generated patches interact, so the feature of each patch no longer reflects its own source alone. This contextual shift makes a per-patch source label an imprecise target. To this end, we propose Relative Patch Response Learning (PRL). Instead of labeling each patch, PRL compares the same patch across two mixed views of an aligned pair and learns from its patch response, the change of its score between the views. (i) To give precise supervision under the contextual shift, a relative response objective measures the responses of source-changed patches against those of source-unchanged patches, which respond to the shift alone. (ii) To provide a reliable reference for the shift, a reference coherence objective keeps each group of source-unchanged patches moving as a whole. (iii) Since the two views contain different amounts of generated content, an area ranking objective asks the view with the larger generated area to have a higher mean patch score. Extensive experiments demonstrate the superior performance of PRL, which surpasses the best prior methods by 4.3% and 5.9% in average balanced accuracy across eight standard and three in-the-wild benchmarks, respectively.
+
+2026-10-08T12:49:54Z
+19 pages, 6 figures, 13 tables
+
+Tianyu Wang
+
+Ouxiang Li
+
+Yanbin Hao
+
+Zhenhua Tang
+
+Shuo Wang
+
+http://arxiv.org/abs/2610.11381v1
+
+2026-10-08T07:12:47Z
+
+AI-generated image detectors are commonly trained on fixed generator domains and become difficult to maintain as new generative models emerge. Continual adaptation is challenging because replaying historical generated images is costly, whereas updating shared parameters with limited current-domain data can overwrite prior forensic knowledge. We propose EvoKnow, a replay-free framework that formulates continual AI-generated image detection as forensic knowledge evolution. EvoKnow preserves a shared forensic basis learned from base domains, incrementally adds isolated residual experts for complementary generator-relevant evidence, and retrieves expertise through an Analytical Incremental Router (AIR) updated in closed form from current-stage generated images and accumulated sufficient statistics. Experiments demonstrate effective cross-generator generalization, few-shot expansion, and long-horizon continual adaptation. With ten generated images per arriving generator, EvoKnow achieves 96.70% average accuracy on non-base GenImage generators and 94.48% accuracy on Chameleon without target-benchmark adaptation. Under a strict replay-free continual learning protocol, EvoKnow achieves state-of-the-art continual learning performance, attaining 96.32% mean stage-wise accuracy and 4.32% average forgetting.
+
+2026-10-08T07:12:47Z
+19 pages, 6 figures
+
+Zhiheng Peng
+
+Wenwei Jin
+
+Yangshi Ge
+
+Siyu Xia
+
+Jiawei Li
+
+Xu Tang
+
+http://arxiv.org/abs/2609.39662v1
+
+2026-09-30T13:03:01Z
+
+Vision-language models (VLMs) are increasingly used for AI-generated image (AIGI) detection, providing natural-language explanations for authenticity judgments. However, their ability to interpret text within images may also expose these judgments to misleading semantic cues. We systematically evaluate typographic attack strategies across detection-oriented, open-weight, and commercial VLMs, considering both real-to-fake and fake-to-real attacks. Our results show that reasoning modes generally exhibit greater vulnerability than direct modes and that attack effectiveness exhibits pronounced directional asymmetry. Moreover, larger models tend to exhibit higher clean detection accuracy but also higher attack success rates. We further examine attack robustness under image and text transformations and investigate whether overlays indicating the correct class can aid error correction. Together, these analyses characterize how typographic attacks influence authenticity judgments and expose limitations of current VLM-based AIGI detection systems.
+
+2026-09-30T13:03:01Z
+5 pages, 3 figures
+
+Eunmin Lee
+
+Jungwoo Kim
+
+Jong-Seok Lee
+
+http://arxiv.org/abs/2609.37937v2
+
+2026-09-30T02:30:46Z
+
+How much of an image does a detector need to see? Small RGB regions can retain useful evidence of image synthesis even when they reveal little of the full scene. Motivated by single-patch detection, we study patch-wise supervision: a shared backbone classifies explicit crops, each crop receives its own loss, and patch probabilities are averaged only at inference. The procedure requires neither handcrafted residual filtering nor a learned image-level fusion module. Experiments span single-patch selection, multiple generator collections, and four CNN and Transformer backbones. On GenImage, the reported patch-wise variants improve average accuracy over their whole-image counterparts across all four backbones. Comparisons of supervision granularity, source resolution, crop size, and inference coverage further characterize the approach, while post-processing tests and difficult-image evaluation reveal its limitations. The historical experiments include evaluation-based model selection, so their scores are not presented as a uniformly selected leaderboard comparison. Overall, the study identifies explicit local input and patch-level supervision as a simple, useful combination for investigating generalizable AI-generated image detection.
+
+2026-09-29T16:19:18Z
+29 pages, 11 figures, 28 tables. Code: https://github.com/LF-Jade/look-closer
+
+Zhida Zhang
+
+Tao Wu
+
+Siyu Liu
+
+Jie Cao
+
+http://arxiv.org/abs/2609.36822v1
+
+2026-09-29T06:33:54Z
+
+The rapid evolution of image generators calls for forensic cues that generalize beyond known generation mechanisms. Existing detectors often rely on static image representations or endpoint reconstruction discrepancies, leaving the evolution of intermediate reconstruction stages underexplored. We observe that the relative token predictability of real and generated images can reverse across reconstruction scales, suggesting that intermediate stages may expose forensic evidence overlooked by endpoint comparisons. Motivated by this observation, we propose RED (Reconstruction Evolution Dynamics), a framework that captures transferable forensic cues from coarse-to-fine reconstruction evolution. To our knowledge, RED is the first framework to use scale-wise token predictability to guide forensic evidence aggregation across intermediate reconstruction states. It represents the reconstruction trajectory produced by a frozen multiscale VQ-VAE in the shared feature space of a frozen CLIP encoder. To connect the observed predictability variations with visual evidence, RED learns image-adaptive stage weights from scale-wise token negative log-likelihoods provided by a frozen VAR model. A cross-stage evidence aggregation module then jointly models the original-image representation and the weighted reconstruction features, capturing complementary forensic cues through interactions along the reconstruction trajectory. Experiments on six diverse benchmarks demonstrate that RED achieves the highest average accuracy of 92.5\% and average precision of 97.5\% among the evaluated methods. Further evaluations show strong robustness to common image degradations, supporting the value of reconstruction evolution for generalizable AI-generated image detection. The code will be made publicly available upon acceptance of this paper.
+
+2026-09-29T06:33:54Z
+
+Wenpeng Mu
+
+Junshan Jin
+
+Tanfeng Sun
+
+Xinghao Jiang
+
+Qiang Xu
+
+http://arxiv.org/abs/2609.29064v1
+
+2026-09-24T05:52:31Z
+
+The proliferation of photorealistic AI-generated images demands robust detection methods that generalize across diverse generative models. While existing approaches target manipulation-based forgeries with local artifacts, generation-based images (e.g., from diffusion models) lack such traces, posing a fundamental challenge. We observe that generative models prioritize global semantics at the expense of local texture fidelity, making low-texture regions key indicators of synthetic origin. To exploit this, we propose EIB-Net, an Entropy-guided Information Bottleneck Network. EIB-Net introduces a novel Image Entropy (IE) metric to automatically select the most informative (lowest-entropy) patch, then processes it with a Variational Information Bottleneck (VIB) to learn compact, generalizable features. Extensive experiments on DIFF, DiffusionForensics, and GenImage benchmarks demonstrate state-of-the-art performance: EIB-Net achieves 85.7\% accuracy using only 2\% of training data, outperforming full-image baselines by over 15\%, and maintains robust cross-generator generalization (83.5\% average accuracy on GenImage). Furthermore, our entropy-guided patch selection (EGPL) consistently enhances diverse backbones (CNNs and Transformers), proving its practical value for data-efficient detection.
+
+2026-09-24T05:52:31Z
+Accept by ICME 2026
+
+Zhida Zhang
+
+Xinlei Ma
+
+Jie Cao
+
+http://arxiv.org/abs/2609.31749v1
+
+2026-09-23T08:14:20Z
+
+We built an ordinary stacking ensemble for AI-generated image detection -- three open detectors producing five scores, fused by a gradient-boosted meta-learner that treats a detector's failure as missing data -- deployed it, and then evaluated it against three controls it should have faced first. This paper reports what the controls found, including where they overturned our own earlier conclusions.
+Fusion is worth its cost only when refitted on the target domain. The shipped meta-learner, fitted on a separate corpus, does not beat its best single member on 2000 StyleGAN faces (AUC 0.9896 vs 0.9961; McNemar p = 1.000). But a stacker refitted in-domain beats that member plus a post-hoc calibrator (Delta-AUC = +0.0025, [+0.0014, +0.0038]; p = 3.4e-4). An earlier draft claimed the calibrated single detector won outright; that comparison mixed regimes and we correct it here.
+One corpus is not an evaluation. On 80 screenshots every model's AUC interval contains 0.5. We can say nothing stronger: the difference between the ensemble's drop and its best member's is [-0.185, +0.115].
+Abstention is real, correlated, and mishandled. With four of five detectors silent and the survivor reporting "real", the system returns P(AI) = 0.9985, because an all-NaN input scores 0.9995 in a learner never fitted with missingness. The three AIDE checkpoints fail together, sharing one preprocessing path. A quorum rule requiring two distinct architectures prevents both failures with no retraining.
+We also find Corpus A carries a class-conditional JPEG bias severe enough to separate the classes from the header alone, which limits every in-domain number we report. Code, harness, hash-identified artifacts and all corrections are released.
+
+2026-09-23T08:14:20Z
+
+Suraj Singh
+
+Tushar Verma
+
+Pragyan Singh
+
+Shaurya Bhav
+
+Shivam Kumar
+
+http://arxiv.org/abs/2609.31723v1
+
+2026-09-22T01:40:24Z
+
+With the rapid progress of AI, the number of AI-generated images has increased significantly in recent years. However, the increasing variety of image generation models makes detection more difficult. In this work, we use Fast Fourier Transform (FFT) representation with EfficientNet-B0 for AI-generated image detection. EfficientNet-B0 provides a lightweight architecture that can be useful for resource-limited applications. Most frequency-domain detectors use a standard encoder to extract features from the FFT spectrum and directly pass them to a classifier. We explored a different approach by investigating ECA, U-Net, and Attention U-Net as alternatives to this direct encoder-to-classifier approach. ECA applies channel attention, while U-Net and Attention U-Net use decoder-based architectures to recover and refine spatial information in the extracted frequency features. We used a balanced subset of the MS COCOAI dataset that includes AI-generated images from five different models. Three runs were carried out for each experiment, and the average values were recorded. Experimental results indicate that EfficientNet-B0 obtained an accuracy of 84.64%, which is 4.50 percentage points higher than the ResNet-50 baseline reported in the dataset paper. EfficientNet-B0 with U-Net provided a small improvement, achieving an accuracy of 84.85%, while ECA did not increase the overall performance. EfficientNet-B0 with Attention U-Net achieved the best overall performance, with an accuracy of 85.51% and an ROC-AUC of 92.99%. This represents an improvement of 0.87 percentage points in accuracy compared to the EfficientNet-B0 baseline and 5.37 percentage points over the ResNet-50 baseline reported in the dataset paper.
+
+2026-09-22T01:40:24Z
+Accepted at the 2026 IEEE International Conference on Optics, Machine Learning and Emerging Technology (OMLET)
+
+Uday Shankar Roy
+
+Mahbuba Jahan Minu
+
+http://arxiv.org/abs/2609.14352v1
+
+2026-09-13T07:26:45Z
+
+AI-generated image detection has attracted increasing attention, but existing evaluations mainly focus on natural images, leaving AI-generated document images largely underexplored. This omission is concerning because documents often appear in sensitive real-world scenarios, such as invoices, expense reports, certificates, and medical records. In this paper, we first construct a controlled diagnostic benchmark, AIGDoc-Pilot, and reveal that existing detectors suffer substantial performance degradation on AI-generated document images, with the mean AUC dropping by more than 7%. Based on this, we further reveal two document-specific properties behind this gap: generation artifacts exhibit strong spatial inconsistency across local regions, and text density significantly affects real-synthetic separability, where text-dense regions offer stronger discriminative evidence. Motivated by these findings, we construct AIGDoc, a larger document-centric dataset containing diverse real-world documents and AI-generated counterparts produced by multiple advanced generation and editing models. Extensive experiments on AIGDoc demonstrate that existing detectors still struggle to reliably identify AI-generated documents, while document-based training partially narrows the gap. Together, these results offer valuable insights for developing dependable and generalizable detectors in document-centric scenarios. The code and datasets will be made publicly available upon acceptance of the paper.
+
+2026-09-13T07:26:45Z
+
+Zhangjie Fu
+
+Jiazhen Yan
+
+Yuanwen Chen
+
+Xinquan Yu
+
+Yanzhe Li
+
+Hui Jiang
+
+Lei Gao
+
+Chenfu Bao
+
+http://arxiv.org/abs/2609.14316v1
+
+2026-09-13T06:24:59Z
+
+Advances in image generation have made synthetic images increasingly difficult to distinguish from real photographs, raising concerns about the trustworthiness of visual media. Existing AI-generated image detectors often perform well on in-domain data, but their robustness and cross-generator generalization remain limited. These limitations are commonly attributed to overfitting to shortcut cues. Although many methods seek to suppress shortcut learning, most retain binary classification as the training task without reconsidering how the task itself shapes the learned representations. We introduce CuRe, a framework for learning Continuous Source Responses that revisits authenticity detection from the perspective of the training task. CuRe reformulates backbone adaptation as regression of real-generated mixing ratios, providing finer supervision that encourages the model to capture authenticity-related variation beyond binary endpoint separation. We further select a compact source-response subspace to suppress nuisance variation and limit the final classifier's access to potential shortcut cues. Across ten public benchmarks, CuRe achieves an average balanced accuracy of 89.7%, exceeding the second-best method by 5.2 percentage points. Further experiments demonstrate consistent generalization gains across visual backbones and strong robustness to common image degradations. Code is available at https://github.com/manic-cui/CuRe
+
+2026-09-13T06:24:59Z
+
+Manni Cui
+
+Ruiqi Liu
+
+Zijian Yu
+
+Hao Tan
+
+Zibo Wei
+
+Zian Wang
+
+Ziheng Qin
+
+Huijia Zhu
+
+Weiqiang Wang
+
+Jun Lan
+
+Shu Wu
+
+http://arxiv.org/abs/2609.05876v1
+
+2026-09-05T04:39:49Z
+
+AI-generated image detection is increasingly open-world: new image generators produce highly realistic images that make visual artifacts harder to identify. Existing detectors usually rely on a fixed set of forensic cues, so a detector that works well for one generator family may fail on another. We introduce FACT (Forensic Agent with Compiled Tool-use Trajectories), which learns an image-conditioned tool-use policy for forensic analysis. Instead of applying a fixed detector, FACT decides which forensic tools to call, interprets the returned evidence, and stops when sufficient evidence has been collected. FACT follows an Evolve--Distill--Refine pipeline: it evolves an execution-verified forensic skill, compiles the skill into action--observation tool-use trajectories, distills them into a compact agent, and refines the policy with cost-aware GRPO. Across two internal and four public benchmarks, FACT achieves the best performance among all compared methods, including on recent unseen generators, deepfakes, and manipulated images.
+
+2026-09-05T04:39:49Z
+
+Jiaoyang Chen
+
+Bin Hu
+
+Jingyu Hu
+
+Kun Zhou
+
+Qin Zhang
+
+Zhengzhe Liu

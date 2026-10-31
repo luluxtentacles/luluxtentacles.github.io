@@ -1,0 +1,461 @@
+source: https://www.reddit.com/r/Maine/comments/1woap1s/ai_photo_in_susan_collins_ad/
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-10-31
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+AI photo in Susan Collins ad? : r/Maine
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+Repost
+Go to Maine
+r/Maine
+•
+1mo ago
+u/RiverSkyy55
+AI photo in Susan Collins ad?
+
+I'm no expert, but every time I see this image in Susan Collins' ad, it's giving AI generated, or at least partially. Check the guy on the left - What the heck is coming out of his head? It's not behind the chopper, because it's crisp, whereas the guy behind the chopper is blurry. And also the second guy from the right - Look at the fingers.
+
+I hope her campaign wouldn't use AI to create (or Photoshop to edit) our servicemen, but I'm... let's say... concerned.
+
+Does anyone know anything more about this photo?
+
+ETA: AEKDBull came in with the answer: This is a real photo, but was edited (poorly) for the tv ad. Their response with link to original photo is in the comments. :-)
+
+Share
+Roblox
+•
+Ad
+Sound on. Lights off. Discover survival games on Roblox.
+Play Now
+roblox.com
+Collapse video player
+Sort by:
+Comments Section
+AmbitiousEducation49
+•
+1mo ago
+
+Republicans are obsessed with using AI, including (or particularly) in their political ads. So, why wouldnt a Susan Collins ad also use AI (or SI as Trump has declared it)
+
+AEKDBull
+•
+1mo ago
+
+It's for sure been edited. Original is from her FB
+
+https://www.facebook.com/photo/?fbid=1094409452046009&set=pcb.1094412188712402
+
+RiverSkyy55
+•
+1mo ago
+
+That's a great find! So the weird "hair" on the guy on the left is actually two men in the background, but when they blurred the background for the tv ad, they missed blurring them, so they come across as part of his head. And the other guy's fingers don't look quite as weird there, so that had to be part of the editing or compression, too, I guess.
+
+Thanks for digging this up! Question answered - Real photo, poorly edited for tv.
+
+MaineOk1339
+•
+1mo ago
+
+Makes sense looks like a bad Photoshop job
+
+curtludwig
+•
+1mo ago
+
+Give the intern a photoshop license and watch the garbage they produce...
+
+phirleh
+•
+1mo ago
+
+Not just defocusing the background, they cut out the foreground out to shrink the helicopter and fit it in the frame. Probably used AI to do it as well.
+
+IHeartFraccing
+•
+1mo ago
+
+Did they just edit it to make the guy on the far left taller?
+
+scixlovesu
+•
+1mo ago
+woofaboomus
+
+Wow, that was butchered! (love the comment on the side though!)
+
+drjmontana
+•
+1mo ago
+
+Thank you everybody except for Susan
+
+psilosophist
+•
+1mo ago
+Top 1% Commenter
+
+You can use AI detection tools (but they may not always be right). It's worth having that knowledge in your back pocket as a method of verification.
+
+https://deepai.org/ai-image-detector
+
+This one came up as likely a real image, I see it's a screen grab from a video so it's possible that it's just scanning artifacts (based on how Collins looks no, this doesn't seem at all recent) from a print or something.
+
+RiverSkyy55
+•
+1mo ago
+
+For this post, it's an image I took with my phone from the paused tv ad, so yeah, it's probably reading the image data from my phone as a genuine photo, rather than scanning the picture itself for inconsistencies, but that IS a cool tool to know about. Thanks!
+
+psilosophist
+•
+1mo ago
+Top 1% Commenter
+
+I will say that looking at it again, it's likely that the foreground images were cut out from the background and manipulated, the edges between them and the background are suspiciously quite distinct. But that could just be trying to brighten up the image for effect.
+
+iceflame1211
+•
+1mo ago
+Top 1% Poster
+
+https://youtu.be/nRiClh6w4oQ?is=pF5he_3PUzqcr9Gg
+
+This the video in question? It's made by a dark money group, so.. probably AI, but I used no actual tools to detect.
+
+u/Shade-post
+•
+Ad
+Shade lets you spend more time editing and less time searching. Learn more...
+Learn More
+shade.inc
+Collapse video player
+SuperBry
+•
+1mo ago
+Edit this.
+Top 1% Commenter
+
+While I am sure there was some manipulation, I am not seeing anything glaring that would indicate that this would be AI created.
+
+What seems to make you think it is?
+
+longlostkingdoms
+•
+1mo ago
+Portland
+
+Look at the dude’s hair on the left. Since when did we turn into Pluto Nash?
+
+SuperBry
+•
+1mo ago
+Edit this.
+Top 1% Commenter
+
+Looks like a Photoshop artificial from (poorly) cutting out the group from another photo and putting it into a new background.
+
+BigTroutOnly
+•
+1mo ago
+
+Hair of guy on left. Now reference the original
+
+scixlovesu
+•
+1mo ago
+woofaboomus
+
+She also looks lit as if she's somewhere with completely different lighting.
+
+Objective-Law4313
+•
+1mo ago
+
+I feel like she used an AI Patriotic Kenny in one of her ads.
+
+wes_wyhunnan
+•
+1mo ago
+
+It’s hard to tell if it’s a compressed picture that is screenshot from something, but it’s weird enough that I would like to see other evidence of her actually being around marines and an osprey
+
+RiverSkyy55
+•
+1mo ago
+
+I'm sure you'll have lots of opportunities to see the ad... It seems to play every 20 minutes on Disney+ and Hulu, at least.
+
+SuperBry
+•
+1mo ago
+Edit this.
+Top 1% Commenter
+
+This time of year I am so thankful I pay for ad-free plans when I subscribe to streaming services.
+
+Now the only ones I see are when I pirate sports streams, and more often than not its from other areas in the country so I don't see the same local politicians every five minutes.
+
+iceflame1211
+•
+1mo ago
+Top 1% Poster
+
+What's up with the hair for the stoned dude on the left?
+
+RiverSkyy55
+•
+1mo ago
+
+Right? That's what always gets my attention. I thought it was sunglasses at first, but there are no ear pieces. Just creepy.
+
+Ryancurley10
+•
+1mo ago
+
+Apologies but this appears to be real. It was an actual photo op from 2024
+
+https://www.facebook.com/share/1DLpddELGn/
+
+dirtyword
+•
+1mo ago
+
+I can say with a pretty high level of confidence that this is a Photoshop AI-powered remove background command (which is designed to essentially just delete the background of a photo by cutting everyone out) and a replaced background. Meaning they weren't standing in front of that Osprey or whatever it is, they were somewhere else. It's sloppily done, and there are lots of telltale signs. Doing it properly would probably have taken 25 mins though.
+
+legalizecannabis710
+•
+1mo ago
+
+Does her brother still sell weed? Just wondering.
+
+phirleh
+•
+1mo ago
+
+I'm sure she's learned her lesson.
+
+MSCOTTGARAND
+•
+1mo ago
+
+everyone is using AI, even walmart is using it for some of their product images. but this was probably just poorly photoshopped
+
+Reply
+Share
+AtIasWraith
+•
+1mo ago
+No, but probably Yes 🤷🏻
+
+One way to tell this is fake is that the Marines have no cover while outside in full cammies...
+
+Reply
+Share
+CMGCookie
+•
+1mo ago
+
+I admit. Something there doesn't look right.
+
+But AI, you forgot the pearls!
+
+Reply
+Share
+CrissCross98
+•
+1mo ago
+
+You havent seen those other Susan collins ads where shes talking with her "constituents"? Shes all young'd up and looks nothing like she does now.
+
+Reply
+Share
+ClearConcentrate6645
+•
+1mo ago
+
+That’s definitely AI… stupid lazy cunts
+
+Reply
+Share
+Media_Glad
+•
+1mo ago
+Created Feb 24, 2009
+Public
+149K6.7K
+USER FLAIR
+Fair_Dinner_4295
+R/MAINE RULES
+1
+Posts must be Maine related.
+2
+Be civil.
+3
+No bigotry, trolling or hate speech.
+4
+No misinformation / propaganda / editorializing.
+5
+No spam or excessive self-promotion.
+6
+Visiting and Moving FAQs must be posted in the megathread.
+7
+No Social Media Links.
+8
+Follow Reddit's Sitewide rules.
+FAQS & HELPFUL LINKS
+Lewiston Shooting threads 1 2 3
+Behavioral Health Resources for Those Affected by the Violence in Lewiston
+211 (Local Service Referrals)
+Lost Dog Recovery
+Coronavirus Info & Links
+Moving to Maine - Post 1 | Post 2
+Maine Job Bank
+Jobsinme.com
+Pine Tree Legal Assistance
+Winter Living Tips (Archived Post)
+Voting in Maine
+Internet Access in Maine
+RECREATION & TOURIST INFO
+Maine Tourism Association
+Maine Tourism on Trip Advisor
+Maine Trail Finder
+State Parks and Public Lands
+VisitMaine.com
+Acadia National Park
+
+Baxter State Park / Katahdin
+
+Portland Area
+
+Portland Food Map
+
+Portland Area (Archived Post)
+
+Mid Coast Region (Archived Post)
+
+Acadia/Downeast (Archived Post)
+MAINE SCHOOLS
+r/Colby
+1,863 members
+r/Bowdoin
+2,035 members
+r/UniversityOfMaine
+783 members
+r/batescollege
+598 members
+MAINE NEWS
+
+Maine Public
+
+Bangor Daily News
+
+Portland Press Herald
+
+Sun Journal
+
+NBC News Center Maine
+
+WGME CBS News
+
+RELATED SUBREDDITS
+r/mainehistory
+3,955 members
+r/Mainepolitics
+4,668 members
+r/portlandme
+79,365 members
+r/LAMaine
+4,936 members
+r/Aroostook
+851 members
+r/skimaine
+586 members
+r/MaineFood
+1,907 members
+r/mainebeer
+2,235 members
+r/mainetrees
+30,642 members
+r/newhampshire
+159,069 members
+MODERATORS
+Message Mods
+u/jonathanfrisby
+u/Tony-Flags
+
+Friends with Smoothy, Shifty and D-$
+u/Aggressive_Ad_5454
+
+Verified
+Ollie
+u/geneticswag
+u/KaterAlligat0r
+u/CosmicJackalop
+
+Pine State Cryptid
+u/im_the_natman
+u/CoastalSailing
+u/cinnabarhawk
+
+Alumni
+
+Saco
+u/trendingtattler
+View all moderators
+INSTALLED APPS
+Trending Tattler
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Stonefall
+
+Stack towers daily.
+
+49K monthly players
+
+Discover More
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/AltFashion
+r/EmoStyle
+r/GothStyle
+r/goth
+r/cats
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.
