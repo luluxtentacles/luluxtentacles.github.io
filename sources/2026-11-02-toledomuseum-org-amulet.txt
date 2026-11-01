@@ -1,0 +1,299 @@
+source: https://www.toledomuseum.org/amulet
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-02
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+This website uses cookies
+We use cookies to personalise content and ads, to provide social media features and to analyse our traffic. We also share information about your use of our site with our social media, advertising and analytics partners who may combine it with other information that you’ve provided to them or that they’ve collected from your use of their services.
+Show details
+OK
+Do not sell or share my personal information
+
+Most of the Museum is temporarily closed due to our ongoing reinstallation. The Education Wing, Glass Pavilion, Sculpture Garden, and Library are open. All other galleries are closed. Learn more about the reinstallation.
+
+Beginning Sunday, October 4, the Green Building (Main Museum) will be closed on Sundays and open only to registered class participants. The Glass Pavilion will remain open during regular hours.
+
+Open Today: 11:00 AM - 5:00 PM
+Hours Contact Us Sign In
+Visit
+Exhibitions
+Events
+Learn
+Reinstallation
+Main Menu
+Primary Navigation
+Home
+Collection
+Membership
+Donate
+About
+Dine
+Shop
+Bowe Family Center
+Glass Studio
+Belonging at TMA
+Destination Navigation
+Visit
+Exhibitions
+Events
+Learn
+Reinstallation
+Library & Archives
+Host an Event
+TMA Labs
+Community Gallery
+News
+Media Contacts
+Utility Navigation
+Hours
+Contact Us
+Sign In
+Connect
+
+Unlock the Power of Protection
+
+You found it for a reason.
+
+This protective amulet is part of a citywide charm drop inspired by Cursed! The Power of Magic in the Ancient World, and now it’s yours.
+
+In ancient cultures, amulets were carried, worn, or placed nearby to guard against harm, attract luck, or invite clarity. Today, you’ve stepped into that tradition—right here in Toledo.
+
+Your protection has been activated.
+
+Your Protective Shield
+
+No two amulets serve exactly the same purpose. Each one represents a form of protection drawn from ancient beliefs—whether it’s guidance, balance, strength, or peace of mind.
+
+As you explore Cursed!, look closely at the objects on view. Many once carried meaning similar to the amulet you found: small, powerful, and full of hope.
+
+Consider this your invitation to look for magic in unexpected places.
+
+Amulet with the Demon Pazuzu
+
+The fierce wind demon Pazuzu was called on for protection against other demons, especially the child-harming Lamashtu. This imposing amulet, carved in the shape of Pazuzu’s head, bears a cuneiform inscription naming its owner as the exorcist and priest Adad-shumu-ushur, who served the Assyrian kings Esarhaddon (681–669 BCE) and Ashurbanipal (668–627 BCE).
+
+The incantation reads:
+
+I am Pazuzu, son of Hanpu, king of the evil wind demons. I ascended the mighty mountain that trembled. And the winds that I set against faced the west. I have broken their wings.
+
+Cobra Amulet
+
+This Egyptian amulet was among the first objects acquired for the Toledo Museum of Art, purchased by the museum’s founders, Edward Drummond Libbey and Florence Scott Libbey, during a trip to Egypt in 1906. The depiction of sacred animals, such as the ibis and crocodile, as well as powerful symbols like the ankh (representing the hieroglyphic sign for “life”) and papyrus column.
+
+The protective powers of amulets were thought to be activated through physical contact with the body. Most, like the winged scarab beetle in the center, were pierced to be sewn into the wrappings of the mummified deceased.
+
+Pendant Amulet Against the Evil Eye
+
+Belief in the Evil Eye was widespread in all ancient cultures and remains common in many cultures today. Certain people are thought to have the power to harm others simply through a jealous glance. Worn as a pendant, this amulet displays a human eye surrounded by protective symbols including a snake, a scorpion, and a thunderbolt, all intended to counteract the Evil Eye’s malignant power.
+
+Magical Gem with Snake-Legged Deity
+
+This creature with the body and arms of a soldier, the head of a rooster, and snakes for legs appears frequently on magical gems, but his identity remains uncertain. He carries a whip and a shield, suggesting a protective role, and inscriptions often equate him with the sun god or the Jewish god Yahweh.
+
+On this gem, the inscription includes the names of the archangels Michael, Raphael, Gabriel, and Ouriel.
+
+stop animation
+stop
+slide 9 to 11 of 4
+
+Pendant Amulet Against the Evil Eye
+
+Roman, 2nd century CE
+
+Gold, pearls, and amethyst
+
+Johns Hopkins Archaeological Museum, 485 (formerly FIC.07.225)
+
+Magical Gem with Snake-Legged Deity
+
+Roman, 2nd–3rd centuries CE
+
+Green and red jasper
+
+Kelsey Museum of Archaeology, University of Michigan, 0000.02.6054
+
+Amulet with the Demon Pazuzu
+
+Neo-Assyrian, 681–627 BCE
+
+Chalcedony
+
+The Wyvern Collection, 2048
+
+Cobra Amulet
+
+Egyptian, 23rd–31st Dynasties, 818–332 BCE
+
+Faience
+
+Toledo Museum of Art, Gifts of Edward Drummond Libbey, 1906.151
+
+Pendant Amulet Against the Evil Eye
+
+Roman, 2nd century CE
+
+Gold, pearls, and amethyst
+
+Johns Hopkins Archaeological Museum, 485 (formerly FIC.07.225)
+
+Magical Gem with Snake-Legged Deity
+
+Roman, 2nd–3rd centuries CE
+
+Green and red jasper
+
+Kelsey Museum of Archaeology, University of Michigan, 0000.02.6054
+
+Amulet with the Demon Pazuzu
+
+Neo-Assyrian, 681–627 BCE
+
+Chalcedony
+
+The Wyvern Collection, 2048
+
+Cobra Amulet
+
+Egyptian, 23rd–31st Dynasties, 818–332 BCE
+
+Faience
+
+Toledo Museum of Art, Gifts of Edward Drummond Libbey, 1906.151
+
+Pendant Amulet Against the Evil Eye
+
+Roman, 2nd century CE
+
+Gold, pearls, and amethyst
+
+Johns Hopkins Archaeological Museum, 485 (formerly FIC.07.225)
+
+Magical Gem with Snake-Legged Deity
+
+Roman, 2nd–3rd centuries CE
+
+Green and red jasper
+
+Kelsey Museum of Archaeology, University of Michigan, 0000.02.6054
+
+Amulet with the Demon Pazuzu
+
+Neo-Assyrian, 681–627 BCE
+
+Chalcedony
+
+The Wyvern Collection, 2048
+
+Cobra Amulet
+
+Egyptian, 23rd–31st Dynasties, 818–332 BCE
+
+Faience
+
+Toledo Museum of Art, Gifts of Edward Drummond Libbey, 1906.151
+
+Pendant Amulet Against the Evil Eye
+
+Roman, 2nd century CE
+
+Gold, pearls, and amethyst
+
+Johns Hopkins Archaeological Museum, 485 (formerly FIC.07.225)
+
+Magical Gem with Snake-Legged Deity
+
+Roman, 2nd–3rd centuries CE
+
+Green and red jasper
+
+Kelsey Museum of Archaeology, University of Michigan, 0000.02.6054
+
+Amulet with the Demon Pazuzu
+
+Neo-Assyrian, 681–627 BCE
+
+Chalcedony
+
+The Wyvern Collection, 2048
+
+Cobra Amulet
+
+Egyptian, 23rd–31st Dynasties, 818–332 BCE
+
+Faience
+
+Toledo Museum of Art, Gifts of Edward Drummond Libbey, 1906.151
+
+How It Works
+Your Protective Amulet
+
+You’ve unlocked special access to Cursed! The Power of Magic in the Ancient World at the Toledo Museum of Art.
+
+Use the code magicunlocked to claim your discounted ticket and experience the objects, stories, and beliefs that inspired this citywide activation.
+
+Keep or share your amulet to spread the magic
+
+Post your find and tag @toledomuseum
+
+Claim Your Ticket
+About the Exhibition
+
+Cursed! The Power of Magic in the Ancient World explores how ancient cultures used spells, symbols, talismans, and ritual objects to influence the world around them. Discover magical artifacts, ancient beliefs, and the timeless human desire for protection, luck, and control over fate.
+
+Learn More
+Related Events
+
+Magic is better together.
+Explore related programs, talks, and events—or become a TMA member and stay connected to the art shaping our community.
+
+Magic at the Table: A Mediterranean Dinner Experience
+June 26
+6:00 PM to 8:30 PM
+Adults
+Membership
+
+Become a TMA member today
+
+Membership
+Support TMA
+
+Help support the TMA mission
+
+Support TMA
+Footer
+Footer Navigation
+Visit Exhibitions Events Learn Host an Event
+2445 Monroe Street
+Toledo, OH 43620
+(419) 255-8000
+Open Today
+11:00 AM - 5:00 PM
+Footer Navigation
+About
+Collection
+Membership
+Donate
+Jobs & Internships
+Media Contacts
+Dine
+Shop
+Bowe Family Center
+Library & Archives
+Community Gallery
+Glass Studio
+Hours
+Contact Us
+Social Media Comment Conduct Policy
+Privacy Policy
+Sign In
+Connect
+
+© 2026 Toledo Museum of Art. All rights reserved.
+
+Sign up for our newsletter
+Subscribe to Art Mail
