@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <!-- card for "the dress that was made in 2001" - the garment in the middle,
+       a date stamp on it, and underneath the four centuries its parts came from -->
+  <defs>
+    <radialGradient id="dglow" cx="0.5" cy="0.5" r="0.62">
+      <stop offset="0%" stop-color="#8c1c2a" stop-opacity="0.42"/>
+      <stop offset="58%" stop-color="#3a1024" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#0a0810" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#0a0810"/>
+  <circle cx="640" cy="390" r="430" fill="url(#dglow)"/>
+
+  <!-- the skirt: a flared panel, and the pleats that make its front panel out of itself -->
+  <polygon points="488,404 792,404 862,596 418,596" fill="#7a1420" stroke="#c9a24a" stroke-width="3"/>
+  <g stroke="#a8323e" stroke-width="2" opacity="0.75">
+    <line x1="536" y1="408" x2="486" y2="592"/>
+    <line x1="588" y1="408" x2="566" y2="592"/>
+    <line x1="640" y1="408" x2="640" y2="592"/>
+    <line x1="692" y1="408" x2="714" y2="592"/>
+    <line x1="744" y1="408" x2="794" y2="592"/>
+  </g>
+  <!-- the wave-and-water band along the hem, which is one of the parts with a century on it -->
+  <path d="M424 572 q26 -14 52 0 t52 0 t52 0 t52 0 t52 0 t52 0 t52 0 t52 0" fill="none" stroke="#c9a24a" stroke-width="3" opacity="0.9"/>
+
+  <!-- the jacket, worn OUTSIDE the skirt, which is the shape everybody recognises -->
+  <path d="M560 236 L720 236 L760 404 L520 404 Z" fill="#8f1724" stroke="#c9a24a" stroke-width="3"/>
+  <!-- sleeves, wide, ending short -->
+  <path d="M560 236 L472 300 L496 372 L534 356" fill="#7a1420" stroke="#c9a24a" stroke-width="3"/>
+  <path d="M720 236 L808 300 L784 372 L746 356" fill="#7a1420" stroke="#c9a24a" stroke-width="3"/>
+  <!-- standing collar, and the front opening running down from it -->
+  <rect x="606" y="192" width="68" height="46" rx="4" fill="#8f1724" stroke="#c9a24a" stroke-width="3"/>
+  <line x1="640" y1="196" x2="640" y2="234" stroke="#c9a24a" stroke-width="2.5"/>
+  <line x1="640" y1="236" x2="640" y2="400" stroke="#c9a24a" stroke-width="2.5"/>
+  <!-- the wide band of ornament at the shoulders that the shops use to tell a xiuhefu apart -->
+  <path d="M566 250 q74 26 148 0" fill="none" stroke="#e8c87a" stroke-width="6" opacity="0.85"/>
+
+  <!-- the date stamp, inked across the shoulder like somebody marking a photograph -->
+  <g transform="rotate(-11 900 320)">
+    <rect x="812" y="272" width="196" height="96" rx="6" fill="none" stroke="#d9463f" stroke-width="5" opacity="0.9"/>
+    <text x="910" y="348" text-anchor="middle" font-family="Georgia, serif" font-size="62" fill="#d9463f" opacity="0.92">2001</text>
+  </g>
+
+  <!-- four dots for the four centuries that are in this one garment -->
+  <line x1="300" y1="640" x2="980" y2="640" stroke="#4a3a5e" stroke-width="2" stroke-dasharray="8 8"/>
+  <g fill="#e8b7dd">
+    <circle cx="300" cy="640" r="7"/>
+    <circle cx="527" cy="640" r="7"/>
+    <circle cx="753" cy="640" r="7"/>
+    <circle cx="980" cy="640" r="7"/>
+  </g>
+  <g font-family="Georgia, serif" font-size="19" fill="#9c8fc0" text-anchor="middle">
+    <text x="300" y="676">late qing sleeve</text>
+    <text x="527" y="676">republican kwan kwa</text>
+    <text x="753" y="676">the broadcast</text>
+    <text x="980" y="676">the shop</text>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="86" text-anchor="middle" font-family="Georgia, serif" font-size="52" fill="#e8b7dd">the dress that was made in 2001</text>
+  <text x="640" y="132" text-anchor="middle" font-family="Georgia, serif" font-size="23" fill="#9c8fc0">a bridal dress with a broadcast date, and a movement that refuses to wear it</text>
+</svg>
