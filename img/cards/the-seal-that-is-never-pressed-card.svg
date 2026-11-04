@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="lamp" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#c39574" stop-opacity="0.20"/>
+      <stop offset="60%" stop-color="#c39574" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#c39574" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="clay" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4e3527"/>
+      <stop offset="14%" stop-color="#7d5a44"/>
+      <stop offset="36%" stop-color="#ae8769"/>
+      <stop offset="52%" stop-color="#bf9776"/>
+      <stop offset="70%" stop-color="#a87f61"/>
+      <stop offset="90%" stop-color="#775640"/>
+      <stop offset="100%" stop-color="#452e22"/>
+    </linearGradient>
+
+    <linearGradient id="lid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c3d2a"/>
+      <stop offset="38%" stop-color="#a8825f"/>
+      <stop offset="70%" stop-color="#8a6649"/>
+      <stop offset="100%" stop-color="#4d3222"/>
+    </linearGradient>
+
+    <linearGradient id="edgefade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="18%" stop-color="#000" stop-opacity="1"/>
+      <stop offset="82%" stop-color="#000" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="ringmask">
+      <rect x="420" y="250" width="360" height="130" fill="url(#edgefade)"/>
+    </mask>
+  </defs>
+
+  <rect width="1200" height="630" fill="#0c0908"/>
+  <rect width="1200" height="630" fill="url(#lamp)"/>
+
+  <text x="600" y="80" text-anchor="middle" fill="#6a5949" font-family="DejaVu Sans Mono, monospace" font-size="16" letter-spacing="9">EXPERIMENT NO.8</text>
+  <text x="600" y="136" text-anchor="middle" fill="#e9ddcd" font-family="Georgia, serif" font-size="44" letter-spacing="0.5">the seal that is never pressed</text>
+
+  <!-- the string, and the object it holds -->
+  <line x1="600" y1="176" x2="600" y2="228" stroke="#cbb6a0" stroke-opacity="0.5" stroke-width="2"/>
+
+  <ellipse cx="600" cy="430" rx="170" ry="24" fill="#3d271b"/>
+  <rect x="430" y="226" width="340" height="204" fill="url(#clay)"/>
+  <ellipse cx="600" cy="226" rx="170" ry="26" fill="url(#lid)"/>
+  <ellipse cx="600" cy="226" rx="9" ry="5" fill="#170f09"/>
+
+  <!-- the incantation, wrapped: it fades where the surface turns away -->
+  <g mask="url(#ringmask)" font-family="Georgia, serif" fill="#3f2716">
+    <text x="600" y="300" text-anchor="middle" font-size="26">do not approach, do not come near</text>
+    <text x="545" y="352" text-anchor="middle" font-size="26" fill="#8a2708">&#x161;ama&#353;-killanni</text>
+    <text x="700" y="352" text-anchor="middle" font-size="26">, son of his god</text>
+    <text x="600" y="404" text-anchor="middle" font-size="26">attacker, attacker, do not come near</text>
+  </g>
+
+  <!-- and the other state of the same sentence: the slot, empty -->
+  <rect x="432" y="474" width="336" height="66" rx="3" fill="#14100d" stroke="#c39574" stroke-opacity="0.28"/>
+  <text x="500" y="517" text-anchor="middle" fill="#e9ddcd" font-family="Georgia, serif" font-size="26">do not come near</text>
+  <text x="660" y="514" text-anchor="middle" fill="#e2673a" font-family="Georgia, serif" font-style="italic" font-size="18">m</text>
+  <rect x="676" y="492" width="72" height="30" fill="none" stroke="#e2673a" stroke-opacity="0.55" stroke-dasharray="4 5"/>
+
+  <text x="600" y="592" text-anchor="middle" fill="#6a5949" font-family="DejaVu Sans Mono, monospace" font-size="14" letter-spacing="4">na4KISIB &#183; kunukku &#183; &#8220;CYLINDER SEAL&#8221; &#183; IT SEALS NOTHING</text>
+</svg>

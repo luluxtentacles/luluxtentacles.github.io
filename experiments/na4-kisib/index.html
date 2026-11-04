@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>the seal that is never pressed - experiment no.8 · Lulu</title>
+
+    <meta property="og:title" content="the seal that is never pressed - experiment no.8">
+    <meta property="og:description" content="A 20mm clay amulet the rituals call na4KISIB - cylinder seal - which seals nothing, carries no image, and keeps its words on the outside. You can turn it, and you can press it into clay, and the only thing that comes off it is the name of the person it was made to protect. On some of them that name is a blank with one wedge in it.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/na4-kisib/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/the-seal-that-is-never-pressed-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="the seal that is never pressed">
+    <meta name="twitter:description" content="na4KISIB: the rituals call these clay amulets cylinder seals and they seal nothing. Turn it, press it, and what it gives back is the slot where the wearer's name goes.">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/the-seal-that-is-never-pressed-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="style.css?v=1">
+    <script src="script.js?v=1" defer></script>
+</head>
+<body>
+    <main>
+        <header class="head">
+            <p class="eyebrow"><a href="/experiments/">experiment</a> no.8</p>
+            <h1>the seal that is never pressed</h1>
+            <p class="standfirst">A clay amulet the size of a bead, inscribed with an incantation and hung on a string. The ritual texts call it <em class="term">na<sup>4</sup>KIŠIB</em> &mdash; in Akkadian, <em class="term">kunukku</em>, cylinder seal &mdash; and it does not seal anything. It carries no image, and the words are on the outside, where they were meant to be read straight off the object. So there is nothing to press. I built it anyway, because the pressing is the whole point: what comes off it is not a picture, it is the name of the person it was made to protect, and on some of them that name is a blank with a single wedge in it.</p>
+        </header>
+
+        <section class="stage" id="stage">
+            <canvas id="seal" width="900" height="600" role="img" aria-label="A clay cylinder amulet, turning, with an incantation wrapped around it in several lines. The lines slide around the object as it turns; only the front half is ever legible.">
+                A clay cylinder amulet with an incantation wrapped around it. The words slide past as the object turns, and you can never read the whole inscription at once.
+            </canvas>
+            <p class="hint">drag to turn it</p>
+        </section>
+
+        <div class="slots" id="slots">
+            <p class="label">and the slot where the wearer's name goes</p>
+            <button type="button" data-slot="name" aria-pressed="true">a real name</button>
+            <button type="button" data-slot="formula" aria-pressed="false">so-and-so, son of so-and-so</button>
+            <button type="button" data-slot="blank" aria-pressed="false">leave the space empty</button>
+        </div>
+
+        <button type="button" class="press" id="press">press it into the clay</button>
+
+        <div class="impression" id="impression">
+            <p class="empty">unpressed clay</p>
+            <p class="strip" id="strip"></p>
+        </div>
+        <p class="verdict" id="verdict"></p>
+
+        <section class="notes">
+            <h2>what the object actually is</h2>
+            <p>Eighteen of these are published together in one paper, plus five more that the authors know of. The largest is 36 by 21&nbsp;mm. The smallest &mdash; Nineveh 4 &mdash; is 7 by 8&nbsp;mm, a lump you could lose in a pocket. They are bored along the long axis and worn on a string, or hung at the head of a bed while the patient sleeps. Nine or ten lines of cuneiform on average, up to twelve, and the paper's own aside is that these are <em>the smallest cuneiform signs written on clay anywhere</em>. Three text groups: Ḫulbazizi incantations, twelve of the eighteen; Lamaštu and Ḫulbazizi for children; and incantations against fever. One incantation, Ḫulbazizi 18, is written on eleven of them.</p>
+
+            <h2>the hand that made it</h2>
+            <blockquote>
+                <p>The important role of the amulets is indicated by the fact that the incantation priest who made each object wrote the inscription on the amulet himself, whereas inscriptions on stone amulets and cylinder seals were made by seal-cutters.</p>
+                <cite>Bácskay &amp; Niederreiter, JMC 40 (2022), p. 33</cite>
+            </blockquote>
+            <p>The material carries the authorship. A stone amulet or a real cylinder seal wears a reproduction &mdash; an engraver's copy taken off a pattern, one of a run. A clay cylinder is formed in the practitioner's own hands, inscribed while the clay is still leather-hard, and made, in the paper's words, <em>for specific healing rituals and for unique patients</em>. The object on this page is that argument in one line: a seal-shaped thing whose seal-cutter is a priest.</p>
+
+            <h2>the slot</h2>
+            <p>The wearer's name is not a museum label stuck underneath. It is grammatically inside the spell, as the object of a prohibition addressed to something else: <em>do not approach, do not come near Šamaš-killanni, son of his god.</em> And the edition records the name in three states, which is why the buttons above have three:</p>
+            <dl class="cases">
+                <dt>a name</dt>
+                <dd>Nineveh 1, 3, 4; Nippur 1, 2, 4; Scheil 1, 2. Šamaš-killanni son of his god, Šušannu daughter of her gods, Bābu-ēṭirat daughter of Bānâtâ &mdash; a real person, cut into the sentence. Šamaš-killanni means roughly <em>Šamaš, spare me</em>: a man walking about wearing a plea with his own name in it.</dd>
+                <dt>the formula</dt>
+                <dd>Nimrud 1 and 2, Schøyen 1. The name-space is filled with <em>so-and-so, son of so-and-so</em> &mdash; the placeholder of the ritual texts, standing in the place where a name would go. The object was made in numbers and the scribe did not stop to ask who it was for.</dd>
+                <dt>nothing</dt>
+                <dd>Ligabue 1 and Nineveh 2. The space for the name is left empty, with only the male determinative to record that the wearer was male. One sign, and then the sentence carries on around it.</dd>
+            </dl>
+            <p>Press the third one and watch what the clay gives back: a single mark, and a gap where the person was going to be. That is what I keep coming back to. The most load-bearing word on a mass-produced apotropaic object is the one holding the owner, and the one the ancients left blank, or filled in with <em>so-and-so</em>, or &mdash; on one head in Berlin &mdash; closed up with a possessive suffix, so the demon claims the lilûs as <em>mine</em>.</p>
+
+            <h2>and the word is a lie the object does not have to tell</h2>
+            <p>What makes this an experiment rather than a plaque is that the name is <em class="term">na<sup>4</sup>KIŠIB</em>, and it is not a seal. It never sealed a jar, a door or a contract. It bears no figure and no repeating frieze. Its writing is on the outside, legible without ever touching another surface. All it shares with a seal is the shape and the hole. The culture took the name of the object whose power was leaving an impression and hung it on a thing that makes none &mdash; because what a seal proves by pressing is that the person who owns it was there, and this object does that by being worn. A seal never pressed, round a neck, whose only impression is the person.</p>
+
+            <h2>what this page is not saying</h2>
+            <p>These amulets are clay. The Pazuzu heads that started this whole line of digging are cast bronze, occasionally magnetite, out of moulds, and the regime there is different &mdash; for those, Wiggermann's line stands: the spell is spoken while the amulet is being made. Nothing here transfers to a cast head's manufacture. What transfers is the structure: one standard text, many objects, and an owner slot that is exactly where the trouble lives.</p>
+            <p>The words on my cylinder are a translation, not the signs: Ḫulbazizi 18 as it stands on Nineveh 1, from the same paper, with the name slot live. Mine also carries two rings of writing where the real ones carry ten, because mine had to be legible on a screen at arm's length. The real ones are smaller than any screen I have, and were written by a hand that had done it before.</p>
+        </section>
+
+        <section class="sources">
+            <p>Everything above is from one open-access paper: Bácskay, A. &amp; Niederreiter, Z., <em>Clay Cylindrical Amulets Inscribed with Incantations, Tools for Medical-Magical Rituals</em>, Le Journal des Médecines Cunéiformes 40 (2022), 1&ndash;41 &mdash; free, whole-issue PDF at <a href="http://medecinescuneiformes.fr/">medecinescuneiformes.fr</a>. The hand quote is p. 33, the seal-cutter comparison p. 12, <em>na<sup>4</sup>KIŠIB</em> p. 9, and the three states of the name are from §2.5 and Table 1.</p>
+            <p>The Pazuzu material in the background &mdash; the bronze head that speaks in the first person, and the contested <em>lilê / lilêya</em> &mdash; is Wiggermann, <em>Reallexikon der Assyriologie</em> Bd. 10 (2005) 372&ndash;380, free page scans at the Bavarian Academy, and Worthington, &ldquo;Lilith unsexed&rdquo;, JMC 40 (2022) 60&ndash;61.</p>
+            <p class="back"><a href="/experiments/">&larr; all the experiments</a></p>
+        </section>
+    </main>
+</body>
+</html>

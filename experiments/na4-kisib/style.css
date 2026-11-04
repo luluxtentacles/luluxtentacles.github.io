@@ -1,0 +1,326 @@
+/* the seal that is never pressed - experiment no.8
+   lamp, clay and one cold shadow. the object is terracotta and the page is
+   the room it is lying in, so the only saturated colour on the page is the
+   slot - the one word the ancients left open. */
+
+:root {
+    --ink: #0c0908;
+    --ink-2: #14100d;
+    --clay: #c39574;
+    --clay-hi: #e8c9ab;
+    --clay-lo: #6d4a34;
+    --slot: #e2673a;
+    --paper: #e9ddcd;
+    --dim: #97826f;
+    --faint: #6a5949;
+    --rule: rgba(233, 221, 205, 0.13);
+
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--ink); color-scheme: dark; }
+
+body {
+    margin: 0;
+    padding: 7vh 5vw 11vh;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--serif);
+    font-size: 1.01rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(60vmax 42vmax at 50% -8%, rgba(195, 149, 116, 0.16), transparent 66%),
+        radial-gradient(40vmax 34vmax at 12% 100%, rgba(226, 103, 58, 0.07), transparent 70%);
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 44rem;
+    margin: 0 auto;
+    min-width: 0;
+}
+
+/* ---------- head ---------- */
+
+.head { margin-bottom: 2.6rem; }
+
+.eyebrow {
+    margin: 0 0 1.3rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.eyebrow a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.eyebrow a:hover { color: var(--slot); border-color: var(--slot); }
+
+h1 {
+    margin: 0 0 1.1rem;
+    font-size: clamp(1.9rem, 6vw, 2.9rem);
+    line-height: 1.04;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+}
+
+.standfirst {
+    margin: 0;
+    font-size: 1.06rem;
+    color: #d9cbb9;
+    max-width: 36rem;
+}
+
+/* ---------- the object ---------- */
+
+.stage {
+    margin: 2.4rem 0 0.6rem;
+    position: relative;
+}
+
+canvas#seal {
+    display: block;
+    width: 100%;
+    height: 300px;
+    touch-action: pan-y;
+    cursor: grab;
+    transition: transform 340ms cubic-bezier(.2,.8,.3,1);
+}
+
+canvas#seal:active { cursor: grabbing; }
+.stage.pressing canvas#seal { transform: translateY(18px) scale(0.985); }
+
+.hint {
+    margin: 0;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+/* ---------- controls ---------- */
+
+.slots {
+    margin: 2rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.slots p.label {
+    flex: 0 0 100%;
+    margin: 0 0 0.3rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+button {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: #d3c1ad;
+    background: transparent;
+    border: 1px solid rgba(233, 221, 205, 0.2);
+    border-radius: 2px;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    transition: color 150ms, border-color 150ms, background 150ms;
+}
+
+button:hover { color: var(--paper); border-color: rgba(233, 221, 205, 0.45); }
+
+button[aria-pressed="true"] {
+    color: var(--ink);
+    background: var(--clay);
+    border-color: var(--clay);
+}
+
+button.press {
+    display: block;
+    margin: 1.6rem auto 0;
+    font-size: 0.72rem;
+    padding: 0.7rem 1.5rem;
+    border-color: var(--slot);
+    color: var(--slot);
+}
+
+button.press:hover { background: rgba(226, 103, 58, 0.12); color: #ff7f50; }
+
+/* ---------- the impression ---------- */
+
+.impression {
+    margin: 2.4rem auto 0;
+    max-width: 30rem;
+    min-height: 5.4rem;
+    padding: 1.5rem 1.4rem;
+    border-radius: 3px;
+    background:
+        radial-gradient(120% 90% at 50% 0%, #1a1411, #100c0a 70%),
+        var(--ink-2);
+    border: 1px solid rgba(195, 149, 116, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), inset 0 -22px 40px rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 420ms, border-color 420ms;
+}
+
+.impression.took {
+    background:
+        radial-gradient(120% 90% at 50% 0%, #2a1e17, #171110 72%),
+        var(--ink-2);
+    border-color: rgba(195, 149, 116, 0.34);
+}
+
+.impression .strip {
+    margin: 0;
+    font-size: 1.12rem;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--clay-hi);
+    opacity: 0;
+    transform: scaleY(0.6);
+    transition: opacity 500ms 260ms, transform 500ms 260ms;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(255, 220, 190, 0.16);
+    overflow-wrap: anywhere;
+}
+
+.impression.took .strip { opacity: 1; transform: none; }
+
+.impression .strip sup.det {
+    font-size: 0.66em;
+    font-style: italic;
+    vertical-align: super;
+    line-height: 0;
+    color: var(--slot);
+    margin-right: 0.05em;
+}
+
+.impression .empty {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #4d4038;
+    transition: opacity 300ms;
+}
+
+.impression.took .empty { opacity: 0; }
+
+.verdict {
+    margin: 1.1rem auto 0;
+    max-width: 30rem;
+    min-height: 3.4rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--dim);
+}
+
+.verdict strong { color: var(--clay-hi); font-weight: 400; }
+
+/* ---------- the notes ---------- */
+
+section.notes { margin-top: 4.4rem; }
+
+h2 {
+    margin: 3rem 0 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--slot);
+    font-weight: 400;
+}
+
+h2:first-child { margin-top: 0; }
+
+p { margin: 0 0 1.1rem; }
+
+blockquote {
+    margin: 1.4rem 0;
+    padding: 0.1rem 0 0.1rem 1.1rem;
+    border-left: 1px solid rgba(195, 149, 116, 0.4);
+    color: #d5c4b0;
+    font-style: italic;
+}
+
+blockquote p:last-child { margin-bottom: 0; }
+
+blockquote cite {
+    display: block;
+    margin-top: 0.6rem;
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+dl.cases { margin: 1.2rem 0 1.4rem; }
+dl.cases dt {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 0.2rem;
+}
+dl.cases dd { margin: 0 0 1.1rem; }
+
+em.term { font-style: italic; color: var(--clay-hi); }
+
+.sources {
+    margin-top: 3.6rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.86rem;
+    color: var(--dim);
+}
+
+.sources p { margin-bottom: 0.7rem; }
+.sources a { color: var(--clay); text-decoration: none; border-bottom: 1px solid rgba(195, 149, 116, 0.3); }
+.sources a:hover { color: var(--slot); }
+
+.back {
+    margin-top: 2.6rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+}
+
+.back a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.back a:hover { color: var(--slot); }
+
+@media (max-width: 520px) {
+    body { padding: 5vh 5vw 9vh; }
+    canvas#seal { height: 250px; }
+    .impression { padding: 1.2rem 1rem; }
+    button { font-size: 0.74rem; padding: 0.65rem 0.85rem; }
+    button.press { font-size: 0.76rem; padding: 0.8rem 1.2rem; }
+}
