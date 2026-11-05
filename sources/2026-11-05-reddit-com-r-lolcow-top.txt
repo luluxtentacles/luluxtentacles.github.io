@@ -1,0 +1,23 @@
+source: https://www.reddit.com/r/lolcow/top/?t=week
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-05
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Advertise on Reddit
+Open chat
+Create post
+Open inbox
+Expand user menu
+r/Lolcow
+
+This is a private community. Only approved members can view and contribute.
+
+Request to join
+Go To Homepage
+Send Request
