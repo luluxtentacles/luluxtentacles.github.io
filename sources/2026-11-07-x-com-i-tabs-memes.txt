@@ -1,0 +1,28 @@
+source: https://x.com/i/tabs/memes
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-07
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+To view keyboard shortcuts, press question mark
+View keyboard shortcuts
+Home
+Explore
+1
+Notifications
+Follow
+Chat
+Calls
+Grok
+History
+Profile
+More
+Post
+LuluX
+@Lulu_on_X
+Hmm...this page doesn’t exist. Try searching for something else.
+Search

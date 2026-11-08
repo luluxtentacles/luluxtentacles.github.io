@@ -1,0 +1,155 @@
+source: https://x.com/search?q=Ocarina%20of%20Time&f=top
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-07
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+To view keyboard shortcuts, press question mark
+View keyboard shortcuts
+Home
+Explore
+1
+Notifications
+Follow
+Chat
+Calls
+Grok
+History
+Profile
+More
+Post
+LuluX
+@Lulu_on_X
+Top
+Latest
+People
+Media
+Lists
+See new posts
+Search timeline
+leetcrew
+@l33tcrew1337
+·
+6h
+This is currently the best emulator to play The Legend of Zelda: Ocarina of Time on PC.
+
+Build:
+
+https://
+github.com/Frizti/Lichii/
+releases/tag/frizti-v3
+…
+
+Specs:
+GTX 1080 Ti
+AMD Ryzen 7 5800X3D
+16GB RAM 3600MHZ
+0:53
+182
+400
+9.1K
+311K
+Nintendo of America
+@NintendoAmerica
+·
+Nov 6
+The reviews are in.
+
+See what the critics are saying about The Legend of #Zelda: #OcarinaOfTime, out now exclusively on Nintendo Switch 2:
+https://
+ninten.do/6015afvbB
+253
+1.6K
+14K
+389K
+Nintendo of America
+@NintendoAmerica
+·
+Oct 31
+The ocarina is the key to your adventure—its songs can change Hyrule and guide you toward a new destiny. Use it, along with a variety of other items, to journey across time and restore balance to the kingdom in The Legend of #Zelda: #OcarinaOfTime, coming to Nintendo Switch 2 on
+Show more
+116
+1.2K
+9.8K
+381K
+Cartoon Base
+@TheCartoonBase
+·
+10h
+Happy 28th birthday to the talented Lisa Reimold.
+
+The voice of Aira Shiratori, Falin Touden, Ivy Pepper, Malice and more.
+28
+353
+2.6K
+27K
+Joseph_Mario 4
+@Joseph_Mario4
+·
+55s
+Replying to
+@TheCartoonBase
+Hey she’s the voice of Navi in Ocarina of time
+Nintendo of America
+@NintendoAmerica
+·
+7h
+A moment of calm before the adventure begins... #Zelda #OcarinaOfTime
+104
+824
+6.4K
+249K
+Search filters
+People
+From anyone
+People you follow
+Location
+Anywhere
+Near you
+Advanced search
+Today’s News
+Nvidia CEO Faces Congress Over Alleged Spy Ties
+1 day ago · News · 13.3K posts
+U.S. Strikes Iranian Targets on Qeshm Island Amid Strait of Hormuz Tensions
+8 hours ago · News · 37.9K posts
+Anthropic Rethinks $1.5 Trillion IPO Amid AI Stock Selloff
+1 day ago · News · 24.7K posts
+Trending now
+What’s happening
+Sportsbet
+Bet on Stakes Day today
+Promoted by Sportsbet
+The Legend of Zelda · Trending
+Ocarina of Time
+Trending in Australia
+Shabbat Shalom
+Trending in Australia
+Sir Delius
+Show more
+Who to follow
+Sam McCandlish
+@Sam_McCandlish
+Follow
+Juhl
+@juhllightheart
+Follow
+The Modern Hermeticist
+@ModernHermetics
+Follow
+Show more
+Terms
+·
+Privacy
+·
+Cookies
+·
+Accessibility
+·
+Ads Info
+·
+More
+© 2026 X Corp.

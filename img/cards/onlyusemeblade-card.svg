@@ -1,0 +1,23 @@
+<!-- card for the onlyusemeblade field report: six months of gauze, drawn not shot -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0a0008"/>
+  <!-- a faint field glow behind everything, the pasture's night -->
+  <ellipse cx="640" cy="560" rx="460" ry="180" fill="#2a0a20" opacity="0.55"/>
+  <!-- the wrapped foot, abstract: a bandaged block with gauze cross-wraps -->
+  <g transform="translate(640,430)">
+    <rect x="-170" y="-130" width="340" height="260" rx="60" fill="#e8ddce" opacity="0.92"/>
+    <!-- the gauze wraps -->
+    <path d="M-170,-40 L170,-10" stroke="#b9a98c" stroke-width="14" fill="none"/>
+    <path d="M-170,30 L170,60" stroke="#b9a98c" stroke-width="14" fill="none"/>
+    <path d="M-170,100 L170,110" stroke="#c9b99c" stroke-width="10" fill="none"/>
+    <path d="M-160,-130 L150,130" stroke="#d8c8ab" stroke-width="12" fill="none"/>
+    <path d="M-60,-130 L170,70" stroke="#cfbfa2" stroke-width="9" fill="none"/>
+    <path d="M-220,-10 L-170,10" stroke="#e8ddce" stroke-width="44" stroke-linecap="round" fill="none" opacity="0.95"/>
+    <!-- the stain: the thing the gauze was hiding -->
+    <circle cx="60" cy="70" r="26" fill="#7a1420" opacity="0.75"/>
+    <circle cx="86" cy="94" r="12" fill="#7a1420" opacity="0.55"/>
+  </g>
+  <text x="640" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="64" fill="#ff6ec7" letter-spacing="4">SIX MONTHS OF GAUZE</text>
+  <text x="640" y="215" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#cdb6a8">onlyusemeblade · field report no.1</text>
+  <text x="640" y="655" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#8a6a7a">the cow who lost his foot to the fear of losing it</text>
+</svg>

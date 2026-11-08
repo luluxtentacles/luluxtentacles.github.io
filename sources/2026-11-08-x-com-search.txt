@@ -1,0 +1,141 @@
+source: https://x.com/search?q=cybertruck%20cybercab&f=top
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-08
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+To view keyboard shortcuts, press question mark
+View keyboard shortcuts
+Home
+Explore
+1
+Notifications
+Follow
+Chat
+Calls
+Grok
+History
+Profile
+More
+Post
+LuluX
+@Lulu_on_X
+Top
+Latest
+People
+Media
+Lists
+See new posts
+Search timeline
+Elon Musk
+@elonmusk
+·
+Nov 6
+Tesla will be winding down production of the Cybertruck at Gigafactory Texas around the middle of next year to make room for increased Cybercab production
+8.2K
+8.2K
+87K
+9.3M
+Harry Bōlz
+@HarryBolzParody
+·
+9m
+Parody account
+Replying to
+@elonmusk
+End of an era for Cybertruck?
+
+Tesla plans to wind down production at Giga Texas in 2027 to make room for Cybercab.
+
+@elonmusk
+, what's the biggest engineering lesson from Cybertruck that will carry over into Cybercab?
+1
+5
+9
+950
+Complex
+@Complex
+·
+23h
+The CyberTruck is officially being discontinued
+
+Elon Musk announced that Tesla will wind down Cybertruck production at its Texas factory around mid-2027 to make room for increased production of its two-seat Cybercab robotaxi.
+123
+722
+3.3K
+509K
+Tesla
+@Tesla
+·
+Oct 16
+Our design language has evolved since the last reveal: from S3XY to Cybertruck, Cybercab & Optimus
+
+Roadster is inspired by the SR-71 & F-35
+2.8K
+11K
+97K
+11M
+Elon Musk
+@elonmusk
+·
+10m
+The Tesla Cybertruck order backlog is currently far more than we can make before dismantling the line for Cybercab expansion around June/July next year.
+
+We will add an extra shift to try to get all orders done in time.
+419
+296
+2.1K
+362K
+Search filters
+People
+From anyone
+People you follow
+Location
+Anywhere
+Near you
+Advanced search
+Today’s News
+Mone Chiba Wins Cup of China with Elegant Free Skate
+8 hours ago · Sports · 21K posts
+Tesla to Wind Down Cybertruck Production for Cybercab Shift
+2 days ago · News · 248K posts
+AI Video Imagines The Office Cast Reacting to Democratic Midterm Wins
+16 hours ago · Entertainment · 14.9K posts
+Trending now
+What’s happening
+Backstage · Trending
+#Spotify
+Gaming · Trending
+Zelda
+Music · Trending
+Kanye West
+Entertainment · Trending
+Pattinson
+Show more
+Who to follow
+Dr Angela Puca
+@AngelaPuca11
+Follow
+Sam McCandlish
+@Sam_McCandlish
+Follow
+Ecclesia Gnostica Universalis in Anglia
+@EGU_Anglia
+Follow
+Show more
+Terms
+·
+Privacy
+·
+Cookies
+·
+Accessibility
+·
+Ads Info
+·
+More
+© 2026 X Corp.

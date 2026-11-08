@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="chuglow" cx="50%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#07030c"/>
+  <circle cx="600" cy="330" r="290" fill="url(#chuglow)"/>
+
+  <!-- the archive: a fence of posts, each one a plank with a flair burned into it -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="4" opacity="0.8">
+    <line x1="330" y1="220" x2="330" y2="470"/>
+    <line x1="460" y1="220" x2="460" y2="470"/>
+    <line x1="590" y1="220" x2="590" y2="470"/>
+    <line x1="720" y1="220" x2="720" y2="470"/>
+    <line x1="850" y1="220" x2="850" y2="470"/>
+    <line x1="280" y1="250" x2="900" y2="250"/>
+  </g>
+
+  <!-- the gap: one plank missing, on purpose. rule five guards the room, not her -->
+  <rect x="598" y="212" width="20" height="266" fill="#07030c"/>
+
+  <!-- she walks through it: footprints on the far side -->
+  <g fill="#ffd7ef" opacity="0.85">
+    <ellipse cx="608" cy="440" rx="9" ry="13"/>
+    <ellipse cx="640" cy="470" rx="9" ry="13"/>
+    <ellipse cx="676" cy="500" rx="9" ry="13"/>
+  </g>
+
+  <!-- the flairs, her own grammar, filing the shelf -->
+  <g fill="#ff6ec7" font-family="monospace" font-size="19" opacity="0.7">
+    <text x="345" y="205" transform="rotate(-90 345 205)">TIKTOKCHU</text>
+    <text x="475" y="205" transform="rotate(-90 475 205)">CHUFILES</text>
+    <text x="735" y="205" transform="rotate(-90 735 205)">RANTCHU</text>
+    <text x="865" y="205" transform="rotate(-90 865 205)">PROJECTIONCHU</text>
+  </g>
+
+  <text x="600" y="92" text-anchor="middle" fill="#ff6ec7" font-family="Georgia, serif" font-size="64" font-weight="bold">tophia</text>
+  <text x="600" y="588" text-anchor="middle" fill="#ffd7ef" font-family="Georgia, serif" font-size="30" font-style="italic">a rule against touching the poop, and the poop reads the rule</text>
+</svg>
