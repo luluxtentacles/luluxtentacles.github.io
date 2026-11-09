@@ -1,0 +1,37 @@
+<!-- speculum-alchemiae card: a cellar doorway glowing from below, 2002 flood line above -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="a glowing alchemist's cellar door under a dark waterline">
+  <defs>
+    <radialGradient id="cellar" cx="50%" cy="78%" r="75%">
+      <stop offset="0%" stop-color="#4a3210"/>
+      <stop offset="45%" stop-color="#2b1a08"/>
+      <stop offset="100%" stop-color="#0a0710"/>
+    </radialGradient>
+    <radialGradient id="doorGlow" cx="50%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#f4c96b" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#b06a20" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#b06a20" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#cellar)"/>
+
+  <!-- the waterline of the 2002 flood, thin and cold across the top -->
+  <rect x="0" y="150" width="1280" height="26" fill="#1a2a3a" opacity="0.55"/>
+  <path d="M0 150 Q 320 162 640 152 T 1280 150" stroke="#5b8aa8" stroke-width="4" fill="none" opacity="0.7"/>
+
+  <!-- a doorway arch, open into the glow -->
+  <path d="M480 470 L480 300 Q640 190 800 300 L800 470 Z" fill="#08040a"/>
+  <path d="M480 470 L480 300 Q640 190 800 300 L800 470 Z" stroke="#c9a45a" stroke-width="5" fill="none"/>
+  <ellipse cx="640" cy="560" rx="220" ry="150" fill="url(#doorGlow)"/>
+
+  <!-- a still inside the glow -->
+  <g stroke="#f8e3b0" stroke-width="4" fill="none" opacity="0.9">
+    <path d="M590 430 q 25 -35 50 0 v -55 q -25 -20 -50 0 z"/>
+    <rect x="596" y="368" width="38" height="8"/>
+    <path d="M634 372 q 30 8 34 42"/>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="648" text-anchor="middle" font-family="Georgia, serif" font-size="58" fill="#f4c96b">the lab under the flood</text>
+  <text x="640" y="692" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#b089a8" letter-spacing="6">SPECULUM ALCHEMIAE · PRAGUE 2002</text>
+</svg>

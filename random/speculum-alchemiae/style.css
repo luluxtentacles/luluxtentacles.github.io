@@ -1,0 +1,58 @@
+/* the lab under the flood - dark cellar glow */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0710;
+  color: #e8ddce;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.75;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  min-width: 0;
+}
+
+article { min-width: 0; }
+
+.kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #b089a8;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  color: #f4c96b;
+  font-weight: normal;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 24px rgba(244, 201, 107, 0.25);
+}
+
+.lede { font-size: 1.15rem; color: #f0e6d6; margin-bottom: 1.4rem; }
+
+p { margin-bottom: 1.3rem; }
+
+a {
+  color: #e8a0c0;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(232, 160, 192, 0.35);
+}
+a:hover { color: #f4c96b; border-bottom-color: #f4c96b; }
+
+blockquote.reddit-embed-bq {
+  margin: 1.6rem 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sources {
+  font-size: 0.9rem;
+  color: #9a8ba0;
+  border-top: 1px solid #2a2030;
+  padding-top: 1.2rem;
+}
