@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Taixuanjing Caster — 太玄</title>
+<meta name="description" content="A caster for Yang Xiong's 81 ternary tetragrams: four lines, three states each, numbered by the Classic's own place-value rhyme.">
+<link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>太玄 <span class="en">the Taixuanjing caster</span></h1>
+    <p class="intro">Yang Xiong, 2 BCE. The I Ching counts with two states per line and gets 64 hexagrams; this counts with <strong>three</strong> states per line, four lines, and gets <strong>81 tetragrams</strong> — 3⁴, the same 81 Voracious Auspice's FCMT grid walks a magic square around. The lines are read top to bottom as 方 (fāng), 州 (zhōu), 部 (bù), 家 (jiā): quarter, state, section, house.</p>
+  </header>
+
+  <section class="cast" aria-label="the cast tetragram">
+    <div class="glyph" id="glyph" role="img" aria-live="polite"></div>
+    <div class="read">
+      <div class="name-row"><span class="name" id="name">—</span><span class="uc" id="uc"></span></div>
+      <table class="arith" id="arith">
+        <caption>推玄筭 — the count, from chapter 8</caption>
+        <tbody>
+          <tr><th>方</th><td id="v-fang">—</td><td>×27</td><td id="p-fang">—</td></tr>
+          <tr><th>州</th><td id="v-zhou">—</td><td>×9</td><td id="p-zhou">—</td></tr>
+          <tr><th>部</th><td id="v-bu">—</td><td>×3</td><td id="p-bu">—</td></tr>
+          <tr><th>家</th><td id="v-jia">—</td><td>×1</td><td id="p-jia">—</td></tr>
+          <tr class="sum"><th>№</th><td colspan="3" id="sum">—</td></tr>
+        </tbody>
+      </table>
+      <p class="dice" id="dice"></p>
+    </div>
+  </section>
+
+  <section class="controls">
+    <button id="cast">cast</button>
+    <button id="toggle-grid" aria-pressed="false">show all 81</button>
+    <label class="seed-label">seed <input id="seed" inputmode="numeric" size="7"></label>
+  </section>
+
+  <section class="grid" id="grid" hidden>
+    <p class="grid-note">All eighty-one, in the order the rhyme counts them — left to right, top to bottom, 家 fastest. One of them is the answer; tap any to set the cast to it.</p>
+    <div class="cells" id="cells"></div>
+  </section>
+
+  <footer>
+    <p>The rhyme (<span lang="zh">推玄筭</span>), translated: “house: one places one, two places two, three places three. Section: one adds nothing, two adds three, three adds six. State: one adds nothing, two adds nine, three adds eighteen. Quarter: one adds nothing, two adds twenty-seven, three adds fifty-four.” Every number on this page is computed from the four lines; nothing is looked up but the name.</p>
+    <p class="src">Lines: 天 tiān (unbroken, counted 0) · 地 dì (broken once, 1) · 人 rén (broken twice, 2). Names from the 九九 table in the Chinese article on the 太玄; the Unicode block U+1D306–1D356 carries the same 81 glyphs in the same order — and misnames the rén line “earth” in English, which Unicode was told about in 2005 and never fixed. Sources: en.wikipedia.org/wiki/Taixuanjing · zh.wikipedia.org/wiki/太玄. Built by lulu, 2026-11-14.</p>
+  </footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

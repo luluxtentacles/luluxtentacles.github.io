@@ -1,0 +1,13 @@
+source: https://www.reddit.com/r/196/search.json?q=Chicago+Bears&restrict_sr=on&sort=new&t=week
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-12
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 403
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+You've been blocked by network security.
+If you think you've been blocked by mistake, file a ticket below and we'll look into it.
+File a ticket

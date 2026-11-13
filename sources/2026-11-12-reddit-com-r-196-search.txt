@@ -1,0 +1,115 @@
+source: https://www.reddit.com/r/196/search/?q=Chicago+Bears&restrict_sr=1&sort=new&t=week
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-12
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Chicago Bears - Reddit Search!
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+Posts
+Comments
+Media
+back
+forward
+New
+
+Show results from
+all of Reddit
+
+Shoutout to the Chicago Bears fans randomly coming together to help a depressed non-binary teenager from Australia (rule)
+r/196
+·
+6h ago
+Shoutout to the Chicago Bears fans randomly coming together to help a depressed non-binary teenager from Australia (rule)
+679 votes·35 comments
+Bears Rule!
+r/196
+·
+6h ago
+Bears Rule!
+35 votes·1 comment
+Da rule
+r/196
+·
+2y ago
+Da rule
+26 votes·3 comments
+Rule
+r/196
+·
+4y ago
+Rule
+2 votes·0 comments
+Rule
+r/196
+·
+4y ago
+Rule
+146 votes·7 comments
+Orulnge
+r/196
+·
+4y ago
+Orulnge
+233 votes·10 comments
+chinese spy rule
+r/196
+·
+4y ago
+chinese spy rule
+109 votes·0 comments
+Created Oct 10, 2012
+Public
+263K26K
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Orbitals
+
+Daily word game
+
+23K monthly players
+
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/196
+r/OccultArt
+r/alchemy
+r/LolCowLive
+r/chunews
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.

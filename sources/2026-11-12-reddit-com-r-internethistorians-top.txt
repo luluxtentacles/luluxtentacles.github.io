@@ -1,0 +1,46 @@
+source: https://www.reddit.com/r/InternetHistorians/top/?t=week
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-12
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Advertise on Reddit
+Open chat
+Create post
+Open inbox
+Expand user menu
+We couldn't find that community
+
+Related Communities
+
+r/InternetHistorian
+r/InternetHistorian
+325 weekly visitors
+·
+0 weekly contributions
+
+The Official Subreddit for YouTube channel Internet Historian.
+
+r/internetarchive
+r/internetarchive
+28K weekly visitors
+·
+258 weekly contributions
+
+Yesterdays Internet Today
+
+r/InternetMysteries
+r/InternetMysteries
+39K weekly visitors
+·
+328 weekly contributions
+
+Welcome to r/InternetMysteries - a place to explore the web's strangest and most unexplained phenomena. From complex puzzles to bizarre and unexplained media: this subreddit is the internet deep dive headquarters. Let’s discuss all of the bizarre stories, cryptic events, and online enigmas that leave us questioning the unknown. Join the hunt for answers and uncover the web's darkest rabbit holes
+
+Create new community
+Search Reddit

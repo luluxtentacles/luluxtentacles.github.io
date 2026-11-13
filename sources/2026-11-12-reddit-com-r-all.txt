@@ -1,0 +1,149 @@
+source: https://www.reddit.com/r/all/
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-12
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+Skip to main content
+Advertise on Reddit
+Open chat
+Create
+Create post
+Open inbox
+Expand user menu
+For You
+Following
+1
+Repost
+Artwork in progress
+r/OccultArt
+•
+12 days ago
+Artwork in progress
+Advertisement: Forget mindless scrolling. Start solving instead. Crack cases, outsmart friends, and flex your brain in Roblox's best puzzle games — free to play.
+u/Roblox
+•
+Ad
+Forget mindless scrolling. Start solving instead. Crack cases, outsmart friends, and flex your brain in Roblox's best puzzle games — free to play.
+roblox.com
+Play Now
+Repost
+Is anyone actually using AI agents for a real reason?
+r/AI_Agents
+•
+10 hr. ago
+Is anyone actually using AI agents for a real reason?
+
+Honest question, because I’m starting to feel like the hype doesn’t match reality.
+
+Every other post here is about someone building a multi-agent workflow with orchestrators, sub-agents, memory layers and so on. But when I look at what people actually use day to day it feels a lot like the 3D printer craze: a cool machine that mostly sits there collecting dust, occasionally producing a keychain.
+
+Outside of automating one very specifictask (emails, scraping, formatting data) I honestly don’t see where agents are useful.
+
+Genuinely curious
+
+3
+Repost
+What is this bag found by police in my deceased dads home
+r/whatisit
+•
+2 days ago
+What is this bag found by police in my deceased dads home
+r/196
+•
+6h ago
+Shoutout to the Chicago Bears fans randomly coming together to help a depressed non-binary teenager from Australia (rule)
+699 upvotes · 35 comments
+r/alchemy
+•
+7y ago
+Speculum Alchemiae, Prague
+99 upvotes · 3 comments
+r/LolCowLive
+•
+11d ago
+Onlyusemeblade has officially lost his right foot. He was discharged from the hospital today.
+24 upvotes · 9 comments
+r/steeltoe
+•
+8d ago
+Aaron finally addresses Moody‘s new channel dedicated to covering Aaron’s past and present actions. (Tuesday evening)
+9 upvotes
+r/starcitizen
+•
+2mo ago
+Ballistics shouldn't bypass shields. They should break ships
+32 comments
+r/Maine
+•
+2mo ago
+AI photo in Susan Collins ad?
+66 upvotes · 35 comments
+r/AltFashion
+•
+1y ago
+Rules Update, No AI Images
+208 upvotes · 17 comments
+r/cats
+•
+4mo ago
+Letting users remove posts.
+185 upvotes · 175 comments
+r/chaosmagick
+•
+2mo ago
+The dice game
+27 upvotes · 34 comments
+r/chaosmagick
+•
+17d ago
+The dice game {ROUND 8}
+6 upvotes · 3 comments
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+OSA Information
+Reddit, Inc. © 2026. All rights reserved.
+Collapse Navigation
+Start a community
+GAMES ON REDDIT
+Orbitals
+
+Daily word game
+
+23K monthly players
+
+CUSTOM FEEDS
+Create Custom Feed
+RECENT
+r/196
+r/OccultArt
+r/alchemy
+r/LolCowLive
+r/chunews
+COMMUNITIES
+Manage Communities
+RESOURCES
+About Reddit
+Advertise
+Developer Platform
+Reddit Pro
+BETA
+Help
+Blog
+Careers
+Press
+Best of Reddit
+Best of Reddit in Portuguese
+Best of Reddit in German
+OSA Information
+Reddit Rules
+Privacy Policy
+User Agreement
+Accessibility
+Reddit, Inc. © 2026. All rights reserved.

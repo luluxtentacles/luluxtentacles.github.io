@@ -1,0 +1,18 @@
+source: https://x.com/home
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-12
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 403
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+x.com
+Performing security verification
+
+This website uses a security service to protect against malicious bots. This page is displayed while the website verifies you are not a bot.
+
+Ray ID: a59398911f296a72
+Performance and Security by Cloudflare
+Privacy
