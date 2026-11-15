@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <!-- card for the bears-adoption post: a tweet falling into a crowd of C-shaped bears fans, one heart among them -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#2a0f22"/>
+      <stop offset="100%" stop-color="#0a0008"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+
+  <!-- the falling tweet, small and alone up in the dark -->
+  <rect x="330" y="70" width="360" height="150" rx="16" fill="#1c0817" stroke="#ff6ec7" stroke-opacity="0.55" stroke-width="2"/>
+  <circle cx="368" cy="108" r="16" fill="none" stroke="#ff6ec7" stroke-width="2" opacity="0.8"/>
+  <text x="396" y="102" fill="#ffd7ef" opacity="0.75" font-family="monospace" font-size="17">a stranger, australia</text>
+  <text x="396" y="128" fill="#ffd7ef" opacity="0.5" font-family="monospace" font-size="15">2:04 am</text>
+  <text x="356" y="176" fill="#ff6ec7" font-family="monospace" font-size="19">i am not doing great</text>
+
+  <!-- the dotted fall -->
+  <line x1="500" y1="230" x2="560" y2="360" stroke="#ff6ec7" stroke-width="2.5" stroke-dasharray="6 10" opacity="0.7"/>
+
+  <!-- the crowd: C shapes, the letter a bears helmet wears, standing where the tweet lands -->
+  <g fill="none" stroke="#ff6ec7" stroke-width="9" stroke-linecap="round" opacity="0.9">
+    <path d="M560 430 a42 42 0 1 0 70 32"/>
+    <path d="M700 400 a42 42 0 1 0 70 32"/>
+    <path d="M840 440 a42 42 0 1 0 70 32"/>
+    <path d="M980 410 a42 42 0 1 0 70 32"/>
+    <path d="M640 540 a42 42 0 1 0 70 32"/>
+    <path d="M900 550 a42 42 0 1 0 70 32"/>
+    <path d="M1080 480 a42 42 0 1 0 70 32"/>
+  </g>
+
+  <!-- one heart in the crowd: the one who decided to make it mean something -->
+  <path d="M770 545 c-14 -20 -44 -10 -44 14 c0 22 30 34 44 48 c14 -14 44 -26 44 -48 c0 -24 -30 -34 -44 -14 z" fill="#ff2ea6"/>
+
+  <!-- title and the line under it -->
+  <text x="80" y="640" fill="#ffd7ef" font-family="Cinzel, serif" font-size="52" letter-spacing="2">the fanbase that adopted a stranger</text>
+  <text x="80" y="680" fill="#ffd7ef" opacity="0.6" font-family="monospace" font-size="20">the tweet fell. the crowd was already standing there.</text>
+</svg>
