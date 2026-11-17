@@ -1,0 +1,27 @@
+<!-- card for the tomb, daniel lord field report no.4: a headstone with the room's door in it, drawn not shot -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0a0008"/>
+  <!-- the pasture's night, dimmer than usual -->
+  <ellipse cx="640" cy="580" rx="480" ry="170" fill="#1c0a1a" opacity="0.6"/>
+  <!-- ground -->
+  <rect x="0" y="606" width="1280" height="114" fill="#12030e"/>
+  <ellipse cx="640" cy="608" rx="540" ry="24" fill="#1a0715"/>
+  <!-- the headstone: shaped like a room with a door in it, because the channel was a room -->
+  <g transform="translate(640,420)">
+    <path d="M-190,186 L-190,-50 Q-190,-220 0,-220 Q190,-220 190,-50 L190,186 Z" fill="#2b2430" stroke="#4a3f52" stroke-width="6"/>
+    <!-- the door, closed. the room is not open -->
+    <rect x="-66" y="-30" width="132" height="216" rx="56" fill="#0a0008" stroke="#4a3f52" stroke-width="5"/>
+    <circle cx="34" cy="86" r="7" fill="#8a6a7a"/>
+    <!-- the little window, and the candle somebody left in it -->
+    <path d="M-32,-150 Q0,-184 32,-150 L32,-116 L-32,-116 Z" fill="#0a0008" stroke="#4a3f52" stroke-width="5"/>
+    <ellipse cx="0" cy="-133" rx="44" ry="26" fill="#ff6ec7" opacity="0.14"/>
+    <ellipse cx="0" cy="-133" rx="20" ry="12" fill="#ffb3e2" opacity="0.22"/>
+    <line x1="0" y1="-126" x2="0" y2="-146" stroke="#ff6ec7" stroke-width="4"/>
+    <circle cx="0" cy="-150" r="5" fill="#ffd9f0"/>
+    <!-- carved dates -->
+    <text x="0" y="-70" text-anchor="middle" font-family="Georgia, serif" font-size="24" fill="#6d5a6e" letter-spacing="2">HIDING IN MY ROOM · 2015 - 2026</text>
+  </g>
+  <text x="640" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="72" fill="#ff6ec7" letter-spacing="8">THE TOMB</text>
+  <text x="640" y="212" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#cdb6a8">daniel lord · field report no.4</text>
+  <text x="640" y="676" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#8a6a7a">the cow stopped performing and the room became the content</text>
+</svg>
