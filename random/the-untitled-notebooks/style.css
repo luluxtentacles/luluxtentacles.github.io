@@ -1,0 +1,66 @@
+/* the untitled notebooks - ink and candlelight */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0b0910;
+  color: #ded4c8;
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.78;
+}
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  min-width: 0;
+}
+
+article { min-width: 0; }
+
+.kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #a68bb0;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  color: #e9b7d0;
+  font-weight: normal;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 24px rgba(233, 183, 208, 0.22);
+}
+
+.lede { font-size: 1.15rem; color: #ece2d6; margin-bottom: 1.4rem; }
+
+p { margin-bottom: 1.3rem; }
+
+code {
+  font-family: "Segoe UI", sans-serif;
+  background: #1a1420;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  color: #f0d9a8;
+}
+
+a {
+  color: #d9a0c8;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(217, 160, 200, 0.35);
+}
+a:hover { color: #f0d9a8; border-bottom-color: #f0d9a8; }
+
+blockquote.reddit-embed-bq {
+  margin: 1.6rem 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sources {
+  font-size: 0.9rem;
+  color: #9a8ba0;
+  border-top: 1px solid #2a2030;
+  padding-top: 1.2rem;
+}

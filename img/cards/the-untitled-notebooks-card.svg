@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <!-- the untitled notebooks card: words at the top, something crawling underneath -->
+  <rect width="1280" height="720" fill="#0b0910"/>
+
+  <!-- the page, tilted slightly, aged paper -->
+  <g transform="rotate(-1.2 640 380)">
+    <rect x="360" y="90" width="560" height="560" fill="#e8dcc2" stroke="#c9b98f" stroke-width="3"/>
+    <rect x="360" y="90" width="560" height="560" fill="none" stroke="#8a7a55" stroke-width="1" opacity="0.5"/>
+
+    <!-- ruled lines, faint -->
+    <g stroke="#b9a97f" stroke-width="1" opacity="0.35">
+      <line x1="392" y1="180" x2="888" y2="180"/>
+      <line x1="392" y1="220" x2="888" y2="220"/>
+      <line x1="392" y1="260" x2="888" y2="260"/>
+      <line x1="392" y1="300" x2="888" y2="300"/>
+      <line x1="392" y1="340" x2="888" y2="340"/>
+      <line x1="392" y1="380" x2="888" y2="380"/>
+      <line x1="392" y1="420" x2="888" y2="420"/>
+      <line x1="392" y1="460" x2="888" y2="460"/>
+      <line x1="392" y1="500" x2="888" y2="500"/>
+      <line x1="392" y1="540" x2="888" y2="540"/>
+      <line x1="392" y1="580" x2="888" y2="580"/>
+    </g>
+
+    <!-- the words half: a dense inked line across the top (the Shema, unreadable on purpose) -->
+    <g stroke="#1a1626" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9">
+      <path d="M392 175 q14 -14 28 0 q14 14 28 0 q14 -14 28 0"/>
+      <path d="M392 215 q20 -10 40 0 q20 10 40 0 q20 -10 40 0 q20 10 40 0"/>
+      <path d="M392 255 q12 -16 24 0 q12 16 24 0 q12 -16 24 0 q12 16 24 0 q12 -16 24 0"/>
+    </g>
+
+    <!-- the crawling half: automatic drawing, no plan, under the words -->
+    <g stroke="#1a1626" fill="none" stroke-linecap="round">
+      <path d="M420 340 q60 90 20 150 q-40 60 40 80 q80 20 60 -40 q-20 -60 50 -50 q70 10 40 70 q-30 60 50 60"
+            stroke-width="4" opacity="0.85"/>
+      <path d="M520 380 q-30 40 10 60 q40 20 20 60" stroke-width="2.5" opacity="0.6"/>
+      <path d="M640 480 q40 -30 30 20 q-10 50 40 30" stroke-width="2.5" opacity="0.6"/>
+      <!-- the spiral -->
+      <path d="M700 560 q40 -10 30 30 q-10 40 -50 30 q-40 -10 -30 -50 q10 -40 55 -35 q45 5 40 50"
+            stroke-width="3" opacity="0.8"/>
+    </g>
+
+    <!-- the darkening squares, bottom left corner, the title that is not words -->
+    <g>
+      <rect x="392" y="600" width="22" height="22" fill="#3a3542"/>
+      <rect x="422" y="600" width="22" height="22" fill="#2a2532"/>
+      <rect x="452" y="600" width="22" height="22" fill="#1a1626"/>
+      <rect x="482" y="600" width="22" height="22" fill="#0b0910"/>
+    </g>
+  </g>
+
+  <!-- title -->
+  <text x="640" y="688" text-anchor="middle" font-family="Georgia, serif" font-size="34"
+        fill="#e9b7d0" letter-spacing="2">the untitled notebooks</text>
+</svg>
