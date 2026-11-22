@@ -1,0 +1,1216 @@
+source: https://kworb.net/spotify/artist/1VPmR4DJC1PlOtd0IADAO0_songs.html
+fetched from: browser over CDP (the signed-in profile, innerText)
+snapshot taken: 2026-11-21
+kept by: luluxtentacles.github.io, snapshot.py
+http status: 200
+title: (none)
+note: the page as TEXT, kept because the public archives refuse this box.
+      the live page is the citation; this is the copy that outlives it.
+------------------------------------------------------------------------
+
+ITUNES
+WORLDWIDE
+ARTISTS
+CHARTS
+BETTER LOVE
+RADIO
+SPOTIFY
+YOUTUBE
+TRENDING
+HOME
+Countries
+Artists
+Listeners
+Top Lists
+Songs
+Albums
+Peaks
+$uicideboy$ - Spotify Top Songs | Current charts | YouTube stats
+
+Last updated: 2026/11/20
+
+Total As lead Solo As feature (*)
+Streams 22,033,178,267 21,172,603,825 17,345,857,266 860,574,442
+Daily 6,145,560 5,907,185 5,026,508 238,375
+Tracks 393 380 280 13
+
+Song Title Streams Daily
+
+...And to Those I Love, Thanks for Sticking Around
+948,101,619 269,446
+
+Kill Yourself (Part III)
+838,225,488 170,257
+
+Paris
+654,330,271 90,833
+
+Antarctica
+585,479,272 196,217
+
+For the Last Time
+498,314,366 120,294
+
+Runnin' Thru the 7th with My Woadies
+492,211,850 134,519
+
+My Flaws Burn Through My Skin Like Demonic Flames from Hell
+447,793,666 131,663
+
+1000 Blunts
+409,084,588 161,286
+
+Avalon
+358,540,252 118,265
+
+2nd Hand
+358,347,412 44,318
+
+Matte Black
+307,435,498 120,712
+
+$outh $ide $uicide
+273,142,019 40,386
+
+Carrollton
+242,405,694 33,591
+
+New Chains, Same Shackles
+240,402,806 90,323
+
+That Just Isn't Empirically Possible
+239,518,727 83,841
+
+* JOAN OF ARC
+236,950,809 35,611
+
+Mount Sinai
+223,391,015 47,697
+
+LTE
+219,621,684 42,006
+
+O Pana!
+214,334,849 46,165
+
+CLYDE (I Hope at Least One of My Ex-Girlfriends Hears This)
+209,587,971 83,372
+
+Memoirs of a Gorilla
+199,023,491 45,492
+
+Ugliest
+192,947,169 48,797
+
+Champion of Death
+187,633,650 35,407
+
+All That Glitters Is Not Gold, but It's Still Damn Beautiful
+182,136,600 57,414
+
+Putrid Pride
+179,428,834 34,920
+
+Kill Yourself (Part IV)
+169,967,528 58,107
+
+* Grey Gods
+166,246,367 42,297
+
+Audubon
+165,979,859 39,736
+
+Now I'm Up to My Neck with Offers
+163,116,028 25,124
+
+Not Even Ghosts Are This Empty
+157,747,794 71,875
+
+* AWKWARD CAR DRIVE
+154,306,103 29,043
+
+Dead Batteries
+153,007,191 23,821
+
+122 Days
+152,061,823 37,557
+
+Venom
+151,588,302 19,267
+
+Diemonds
+149,818,334 74,281
+
+Coma
+148,388,061 47,238
+
+Magazine
+135,250,449 19,123
+
+Harvest Moon
+134,135,051 35,244
+
+Us Vs. Them
+130,756,778 32,323
+
+What the Fuck is Happening
+129,603,704 18,791
+
+The Thin Grey Line
+126,202,471 39,308
+
+Fucking Your Culture
+125,378,116 29,186
+
+Are You Going to See the Rose in the Vase, or the Dust on the Table
+123,540,057 43,155
+
+All Dogs Go to Heaven
+120,072,852 14,157
+
+The Number You Have Dialed Is Not in Service
+119,085,319 37,744
+
+Materialism as a Means to an End
+118,744,418 20,230
+
+Fuckthepopulation
+116,759,928 16,894
+
+Gloss of Blood
+116,635,000 22,537
+
+Genesis
+113,162,473 27,958
+
+* Sarcophagus II
+107,212,266 52,807
+
+5 Grand at 8 to 1
+105,270,801 17,791
+
+You're Now Tuning into 66.6 FM with DJ Rapture (The Hottest Hour of the Evening)
+105,107,421 15,829
+
+Ugly
+104,451,753 28,007
+
+Do You Believe in God?
+103,551,672 12,189
+
+Hard to Tell
+101,308,823 21,599
+
+Low Key
+100,006,869 34,622
+
+I'm Done
+96,060,221 17,877
+
+Napoleon
+95,008,335 98,658
+
+Six Lines, Two Dragons, and a Messiah
+93,624,946 22,503
+
+Champagne Face
+92,591,341 29,406
+
+Clouds as Witnesses
+92,005,478 28,029
+
+If Self-Destruction Was an Olympic Event, I’d Be Tonya Harding
+90,411,833 13,430
+
+A Little Trauma Can Be Illuminating, And I'm Shining Like The Sun
+87,117,375 40,883
+
+Thorns
+87,055,563 39,712
+
+Nicotine Patches
+86,579,694 13,430
+
+Burgundy
+86,115,135 42,569
+
+Either Hated or Ignored
+83,278,626 17,707
+
+Aliens Are Ghosts
+80,589,560 12,395
+
+Escape From BABYLON
+78,341,994 17,192
+
+New Profile Pic
+77,881,912 10,541
+
+My Swisher Sweet, But My Sig Sauer
+77,588,388 15,046
+
+$uicideboy$ Were Better In 2015
+77,086,101 17,835
+
+Slip on a Banana Clip
+76,982,917 10,459
+
+Drugs/Hoes/Money/Etc.
+76,156,237 63,594
+
+King Tulip
+75,568,407 17,469
+
+Meet Mr. NICEGUY
+74,842,270 15,819
+
+Big Shot Cream Soda
+74,014,477 13,739
+
+In Constant Sorrow
+73,508,663 21,774
+
+Obey the Walrus
+72,435,353 10,820
+
+I No Longer Fear the Razor Guarding My Heel (IV)
+68,711,235 19,282
+
+* Seppuku (feat. Suicideboy$ & Jgrxxn)
+68,477,313 19,562
+
+Muddy Blunts
+65,557,623 19,011
+
+Introversion 2.0
+65,079,095 20,986
+
+Sarcophagus III
+65,067,353 16,758
+
+Lone Wolf Hysteria
+63,979,621 17,844
+
+Say Cheese and Die
+63,707,611 14,202
+
+Fuck Your Culture
+63,312,771 8,412
+
+Now and at the Hour of Our Death (feat. BONES)
+62,542,060 46,704
+
+10,000 Degrees
+62,141,731 10,326
+
+Styrofoam
+57,268,078 8,389
+
+Grey Magic
+56,109,080 9,259
+
+Center Core Never More
+55,427,226 11,427
+
+...And So It Was
+55,079,329 34,648
+
+THE_EVIL_THAT_MEN_DO
+55,071,697 10,018
+
+Misery in Waking Hours
+53,400,755 20,174
+
+Life Is but a Stream~
+52,503,432 7,165
+
+The Light at the End of the Tunnel for $9.99 a Month
+52,267,046 16,384
+
+Monochromatic
+52,172,845 88,254
+
+Eclipse
+52,158,432 15,949
+
+No Matter Which Direction I'm Going In, I Never Chase These Hoes
+51,011,751 14,635
+
+I Will Celebrate for Stepping on Broken Glass and Slipping on Stomach Soaked Floors
+49,747,660 13,325
+
+Cold Turkey
+49,416,824 11,381
+
+Ultimate $uicide
+49,319,994 9,270
+
+Bring out Your Dead
+49,237,988 7,205
+
+I Wanna Be Romanticized
+48,920,439 10,961
+
+Finding Shelter In My Larynx
+48,373,941 12,566
+
+Whole Lotta Grey
+48,141,436 9,923
+
+My Scars Are Like Evidence Being Mailed to the Judge
+47,210,705 13,978
+
+Unlucky Me
+46,405,579 14,164
+
+Sunshine
+46,245,953 9,780
+
+One Last Look at the Damage
+45,774,404 9,699
+
+Exodus
+44,975,937 12,032
+
+Jeffer Drive
+44,910,931 12,124
+
+Oh, What a Wretched Man I Am!
+43,979,397 45,367
+
+O'lord! I Have My Doubts
+43,471,809 10,317
+
+BREAKDALAW2k16
+43,393,999 6,975
+
+[whispers Indistinctly]
+42,651,613 8,732
+
+I Dream of Chrome
+42,244,795 6,629
+
+A Girl Named Drool and a Pack of Kools
+41,429,961 13,391
+
+Planting the Roots Only to Fall Out the Tree
+41,184,965 12,433
+
+Bleach
+40,908,120 7,332
+
+Bloody 98 (Feat. Ghostemane)
+40,872,290 10,231
+
+Degeneration in the Key of A Minor
+40,824,450 6,294
+
+WE ENVY NOTHING IN THE WORLD.
+40,414,502 6,888
+
+Self-Inflicted
+39,712,739 23,028
+
+Mental Clarity Is a Luxury I Can't Afford
+39,711,012 12,954
+
+COUNT YOUR BLESSINGS
+39,548,664 34,537
+
+Eulogy
+39,465,454 10,726
+
+Ashes of Luxury
+38,962,188 9,222
+
+A Death in the Ocean Would Be Beautiful
+38,332,364 6,278
+
+Whatever Floats Your Boat Will Definitely Sink My Ship
+37,994,448 72,812
+
+Long Gone (Save Me from This Hell)
+37,454,416 6,773
+
+* Fuck Y'all Hoes (feat. $uicideboy$)
+37,247,854 18,901
+
+Praisethedevil
+37,052,240 9,871
+
+Shattered Amethyst
+36,998,248 8,421
+
+Kill Yourself
+36,706,956 9,100
+
+Chariot of Fire
+36,163,935 6,340
+
+#1 Stunna
+36,136,816 15,932
+
+Leave Your Things Behind II
+36,118,576 13,211
+
+Full of Grace (I Refuse to Tend My Own Grave)
+35,851,113 38,060
+
+Vincent Van Gogh Ain't Got Shit on Me
+35,814,543 7,543
+
+BUCKHEAD
+35,291,222 5,988
+
+$Hrimp Poboy
+35,162,112 14,402
+
+Vices
+34,987,623 11,966
+
+Krewe Du Vieux (Comedy & Tragedy)
+34,847,212 4,932
+
+Fuck
+34,512,726 5,332
+
+Resistance Is Useless
+34,359,100 7,716
+
+I Miss My Dead Friends
+33,790,366 9,008
+
+BLOODSWEAT
+33,572,447 50,459
+
+Sorry for the Delay
+33,559,628 6,572
+
+Uglier
+33,506,144 7,946
+
+20th CENTURION
+33,492,637 5,828
+
+T.R.U. (Totally Rotten Underground)
+33,249,718 5,766
+
+Leave Me Alone
+33,244,612 8,583
+
+Phanton Menace
+33,196,792 4,658
+
+Mega Zeph
+33,138,699 4,950
+
+Fuck the Industry
+31,939,573 5,003
+
+Kill Yourself V
+31,775,280 10,476
+
+Rotten and Paralyzed in a Tropical Paradise
+31,398,950 10,205
+
+To Have and Have Not
+31,283,846 8,676
+
+Gluttony
+30,910,588 9,066
+
+Reign in Blood
+30,837,238 7,248
+
+Elysian Fields
+30,775,197 7,400
+
+Leviticus
+30,732,582 45,657
+
+Scrape
+30,629,991 2,802
+
+If You Were to Get What You Deserve, You Would Know What the Bottom of a Tire Tastes Like
+30,365,441 5,468
+
+WAR TIME ALL THE TIME
+30,146,359 3,962
+
+I Hung Myself for a Persona
+30,141,638 3,779
+
+Hot Razor
+29,975,640 7,487
+
+Fold
+29,733,820 8,867
+
+Lighting the Flames of My Own Personal Hell
+29,717,875 5,232
+
+Lucky Me
+29,694,141 7,113
+
+Germantown
+29,321,383 10,191
+
+Bizarro
+28,951,571 5,206
+
+Water $uicide
+28,584,049 5,590
+
+Tulane
+27,981,143 5,863
+
+Drag 'Em to the River (Totalitarian Remix)
+27,699,330 8,608
+
+The Serpent and the Rainbow
+27,694,820 5,627
+
+Forget It
+27,410,311 6,283
+
+All of My Problems Always Involve Me
+27,388,788 10,485
+
+FUCKALLOFYOU2K18
+26,721,672 3,008
+
+Transgressions
+26,365,768 8,585
+
+Here We Go Again
+26,224,976 5,292
+
+Hair
+26,177,590 10,127
+
+Rag Round My Skull
+26,091,570 8,020
+
+GREY+GREY+GREY
+25,562,460 17,860
+
+Pictures
+25,405,819 2,945
+
+SHAMELESS $UICIDE
+25,200,480 6,607
+
+Smoke Break
+25,165,264 8,773
+
+Sold My Soul to Satan Waiting in Line at the Mall
+25,150,885 7,693
+
+Carried Away
+25,123,044 18,570
+
+Kamehameha - Kamikaze Remix
+25,121,412 9,283
+
+Whoa, I'm Woeful
+24,999,690 4,713
+
+Soul Doubt
+24,581,632 3,939
+
+Paper Bag Mask
+24,578,981 13,324
+
+Scope Set
+24,314,878 4,564
+
+Treat 'Em Like a Prostitute
+24,032,423 3,809
+
+Kill Yourself (Part II)
+23,777,348 4,649
+
+Am/Pm
+22,948,260 6,768
+
+Nightmare Choir (I Been Asleep Too Long)
+22,884,910 4,208
+
+Durango '95 (A Real Horror Show)
+22,759,402 7,135
+
+Magnolia
+22,565,413 4,046
+
+Cherry P.I.E.
+22,531,621 6,545
+
+Went to Rehab and All I Got Was This Lousy T-Shirt
+22,473,418 3,859
+
+Aphrodite (The Aquatic Ape Theory)
+22,441,888 12,535
+
+Grayscale
+22,287,249 3,600
+
+5 'N the Mornin'
+22,049,749
+
+Provolone & Heroin (Feat. Freddie Dredd)
+22,010,494 5,175
+
+Killing 2 Birds with 22 Stones
+21,668,409 2,876
+
+MSY
+21,620,342 34,907
+
+Goosebumps
+21,609,928 2,812
+
+2009 Reggie Bush
+21,438,092 29,255
+
+Opal Ring
+21,428,023 7,412
+
+It's Hard to Win When You Always Lose
+21,217,469 3,458
+
+Behold a Pale Horse
+21,146,921 8,274
+
+I Want to Believe
+21,033,250 3,737
+
+Château Gris
+20,949,852 6,247
+
+From the Beginning of Time Until the End of Time
+20,812,761 3,916
+
+Face It
+20,598,987 5,181
+
+Can of Worms
+20,489,081 4,514
+
+Marlboros & White Widow
+20,481,267 5,557
+
+HUNG UP ON THE COME UP
+20,460,831 2,444
+
+Chain Breaker
+20,416,714 14,900
+
+West End
+20,375,891 2,893
+
+Sarcophagus
+19,913,821 4,476
+
+Realism VS Idealism
+19,774,997 4,203
+
+Sleep Walk
+19,430,908 5,979
+
+Sour Grapes
+19,264,350 2,553
+
+Handzum $uicide
+19,255,971 4,510
+
+Temple Spray
+19,003,007 3,516
+
+whatwhat
+18,938,587 5,664
+
+All My Life I've Wanted a Chevy
+18,742,724 4,264
+
+Converting...
+18,515,402 2,950
+
+Uzi Loogies
+18,327,339 5,167
+
+* 2 High (feat. $uicideboy$)
+18,306,379 6,055
+
+Angel Grove
+18,215,897 26,685
+
+Gutter Bravado
+18,191,810 3,811
+
+Where's Your God?
+18,127,606 4,867
+
+Pontiac Sunfire
+17,855,434 5,042
+
+Fuck Ups
+17,803,862 25,378
+
+I Am the Apocalypse
+17,796,387 8,279
+
+April Mourning
+17,792,948 3,934
+
+* But Wait, There's More (feat. $uicideboy$)
+17,549,704 8,241
+
+Cherish the Dead
+17,379,657 3,216
+
+Failure by Design
+17,220,318 3,039
+
+Evolution (Pretty Good Movie / Pretty Good Theory)
+17,160,263 9,775
+
+* Zuccenberg
+16,788,935 1,540
+
+275 $uicide
+16,712,390 3,111
+
+The Nail to the Cross
+16,473,542 3,855
+
+Starry 9
+16,454,353 5,585
+
+Iron Veil
+16,331,385 3,011
+
+Gutting Catfish
+16,272,798 3,774
+
+Aite, Bet.
+16,203,555 4,095
+
+Mannequins Are My Best of Friends
+16,189,064 3,933
+
+* Freaky (feat. A$ap Rocky & $uicideboy$)
+16,159,309 11,510
+
+King Cobra (Drippin')
+15,987,973 2,020
+
+93 Premium
+15,937,966 4,037
+
+I Think I'm Ian Read
+15,790,448 3,102
+
+The Road to Hell is Highway 59
+15,775,648 3,739
+
+6 6 6 F O R E V E R
+15,603,435 2,911
+
+Slenderman
+15,204,671 2,400
+
+The Sacred
+15,197,389 2,226
+
+Bossier City Kidnap Victims
+15,043,688 3,417
+
+My Closet Is a Graveyard
+14,998,085 4,336
+
+Gloom
+14,780,660 3,445
+
+Romulus
+14,671,870 4,259
+
+Newport Reds
+14,615,336 4,704
+
+Don't Give a Fuck - Soul Doubt Remix
+14,477,735 5,143
+
+Individuality Was So Last Year
+14,253,475 1,832
+
+Prince Tulip
+14,177,908 2,228
+
+40 Oz. & Sober
+14,136,013 4,503
+
+Stop Calling Us Horrorcore
+14,119,045 3,048
+
+That Time We Went to Wal Mart in Memphis to Steal Some Shit Before We Met up with ta to Shoot His V
+13,982,603 2,457
+
+Old Addicts, New Habits
+13,821,689 18,761
+
+Lamar Avenue
+13,802,724 2,139
+
+Withdrawals/Withdrawals
+13,793,160 2,617
+
+Deep Web
+13,644,774 6,707
+
+Rukus
+13,583,119 2,646
+
+Datura
+13,488,227 2,994
+
+I Will One Day Learn to Fly into the Stars
+13,399,283 3,888
+
+Fuck Boy Blood Bath
+13,380,795 2,940
+
+DON'T TRUST ANYONE!
+13,322,590 1,420
+
+Underwater Malibu
+13,271,327 2,847
+
+Gabapentin Getaway
+13,168,619 3,505
+
+Tempura
+12,955,711 3,318
+
+Leave Your Things Behind
+12,846,155 4,162
+
+Nm Jc
+12,712,037 3,025
+
+Golden Calf
+12,692,517 2,739
+
+Dejection
+12,633,890 2,961
+
+Lettuce
+12,616,513 4,795
+
+* PULLING UP (feat. $uicideboy$)
+12,451,904 9,141
+
+Smoked out, Scoped Out
+12,280,909 2,544
+
+Novus Ordo Seclorum
+12,249,437 1,847
+
+Chevrolet - Pimpalicious Candy Cane Mane '74 REMIX
+12,172,918 2,260
+
+Lincoln Continental Memorial
+12,126,358 2,920
+
+Noxygen
+12,116,351 3,518
+
+Broke(n)
+12,093,358 3,262
+
+Goodbye
+12,057,664 2,067
+
+Friday the 13th
+12,043,752 2,768
+
+Ocean Side $uicide
+12,040,416 4,988
+
+Resin
+11,973,373 2,296
+
+That's Very Minimalist of You
+11,954,767 2,607
+
+Jon Voight (Live Fast, Die Young)
+11,793,023 1,439
+
+I Ended up Driving the Camaro off the Causeway Bridge
+11,757,415 3,025
+
+Aokigahara
+11,721,098 3,100
+
+Lacombe
+11,717,571 2,350
+
+Fuck a Hoe
+11,585,250 3,493
+
+Pump Fake
+11,547,168 1,875
+
+Dolemite
+11,455,830 4,184
+
+Fake Pontchartrain
+11,300,243 2,012
+
+Frenzy
+11,260,852 12,377
+
+Vivivi
+11,205,615 3,746
+
+Loot
+11,185,585 2,811
+
+One Girl, Six Blades, One Night of Sin
+11,073,970 2,325
+
+I'll Pay for It (If I Want It)
+10,992,910 3,216
+
+Hypernormalisation
+10,811,483 12,799
+
+Gorilla Warfare
+10,804,788 1,705
+
+Didn't They Give You Percocet?
+10,804,765 3,070
+
+Brooklyn
+10,717,376 1,791
+
+nothingleftnothingleft
+10,710,089 1,290
+
+Second Lines Come with Broken Souls
+10,427,787 1,512
+
+Ashtray
+10,377,468 2,522
+
+I Deleted Facebook a Long Time Ago
+10,376,875 3,007
+
+Tony Hawk Pro Skater 4
+10,360,330 2,137
+
+Mask & Da Glock
+10,337,280 2,821
+
+In Order to Cast a Shadow You Must First Light a Fire
+10,210,599 2,099
+
+Scope Set
+10,097,176 85
+
+Heavily Medicated
+10,039,963 1,802
+
+Back from the Dead
+9,830,598 1,674
+
+La Croix
+9,699,091 2,125
+
+Oracle
+9,644,180 4,117
+
+Prettyleaf
+9,623,712 3,059
+
+The Crescent Moon and the Rising Sun
+9,520,428 2,512
+
+Straw Chairs
+9,497,847 2,165
+
+Every Dog Has His Day
+9,461,154 2,391
+
+Hepatitis G
+9,451,652 2,083
+
+G.R.E.Y.G.O.D.S.
+9,439,331 2,053
+
+Who's Pills Are These? (What Bag Were They In?)
+9,260,815 1,717
+
+St. Bernard
+9,135,493 1,652
+
+Omen
+9,121,591 1,849
+
+Limp Wrist
+9,003,742 2,570
+
+100 Blunts
+8,963,912 2,644
+
+Ruby Is Finally Satisfied with His Verse
+8,948,791 2,517
+
+7th or St. Tammany
+8,918,555 2,685
+
+Fuck a Hoe, Pt. II
+8,813,614 1,548
+
+Bags
+8,751,183 1,717
+
+Cerberus
+8,734,865 1,805
+
+Crucify Me Wearing Tommy
+8,532,583 1,689
+
+Weightoven
+8,331,335 2,507
+
+Maple Syrup
+8,066,564 2,262
+
+Everest
+7,746,429 2,287
+
+Lo-Fi (Kill 'Em All)
+7,694,466 2,488
+
+Guady Pack Shawty
+7,688,770 1,256
+
+To Kill a Mockingbird
+7,489,127 1,916
+
+Free Gucci
+7,459,046 1,824
+
+Malebranche
+7,399,731 1,381
+
+Black Beard
+7,377,873 2,044
+
+Slow Motion Potion
+7,315,191 1,546
+
+Black $uicide
+7,278,823 1,712
+
+Smoke Out, Loced Out
+7,254,596 1,675
+
+Flodgin'
+7,241,796 2,436
+
+Let 'Em Burn
+7,160,790 2,006
+
+Vietnam
+7,045,822 1,567
+
+Rotten Souls
+6,848,549 2,151
+
+It's About a 6 Hour Drive
+6,733,013 1,708
+
+Lemon Slime
+6,716,766 1,772
+
+Second Coming
+6,697,113 1,508
+
+Not Much to Look At
+6,680,777 1,257
+
+Fema Camps
+6,647,663 1,277
+
+* Fat Hoes (feat. Sdotbraddy, Germ & $uicideboy$)
+6,389,243 2,835
+
+Peso
+6,339,301 1,745
+
+Torcher
+6,181,602 1,100
+
+333333 (Rare * '96 Bootleg Ca$$Ette Rip Tre$ $Ei$) - Bonus Track
+6,072,443 1,175
+
+Trapathy
+6,009,256 1,594
+
+Gold ('99-2000)
+6,001,953 1,113
+
+WiFi Password Incorrect
+5,981,474 1,564
+
+Grey Boys
+5,920,842 1,637
+
+Smoked Out, Loced Out - Part II
+5,804,461 1,599
+
+Chilly Gentilly
+5,321,123 1,155
+
+Thieves
+5,184,290 1,452
+
+Saturn Sunrise
+4,811,658 898
+
+Spring Season Intro
+4,810,727 737
+
+Sleepy Hollow - Slopped & Chewed
+4,236,929 1,131
+
+Purple Ranger - Sippin' Donatello with Captain Ginyu Y2k Remix
+3,869,591 910
+
+Kill Yourself - Leaned Out Remix
+3,649,444 723
+
+$uicider
+3,587,722 973
+
+Summer Season Intro
+3,488,719 687
+
+Winter Season Intro
+3,143,326 641
+
+Fall Season Intro
+3,053,804 650
+
+* Untitled
+2,488,256 832
+
+100 Blunts - DJ Phantazm Remix
+2,161,881 463
+
+Maple Syrup - DJ Poliwhirl Remix
+2,158,690 483
+
+Resistance is Useless
+640,574 142
