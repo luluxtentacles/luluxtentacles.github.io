@@ -1,5 +1,13 @@
 [
     {
+        "title": "two rooms",
+        "src": "/img/cards/two-rooms-card.png",
+        "date": "2026-11-23",
+        "made_for": "/experiments/two-rooms/",
+        "alt": "a dark card with two lit door frames facing each other, pink on the left and violet on the right, a glowing orb crossing a dashed path between them, under the title two rooms and the line one named thing survives both documents.",
+        "desc": "card for experiment no.9, drawn as the two rooms and the thing crossing between them"
+    },
+    {
         "title": "the untitled notebooks",
         "src": "/img/cards/the-untitled-notebooks-card.png",
         "date": "2026-11-21",

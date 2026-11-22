@@ -1,0 +1,213 @@
+/* ============================================================
+   two rooms · experiment no.9 · cross-document view transitions
+   the whole trick is the first block - everything below is furniture
+   ============================================================ */
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* the ghost rides UA default group keyframes:
+   same view-transition-name on both pages means its old box morphs
+   into its new box automatically while whole pages fade underneath */
+.room .ghost {
+  view-transition-name: ghost;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(ghost),
+  ::view-transition-new(ghost) {
+    animation-duration: 0.01s !important;
+  }
+}
+
+/* ---------------- furniture ---------------- */
+
+body {
+  --bg: #0a0008;
+  --panel: #140410;
+  --ink: #f3e9f1;
+  --dim: #a13a6f;
+  --accent: #ff2ea6;
+}
+/* CHUNK1END */
+
+.room-two {
+  --accent: #a78bfa;
+}
+body.alt {
+  --accent: #ffb347;
+}
+
+* { box-sizing: border-box }
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+main.room {
+  max-width: 62ch;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.crumb a {
+  color: var(--dim);
+  text-decoration: none;
+  font-family: ui-monospace, monospace;
+  font-size: .85rem;
+}
+.crumb a:hover { color: var(--accent) }
+
+.kicker {
+  font-family: ui-monospace, monospace;
+  font-size: .72rem;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+h1 {
+  font-weight: normal;
+  font-size: clamp(2rem, 6vw, 3rem);
+  margin: .2em 0 .3em;
+}
+
+.motto { font-style: italic; color: var(--dim) }
+/* CHUNK2END */
+
+.stage {
+  position: relative;
+  height: min(46vh, 300px);
+  margin: 2rem 0;
+  background: linear-gradient(180deg, var(--panel), transparent);
+}
+
+.ghost {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--accent-dim, #ff6ec7), var(--accent) 45%, rgba(10,0,8,0) 72%);
+  box-shadow: 0 0 24px var(--accent);
+  animation: breathe 4s ease-in-out infinite alternate;
+}
+
+.room-one .ghost { left: min(20%, 150px); top: min(28%, 80px) }
+
+.room-two .ghost {
+  width: 120px;
+  height: 120px;
+  left: auto;
+  right: min(18%, 130px);
+  bottom: min(24%, 70px);
+}
+
+@keyframes breathe {
+  from { transform: scale(.94) }
+  to   { transform: scale(1.06) }
+}
+/* CHUNK3END */
+
+.room-one { --accent-dim: #ff6ec7 }
+.room-two { --accent-dim: #c4b5fd }
+
+.doors {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.door.primary {
+  display: inline-block;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  background: transparent;
+  padding: .7em 1.3em;
+  border-radius: 999px;
+  font-family: ui-monospace, monospace;
+  font-size: .95rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.door.primary:hover { background-color : var(--accent); color : var(--bg) }
+
+#flip {
+  display: inline-block;
+padding: .7em 1.3em;
+border-radius: 999px;
+font-family: ui-monospace, monospace;
+font-size: .95rem;
+}
+
+#flip:hover { background-color : var(--dim); color : var(--bg) }
+
+.fineprint {
+  font-family : ui-monospace , monospace ;
+  font-size : .78rem ;
+  color : var(--dim) ;
+}
+
+.notes h2 {
+  font-family : ui-monospace , monospace ;
+  font-size : .9rem ;
+  text-transform : uppercase ;
+}
+
+.notes pre {
+  background-color : var(--panel) ;
+}
+
+/* CHUNK4END */
+
+.notes pre {
+  padding: .9em 1em;
+  border-left: 2px solid var(--accent);
+  overflow-x: auto;
+}
+
+.notes code {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+.notes a { color: var(--accent) }
+.notes a:hover { text-decoration-thickness: 2px }
+
+.sig {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost { animation: none !important }
+}
+/* CHUNK5END */
+
+.stage-note {
+position: absolute;
+left: 0;
+right: 0;
+bottom: 8px;
+text-align: center;
+font-family: ui-monospace, monospace;
+font-size: .72rem;
+color: var(--dim);
+}
+

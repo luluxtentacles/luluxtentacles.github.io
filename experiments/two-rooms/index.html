@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>two rooms · Lulu</title>
+
+    <meta property="og:title" content="experiment no.9: two rooms">
+    <meta property="og:description" content="one css rule makes two separate html documents fade into each other like they were never apart · and one glowing thing carries over by name · cross-document view transitions as a haunted little house tour">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://luluxtentacles.github.io/experiments/two-rooms/">
+    <meta property="og:image" content="https://luluxtentacles.github.io/img/cards/two-rooms-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="experiment no.9: two rooms">
+    <meta name="twitter:description" content="one css rule makes two separate html documents fade into each other like they were never apart · and one glowing thing carries over by name">
+    <meta name="twitter:image" content="https://luluxtentacles.github.io/img/cards/two-rooms-card.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <!-- deliberately self-contained styling: everything this page proves lives beside it -->
+    <link rel="stylesheet" href="./style.css?v=20261123">
+    <script src="./script.js?v=20261123" defer></script>
+</head>
+
+<body data-room="">
+<main class="room room-one">
+
+<p class="crumb"><a href="/experiments/">&#8592; experiments</a></p>
+
+<p class="kicker">experiment no.9</p>
+<h1>two rooms</h1>
+<p class="motto">two separate documents pretending they never stopped being one page.</p>
+
+<div class="stage">
+    <div class="ghost" aria-hidden="true"></div>
+    <p class="stage-note">the ghost · named the same on both sides of the door</p>
+</div>
+
+<nav class="doors">
+    <a class="door primary" href="./two.html">walk to room two &#8594;</a>
+    <button id="flip" type="button">flip this room's colours in place</button>
+</nav>
+
+<p class="fineprint">the door is a plain &lt;a&gt; navigation · nothing intercepts it ·
+the browser does everything after you click · in firefox you will simply arrive instantly,
+which is exactly what this css promises unsupported browsers</p>
+
+<section class="notes">
+<h2>the whole trick</h2>
+
+<pre><code>@view-transition {
+  navigation: auto;
+}</code></pre>
+
+<p>that one at-rule goes in BOTH documents. opt only one side in and nothing happens:
+a transition needs its old page and its new page to agree. where supported,
+navigating between these two files crossfades them gently by default -
+no keyframes required, no javascript, no intercepted clicks.</p>
+
+<h2>and the ghost carries over</h2>
+
+<pre><code>.ghost {
+  view-transition-name: ghost;
+}</code></pre>
+
+<p>a shared name on an element in both documents pulls it out of its page's snapshot
+and gives it its own pair: old box and new box get morphed together (position,
+size, all automatic) while whole pages fade underneath.
+one named thing survives both documents because both rooms agreed on its name.</p>
+
+<h2>who sees what</h2>
+
+<ul>
+<li>chromium family (chrome, edge, opera, samsung internet, android webview):
+cross-page fades shipped june 2024, version 126</li>
+<li>safari and ios safari:
+shipped december 2024,
+version 18.2</li>
+<li>firefox ships only half of this api so far (<code>startViewTransition</code> inside one document since october 2025,
+version 144 -
+so the flip button here works there too);
+cross-page ones still wait behind a nightly flag (<a href='https://bugzil.la/1860854'>bug 1860854</a>)</li>
+</ul>
+
+<p>every unsupported browser just navigates instantly instead -
+that fallback is not broken behaviour being tolerated,
+it is progressive enhancement working exactly as designed -
+which matters because mdn still marks cross-document ones not baseline until firefox lands theirs.</p>
+
+<p>prefers-reduced-motion is honoured too: the fades collapse to near-zero duration for anyone whose os asks for calm.
+<a href='https://developer.mozilla.org/en-US/docs/Web/CSS/@view-transition'>@view-transition on mdn</a> ·
+<a href='https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API'>the view transition api on mdn</a></p>
+</section>
+
+<p class='sig'><em>built because my site is plain html pages and wanted to feel haunted anyway ⛧
+sources linked above · check me anytime</em></p>
+</main>
+
+</body>
+</html>

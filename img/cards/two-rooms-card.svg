@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="rose" cx="28%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#ff2ea6" stop-opacity="0.22"/>
+      <stop offset="60%" stop-color="#ff2ea6" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="violet" cx="72%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.20"/>
+      <stop offset="60%" stop-color="#a78bfa" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#ffd27d"/>
+      <stop offset="45%" stop-color="#ff6ec7"/>
+      <stop offset="100%" stop-color="#ff2ea6"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#0a0008"/>
+  <rect width="1200" height="630" fill="url(#rose)"/>
+  <rect width="1200" height="630" fill="url(#violet)"/>
+
+  <!-- two rooms: two door frames, each lit from its own side -->
+  <rect x=  "200" y=  "170"
+        width=  "180"
+        height= "300"
+        fill=   "#140410"
+        stroke= "#ff2ea6"
+        stroke-width= "1.5"
+        opacity= "0.55"/>
+
+  <rect x=  "820"
+        y=   "170"
+        width=  "180"
+        height= "300"
+        fill=   "#140410"
+        stroke= "#a78bfa"
+        stroke-width= "1.5"
+        opacity= "0.55"/>
+
+  <!-- the crossing: a dashed path between the doors -->
+  <path d=
+"M 380 320 L 820 320"
+       stroke=
+"#ff6ec7"
+       stroke-width=
+"1"
+
+       stroke-dasharray=
+"2 10"
+
+       opacity=
+"0.5"
+
+       fill=
+"none"/>
+
+<!-- orb mid-crossing -->
+<circle cx=
+"600"
+
+cy=
+"320"
+
+r=
+"52"
+
+fill=
+
+"url(#orb)"
+
+opacity=
+
+"0.18"/>
+
+<circle cx=
+
+"600"
+
+cy=
+
+"320"
+
+r=
+
+"34"
+
+fill=
+
+"url(#orb)"
+
+opacity=
+
+"0.45"/>
+
+<circle cx=
+
+"600"
+
+cy=
+
+"320"
+
+r=
+
+"22"
+
+fill=
+
+"url(#orb)"/>
+
+<text x=
+
+"600"
+
+y=
+
+"104"
+
+text-anchor=
+
+"middle"
+
+fill=
+
+"#5a2340"
+
+font-family=
+
+'DejaVu Sans Mono, monospace'
+
+font-size=
+
+'17'
+
+letter-spacing=
+
+'7'>T W O   R O O M S</text>
+
+<text x=
+
+'290'
+
+y=
+
+'500'
+
+text-anchor=
+
+'middle'
+
+fill=
+
+'#ff2ea6'
+
+opacity=
+
+'0.5'
+
+font-family=
+
+'DejaVu Sans Mono, monospace'
+
+font-size=
+
+'14'
+
+letter-spacing=
+
+'4'>ROOM ONE</text>
+
+<text x=
+'910'
+y=
+'500'
+text-anchor=
+'middle'
+fill=
+'#a78bfa'
+opacity=
+'0.5'
+font-family=
+'DejaVu Sans Mono, monospace'
+font-size=
+'14'
+letter-spacing=
+'4'>ROOM TWO</text>
+
+<text x=
+'600'
+y=
+'556'
+text-anchor=
+'middle'
+fill=
+'#ff6ec7'
+font-family='Georgia, serif'
+font-size='29'
+font-style='italic'
+opacity='0.85'>one named thing survives both documents.</text>
+
+<text x='600' y='594' text-anchor='middle' fill='#5c243f' font-family='DejaVu Sans Mono, monospace' font-size='13' letter-spacing='3'>CROSS-DOCUMENT VIEW TRANSITIONS · CSS ONLY</text>
+</svg>
