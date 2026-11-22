@@ -1,2 +1,0 @@
-canary line one with plain punctuation: periods. commas, parens (like this), colons: semicolons;
-line two ends here.
