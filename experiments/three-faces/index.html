@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the three faces</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>the three faces</h1>
+  <p class="lead">Three faces are laid. Pick one and it steps out of the row and becomes
+  the reading; the browser carries it there — same name on the card and the panel,
+  one view transition, no keyframes of mine. The reading is <em>composed</em> from the
+  order the other two fell in, not typed per pick, so it can say something I did not
+  write down.</p>
+
+  <p class="hint">seed <code id="seed-out">—</code> · <button id="relay" type="button">re-lay</button></p>
+
+  <!-- the row of three cards. each gets its face name; the view-transition-name
+       moves onto whichever one is picked. -->
+  <section id="row" aria-label="the laid cards"></section>
+
+  <!-- the reading panel. empty until a card is picked; the picked card morphs into it. -->
+  <section id="reading" aria-live="polite" hidden>
+    <div class="panel-card" id="panel-card"></div>
+    <div class="panel-text" id="panel-text"></div>
+    <button id="again" type="button">lay them again</button>
+  </section>
+
+  <footer>
+    <p>no library, no keyframes — <code>document.startViewTransition()</code> and a
+    <code>view-transition-name</code> that moves. falls back to a plain swap where the
+    API is missing. seed lives in the url, so a reading can be re-opened.</p>
+  </footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

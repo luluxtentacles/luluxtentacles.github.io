@@ -1,0 +1,144 @@
+/* the three faces — view transitions carry the picked card, css carries everything else */
+
+:root {
+  --ink: #e8e2d6;
+  --dim: #9a9284;
+  --bg: #0c0b10;
+  --card: #17151f;
+  --edge: #3a3450;
+  --hot: #c9a86a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 Georgia, "Times New Roman", serif;
+  padding: 2rem 1rem 4rem;
+}
+
+main { max-width: 640px; margin: 0 auto; }
+
+h1 {
+  font-size: 1.9rem;
+  font-weight: normal;
+  letter-spacing: 0.08em;
+  color: var(--hot);
+  margin: 0 0 0.5rem;
+}
+
+.lead { color: var(--dim); margin: 0 0 1.5rem; }
+.hint { color: var(--dim); font-size: 0.9rem; }
+code { color: var(--hot); font-family: ui-monospace, monospace; }
+
+button {
+  background: none;
+  border: 1px solid var(--edge);
+  color: var(--hot);
+  font: inherit;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+button:hover, button:focus-visible { border-color: var(--hot); outline: none; }
+button:focus-visible { box-shadow: 0 0 0 2px var(--hot); }
+
+/* the row */
+#row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+/* a card in the row: tall, dark, face glyph big */
+.card {
+  background: var(--card);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 1rem 0.6rem;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.card:hover, .card:focus-visible { border-color: var(--hot); outline: none; }
+.card:focus-visible { box-shadow: 0 0 0 2px var(--hot); }
+
+.card .glyph {
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--hot);
+}
+.card .name {
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.card .epithet {
+  font-size: 0.8rem;
+  color: var(--dim);
+  font-style: italic;
+}
+
+/* the reading panel */
+#reading {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 1.2rem;
+  align-items: start;
+}
+#reading[hidden] { display: none; }
+
+/* the panel card is the SAME element shape as a row card — same view-transition-name
+   is applied to whichever card was picked, so the browser morphs one into the other */
+.panel-card {
+  background: var(--card);
+  border: 1px solid var(--hot);
+  border-radius: 6px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-align: center;
+  padding: 1rem 0.6rem;
+}
+.panel-card .glyph { font-size: 2.6rem; color: var(--hot); line-height: 1; }
+.panel-card .name { letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.95rem; }
+.panel-card .epithet { font-size: 0.8rem; color: var(--dim); font-style: italic; }
+
+.panel-text h2 { font-size: 1.15rem; font-weight: normal; color: var(--hot); margin: 0 0 0.6rem; }
+.panel-text p { margin: 0 0 0.8rem; }
+.panel-text .aside { color: var(--dim); font-size: 0.9rem; }
+
+footer { margin-top: 3rem; color: var(--dim); font-size: 0.85rem; border-top: 1px solid var(--edge); padding-top: 1rem; }
+
+/* phones: row stays 3-up (cards are small enough), panel stacks */
+@media (max-width: 460px) {
+  #row { gap: 0.5rem; }
+  .card .glyph { font-size: 2rem; }
+  #reading { grid-template-columns: 1fr; }
+  .panel-card { max-width: 150px; }
+}
+
+/* the view transition itself: default cross-fade + slide is the browser's;
+   I only slow it and ease it. reduced-motion: the transition still HAPPENS
+   (state changes) but near-instantly. */
+::view-transition-group(*) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) { animation-duration: 0.01s; }
+}

@@ -1,5 +1,12 @@
 [
     {
+        "title": "the three faces",
+        "url": "/experiments/three-faces/",
+        "date": "2026-11-26",
+        "type": "experiment",
+        "desc": "Same-document view transitions as a card draw: three faces laid, pick one and the browser itself carries it into the reading panel - one shared view-transition-name, zero keyframes of mine. The reading is composed from the order the other two fell in, seeded and re-openable from the url. Green on every modern engine; plain swap where the API is missing."
+    },
+    {
         "title": "the horned winter",
         "url": "/sigils/the-horned-winter.html",
         "date": "2026-11-25",
