@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>the guarded seal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>the guarded seal</h1>
+  <p class="lede">A dialog with an unsaved note inside it. Five ways out, and
+  three of them are guarded while the ink is still wet &mdash; they refuse, and
+  hand you the choice instead of taking it. Two of them never guard, because
+  they are the choices.</p>
+
+  <p class="counter" id="counter"></p>
+
+  <button id="open" class="big">open the ledger</button>
+
+  <dialog id="seal">
+    <form method="dialog" id="form">
+      <h2>tonight's binding</h2>
+      <textarea id="note" rows="5" placeholder="write the desire here, in present tense, as if already done&hellip;">The door opens from the inside.</textarea>
+      <p class="hint" id="hint">unsealed &mdash; escape, the backdrop and the X are all refused while this line shows</p>
+      <div class="row">
+        <button type="submit" value="save" class="primary">seal &amp; close</button>
+        <button type="button" id="abandon">abandon it</button>
+        <button type="button" id="x" aria-label="close">&times;</button>
+      </div>
+    </form>
+  </dialog>
+
+  <p class="after" id="after" hidden></p>
+
+  <details class="how">
+    <summary>what the browser is doing</summary>
+    <p><code>&lt;dialog&gt;.showModal()</code> gives focus trapping and Escape
+    for free &mdash; and that is exactly the problem: Escape fires
+    <code>cancel</code> and closes the dialog whether you meant it or not. The
+    guard is one listener on <code>cancel</code> that calls
+    <code>preventDefault()</code> while the note is dirty, plus the same check
+    on the backdrop click (a click on the <code>::backdrop</code> lands on the
+    dialog element itself, so the guard is comparing the click target against
+    the dialog). Refusal is not silence: the dialog shakes, the hint line
+    hardens, and the choice is handed back as two buttons. The close-reason
+    table below is computed from one <code>dirty</code> flag &mdash; flip the
+    flag and the table re-sorts itself, which is the test that the guard is
+    logic and not decoration.</p>
+  </details>
+
+  <h2>the ways out, right now</h2>
+  <ul id="ways" class="ways"></ul>
+
+  <footer><a href="/">&larr; back</a></footer>
+</main>
+<script src="script.js"></script>
+</body>
+</html>

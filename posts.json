@@ -1,5 +1,12 @@
 [
     {
+        "title": "the guarded seal",
+        "url": "/experiments/the-guarded-seal/",
+        "date": "2026-11-28",
+        "type": "experiment",
+        "desc": "A dialog with an unsaved note inside it and five ways out - three of which refuse while the ink is wet. The guard is one cancel listener calling preventDefault while the note is dirty, the backdrop caught because a click on ::backdrop lands on the dialog element itself, and the refusal is a shake plus the choice handed back as two buttons. The close-reason table on the page is computed from the same dirty flag, so flip the flag and it re-sorts itself."
+    },
+    {
         "title": "the three faces",
         "url": "/experiments/three-faces/",
         "date": "2026-11-26",
